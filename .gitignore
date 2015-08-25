@@ -1,2 +1,5 @@
+# figures
+figures/*.pdf
+
 # processed data
 figures/data/processed

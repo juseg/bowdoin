@@ -1,0 +1,9 @@
+# matplotlib configuration parameters
+
+font.family 		: sans-serif
+font.size   		: 6.0
+
+mathtext.default 	: regular
+
+savefig.dpi         : 254
+savefig.format      : pdf

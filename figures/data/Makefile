@@ -11,4 +11,4 @@ $(foreach bh,$(BOREHOLES),processed/bowdoin-%-bh$(bh).txt): preprocess-%.py
 .PHONY: clean
 
 clean:
-	rm processed/*
+	rm -f processed/*
