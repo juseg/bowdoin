@@ -1,6 +1,6 @@
 # Figures Makefile
 
-PY_FIGS = plot-pressure.pdf plot-temperature.pdf
+PY_FIGS = plot-inclino.pdf plot-pressure.pdf plot-temperature.pdf
 ALL_FIGS = $(PY_FIGS)
 
 all: data $(ALL_FIGS)
