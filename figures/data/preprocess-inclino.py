@@ -12,7 +12,6 @@ for bh in [1, 2]:
 
     # input and output file names
     ifilename = 'original/inclino/BOWDOIN-%i_All.dat' % bh
-    ifilename = 'original/inclino/from-memory-card/TOA5_Bowdoin%i-2014.All.dat' % bh
     ofilename = 'processed/bowdoin-inclino-bh%d.txt' % bh
 
     # open input file
