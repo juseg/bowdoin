@@ -1,7 +1,7 @@
 # Data Makefile
 
 BOREHOLES = 1 2
-VARIABLES = pressure temperature
+VARIABLES = inclino pressure temperature
 FILES := $(foreach VAR,$(VARIABLES), \
            $(foreach BH,$(BOREHOLES), \
              processed/bowdoin-$(VAR)-bh$(BH).txt))
