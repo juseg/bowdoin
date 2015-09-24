@@ -21,12 +21,14 @@ for bh in [1, 2]:
                       names=True, converters={'date': mkdate},
                       dtype=None)
 
-    # plot
-    for site in a.dtype.names[1:]:
-        ax.plot_date(a['date'], a[site], '-')
+    # compute tilt
+    tiltx = np.ma.vstack([a[n] for n in a.dtype.names if 'ax' in n])
+    tilty = np.ma.vstack([a[n] for n in a.dtype.names if 'ay' in n])
+    tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))
+    tilt = tilt*180/np.pi
 
-    # set axes limits
-    ax.set_ylim(0.0, 40.0)
+    # plot
+    ax.plot_date(a['date'], tiltx.T, '-')
 
 # save
 fig.savefig('plot-inclino')
