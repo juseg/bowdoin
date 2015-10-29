@@ -9,6 +9,7 @@ FILES := $(foreach VAR,$(VARIABLES), \
 all: $(FILES)
 
 $(foreach bh,$(BOREHOLES),processed/bowdoin-%-bh$(bh).txt): preprocess-%.py
+	mkdir -p processed
 	python2 $<
 
 .PHONY: clean
