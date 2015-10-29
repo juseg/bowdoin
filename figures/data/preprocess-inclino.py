@@ -59,13 +59,13 @@ for bh in [1, 2]:
 
                     # fill empty data with null values
                     if sitestring == '':
-                        values += [9999.0]*4
+                        values += [np.nan]*4
 
                     # ignore otherwise incomplete records
                     elif (len(sitevalues) != 9):
                         print ('Ignore incomplete unit record on row %d: "%s"'
                                % (i+5, sitestring))
-                        values += [9999.0]*4
+                        values += [np.nan]*4
 
                     # else try to read values
                     else:
@@ -79,19 +79,19 @@ for bh in [1, 2]:
                             ax = (ax - cx[1])/cx[0]
                             ay = (ay - cy[1])/cy[0]
                         except ValueError:
-                            ax = ay = 9999.0
+                            ax = ay = np.nan
 
                         # try to read pressure values
                         try:
                             p = float(sitevalues[6])
                         except ValueError:
-                            p = 9999.0
+                            p = np.nan
 
                         # try to read temperature values
                         try:
                             t = float(sitevalues[8])
                         except ValueError:
-                            t = 9999.0
+                            t = np.nan
 
                         # append all values
                         values += [ax, ay, p, t]

@@ -1,11 +1,8 @@
 #!/usr/bin/env python2
 
-import datetime
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-
-# date converter
-mkdate = lambda s: datetime.datetime.strptime(s, '%Y-%m-%d %H:%M:%S')
 
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
@@ -16,19 +13,19 @@ for bh in [1, 2]:
     filename = 'data/processed/bowdoin-inclino-bh%d.txt' % bh
 
     # read in a record array
-    a = np.genfromtxt(filename, delimiter=',',
-                      missing_values=9999.0, usemask=True,
-                      names=True, converters={'date': mkdate},
-                      dtype=None)
+    df = pd.read_csv(filename, parse_dates=True, index_col='date')
 
     # compute tilt
-    tiltx = np.ma.vstack([a[n] for n in a.dtype.names if 'ax' in n])
-    tilty = np.ma.vstack([a[n] for n in a.dtype.names if 'ay' in n])
-    tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))
-    tilt = tilt*180/np.pi
+    axcols = [col for col in df.columns if col.startswith('ax')]
+    aycols = [col for col in df.columns if col.startswith('ay')]
+    tilt = pd.DataFrame()
+    for xc, yc in zip(axcols, aycols):
+        tc = xc.replace('ax', 'tilt')
+        tilt[tc] = np.arcsin(np.sqrt(np.sin(df[xc])**2+np.sin(df[yc])**2))
+        tilt[tc] *= 180/np.pi
 
     # plot
-    ax.plot_date(a['date'], tiltx.T, '-')
+    tilt.plot(ax=ax)
 
 # save
 fig.savefig('plot-inclino')
