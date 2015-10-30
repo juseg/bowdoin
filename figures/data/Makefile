@@ -1,14 +1,14 @@
 # Data Makefile
 
-BOREHOLES = 1 2
+BOREHOLES = upstream downstream
 VARIABLES = inclino pressure temperature
 FILES := $(foreach VAR,$(VARIABLES), \
            $(foreach BH,$(BOREHOLES), \
-             processed/bowdoin-$(VAR)-bh$(BH).txt))
+             processed/bowdoin-$(VAR)-$(BH).csv))
 
 all: $(FILES)
 
-$(foreach bh,$(BOREHOLES),processed/bowdoin-%-bh$(bh).txt): preprocess-%.py
+$(foreach bh,$(BOREHOLES),processed/bowdoin-%-$(bh).csv): preprocess-%.py
 	mkdir -p processed
 	python2 $<
 

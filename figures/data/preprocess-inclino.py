@@ -3,7 +3,8 @@
 import numpy as np
 import pandas as pd
 
-# input and output instrument names
+loggers = {'downstream': 'BOWDOIN-1',
+           'upstream':   'BOWDOIN-2'}
 input_instruments = ['id', 'ax', 'ay', 'mx', 'my', 'mz', 'p', 'tp', 't']
 output_instruments = ['ax', 'ay', 'p', 'tp', 't']
 
@@ -15,13 +16,13 @@ def floatornan(x):
         return np.nan
 
 # for each borehole
-for bh in [1, 2]:
-    print 'Processing data for borehole %d...' % bh
+for bh, log in loggers.iteritems():
+    print 'Processing data for %s borehole...' % bh
 
     # input and output file names
-    cfilename = 'original/inclino/BOWDOIN-%i_Coefs.dat' % bh
-    ifilename = 'original/inclino/BOWDOIN-%i_All.dat' % bh
-    ofilename = 'processed/bowdoin-inclino-bh%d.txt' % bh
+    cfilename = 'original/inclino/%s_Coefs.dat' % log
+    ifilename = 'original/inclino/%s_All.dat' % log
+    ofilename = 'processed/bowdoin-inclino-%s.csv' % bh
 
     # read calibration coefficients
     coeffs = np.loadtxt(cfilename)

@@ -3,8 +3,9 @@
 import datetime
 import pandas as pd
 
-# column names
-colnames = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
+loggers = {'downstream': 'drucksens073303',
+           'upstream':   'drucksens094419'}
+columns = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
 
 
 # date converter
@@ -13,16 +14,14 @@ def date_parser(year, day, time):
     return datetime.datetime.strptime(datestring, '%Y.%j.%H%M')
 
 # for each borehole
-sensors = ['073303', '094419']
-for bh in [1, 2]:
-    sensor = sensors[bh-1]
+for bh, log in loggers.iteritems():
 
     # input and output file names
-    ifilename = 'original/pressure/drucksens%s_final_storage_1.dat' % sensor
-    ofilename = 'processed/bowdoin-pressure-bh%d.txt' % bh
+    ifilename = 'original/pressure/%s_final_storage_1.dat' % log
+    ofilename = 'processed/bowdoin-pressure-%s.csv' % bh
 
     # read original file
-    df = pd.read_csv(ifilename, names=colnames,
+    df = pd.read_csv(ifilename, names=columns,
                      parse_dates={'date': ['year', 'day', 'time']},
                      date_parser=date_parser, index_col='date')
 

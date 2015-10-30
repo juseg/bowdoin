@@ -3,18 +3,21 @@
 import numpy as np
 import pandas as pd
 
+loggers = {'downstream': 'Th-Bowdoin-1',
+           'upstream':   'Th-Bowdoin-2'}
+
 # for each borehole
-for bh in [1, 2]:
+for bh, log in loggers.iteritems():
 
     # read rearranged calibration coefficients
-    # borehole 1: BH2A[1-9] + BH2B[1-7]
-    # borehole 2: BH1A[1-9] + BH1B[1-4,7,5-6]
-    coefpath = 'original/temperature/Th-Bowdoin-%i_Coefs.dat' % bh
+    # downstream: BH2A[1-9] + BH2B[1-7]
+    # upstream: BH1A[1-9] + BH1B[1-4,7,5-6]
+    coefpath = 'original/temperature/%s_Coefs.dat' % log
     coefs = np.loadtxt(coefpath)
 
     # input and output file names
-    ifilename = 'original/temperature/Th-Bowdoin-%i_Therm.dat' % bh
-    ofilename = 'processed/bowdoin-temperature-bh%d.txt' % bh
+    ifilename = 'original/temperature/%s_Therm.dat' % log
+    ofilename = 'processed/bowdoin-temperature-%s.csv' % bh
 
     # read original file
     idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], na_values='NAN',

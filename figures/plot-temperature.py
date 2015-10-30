@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
 
-# parameters
-for bh in [1, 2]:
-    ax = grid[bh-1]
-    filename = 'data/processed/bowdoin-temperature-bh%d.txt' % bh
+# for each borehole
+for i, bh in enumerate(['upstream', 'downstream']):
+    ax = grid[i]
+    filename = 'data/processed/bowdoin-temperature-%s.csv' % bh
 
     # read in a record array
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
 
     # plot
-    df.plot(ax=ax, legend=False)
+    df.plot(ax=ax, legend=False, title=bh)
 
 # save
 fig.savefig('plot-temperature')
