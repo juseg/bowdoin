@@ -1,12 +1,18 @@
 #!/usr/bin/env python2
 
-import csv
-import datetime
 import numpy as np
+import pandas as pd
 
 # input and output instrument names
 input_instruments = ['id', 'ax', 'ay', 'mx', 'my', 'mz', 'p', 'tp', 't']
-output_instruments = ['ax', 'ay', 'p', 't']
+output_instruments = ['ax', 'ay', 'p', 'tp', 't']
+
+
+def floatornan(x):
+    try:
+        return float(x)
+    except ValueError:
+        return np.nan
 
 # for each borehole
 for bh in [1, 2]:
@@ -21,80 +27,46 @@ for bh in [1, 2]:
     coeffs = np.loadtxt(cfilename)
 
     # open input file
-    with open(ifilename, 'rU') as ifile:
-        reader = csv.reader(ifile, delimiter=',')
+    idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
+                      na_values='NAN')
 
-        # read headers
-        header = [s.strip('"') for s in reader.next()]
-        labels = [s.strip('"') for s in reader.next()]
-        dummy = reader.next()
-        dummy = reader.next()
+    # convert resistances to temperatures
+    odf = pd.DataFrame(index=idf.index.rename('date'))
 
-        # number of sensor units
-        nsites = len(labels) - 4
+    # these columns will need to be splitted
+    rescols = [col for col in idf.columns if col.startswith('res')]
+    for i, col in enumerate(rescols):
 
-        # open output file
-        with open(ofilename, 'w') as ofile:
-            writer = csv.writer(ofile, delimiter=',')
+        # ifgnore columns containing no data
+        if idf[col].isnull().all():
+            print "col %s has only NaN, ignoring it" % col
+            continue
 
-            # write header line
-            names = ['date'] + ['%s%02d' % (inst, site)
-                                for site in range(nsites)
-                                for inst in output_instruments]
-            writer.writerow(names)
+        # split data strings into new multi-column dataframe and fill with NaN
+        splitted = idf[col].str.split(',', expand=True)
+        splitted.fillna(value=np.nan, inplace=True)
 
-            # for each row
-            for i, row in enumerate(reader):
+        # select wanted columns
+        splitted.columns = input_instruments
+        splitted = splitted[output_instruments]
 
-                # read date tag
-                datestring = row[0]
-                date = datetime.datetime.strptime(datestring, '%Y-%m-%d %H:%M:%S')
+        # replace nan values by nan
+        splitted.replace('-99.199996', np.nan, inplace=True)
 
-                # initialize lists of values
-                values = []
+        # convert to numeric
+        # splitted.convert_objects(convert_numeric=True)  # deprectiated
+        # splitted = pd.to_numeric(splitted, errors='coerce')  # does not work
+        splitted = splitted.applymap(floatornan)
 
-                # for each site on the sensor chain
-                for j, sitestring in enumerate(row[4:]):
-                    sitevalues = sitestring.split(',')
+        # process angles
+        cx = coeffs[2*i]
+        cy = coeffs[2*i+1]
+        splitted['ax'] = (splitted['ax'] - cx[1])/cx[0]
+        splitted['ay'] = (splitted['ay'] - cy[1])/cy[0]
 
-                    # fill empty data with null values
-                    if sitestring == '':
-                        values += [np.nan]*4
+        # append wanted columns to output dataframe
+        newcols = [i + '0' + col[4] for i in output_instruments]
+        odf[newcols] = splitted
 
-                    # ignore otherwise incomplete records
-                    elif (len(sitevalues) != 9):
-                        print ('Ignore incomplete unit record on row %d: "%s"'
-                               % (i+5, sitestring))
-                        values += [np.nan]*4
-
-                    # else try to read values
-                    else:
-
-                        # try to read tilt values
-                        try:
-                            ax = float(sitevalues[1])
-                            ay = float(sitevalues[2])
-                            cx = coeffs[2*j]
-                            cy = coeffs[2*j+1]
-                            ax = (ax - cx[1])/cx[0]
-                            ay = (ay - cy[1])/cy[0]
-                        except ValueError:
-                            ax = ay = np.nan
-
-                        # try to read pressure values
-                        try:
-                            p = float(sitevalues[6])
-                        except ValueError:
-                            p = np.nan
-
-                        # try to read temperature values
-                        try:
-                            t = float(sitevalues[8])
-                        except ValueError:
-                            t = np.nan
-
-                        # append all values
-                        values += [ax, ay, p, t]
-
-                # write data
-                writer.writerow([date] + values)
+    # write csv file
+    odf.to_csv(ofilename)
