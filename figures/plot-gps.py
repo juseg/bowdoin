@@ -10,7 +10,7 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 filename = 'data/processed/bowdoin-gps-upstream.csv'
 
 # read in a record array
-df = pd.read_csv(filename, parse_dates=True, index_col='GPST')
+df = pd.read_csv(filename, parse_dates=True, index_col='date')
 
 # find samples not taken at multiples of 15 min (900 sec) and remove them
 # it seems that these (18) values were recorded directly after each data gap
