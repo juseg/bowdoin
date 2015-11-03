@@ -21,35 +21,19 @@ df = df[inpace]
 # resample with 15 minute frequency and fill with NaN
 df = df.resample('15T')
 
-# extract dates and displacement
-date = df.index.values
-lon = df['longitude'].values
-lat = df['latitude'].values
-z = df['height'].values
-
 # convert lon/lat to UTM 19 meters
-ll = ccrs.PlateCarree() 
+ll = ccrs.PlateCarree()
 proj = ccrs.UTM(19)
-points = proj.transform_points(ll, lon, lat, z)
-x, y, z = tuple(points.T)
-
-# compute time gradient
-seconds = (df.index - df.index[0]).astype('timedelta64[s]')
-years = seconds/(24*3600*365.0)
-dt = np.gradient(years)
+positions = df[['longitude', 'latitude', 'height']]
+positions = proj.transform_points(ll, *positions.values.T)
+positions = pd.DataFrame(positions, columns=list('xyz'), index=df.index)
 
 # compute cartesian velocities and norm
-vx = np.gradient(x)/dt
-vy = np.gradient(y)/dt
-vz = np.gradient(z)/dt
-v = (vx**2 + vy**2 + vz**2)**0.5
-
-# very high velocities correspond to antenna displacements
-mask = (v > 1e4)
-vx = np.ma.array(vx, mask=mask)
-vy = np.ma.array(vy, mask=mask)
-vz = np.ma.array(vz, mask=mask)
-v = np.ma.array(v, mask=mask)
+velocities = positions.diff()/15*60*24*365.0
+vx = velocities['x']
+vy = velocities['y']
+vz = velocities['z']
+v = (velocities**2).sum(axis='columns')**0.5
 
 # compute horizontal component, azimuth and altitude
 vh = (vx**2 + vy**2)**0.5
@@ -63,8 +47,8 @@ print 'mean azimuth:  %.03f' % azimuth.mean()
 print 'mean altitude: %.03f' % altitude.mean()
 
 # plot
-ax.plot_date(date, vh, 'b.')
-ax.plot_date(date, vz, 'r.')
+vh.plot(ls='', marker='.')
+vz.plot(ls='', marker='.')
 
 # zoom on summer 2015
 ax.set_xlim('2015-05-22', '2015-07-22')
