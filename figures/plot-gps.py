@@ -5,6 +5,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 
+def rollplot(arg, window, c='b'):
+    mean = pd.rolling_mean(arg, window)
+    std = pd.rolling_std(arg, window)
+    arg.plot(c=c, ls='', marker='.', markersize=0.5)
+    mean.plot(c=c, ls='-')
+    plt.fill_between(arg.index, mean-2*std, mean+2*std, color=c, alpha=0.1)
+
+
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)
 filename = 'data/processed/bowdoin-gps-upstream.csv'
@@ -47,8 +55,7 @@ print 'mean azimuth:  %.03f' % azimuth.mean()
 print 'mean altitude: %.03f' % altitude.mean()
 
 # plot
-vh.plot(ls='', marker='.')
-vz.plot(ls='', marker='.')
+rollplot(vh, 4*3)
 
 # zoom on summer 2015
 ax.set_xlim('2015-05-22', '2015-07-22')
