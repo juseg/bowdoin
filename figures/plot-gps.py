@@ -12,6 +12,15 @@ filename = 'data/processed/bowdoin-gps-upstream.csv'
 # read in a record array
 df = pd.read_csv(filename, parse_dates=True, index_col='GPST')
 
+# find samples not taken at multiples of 15 min (900 sec) and remove them
+# it seems that these (18) values were recorded directly after each data gap
+inpace = (60*df.index.minute + df.index.second) % 900 == 0
+assert (not inpace.sum() < 20)  # make sure we remove less than 20 values
+df = df[inpace]
+
+# resample with 15 minute frequency and fill with NaN
+df = df.resample('15T')
+
 # extract dates and displacement
 date = df.index.values
 lon = df['longitude'].values
