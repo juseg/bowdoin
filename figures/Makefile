@@ -1,7 +1,7 @@
 # Figures Makefile
 
 PY_FIGS = plot-gps.pdf plot-inclino.pdf plot-pressure.pdf plot-temperature.pdf \
-          temperature-profile.pdf
+          temperature-profile.pdf timeseries.pdf
 ALL_FIGS = $(PY_FIGS)
 
 all: data $(ALL_FIGS)
