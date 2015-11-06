@@ -54,9 +54,16 @@ for i, bh in enumerate(boreholes):
             tiltwlev.plot(ax=ax, c='k', alpha=0.2, legend=False)
 
 # set axes properties
-ax.set_ylim(0, 400)
+ax.set_ylim(100, 400)
 ax.set_ylabel('water level (m)')
 ax.legend(lines, boreholes)
+
+# set spine properties
+ax.spines['left'].set_smart_bounds(True)
+ax.spines['right'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
 
 # add new axes
 ax = ax.twinx()
@@ -104,8 +111,16 @@ rollplot(vh, 4*3, c='k')
 
 # set axes properties
 ax.set_xlim('2014-07-17', '2015-07-20')
-ax.set_ylim(0, 2000)
+ax.set_ylim(-1000, 1000)
 ax.set_ylabel('horizontal velocity (m/a)')
+
+# set spine properties
+ax.spines['right'].set_smart_bounds(True)
+ax.spines['left'].set_visible(False)
+ax.spines['bottom'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('right')
+ax.xaxis.set_ticks_position('bottom')
 
 # save
 fig.savefig('timeseries')
