@@ -85,6 +85,35 @@ def get_gps_velocity(method='backward'):
     return df/15*60*24*365.0
 
 
+def unframe(ax, edges=['bottom', 'left']):
+    """Unframe axes to leave only specified edges visible."""
+
+    # remove background patch
+    ax.patch.set_visible(False)
+
+    # adjust bounds
+    active_spines = [ax.spines[s] for s in edges]
+    for s in active_spines:
+        s.set_smart_bounds(True)
+
+    # get rid of extra spines
+    hidden_spines = [ax.spines[s] for s in ax.spines if s not in edges]
+    for s in hidden_spines:
+        s.set_visible(False)
+
+    # set ticks positions
+    ax.xaxis.set_ticks_position([['none', 'top'], ['bottom', 'both']]
+                                ['bottom' in edges]['top' in edges])
+    ax.yaxis.set_ticks_position([['none', 'right'], ['left', 'both']]
+                                ['left' in edges]['right' in edges])
+
+    # set label positions
+    if 'right' in edges and not 'left' in edges:
+        ax.yaxis.set_label_position('right')
+    if 'top' in edges and not 'bottom' in edges:
+        ax.xaxis.set_label_position('top')
+
+
 def rollplot(arg, window, c='b'):
     mean = pd.rolling_mean(arg, window)
     std = pd.rolling_std(arg, window)
@@ -123,11 +152,7 @@ ax.set_ylabel('water level (m)')
 ax.legend(lines, boreholes)
 
 # set spine properties
-ax.spines['left'].set_smart_bounds(True)
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.yaxis.set_ticks_position('left')
-ax.xaxis.set_ticks_position('bottom')
+unframe(ax, ['top', 'right'])
 
 # add new axes
 ax = ax.twinx()
@@ -145,11 +170,7 @@ ax.set_ylabel(u'temperature (°C)')
 ax.legend(lines, boreholes)
 
 # set spine properties
-ax.spines['right'].set_smart_bounds(True)
-ax.spines['left'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.yaxis.set_ticks_position('right')
-ax.xaxis.set_ticks_position('bottom')
+unframe(ax, ['left'])
 
 # add new axes
 ax = ax.twinx()
@@ -171,12 +192,7 @@ ax.set_ylim(-1000, 1000)
 ax.set_ylabel('horizontal velocity (m/a)')
 
 # set spine properties
-ax.spines['right'].set_smart_bounds(True)
-ax.spines['left'].set_visible(False)
-ax.spines['bottom'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.yaxis.set_ticks_position('right')
-ax.xaxis.set_ticks_position('bottom')
+unframe(ax, ['bottom', 'right'])
 
 # save
 fig.savefig('timeseries')
