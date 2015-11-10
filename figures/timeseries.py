@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# coding: utf-8
 
 import numpy as np
 import pandas as pd
@@ -36,6 +37,14 @@ def get_tiltunit_wlev(bh):
 
     # return columns with std of difference below one meter
     return df[df.columns[(diff.std() < 1.0)]]
+
+
+def get_temperature(bh):
+    """Get temperature from temperature sensors in a dataframe."""
+    filename = 'data/processed/bowdoin-temperature-%s.csv' % bh
+    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = df[df.columns[(df.max() < 1.0)]]  # remove records above ice surface
+    return df
 
 
 def get_gps_positions():
@@ -118,6 +127,28 @@ ax.spines['left'].set_smart_bounds(True)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 ax.yaxis.set_ticks_position('left')
+ax.xaxis.set_ticks_position('bottom')
+
+# add new axes
+ax = ax.twinx()
+
+# for each borehole
+for i, bh in enumerate(boreholes):
+
+    # plot temperature
+    df = get_temperature(bh)
+    df.plot(ax=ax, c=colors[i], alpha=0.2, legend=False)
+
+# set axes properties
+ax.set_ylim(-20, 10)
+ax.set_ylabel(u'temperature (°C)')
+ax.legend(lines, boreholes)
+
+# set spine properties
+ax.spines['right'].set_smart_bounds(True)
+ax.spines['left'].set_visible(False)
+ax.spines['top'].set_visible(False)
+ax.yaxis.set_ticks_position('right')
 ax.xaxis.set_ticks_position('bottom')
 
 # add new axes
