@@ -114,11 +114,11 @@ def unframe(ax, edges=['bottom', 'left']):
         ax.xaxis.set_label_position('top')
 
 
-def rollplot(arg, window, c='b'):
+def rollplot(ax, arg, window, c='b'):
     mean = pd.rolling_mean(arg, window)
     std = pd.rolling_std(arg, window)
-    arg.plot(c=c, ls='', marker='.', markersize=0.5)
-    mean.plot(c=c, ls='-')
+    arg.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
+    mean.plot(ax=ax, color=c, ls='-')
     plt.fill_between(arg.index, mean-2*std, mean+2*std, color=c, alpha=0.1)
 
 
@@ -132,67 +132,50 @@ wlev_calib_intervals = [['2014-07-18', '2014-07-22'],
                         ['2014-07-29', '2014-08-02']]
 
 # initialize figure
-fig, ax = plt.subplots(1, 1)
+fig, grid = plt.subplots(3, 1, sharex=True)
+
+# remove spines and compact plot
+unframe(grid[0], ['top', 'right'])
+unframe(grid[1], ['left'])
+unframe(grid[2], ['bottom', 'right'])
+fig.subplots_adjust(hspace=-0.25)
+
+# plot GPS velocity
+df = get_gps_velocity()
+vh = (df['x']**2 + df['y']**2)**0.5
+azimuth = np.arctan2(df['y'], df['x']**2)*180/np.pi
+altitude = np.arctan2(df['z'], vh)*180/np.pi
+rollplot(grid[0], vh, 4*3, c='g')
 
 # for each borehole
 for i, bh in enumerate(boreholes):
 
     # plot pressure sensor water level
     df = get_pressure_wlev(bh)
-    df.plot(c=colors[i], lw=2.0)
-    lines[i] = ax.get_lines()[-1]  # select last line for the legend
+    df.plot(ax=grid[1], c=colors[i], lw=2.0)
+    lines[i] = grid[1].get_lines()[-1]  # select last line for the legend
 
     # plot tilt unit water level
     df = get_tiltunit_wlev(bh)
-    df.plot(ax=ax, c='k', alpha=0.2, legend=False)
-
-# set axes properties
-ax.set_ylim(100, 400)
-ax.set_ylabel('water level (m)')
-ax.legend(lines, boreholes)
-
-# set spine properties
-unframe(ax, ['top', 'right'])
-
-# add new axes
-ax = ax.twinx()
-
-# for each borehole
-for i, bh in enumerate(boreholes):
+    df.plot(ax=grid[1], c='k', alpha=0.2, legend=False)
 
     # plot temperature
     df = get_temperature(bh)
-    df.plot(ax=ax, c=colors[i], alpha=0.2, legend=False)
+    df.plot(ax=grid[2], c=colors[i], alpha=0.2, legend=False)
 
-# set axes properties
-ax.set_ylim(-20, 10)
-ax.set_ylabel(u'temperature (°C)')
-ax.legend(lines, boreholes)
+# add legend
+grid[0].legend(lines, boreholes)
 
-# set spine properties
-unframe(ax, ['left'])
+# set labels
+grid[0].set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
+grid[1].set_ylabel('water level (m)')
+grid[2].set_ylabel(u'temperature (°C)')
 
-# add new axes
-ax = ax.twinx()
-
-# get GPS velocity
-df = get_gps_velocity()
-
-# compute horizontal component, azimuth and altitude
-vh = (df['x']**2 + df['y']**2)**0.5
-azimuth = np.arctan2(df['y'], df['x']**2)*180/np.pi
-altitude = np.arctan2(df['z'], vh)*180/np.pi
-
-# plot
-rollplot(vh, 4*3, c='k')
-
-# set axes properties
-ax.set_xlim('2014-07-17', '2015-07-20')
-ax.set_ylim(-1000, 1000)
-ax.set_ylabel('horizontal velocity (m/a)')
-
-# set spine properties
-unframe(ax, ['bottom', 'right'])
+# set axes limits
+grid[0].set_ylim(200, 800)
+grid[1].set_ylim(150, 250)
+grid[2].set_ylim(-15, 0)
+grid[2].set_xlim('2014-07-17', '2015-07-20')
 
 # save
 fig.savefig('timeseries')
