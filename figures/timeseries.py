@@ -91,7 +91,7 @@ def get_gps_positions():
     # convert lon/lat to UTM 19 meters
     ll = ccrs.PlateCarree()
     proj = ccrs.UTM(19)
-    positions = df[['longitude', 'latitude', 'height']]
+    positions = df[['lon', 'lat', 'z']]
     positions = proj.transform_points(ll, *positions.values.T)
     return pd.DataFrame(positions, columns=list('xyz'), index=df.index)
 

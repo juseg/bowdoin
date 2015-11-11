@@ -9,9 +9,9 @@ FILES := processed/bowdoin-gps-upstream.csv \
 
 all: $(FILES)
 
-processed/bowdoin-gps-upstream.csv: preprocess-gps.sh
+processed/bowdoin-gps-upstream.csv: preprocess-gps.py
 	mkdir -p processed
-	bash $<
+	python2 $<
 
 $(foreach BH,$(BOREHOLES),processed/bowdoin-inclino-$(BH).csv)): preprocess-inclino.py
 	mkdir -p processed
