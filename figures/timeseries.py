@@ -43,6 +43,7 @@ def get_temperature(bh):
     """Get temperature from temperature sensors in a dataframe."""
     filename = 'data/processed/bowdoin-temperature-%s.csv' % bh
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = df.resample('180T')  # resample and fill with nan
     df = df[df.columns[(df.max() < 1.0)]]  # remove records above ice surface
     return df
 
