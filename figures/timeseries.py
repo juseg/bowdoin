@@ -53,9 +53,23 @@ def get_tiltunit_temp(bh):
     filename = 'data/processed/bowdoin-inclino-%s.csv' % bh
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
     df = df[[col for col in df.columns if col.startswith('t')]]
-    print df.tail()
     df = df.resample('180T')  # resample and fill with nan
     return df
+
+
+def get_tiltunit_tilt(bh):
+    """Get tilt angle from tilt sensor units in a dataframe."""
+    filename = 'data/processed/bowdoin-inclino-%s.csv' % bh
+    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    axcols = [col for col in df.columns if col.startswith('ax')]
+    aycols = [col for col in df.columns if col.startswith('ay')]
+    df = df.resample('180T')  # resample and fill with nan
+    tilt = pd.DataFrame()
+    for xc, yc in zip(axcols, aycols):
+        tc = xc.replace('ax', 'tilt')
+        tilt[tc] = np.arcsin(np.sqrt(np.sin(df[xc])**2+np.sin(df[yc])**2))
+        tilt[tc] *= 180/np.pi
+    return tilt
 
 
 def get_gps_positions():
@@ -143,13 +157,14 @@ wlev_calib_intervals = [['2014-07-18', '2014-07-22'],
                         ['2014-07-29', '2014-08-02']]
 
 # initialize figure
-fig, grid = plt.subplots(3, 1, sharex=True)
+fig, grid = plt.subplots(4, 1, sharex=True)
 
 # remove spines and compact plot
 unframe(grid[0], ['top', 'right'])
 unframe(grid[1], ['left'])
-unframe(grid[2], ['bottom', 'right'])
-fig.subplots_adjust(hspace=-0.25)
+unframe(grid[2], ['right'])
+unframe(grid[3], ['bottom', 'left'])
+fig.subplots_adjust(hspace=0.0)
 
 # plot GPS velocity
 df = get_gps_velocity()
@@ -170,11 +185,15 @@ for i, bh in enumerate(boreholes):
     df = get_tiltunit_wlev(bh)
     df.plot(ax=grid[1], c='k', alpha=0.2, legend=False)
 
+    # plot tilt
+    df = get_tiltunit_tilt(bh)
+    df.plot(ax=grid[2], c=colors[i], lw=0.1, legend=False)
+
     # plot temperature
     df = get_tempsens_temp(bh)
-    df.plot(ax=grid[2], c=colors[i], lw=0.1, legend=False)
+    df.plot(ax=grid[3], c=colors[i], lw=0.1, legend=False)
     df = get_tiltunit_temp(bh)
-    df.plot(ax=grid[2], c=colors[i], lw=0.1, legend=False)
+    df.plot(ax=grid[3], c=colors[i], lw=0.1, legend=False)
 
 # add legend
 grid[0].legend(lines, boreholes)
@@ -182,13 +201,15 @@ grid[0].legend(lines, boreholes)
 # set labels
 grid[0].set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
 grid[1].set_ylabel('water level (m)')
-grid[2].set_ylabel(u'temperature (°C)')
+grid[2].set_ylabel(u'tilt (°)')
+grid[3].set_ylabel(u'temperature (°C)')
 
 # set axes limits
 grid[0].set_ylim(200, 800)
 grid[1].set_ylim(150, 250)
-grid[2].set_ylim(-10, 0)
-grid[2].set_xlim('2014-07-17', '2015-07-20')
+#grid[2].set_ylim(-10, 0)
+grid[3].set_ylim(-10, 0)
+grid[3].set_xlim('2014-07-17', '2015-07-20')
 
 # save
 fig.savefig('timeseries')
