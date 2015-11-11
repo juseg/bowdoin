@@ -39,12 +39,22 @@ def get_tiltunit_wlev(bh):
     return df[df.columns[(diff.std() < 1.0)]]
 
 
-def get_temperature(bh):
+def get_tempsens_temp(bh):
     """Get temperature from temperature sensors in a dataframe."""
     filename = 'data/processed/bowdoin-temperature-%s.csv' % bh
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
     df = df.resample('180T')  # resample and fill with nan
     df = df[df.columns[(df.max() < 1.0)]]  # remove records above ice surface
+    return df
+
+
+def get_tiltunit_temp(bh):
+    """Get temperature from tilt sensor units in a dataframe."""
+    filename = 'data/processed/bowdoin-inclino-%s.csv' % bh
+    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = df[[col for col in df.columns if col.startswith('t')]]
+    print df.tail()
+    df = df.resample('180T')  # resample and fill with nan
     return df
 
 
@@ -161,8 +171,10 @@ for i, bh in enumerate(boreholes):
     df.plot(ax=grid[1], c='k', alpha=0.2, legend=False)
 
     # plot temperature
-    df = get_temperature(bh)
-    df.plot(ax=grid[2], c=colors[i], alpha=0.2, legend=False)
+    df = get_tempsens_temp(bh)
+    df.plot(ax=grid[2], c=colors[i], lw=0.1, legend=False)
+    df = get_tiltunit_temp(bh)
+    df.plot(ax=grid[2], c=colors[i], lw=0.1, legend=False)
 
 # add legend
 grid[0].legend(lines, boreholes)
@@ -175,7 +187,7 @@ grid[2].set_ylabel(u'temperature (°C)')
 # set axes limits
 grid[0].set_ylim(200, 800)
 grid[1].set_ylim(150, 250)
-grid[2].set_ylim(-15, 0)
+grid[2].set_ylim(-10, 0)
 grid[2].set_xlim('2014-07-17', '2015-07-20')
 
 # save
