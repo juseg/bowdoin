@@ -17,27 +17,9 @@ def get_pressure_wlev(bh):
 
 def get_tiltunit_wlev(bh):
     """Get water level from tilt sensor units in a dataframe."""
-
-    # calibration interval
-    calint = {'upstream':   ['2014-07-18', '2014-07-22'],
-              'downstream': ['2014-07-29', '2014-08-02']}[bh]
-
-    # open tilt unit water level data
     filename = 'data/processed/bowdoin-inclino-wlev-%s.csv' % bh
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
-    df = df[[col for col in df.columns if col.startswith('p')]]*9.80665
-
-    # compute difference with pressure sensor data over calib interval
-    wlev = get_pressure_wlev(bh)
-    wlev = wlev[calint[0]:calint[1]]
-    diff = df.loc[wlev.index].sub(wlev, axis=0)
-
-    # subtract mean difference as inferred unit height
-    print diff.mean()
-    df -= diff.mean()
-
-    # return columns with std of difference below one meter
-    return df[df.columns[(diff.std() < 1.0)]]
+    return df
 
 
 def get_tempsens_temp(bh):

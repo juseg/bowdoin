@@ -9,6 +9,7 @@ input_instruments = ['id', 'ax', 'ay', 'mx', 'my', 'mz', 'p', 'tp', 't']
 output_instruments = ['ax', 'ay', 'p', 'tp', 't']
 
 
+
 def floatornan(x):
     """Try to convert to float and return NaN if that fails."""
     try:
@@ -86,10 +87,30 @@ def extract_temp(df):
     return df[tcols]
 
 
-def extract_wlev(df):
+def extract_wlev_depth(df):
     """Return pressure values in a dataframe."""
-    pcols = [col for col in df.columns if col.startswith('p')]
-    return df[pcols]
+
+    # observed water depths
+    if bh == 'downstream':
+        observ_date = '2014-07-22 23:40:00'
+        water_depth = 0.0
+        chain_design = [0.0, 10.0, 20.0, 40.0, 50.0][2:]
+    if bh == 'upstream':
+        observ_date = '2014-07-17 16:15:00'  # assumed
+        water_depth = 46.0
+        chain_design = [0.0, 7.0, 10.0, 15.0, 25.0, 35.0, 50.0][1:]
+
+    # extract water level above sensor unit
+    wlev = df[[col for col in df.columns if col.startswith('p')]]*9.80665
+
+    # compute sensor depth using water depth from all sensors
+    depth = wlev.loc[observ_date] + water_depth
+
+    # calibrate water level
+    wlev = wlev - depth + depth[0]
+
+    # return calibrated water level and unit depth
+    return wlev, depth
 
 
 # for each borehole
@@ -98,10 +119,15 @@ for bh, log in loggers.iteritems():
     # get all data
     df = get_data(log)
 
-    # extract tilt angles, temperature and water level
-    filename = 'processed/bowdoin-inclino-tilt-%s.csv' % bh
-    extract_tilt(df).to_csv(filename)
-    filename = 'processed/bowdoin-inclino-temp-%s.csv' % bh
-    extract_temp(df).to_csv(filename)
-    filename = 'processed/bowdoin-inclino-wlev-%s.csv' % bh
-    extract_wlev(df).to_csv(filename)
+    # extract tilt angles
+    tilt = extract_tilt(df)
+    tilt.to_csv('processed/bowdoin-inclino-tilt-%s.csv' % bh)
+
+    # extract temperatures
+    temp = extract_temp(df)
+    temp.to_csv('processed/bowdoin-inclino-temp-%s.csv' % bh)
+
+    # extract water level and sensor depth
+    wlev, depth = extract_wlev_depth(df)
+    wlev.to_csv('processed/bowdoin-inclino-wlev-%s.csv' % bh)
+    depth.to_csv('processed/bowdoin-inclino-depth-%s.csv' % bh)
