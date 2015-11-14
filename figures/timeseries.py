@@ -33,6 +33,7 @@ def get_tiltunit_wlev(bh):
     diff = df.loc[wlev.index].sub(wlev, axis=0)
 
     # subtract mean difference as inferred unit height
+    print diff.mean()
     df -= diff.mean()
 
     # return columns with std of difference below one meter

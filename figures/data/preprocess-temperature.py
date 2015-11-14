@@ -11,14 +11,16 @@ columns = ['temp%02d' % (i+1) for i in range(16)]
 def get_temperature(log):
     """Return calibrated temperature in a data frame."""
 
+    # input file names
+    cfilename = 'original/temperature/%s_Coefs.dat' % log
+    ifilename = 'original/temperature/%s_Therm.dat' % log
+
     # read rearranged calibration coefficients
     # sensor order downstream: BH2A[1-9] + BH2B[1-7],
     #                upstream: BH1A[1-9] + BH1B[1-4,7,5-6].
-    a1, a2, a3 = np.loadtxt('original/temperature/%s_Coefs.dat' % log,
-                            unpack=True)
+    a1, a2, a3 = np.loadtxt(cfilename, unpack=True)
 
     # read resistance data
-    ifilename = 'original/temperature/%s_Therm.dat' % log
     df = pd.read_csv(ifilename, skiprows=[0, 2, 3], na_values='NAN',
                      index_col=0)
     df = df[[col for col in df.columns if col.startswith('Resist')]]

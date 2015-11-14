@@ -10,19 +10,19 @@ output_instruments = ['ax', 'ay', 'p', 'tp', 't']
 
 
 def floatornan(x):
+    """Try to convert to float and return NaN if that fails."""
     try:
         return float(x)
     except ValueError:
         return np.nan
 
-# for each borehole
-for bh, log in loggers.iteritems():
-    print 'Processing data for %s borehole...' % bh
 
-    # input and output file names
+def get_data(log):
+    """Return data values in a data frame."""
+
+    # input file names
     cfilename = 'original/inclino/%s_Coefs.dat' % log
     ifilename = 'original/inclino/%s_All.dat' % log
-    ofilename = 'processed/bowdoin-inclino-%s.csv' % bh
 
     # read calibration coefficients
     coeffs = np.loadtxt(cfilename)
@@ -31,7 +31,7 @@ for bh, log in loggers.iteritems():
     idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
                       na_values='NAN')
 
-    # convert resistances to temperatures
+    # initialize output dataframe
     odf = pd.DataFrame(index=idf.index.rename('date'))
 
     # these columns will need to be splitted
@@ -69,5 +69,14 @@ for bh, log in loggers.iteritems():
         newcols = [i + '0' + col[4] for i in output_instruments]
         odf[newcols] = splitted
 
-    # write csv file
-    odf.to_csv(ofilename)
+    # return filled dataframe
+    return odf
+
+
+# for each borehole
+for bh, log in loggers.iteritems():
+
+    # preprocess data
+    filename = 'processed/bowdoin-inclino-%s.csv' % bh
+    df = get_data(log)
+    df.to_csv(filename)
