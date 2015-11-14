@@ -36,12 +36,12 @@ def get_data(log):
 
     # these columns will need to be splitted
     rescols = [col for col in idf.columns if col.startswith('res')]
-    for i, col in enumerate(rescols):
 
-        # ifgnore columns containing no data
-        if idf[col].isnull().all():
-            print "col %s has only NaN, ignoring it" % col
-            continue
+    # ignore columns containing no data
+    rescols = [col for col in rescols if not idf[col].isnull().all()]
+
+    # split remaining columns into new dataframe
+    for i, col in enumerate(rescols):
 
         # split data strings into new multi-column dataframe and fill with NaN
         splitted = idf[col].str.split(',', expand=True)
@@ -73,10 +73,35 @@ def get_data(log):
     return odf
 
 
+def extract_tilt(df):
+    """Return tilt angles in a dataframe."""
+    axcols = [col for col in df.columns if col.startswith('ax')]
+    aycols = [col for col in df.columns if col.startswith('ay')]
+    return df[axcols+aycols]
+
+
+def extract_temp(df):
+    """Return temperature values in a dataframe."""
+    tcols = [col for col in df.columns if col.startswith('t0')]
+    return df[tcols]
+
+
+def extract_wlev(df):
+    """Return pressure values in a dataframe."""
+    pcols = [col for col in df.columns if col.startswith('p')]
+    return df[pcols]
+
+
 # for each borehole
 for bh, log in loggers.iteritems():
 
-    # preprocess data
-    filename = 'processed/bowdoin-inclino-%s.csv' % bh
+    # get all data
     df = get_data(log)
-    df.to_csv(filename)
+
+    # extract tilt angles, temperature and water level
+    filename = 'processed/bowdoin-inclino-tilt-%s.csv' % bh
+    extract_tilt(df).to_csv(filename)
+    filename = 'processed/bowdoin-inclino-temp-%s.csv' % bh
+    extract_temp(df).to_csv(filename)
+    filename = 'processed/bowdoin-inclino-wlev-%s.csv' % bh
+    extract_wlev(df).to_csv(filename)

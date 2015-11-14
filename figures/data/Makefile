@@ -1,27 +1,36 @@
 # Data Makefile
 
+# borehole names and inclinometer variables
 BOREHOLES = upstream downstream
-VARIABLES = inclino pressure temperature
-FILES := processed/bowdoin-gps-upstream.csv \
-         $(foreach VAR,$(VARIABLES), \
-           $(foreach BH,$(BOREHOLES), \
-             processed/bowdoin-$(VAR)-$(BH).csv))
+VARIABLES = temp tilt wlev
 
-all: $(FILES)
+# processed files
+GPS_FILES = processed/bowdoin-gps-upstream.csv
+INC_FILES = $(foreach VAR,$(VARIABLES), \
+              $(foreach BH,$(BOREHOLES), \
+                processed/bowdoin-inclino-$(VAR)-$(BH).csv))
+TEM_FILES = $(foreach BH,$(BOREHOLES), \
+              processed/bowdoin-temperature-$(BH).csv)
+PRE_FILES = $(foreach BH,$(BOREHOLES), \
+              processed/bowdoin-pressure-$(BH).csv)
+ALL_FILES = $(GPS_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES)
 
-processed/bowdoin-gps-upstream.csv: preprocess-gps.py
+all: $(ALL_FILES)
+
+
+$(GPS_FILES): preprocess-gps.py
 	mkdir -p processed
 	python2 $<
 
-$(foreach BH,$(BOREHOLES),processed/bowdoin-inclino-$(BH).csv)): preprocess-inclino.py
+$(INC_FILES): preprocess-inclino.py
 	mkdir -p processed
 	python2 $<
 
-$(foreach BH,$(BOREHOLES),processed/bowdoin-temperature-$(BH).csv)): preprocess-temperature.py
+$(TEM_FILES): preprocess-temperature.py
 	mkdir -p processed
 	python2 $<
 
-$(foreach BH,$(BOREHOLES),processed/bowdoin-pressure-$(BH).csv)): preprocess-pressure.py
+$(PRE_FILES): preprocess-pressure.py
 	mkdir -p processed
 	python2 $<
 

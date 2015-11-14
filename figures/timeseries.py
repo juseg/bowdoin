@@ -23,7 +23,7 @@ def get_tiltunit_wlev(bh):
               'downstream': ['2014-07-29', '2014-08-02']}[bh]
 
     # open tilt unit water level data
-    filename = 'data/processed/bowdoin-inclino-%s.csv' % bh
+    filename = 'data/processed/bowdoin-inclino-wlev-%s.csv' % bh
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
     df = df[[col for col in df.columns if col.startswith('p')]]*9.80665
 
@@ -51,7 +51,7 @@ def get_tempsens_temp(bh):
 
 def get_tiltunit_temp(bh):
     """Get temperature from tilt sensor units in a dataframe."""
-    filename = 'data/processed/bowdoin-inclino-%s.csv' % bh
+    filename = 'data/processed/bowdoin-inclino-temp-%s.csv' % bh
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
     df = df[[col for col in df.columns if col.startswith('t')]]
     df = df.resample('180T')  # resample and fill with nan
@@ -60,7 +60,7 @@ def get_tiltunit_temp(bh):
 
 def get_tiltunit_tilt(bh):
     """Get tilt angle from tilt sensor units in a dataframe."""
-    filename = 'data/processed/bowdoin-inclino-%s.csv' % bh
+    filename = 'data/processed/bowdoin-inclino-tilt-%s.csv' % bh
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
     axcols = [col for col in df.columns if col.startswith('ax')]
     aycols = [col for col in df.columns if col.startswith('ay')]
