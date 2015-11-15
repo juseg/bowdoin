@@ -121,13 +121,13 @@ for bh, log in loggers.iteritems():
 
     # extract tilt angles
     tilt = extract_tilt(df)
-    tilt.to_csv('processed/bowdoin-inclino-tilt-%s.csv' % bh)
+    tilt.to_csv('processed/bowdoin-tiltunit-tilt-%s.csv' % bh)
 
     # extract temperatures
     temp = extract_temp(df)
-    temp.to_csv('processed/bowdoin-inclino-temp-%s.csv' % bh)
+    temp.to_csv('processed/bowdoin-tiltunit-temp-%s.csv' % bh)
 
     # extract water level and sensor depth
     wlev, depth = extract_wlev_depth(df)
-    wlev.to_csv('processed/bowdoin-inclino-wlev-%s.csv' % bh)
-    depth.to_csv('processed/bowdoin-inclino-depth-%s.csv' % bh)
+    wlev.to_csv('processed/bowdoin-tiltunit-wlev-%s.csv' % bh)
+    depth.to_csv('processed/bowdoin-tiltunit-depth-%s.csv' % bh)

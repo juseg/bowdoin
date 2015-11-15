@@ -18,7 +18,7 @@ for bh, log in loggers.iteritems():
 
     # input and output file names
     ifilename = 'original/pressure/%s_final_storage_1.dat' % log
-    ofilename = 'processed/bowdoin-pressure-%s.csv' % bh
+    ofilename = 'processed/bowdoin-pressure-wlev-%s.csv' % bh
 
     # read original file
     df = pd.read_csv(ifilename, names=columns,

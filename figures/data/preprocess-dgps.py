@@ -8,7 +8,7 @@ columns = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
 
 # input and output file names
 ifilename = 'original/gps/B14BH1_%d_15min.dat'
-ofilename = 'processed/bowdoin-gps-upstream.csv'
+ofilename = 'processed/bowdoin-dgps-velocity-upstream.csv'
 
 # read original files
 dflist = []

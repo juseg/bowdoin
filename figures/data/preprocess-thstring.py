@@ -64,11 +64,11 @@ def get_depth(bh):
 for bh, log in loggers.iteritems():
 
     # preprocess temperatures
-    filename = 'processed/bowdoin-temperature-%s.csv' % bh
+    filename = 'processed/bowdoin-thstring-temp-%s.csv' % bh
     df = get_temperature(log)
     df.to_csv(filename)
 
     # compute sensor depths
-    filename = 'processed/bowdoin-temperature-depth-%s.csv' % bh
+    filename = 'processed/bowdoin-thstring-depth-%s.csv' % bh
     ts = get_depth(bh)
     ts.to_csv(filename)
