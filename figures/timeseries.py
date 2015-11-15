@@ -4,7 +4,6 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 import projectglobals as gl
 
 
@@ -50,41 +49,10 @@ def get_tiltunit_tilt(bh):
     return tilt
 
 
-def get_gps_positions():
-    """Get UTM 19 GPS positions in a dataframe."""
-
-    # open GPS data
-    df = gl.load_data('dgps', 'velocity', 'upstream')
-
-    # find samples not taken at multiples of 15 min (900 sec) and remove them
-    # it seems that these (18) values were recorded directly after each data gap
-    inpace = (60*df.index.minute + df.index.second) % 900 == 0
-    assert (not inpace.sum() < 20)  # make sure we remove less than 20 values
-    df = df[inpace]
-
-    # resample with 15 minute frequency and fill with NaN
-    df = df.resample('15T')
-
-    # convert lon/lat to UTM 19 meters
-    ll = ccrs.PlateCarree()
-    proj = ccrs.UTM(19)
-    positions = df[['lon', 'lat', 'z']]
-    positions = proj.transform_points(ll, *positions.values.T)
-    return pd.DataFrame(positions, columns=list('xyz'), index=df.index)
-
-
 def get_gps_velocity(method='backward'):
     """Get UTM 19 GPS velocity components in a dataframe."""
-    df = get_gps_positions()
-    if method == 'backward':
-        df = df.diff()
-    elif method == 'forward':
-        df = -df.diff(-1)
-    elif method == 'central':
-        df = (positions.diff()-positions.diff(-1))/2.0
-    else:
-        raise ValueError, 'method should be one backward, forward, central.'
-    return df/15*60*24*365.0
+    df = gl.load_data('dgps', 'velocity', 'upstream')
+    return df
 
 
 def unframe(ax, edges=['bottom', 'left']):
@@ -145,10 +113,7 @@ fig.subplots_adjust(hspace=0.0)
 
 # plot GPS velocity
 df = get_gps_velocity()
-vh = (df['x']**2 + df['y']**2)**0.5
-azimuth = np.arctan2(df['y'], df['x']**2)*180/np.pi
-altitude = np.arctan2(df['z'], vh)*180/np.pi
-rollplot(grid[0], vh, 4*3, c='g')
+rollplot(grid[0], df['vh'], 4*3, c='g')
 
 # for each borehole
 for i, bh in enumerate(boreholes):
