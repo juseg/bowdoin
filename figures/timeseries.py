@@ -5,27 +5,25 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import projectglobals as gl
 
 
 def get_pressure_wlev(bh):
     """Get water level from pressure sensor in a dataframe."""
-    filename = 'data/processed/bowdoin-pressure-%s.csv' % bh
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = gl.load_data('pressure', 'wlev', bh)
     df = df['wlev'].resample('30T')  # resample and fill with nan
     return df[2:]  # remove the first hour corresponding to drilling
 
 
 def get_tiltunit_wlev(bh):
     """Get water level from tilt sensor units in a dataframe."""
-    filename = 'data/processed/bowdoin-inclino-wlev-%s.csv' % bh
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = gl.load_data('tiltunit', 'wlev', bh)
     return df
 
 
 def get_tempsens_temp(bh):
     """Get temperature from temperature sensors in a dataframe."""
-    filename = 'data/processed/bowdoin-temperature-%s.csv' % bh
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = gl.load_data('thstring', 'temp', bh)
     df = df.resample('180T')  # resample and fill with nan
     df = df[df.columns[(df.max() < 1.0)]]  # remove records above ice surface
     return df
@@ -33,17 +31,14 @@ def get_tempsens_temp(bh):
 
 def get_tiltunit_temp(bh):
     """Get temperature from tilt sensor units in a dataframe."""
-    filename = 'data/processed/bowdoin-inclino-temp-%s.csv' % bh
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
-    df = df[[col for col in df.columns if col.startswith('t')]]
+    df = gl.load_data('tiltunit', 'temp', bh)
     df = df.resample('180T')  # resample and fill with nan
     return df
 
 
 def get_tiltunit_tilt(bh):
     """Get tilt angle from tilt sensor units in a dataframe."""
-    filename = 'data/processed/bowdoin-inclino-tilt-%s.csv' % bh
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = gl.load_data('tiltunit', 'tilt', bh)
     axcols = [col for col in df.columns if col.startswith('ax')]
     aycols = [col for col in df.columns if col.startswith('ay')]
     df = df.resample('180T')  # resample and fill with nan
@@ -59,8 +54,7 @@ def get_gps_positions():
     """Get UTM 19 GPS positions in a dataframe."""
 
     # open GPS data
-    filename = 'data/processed/bowdoin-gps-upstream.csv'
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    df = gl.load_data('dgps', 'velocity', 'upstream')
 
     # find samples not taken at multiples of 15 min (900 sec) and remove them
     # it seems that these (18) values were recorded directly after each data gap

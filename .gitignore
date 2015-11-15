@@ -1,5 +1,6 @@
 # figures
 figures/*.pdf
+figures/*.pyc
 
 # processed data
 figures/data/processed

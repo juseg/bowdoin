@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import projectglobals as gl
 
 boreholes = ['downstream', 'upstream']
 colors = ['b', 'r']
@@ -40,16 +41,12 @@ for i, bh in enumerate(boreholes):
     ax = grid[i]
 
     # read temperature values
-    filename = 'data/processed/bowdoin-temperature-%s.csv' % bh
-    temp_temp = pd.read_csv(filename, parse_dates=True, index_col='date')
-    filename = 'data/processed/bowdoin-inclino-temp-%s.csv' % bh
-    tilt_temp = pd.read_csv(filename, parse_dates=True, index_col='date')
+    temp_temp = gl.load_data('thstring', 'temp', bh)
+    tilt_temp = gl.load_data('tiltunit', 'temp', bh)
 
     # read depths
-    filename = 'data/processed/bowdoin-temperature-depth-%s.csv' % bh
-    temp_depth = pd.read_csv(filename, header=None, index_col=0, squeeze=True)
-    filename = 'data/processed/bowdoin-inclino-depth-%s.csv' % bh
-    tilt_depth = pd.read_csv(filename, header=None, index_col=0, squeeze=True)
+    temp_depth = gl.load_depth('thstring', bh)
+    tilt_depth = gl.load_depth('tiltunit', bh)
 
     # FIXME
     tilt_depth *= -1
