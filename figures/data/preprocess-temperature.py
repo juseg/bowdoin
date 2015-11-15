@@ -53,7 +53,7 @@ def get_depth(bh):
         top = 13.4
         upper = bottom + 20.0*np.arange(9)
         lower = top + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
-    depth = np.hstack([lower, upper])
+    depth = np.hstack([upper, lower])
 
     # return as a pandas data series
     ts = pd.Series(index=columns, data=depth)

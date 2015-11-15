@@ -5,42 +5,48 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # dates to plot
-targets = ['2014-%02d-25 06:00' % m for m in range(7, 13)]
+date = '2015-02-01 00:00:00'
 
 # initialize figure
 fig, grid = plt.subplots(1, 2, sharey=True)
 
 # for each borehole
-for i, bh in enumerate(['upstream', 'downstream']):
+for i, bh in enumerate(['downstream', 'upstream']):
     ax = grid[i]
+
+    # read temperature values
     filename = 'data/processed/bowdoin-temperature-%s.csv' % bh
+    temp_temp = pd.read_csv(filename, parse_dates=True, index_col='date')
+    filename = 'data/processed/bowdoin-inclino-temp-%s.csv' % bh
+    tilt_temp = pd.read_csv(filename, parse_dates=True, index_col='date')
 
-    # calculate sensor depths
-    if bh == 'downstream':
-        depth = np.hstack([-243.7 + 20.0*np.arange(9),
-                           -8.75 + 20.0*np.arange(-4,3)])
-    if bh == 'upstream':
-        depth = np.hstack([-265.3 + 20.0*np.arange(9),
-                           -6.6 + 20.0*np.array([-5, -4, -3, -2, +1, -1, 0])])
+    # read depths
+    filename = 'data/processed/bowdoin-temperature-depth-%s.csv' % bh
+    temp_depth = pd.read_csv(filename, header=None, index_col=0, squeeze=True)
+    filename = 'data/processed/bowdoin-inclino-depth-%s.csv' % bh
+    tilt_depth = pd.read_csv(filename, header=None, index_col=0, squeeze=True)
 
-    # read data
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    # select date
+    temp_temp = temp_temp.loc[date].values
+    tilt_temp = tilt_temp.loc[date].values
 
-    # order columns by depth
-    order = np.argsort(depth)
+    # FIXME
+    tilt_depth *= -1
+    tilt_temp *= 1e-3
+
+    # order by depth and mask above surface
+    order = np.argsort(temp_depth)
+    temp_depth = temp_depth[order]
+    temp_temp = np.ma.masked_where(temp_depth > 0.0, temp_temp[order])
 
     # plot
-    for tg in targets:
-        row = df.index.searchsorted(tg)
-        date = df.index[row]
-        temp = df.iloc[row]
-        ax.plot(temp[order], depth[order], '-', label=date)
-        ax.set_title(bh)
+    ax.plot(temp_temp, temp_depth, 'o-')
+    ax.plot(tilt_temp, tilt_depth, 'o-')
+    ax.set_title(bh)
 
     # add horizontal lines
-    ax.axhline(depth[0], c='k')
+    ax.axhline(temp_depth[0], c='k')
     ax.axhline(0.0, c='k')
 
 # save
-ax.legend(loc='lower left')
 fig.savefig('temperature-profile')
