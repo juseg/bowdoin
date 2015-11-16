@@ -31,7 +31,7 @@ ax = ax.twinx()
 
 # plot GPS velocity
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
-ut.pl.rollplot(ax, ts, 4*3, c='g')
+ut.pl.rolling_plot(ax, ts, 4*6, c='g')
 
 # add label and set limits
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')

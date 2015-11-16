@@ -35,11 +35,18 @@ def unframe(ax, edges=['bottom', 'left']):
         ax.xaxis.set_label_position('top')
 
 
-def rollplot(ax, ts, window, c='b'):
-    """Plot rolling mean and std of a timeseries."""
+def resample_plot(ax, ts, freq, c='b'):
+    """Plot resampled mean and std of a timeseries."""
+    avg = ts.resample(freq, how='mean')
+    std = ts.resample(freq, how='std')
+    avg.plot(ax=ax, color=c, ls='-')
+    # for some reason not working
+    ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.2)
 
-    mean = pd.rolling_mean(ts, window)
+
+def rolling_plot(ax, ts, window, c='b'):
+    """Plot rolling window mean and std of a timeseries."""
+    avg = pd.rolling_mean(ts, window)
     std = pd.rolling_std(ts, window)
-    ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
-    mean.plot(ax=ax, color=c, ls='-')
-    ax.fill_between(ts.index, mean-2*std, mean+2*std, color=c, alpha=0.1)
+    avg.plot(ax=ax, color=c, ls='-')
+    ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.2)
