@@ -47,7 +47,6 @@ for i, bh in enumerate(gl.boreholes):
 
     # FIXME
     tilt_depth *= -1
-    tilt_temp *= 1e-3
 
     # resample and concatenate
     tilt_temp = tilt_temp.resample('1D')[start:end]

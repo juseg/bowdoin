@@ -87,7 +87,7 @@ def extract_tilt(df, log):
 
 def extract_temp(df):
     """Return temperature values in a dataframe."""
-    temp = df['t']
+    temp = df['t']*1e-3
     return temp
 
 
