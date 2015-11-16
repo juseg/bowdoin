@@ -5,9 +5,9 @@ import pandas as pd
 
 loggers = {'downstream': 'BOWDOIN-1',
            'upstream':   'BOWDOIN-2'}
-input_instruments = ['id', 'ax', 'ay', 'mx', 'my', 'mz', 'p', 'tp', 't']
-output_instruments = ['ax', 'ay', 'p', 'tp', 't']
-
+instruments = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
+input_instruments = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
+output_instruments = ['ixr', 'iyr', 'p', 'tp', 't']
 
 
 def floatornan(x):
@@ -18,22 +18,42 @@ def floatornan(x):
         return np.nan
 
 
+def splitstrings(ts):
+    """Split series of data strings into multi-column data frame."""
+
+    # split data strings into new multi-column dataframe and fill with NaN
+    df = ts.str.split(',', expand=True)
+    df.fillna(value=np.nan, inplace=True)
+
+    # rename columns
+    unitname = 'unit%02d' % int(ts.name[4:-1])
+    df.columns = [instruments, [unitname]*len(instruments)]
+
+    # replace nan values by nan
+    df.replace('-99.199996', np.nan, inplace=True)
+
+    # convert to numeric
+    # splitted.convert_objects(convert_numeric=True)  # deprectiated
+    # splitted = pd.to_numeric(splitted, errors='coerce')  # does not work
+    df = df.applymap(floatornan)
+
+    # return splitted dataframe
+    return df
+
+
+
 def get_data(log):
     """Return data values in a data frame."""
 
     # input file names
-    cfilename = 'original/inclino/%s_Coefs.dat' % log
     ifilename = 'original/inclino/%s_All.dat' % log
-
-    # read calibration coefficients
-    coeffs = np.loadtxt(cfilename)
 
     # open input file
     idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
                       na_values='NAN')
 
-    # initialize output dataframe
-    odf = pd.DataFrame(index=idf.index.rename('date'))
+    # rename index
+    idf.index = idf.index.rename('date')
 
     # these columns will need to be splitted
     rescols = [col for col in idf.columns if col.startswith('res')]
@@ -42,53 +62,37 @@ def get_data(log):
     rescols = [col for col in rescols if not idf[col].isnull().all()]
 
     # split remaining columns into new dataframe
-    for i, col in enumerate(rescols):
-
-        # split data strings into new multi-column dataframe and fill with NaN
-        splitted = idf[col].str.split(',', expand=True)
-        splitted.fillna(value=np.nan, inplace=True)
-
-        # select wanted columns
-        splitted.columns = input_instruments
-        splitted = splitted[output_instruments]
-
-        # replace nan values by nan
-        splitted.replace('-99.199996', np.nan, inplace=True)
-
-        # convert to numeric
-        # splitted.convert_objects(convert_numeric=True)  # deprectiated
-        # splitted = pd.to_numeric(splitted, errors='coerce')  # does not work
-        splitted = splitted.applymap(floatornan)
-
-        # process angles
-        cx = coeffs[2*i]
-        cy = coeffs[2*i+1]
-        splitted['ax'] = (splitted['ax'] - cx[1])/cx[0]
-        splitted['ay'] = (splitted['ay'] - cy[1])/cy[0]
-
-        # append wanted columns to output dataframe
-        newcols = [i + '0' + col[4] for i in output_instruments]
-        odf[newcols] = splitted
+    odf = pd.concat([splitstrings(idf[col]) for col in rescols], axis=1)
 
     # return filled dataframe
     return odf
 
 
-def extract_tilt(df):
+def extract_tilt(df, log):
     """Return tilt angles in a dataframe."""
-    axcols = [col for col in df.columns if col.startswith('ax')]
-    aycols = [col for col in df.columns if col.startswith('ay')]
-    return df[axcols+aycols]
+
+    # read calibration coefficients
+    coefs = pd.read_csv('original/inclino/%s_Coefs.dat' % log,
+                         index_col=0, comment='#')
+
+    # process angles and compute tilt
+    tiltx = (df['ixr'] - coefs['bx'])/coefs['ax']
+    tilty = (df['iyr'] - coefs['by'])/coefs['ay']
+    tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))
+    tilt *= 180/np.pi
+
+    # return tilt
+    return tilt
 
 
 def extract_temp(df):
     """Return temperature values in a dataframe."""
-    tcols = [col for col in df.columns if col.startswith('t0')]
-    return df[tcols]
+    temp = df['t']
+    return temp
 
 
 def extract_wlev_depth(df):
-    """Return pressure values in a dataframe."""
+    """Return water level and unit depths."""
 
     # observed water depths
     if bh == 'downstream':
@@ -101,13 +105,13 @@ def extract_wlev_depth(df):
         chain_design = [0.0, 7.0, 10.0, 15.0, 25.0, 35.0, 50.0][1:]
 
     # extract water level above sensor unit
-    wlev = df[[col for col in df.columns if col.startswith('p')]]*9.80665
+    wlev = df['p']*9.80665
 
     # compute sensor depth using water depth from all sensors
     depth = wlev.loc[observ_date] + water_depth
 
     # calibrate water level
-    wlev = wlev - depth + depth[0]
+    wlev = wlev - depth + depth.iloc[0]
 
     # return calibrated water level and unit depth
     return wlev, depth
@@ -120,7 +124,7 @@ for bh, log in loggers.iteritems():
     df = get_data(log)
 
     # extract tilt angles
-    tilt = extract_tilt(df)
+    tilt = extract_tilt(df, log)
     tilt.to_csv('processed/bowdoin-tiltunit-tilt-%s.csv' % bh)
 
     # extract temperatures

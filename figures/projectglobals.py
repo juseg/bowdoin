@@ -7,8 +7,8 @@ import pandas as pd
 
 # parameters
 
-boreholes = ['upstream', 'downstream']
-colors = ['b', 'r']
+boreholes = ['downstream', 'upstream']
+colors = ['r', 'b']
 
 
 # data input functions

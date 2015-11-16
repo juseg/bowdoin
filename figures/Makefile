@@ -5,7 +5,7 @@ ALL_FIGS = $(PY_FIGS)
 
 all: data $(ALL_FIGS)
 
-$(PY_FIGS): %.pdf : %.py matplotlibrc
+$(PY_FIGS): %.pdf : %.py matplotlibrc projectglobals.py
 	python2 $<
 
 .PHONY: data clean cleandata

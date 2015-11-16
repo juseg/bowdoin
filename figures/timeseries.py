@@ -38,15 +38,8 @@ def get_tiltunit_temp(bh):
 def get_tiltunit_tilt(bh):
     """Get tilt angle from tilt sensor units in a dataframe."""
     df = gl.load_data('tiltunit', 'tilt', bh)
-    axcols = [col for col in df.columns if col.startswith('ax')]
-    aycols = [col for col in df.columns if col.startswith('ay')]
     df = df.resample('180T')  # resample and fill with nan
-    tilt = pd.DataFrame()
-    for xc, yc in zip(axcols, aycols):
-        tc = xc.replace('ax', 'tilt')
-        tilt[tc] = np.arcsin(np.sqrt(np.sin(df[xc])**2+np.sin(df[yc])**2))
-        tilt[tc] *= 180/np.pi
-    return tilt
+    return df
 
 
 def get_gps_velocity(method='backward'):

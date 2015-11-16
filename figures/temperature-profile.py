@@ -5,8 +5,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import projectglobals as gl
 
-boreholes = ['downstream', 'upstream']
-colors = ['b', 'r']
 
 def get_profiles(depth, temp):
     """Return avg, min and max temperature profile from data frame."""
@@ -17,9 +15,8 @@ def get_profiles(depth, temp):
     depth = depth[inicecols]
 
     # order by depth
-    ordercols = np.argsort(depth)
-    depth = depth[ordercols]
-    temp = temp[ordercols]
+    depth = depth.sort_values()
+    temp = temp[depth.index.values]
 
     # extract values
     tmin = temp.min().values
