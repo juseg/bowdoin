@@ -55,8 +55,16 @@ for i, bh in enumerate(ut.boreholes):
     temp_z, temp_tmin, temp_tavg, temp_tmax = get_profiles(temp_depth, temp_temp)
     tilt_z, tilt_tmin, tilt_tavg, tilt_tmax = get_profiles(tilt_depth, tilt_temp)
     join_z, join_tmin, join_tavg, join_tmax = get_profiles(join_depth, join_temp)
+    bottom = join_z[-1]
 
-    # plot
+    # plot melting point
+    g = 9.80665     # gravity
+    rhoi = 910.0    # ice density
+    beta = 7.9e-8   # Luethi et al. (2002)
+    bottom_mp = -beta * rhoi * g * bottom
+    ax.plot([0.0, bottom_mp], [0.0, bottom], c='0.75')
+
+    # plot profiles
     ax.fill_betweenx(join_z, join_tmin, join_tmax,
                      facecolor=ut.colors[i], edgecolor='none', alpha=0.2)
     ax.plot(join_tavg, join_z, '-', c=ut.colors[i])
@@ -66,7 +74,7 @@ for i, bh in enumerate(ut.boreholes):
 
     # add horizontal lines
     ax.axhline(0.0, c='k')
-    ax.axhline(join_z[-1], c='k')
+    ax.axhline(bottom, c='k')
     ax.set_ylim(300.0, 0.0)
 
 # save
