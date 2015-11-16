@@ -10,7 +10,7 @@ def get_profiles(depth, temp):
     """Return avg, min and max temperature profile from data frame."""
 
     # remove sensors above the ground
-    inicecols = depth < 0.0
+    inicecols = depth > 0.0
     temp = temp[temp.columns[inicecols]]
     depth = depth[inicecols]
 
@@ -45,9 +45,6 @@ for i, bh in enumerate(gl.boreholes):
     temp_depth = gl.load_depth('thstring', bh)
     tilt_depth = gl.load_depth('tiltunit', bh)
 
-    # FIXME
-    tilt_depth *= -1
-
     # resample and concatenate
     tilt_temp = tilt_temp.resample('1D')[start:end]
     temp_temp = temp_temp.resample('1D')[start:end]
@@ -68,8 +65,9 @@ for i, bh in enumerate(gl.boreholes):
     ax.set_title(bh)
 
     # add horizontal lines
-    ax.axhline(join_z[0], c='k')
     ax.axhline(0.0, c='k')
+    ax.axhline(join_z[-1], c='k')
+    ax.set_ylim(300.0, 0.0)
 
 # save
 fig.savefig('temperature-profile')

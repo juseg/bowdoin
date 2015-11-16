@@ -46,14 +46,14 @@ def get_depth(bh):
     if bh == 'downstream':
         bottom = -243.7
         top = 31.25
-        upper = bottom + 20.0*np.arange(9)
-        lower = top + 20.0*np.arange(-6, 1)
+        lower = bottom + 20.0*np.arange(9)
+        upper = top + 20.0*np.arange(-6, 1)
     if bh == 'upstream':
         bottom = -265.3
         top = 13.4
-        upper = bottom + 20.0*np.arange(9)
-        lower = top + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
-    depth = np.hstack([upper, lower])
+        lower = bottom + 20.0*np.arange(9)
+        upper = top + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
+    depth = -np.hstack([lower, upper])
 
     # return as a pandas data series
     ts = pd.Series(index=columns, data=depth)
