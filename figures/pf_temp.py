@@ -42,8 +42,8 @@ for i, bh in enumerate(ut.boreholes):
     tilt_temp = ut.io.load_data('tiltunit', 'temp', bh)
 
     # read depths
-    temp_depth = ut.io.load_depth('thstring', bh)
-    tilt_depth = ut.io.load_depth('tiltunit', bh)
+    temp_depth = ut.io.load_depth('thstring', bh).squeeze()
+    tilt_depth = ut.io.load_depth('tiltunit', bh).squeeze()
 
     # resample and concatenate
     tilt_temp = tilt_temp.resample('1D')[start:end]

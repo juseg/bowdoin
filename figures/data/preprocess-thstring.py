@@ -39,8 +39,10 @@ def get_temperature(log):
 
 def get_depth(bh):
     """Return temperature sensor depths in a data series."""
+
     # FIXME: I think this was measured on 18 July 2015. Check in Martin's
     # notebook and complete the picture with measurements from 2014.
+    date = '2015-07-18 12:00:00'
 
     # calculate sensor depths
     if bh == 'downstream':
@@ -56,8 +58,9 @@ def get_depth(bh):
     depth = -np.hstack([lower, upper])
 
     # return as a pandas data series
-    ts = pd.Series(index=columns, data=depth)
-    return ts
+    df = pd.DataFrame(index=[date], columns=columns, data=[depth])
+    df.index = df.index.rename('date')
+    return df
 
 
 # for each borehole
@@ -70,5 +73,5 @@ for bh, log in loggers.iteritems():
 
     # compute sensor depths
     filename = 'processed/bowdoin-thstring-depth-%s.csv' % bh
-    ts = get_depth(bh)
-    ts.to_csv(filename)
+    df = get_depth(bh)
+    df.to_csv(filename)

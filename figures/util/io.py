@@ -31,7 +31,7 @@ def load_depth(sensor, borehole):
     # read data
     filename = ('data/processed/bowdoin-%s-depth-%s.csv'
                 % (sensor, borehole))
-    ds = pd.read_csv(filename, header=None, index_col=0, squeeze=True)
-    return ds
+    df = pd.read_csv(filename, parse_dates=True, index_col='date', squeeze=True)
+    return df
 
 

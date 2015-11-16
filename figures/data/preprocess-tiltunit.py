@@ -114,6 +114,8 @@ def extract_wlev_depth(df):
     wlev = wlev - depth + depth.iloc[0]
 
     # return calibrated water level and unit depth
+    depth = pd.DataFrame([depth])
+    depth.index = depth.index.rename('date')
     return wlev, depth
 
 
