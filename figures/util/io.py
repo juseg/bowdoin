@@ -11,7 +11,7 @@ def load_data(sensor, variable, borehole):
 
     # check argument validity
     assert sensor in ('dgps', 'pressure', 'thstring', 'tiltunit')
-    assert variable in ('temp', 'tilt', 'wlev', 'velocity')
+    assert variable in ('depth', 'temp', 'tilt', 'wlev', 'velocity')
     assert borehole in ('downstream', 'upstream')
 
     # read data
@@ -24,14 +24,8 @@ def load_data(sensor, variable, borehole):
 def load_depth(sensor, borehole):
     """Return sensor depths in a data series."""
 
-    # check argument validity
-    assert sensor in ('dgps', 'pressure', 'thstring', 'tiltunit')
-    assert borehole in ('downstream', 'upstream')
-
     # read data
-    filename = ('data/processed/bowdoin-%s-depth-%s.csv'
-                % (sensor, borehole))
-    df = pd.read_csv(filename, parse_dates=True, index_col='date', squeeze=True)
+    df = load_data(sensor, 'depth', borehole)
     return df
 
 
