@@ -16,14 +16,12 @@ def date_parser(year, day, time):
 # for each borehole
 for bh, log in loggers.iteritems():
 
-    # input and output file names
-    ifilename = 'original/pressure/%s_final_storage_1.dat' % log
-    ofilename = 'processed/bowdoin-pressure-wlev-%s.csv' % bh
-
     # read original file
-    df = pd.read_csv(ifilename, names=columns,
-                     parse_dates={'date': ['year', 'day', 'time']},
-                     date_parser=date_parser, index_col='date')
+    df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % log,
+                     names=columns, index_col='date', date_parser=date_parser,
+                     parse_dates={'date': ['year', 'day', 'time']})
 
-    # write csv file without label column
-    df.drop('label', axis=1).to_csv(ofilename)
+    # write csv files
+    for var in ['temp', 'wlev']:
+        df[var].to_csv('processed/bowdoin-pressure-%s-%s.csv' % (var, bh),
+                       header=True)
