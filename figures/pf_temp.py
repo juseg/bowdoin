@@ -70,4 +70,4 @@ for i, bh in enumerate(gl.boreholes):
     ax.set_ylim(300.0, 0.0)
 
 # save
-fig.savefig('temperature-profile')
+fig.savefig('pf_temp')
