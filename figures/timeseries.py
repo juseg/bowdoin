@@ -7,51 +7,6 @@ import matplotlib.pyplot as plt
 import projectglobals as gl
 
 
-def get_pressure_wlev(bh):
-    """Get water level from pressure sensor in a dataframe."""
-    df = gl.load_data('pressure', 'wlev', bh)
-    df = df['wlev'].resample('30T')  # resample and fill with nan
-    return df[2:]  # remove the first hour corresponding to drilling
-
-
-def get_tiltunit_wlev(bh):
-    """Get water level from tilt sensor units in a dataframe."""
-    df = gl.load_data('tiltunit', 'wlev', bh)
-    return df
-
-
-def get_tempsens_temp(bh):
-    """Get temperature from temperature sensors in a dataframe."""
-    df = gl.load_data('thstring', 'temp', bh)
-    df = df.resample('180T')  # resample and fill with nan
-    df = df[df.columns[(df.max() < 1.0)]]  # remove records above ice surface
-    return df
-
-
-def get_tiltunit_temp(bh):
-    """Get temperature from tilt sensor units in a dataframe."""
-    df = gl.load_data('tiltunit', 'temp', bh)
-    df = df.resample('180T')  # resample and fill with nan
-    return df
-
-
-def get_tiltunit_tilt(bh):
-    """Get tilt angle from tilt sensor units in a dataframe."""
-    df = gl.load_data('tiltunit', 'tilt', bh)
-    df = df.resample('180T')  # resample and fill with nan
-    return df
-
-
-def get_gps_velocity(method='backward'):
-    """Get UTM 19 GPS velocity components in a dataframe."""
-    df = gl.load_data('dgps', 'velocity', 'upstream')
-    return df
-
-
-# interval to match tilt unit pressure against water level from bottom
-wlev_calib_intervals = [['2014-07-18', '2014-07-22'],
-                        ['2014-07-29', '2014-08-02']]
-
 # initialize figure
 fig, grid = plt.subplots(4, 1, sharex=True)
 
@@ -63,7 +18,7 @@ gl.unframe(grid[3], ['bottom', 'left'])
 fig.subplots_adjust(hspace=0.0)
 
 # plot GPS velocity
-df = get_gps_velocity()
+df = gl.load_data('dgps', 'velocity', 'upstream')
 gl.rollplot(grid[0], df['vh'], 4*3, c='g')
 
 # for each borehole
@@ -71,22 +26,24 @@ lines = [None, None]
 for i, bh in enumerate(gl.boreholes):
 
     # plot pressure sensor water level
-    df = get_pressure_wlev(bh)
-    df.plot(ax=grid[1], c=gl.colors[i], lw=2.0)
+    df = gl.load_data('pressure', 'wlev', bh).resample('30T')
+    df = df[2:]  # remove the first hour corresponding to drilling
+    df.plot(ax=grid[1], c=gl.colors[i], lw=2.0, legend=False)
     lines[i] = grid[1].get_lines()[-1]  # select last line for the legend
 
     # plot tilt unit water level
-    df = get_tiltunit_wlev(bh)
+    df = gl.load_data('tiltunit', 'wlev', bh)
     df.plot(ax=grid[1], c='k', alpha=0.2, legend=False)
 
     # plot tilt
-    df = get_tiltunit_tilt(bh)
+    df = gl.load_data('tiltunit', 'tilt', bh).resample('180T')
     df.plot(ax=grid[2], c=gl.colors[i], lw=0.1, legend=False)
 
     # plot temperature
-    df = get_tempsens_temp(bh)
+    df = gl.load_data('thstring', 'temp', bh).resample('180T')
+    df = df[df.columns[(df.max() < 1.0)]]  # remove records above ice surface
     df.plot(ax=grid[3], c=gl.colors[i], lw=0.1, legend=False)
-    df = get_tiltunit_temp(bh)
+    df = gl.load_data('tiltunit', 'temp', bh).resample('180T')
     df.plot(ax=grid[3], c=gl.colors[i], lw=0.1, legend=False)
 
 # add legend
