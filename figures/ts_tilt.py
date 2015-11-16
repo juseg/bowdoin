@@ -2,18 +2,18 @@
 # coding: utf-8
 
 import matplotlib.pyplot as plt
-import projectglobals as gl
+import util as ut
 
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
 
 # for each borehole
-for i, bh in enumerate(gl.boreholes):
+for i, bh in enumerate(ut.boreholes):
     ax = grid[i]
-    c = gl.colors[i]
+    c = ut.colors[i]
 
     # plot tilt unit temperature
-    df = gl.load_data('tiltunit', 'tilt', bh)
+    df = ut.io.load_data('tiltunit', 'tilt', bh)
     df.plot(ax=ax, c=c, legend=False)
 
     # set title

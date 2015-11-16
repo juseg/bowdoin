@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import projectglobals as gl
+import util as ut
 
 
 def get_profiles(depth, temp):
@@ -34,16 +34,16 @@ end = '2015-07-15'
 fig, grid = plt.subplots(1, 2, sharey=True)
 
 # for each borehole
-for i, bh in enumerate(gl.boreholes):
+for i, bh in enumerate(ut.boreholes):
     ax = grid[i]
 
     # read temperature values
-    temp_temp = gl.load_data('thstring', 'temp', bh)
-    tilt_temp = gl.load_data('tiltunit', 'temp', bh)
+    temp_temp = ut.io.load_data('thstring', 'temp', bh)
+    tilt_temp = ut.io.load_data('tiltunit', 'temp', bh)
 
     # read depths
-    temp_depth = gl.load_depth('thstring', bh)
-    tilt_depth = gl.load_depth('tiltunit', bh)
+    temp_depth = ut.io.load_depth('thstring', bh)
+    tilt_depth = ut.io.load_depth('tiltunit', bh)
 
     # resample and concatenate
     tilt_temp = tilt_temp.resample('1D')[start:end]
@@ -58,10 +58,10 @@ for i, bh in enumerate(gl.boreholes):
 
     # plot
     ax.fill_betweenx(join_z, join_tmin, join_tmax,
-                     facecolor=gl.colors[i], edgecolor='none', alpha=0.2)
-    ax.plot(join_tavg, join_z, '-', c=gl.colors[i])
-    ax.plot(temp_tavg, temp_z, 'o', c=gl.colors[i])
-    ax.plot(tilt_tavg, tilt_z, '^', c=gl.colors[i])
+                     facecolor=ut.colors[i], edgecolor='none', alpha=0.2)
+    ax.plot(join_tavg, join_z, '-', c=ut.colors[i])
+    ax.plot(temp_tavg, temp_z, 'o', c=ut.colors[i])
+    ax.plot(tilt_tavg, tilt_z, '^', c=ut.colors[i])
     ax.set_title(bh)
 
     # add horizontal lines

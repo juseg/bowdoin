@@ -1,6 +1,6 @@
 # figures
-figures/*.pdf
-figures/*.pyc
+*.pdf
+*.pyc
 
 # processed data
 figures/data/processed
