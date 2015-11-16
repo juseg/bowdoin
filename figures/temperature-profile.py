@@ -37,7 +37,7 @@ end = '2015-07-15'
 fig, grid = plt.subplots(1, 2, sharey=True)
 
 # for each borehole
-for i, bh in enumerate(boreholes):
+for i, bh in enumerate(gl.boreholes):
     ax = grid[i]
 
     # read temperature values
@@ -65,10 +65,10 @@ for i, bh in enumerate(boreholes):
 
     # plot
     ax.fill_betweenx(join_z, join_tmin, join_tmax,
-                     facecolor=colors[i], edgecolor='none', alpha=0.2)
-    ax.plot(join_tavg, join_z, '-', c=colors[i])
-    ax.plot(temp_tavg, temp_z, 'o', c=colors[i])
-    ax.plot(tilt_tavg, tilt_z, '^', c=colors[i])
+                     facecolor=gl.colors[i], edgecolor='none', alpha=0.2)
+    ax.plot(join_tavg, join_z, '-', c=gl.colors[i])
+    ax.plot(temp_tavg, temp_z, 'o', c=gl.colors[i])
+    ax.plot(tilt_tavg, tilt_z, '^', c=gl.colors[i])
     ax.set_title(bh)
 
     # add horizontal lines

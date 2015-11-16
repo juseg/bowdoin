@@ -55,48 +55,6 @@ def get_gps_velocity(method='backward'):
     return df
 
 
-def unframe(ax, edges=['bottom', 'left']):
-    """Unframe axes to leave only specified edges visible."""
-
-    # remove background patch
-    ax.patch.set_visible(False)
-
-    # adjust bounds
-    active_spines = [ax.spines[s] for s in edges]
-    for s in active_spines:
-        s.set_smart_bounds(True)
-
-    # get rid of extra spines
-    hidden_spines = [ax.spines[s] for s in ax.spines if s not in edges]
-    for s in hidden_spines:
-        s.set_visible(False)
-
-    # set ticks positions
-    ax.xaxis.set_ticks_position([['none', 'top'], ['bottom', 'both']]
-                                ['bottom' in edges]['top' in edges])
-    ax.yaxis.set_ticks_position([['none', 'right'], ['left', 'both']]
-                                ['left' in edges]['right' in edges])
-
-    # set label positions
-    if 'right' in edges and not 'left' in edges:
-        ax.yaxis.set_label_position('right')
-    if 'top' in edges and not 'bottom' in edges:
-        ax.xaxis.set_label_position('top')
-
-
-def rollplot(ax, arg, window, c='b'):
-    mean = pd.rolling_mean(arg, window)
-    std = pd.rolling_std(arg, window)
-    arg.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
-    mean.plot(ax=ax, color=c, ls='-')
-    plt.fill_between(arg.index, mean-2*std, mean+2*std, color=c, alpha=0.1)
-
-
-# parameters
-boreholes = ['upstream', 'downstream']
-colors = ['b', 'r']
-lines = [None, None]
-
 # interval to match tilt unit pressure against water level from bottom
 wlev_calib_intervals = [['2014-07-18', '2014-07-22'],
                         ['2014-07-29', '2014-08-02']]
@@ -105,22 +63,23 @@ wlev_calib_intervals = [['2014-07-18', '2014-07-22'],
 fig, grid = plt.subplots(4, 1, sharex=True)
 
 # remove spines and compact plot
-unframe(grid[0], ['top', 'right'])
-unframe(grid[1], ['left'])
-unframe(grid[2], ['right'])
-unframe(grid[3], ['bottom', 'left'])
+gl.unframe(grid[0], ['top', 'right'])
+gl.unframe(grid[1], ['left'])
+gl.unframe(grid[2], ['right'])
+gl.unframe(grid[3], ['bottom', 'left'])
 fig.subplots_adjust(hspace=0.0)
 
 # plot GPS velocity
 df = get_gps_velocity()
-rollplot(grid[0], df['vh'], 4*3, c='g')
+gl.rollplot(grid[0], df['vh'], 4*3, c='g')
 
 # for each borehole
-for i, bh in enumerate(boreholes):
+lines = [None, None]
+for i, bh in enumerate(gl.boreholes):
 
     # plot pressure sensor water level
     df = get_pressure_wlev(bh)
-    df.plot(ax=grid[1], c=colors[i], lw=2.0)
+    df.plot(ax=grid[1], c=gl.colors[i], lw=2.0)
     lines[i] = grid[1].get_lines()[-1]  # select last line for the legend
 
     # plot tilt unit water level
@@ -129,16 +88,16 @@ for i, bh in enumerate(boreholes):
 
     # plot tilt
     df = get_tiltunit_tilt(bh)
-    df.plot(ax=grid[2], c=colors[i], lw=0.1, legend=False)
+    df.plot(ax=grid[2], c=gl.colors[i], lw=0.1, legend=False)
 
     # plot temperature
     df = get_tempsens_temp(bh)
-    df.plot(ax=grid[3], c=colors[i], lw=0.1, legend=False)
+    df.plot(ax=grid[3], c=gl.colors[i], lw=0.1, legend=False)
     df = get_tiltunit_temp(bh)
-    df.plot(ax=grid[3], c=colors[i], lw=0.1, legend=False)
+    df.plot(ax=grid[3], c=gl.colors[i], lw=0.1, legend=False)
 
 # add legend
-grid[0].legend(lines, boreholes)
+grid[0].legend(lines, gl.boreholes)
 
 # set labels
 grid[0].set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
