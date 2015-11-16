@@ -1,6 +1,8 @@
 # Figures Makefile
 
-PY_FIGS = temperature-profile.pdf timeseries.pdf
+PY_FIGS = temperature-profile.pdf \
+    ts_combined.pdf ts_gpsv.pdf ts_temp.pdf ts_tilt.pdf ts_wlev.pdf \
+
 ALL_FIGS = $(PY_FIGS)
 
 all: data $(ALL_FIGS)
