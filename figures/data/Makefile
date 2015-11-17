@@ -4,7 +4,7 @@
 BOREHOLES = upstream downstream
 INC_VARS = depth temp tilt wlev
 TEM_VARS = depth temp
-PRE_VARS = temp wlev
+PRE_VARS = depth temp wlev
 
 # processed files
 GPS_FILES = processed/bowdoin-dgps-velocity-upstream.csv

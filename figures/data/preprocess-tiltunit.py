@@ -50,7 +50,7 @@ def get_data(log):
 
     # open input file
     idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
-                      na_values='NAN')
+                      parse_dates=True, na_values='NAN')
 
     # rename index
     idf.index = idf.index.rename('date')
@@ -105,18 +105,41 @@ def extract_wlev_depth(df):
         chain_design = [0.0, 7.0, 10.0, 15.0, 25.0, 35.0, 50.0][1:]
 
     # extract water level above sensor unit
-    wlev = df['p']*9.80665
+    tiltunit_wlev = df['p']*9.80665
 
-    # compute sensor depth using water depth from all sensors
-    depth = wlev.loc[observ_date] + water_depth
+    # compute tilt unit depth using water depth from all sensors
+    tiltunit_depth = tiltunit_wlev.loc[observ_date] + water_depth
+
+    # calibration interval
+    calint = {'upstream':   ['2014-07-18', '2014-07-24'],
+              'downstream': ['2014-07-29', '2014-08-04']}[bh]
+
+    # open preprocessed pressure sensor water level as a reference
+    pressure_wlev = pd.read_csv('processed/bowdoin-pressure-wlev-%s.csv' % bh,
+                                parse_dates=True, index_col='date').squeeze()
+
+    # the diff between bottom tiltunit and pressure sensor over calib interval
+    pressure_wlev_ref = pressure_wlev[calint[0]:calint[1]]
+    tiltunit_wlev_bot = tiltunit_wlev.iloc[:,0].loc[pressure_wlev_ref.index]
+    diff = pressure_wlev_ref - tiltunit_wlev_bot
+
+    # the mean difference gives the pressure sensor depth
+    pressure_depth = tiltunit_depth.iloc[0] + diff.mean()
+
+    # reconstruct unit height from all depths
+    tiltunit_height = diff.mean() + tiltunit_depth.iloc[0] - tiltunit_depth
 
     # calibrate water level
-    wlev = wlev - depth + depth.iloc[0]
+    tiltunit_wlev = tiltunit_wlev + tiltunit_height
 
-    # return calibrated water level and unit depth
-    depth = pd.DataFrame([depth])
-    depth.index = depth.index.rename('date')
-    return wlev, depth
+    # return calibrated water level and sensor depths as dataframes
+    tiltunit_depth = pd.DataFrame([tiltunit_depth])
+    pressure_depth = pd.DataFrame(columns=['depth'],
+                                  index=[observ_date],
+                                  data=[pressure_depth])
+    tiltunit_depth.index = tiltunit_depth.index.rename('date')
+    pressure_depth.index = pressure_depth.index.rename('date')
+    return tiltunit_wlev, tiltunit_depth, pressure_depth
 
 
 # for each borehole
@@ -134,6 +157,7 @@ for bh, log in loggers.iteritems():
     temp.to_csv('processed/bowdoin-tiltunit-temp-%s.csv' % bh)
 
     # extract water level and sensor depth
-    wlev, depth = extract_wlev_depth(df)
-    wlev.to_csv('processed/bowdoin-tiltunit-wlev-%s.csv' % bh)
-    depth.to_csv('processed/bowdoin-tiltunit-depth-%s.csv' % bh)
+    tu_wlev, tu_depth, pr_depth = extract_wlev_depth(df)
+    tu_wlev.to_csv('processed/bowdoin-tiltunit-wlev-%s.csv' % bh)
+    tu_depth.to_csv('processed/bowdoin-tiltunit-depth-%s.csv' % bh)
+    pr_depth.to_csv('processed/bowdoin-pressure-depth-%s.csv' % bh)
