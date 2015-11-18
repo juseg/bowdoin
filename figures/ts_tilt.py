@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import util as ut
 
+refdate = '2014-11-01'
+
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
 
@@ -16,7 +18,14 @@ for i, bh in enumerate(ut.boreholes):
     # plot tilt unit temperature
     tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)
     tilty = ut.io.load_data('tiltunit', 'tilty', bh)
-    tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))*180/np.pi
+
+    # compute reference values
+    tx0 = tiltx[refdate].mean()
+    ty0 = tilty[refdate].mean()
+
+    # compute tilt relative to reference
+    tilt = np.arcsin(np.sqrt((np.sin(tiltx)-np.sin(tx0))**2+
+                             (np.sin(tilty)-np.sin(ty0))**2))*180/np.pi
     tilt.plot(ax=ax, c=c, legend=False)
 
     # set title
