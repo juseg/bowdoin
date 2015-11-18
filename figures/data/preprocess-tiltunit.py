@@ -153,7 +153,7 @@ for bh, log in loggers.iteritems():
     # extract tilt angles
     tiltx, tilty = extract_tilt(df, log)
     tiltx.to_csv('processed/bowdoin-tiltunit-tiltx-%s.csv' % bh)
-    tiltx.to_csv('processed/bowdoin-tiltunit-tilty-%s.csv' % bh)
+    tilty.to_csv('processed/bowdoin-tiltunit-tilty-%s.csv' % bh)
 
     # extract temperatures
     temp = extract_temp(df)
