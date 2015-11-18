@@ -75,6 +75,9 @@ def extract_tilt(df, log):
     coefs = pd.read_csv('original/inclino/%s_Coefs.dat' % log,
                          index_col=0, comment='#')
 
+    # keep only units present in data
+    coefs = coefs.loc[df['ixr'].columns]
+
     # process angles and compute tilt
     tiltx = (df['ixr'] - coefs['bx'])/coefs['ax']
     tilty = (df['iyr'] - coefs['by'])/coefs['ay']
