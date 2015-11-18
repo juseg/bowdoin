@@ -2,7 +2,7 @@
 
 # borehole names and inclinometer variables
 BOREHOLES = upstream downstream
-INC_VARS = depth temp tilt wlev
+INC_VARS = depth temp tiltx tilty wlev
 TEM_VARS = depth temp
 PRE_VARS = depth temp wlev
 

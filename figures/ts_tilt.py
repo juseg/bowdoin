@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # coding: utf-8
 
+import numpy as np
 import matplotlib.pyplot as plt
 import util as ut
 
@@ -13,8 +14,10 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # plot tilt unit temperature
-    df = ut.io.load_data('tiltunit', 'tilt', bh)
-    df.plot(ax=ax, c=c, legend=False)
+    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)
+    tilty = ut.io.load_data('tiltunit', 'tilty', bh)
+    tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))*180/np.pi
+    tilt.plot(ax=ax, c=c, legend=False)
 
     # set title
     ax.set_ylabel('tilt ' + bh)

@@ -78,11 +78,10 @@ def extract_tilt(df, log):
     # process angles and compute tilt
     tiltx = (df['ixr'] - coefs['bx'])/coefs['ax']
     tilty = (df['iyr'] - coefs['by'])/coefs['ay']
-    tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))
-    tilt *= 180/np.pi
+    # tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))*180/np.pi
 
     # return tilt
-    return tilt
+    return tiltx, tilty
 
 
 def extract_temp(df):
@@ -149,8 +148,9 @@ for bh, log in loggers.iteritems():
     df = get_data(log)
 
     # extract tilt angles
-    tilt = extract_tilt(df, log)
-    tilt.to_csv('processed/bowdoin-tiltunit-tilt-%s.csv' % bh)
+    tiltx, tilty = extract_tilt(df, log)
+    tiltx.to_csv('processed/bowdoin-tiltunit-tiltx-%s.csv' % bh)
+    tiltx.to_csv('processed/bowdoin-tiltunit-tilty-%s.csv' % bh)
 
     # extract temperatures
     temp = extract_temp(df)
