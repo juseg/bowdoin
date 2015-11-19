@@ -60,7 +60,7 @@ for i, bh in enumerate(ut.boreholes):
 
     # plot velocity profiles
     ax.plot(v_fit, depth_fit, c=c)
-    ax.fill_betweenx(depth_fit, 0.0, v_fit, color=c, alpha=0.2)
+    ax.fill_betweenx(depth_fit, 0.0, v_fit, color=c, alpha=0.25)
     ax.set_title(bh)
 
     # add velocity arrows

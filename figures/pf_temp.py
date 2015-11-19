@@ -65,11 +65,11 @@ for i, bh in enumerate(ut.boreholes):
     rhoi = 910.0    # ice density
     beta = 7.9e-8   # Luethi et al. (2002)
     bottom_mp = -beta * rhoi * g * bottom
-    ax.plot([0.0, bottom_mp], [0.0, bottom], c='0.75')
+    ax.plot([0.0, bottom_mp], [0.0, bottom], c='k', ls=':')
 
     # plot profiles
     ax.fill_betweenx(temp_z, temp_tmin, temp_tmax,
-                     facecolor=ut.colors[i], edgecolor='none', alpha=0.2)
+                     facecolor=ut.colors[i], edgecolor='none', alpha=0.25)
     ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[i])
     ax.plot(tilt_tavg, tilt_z, '-^', c='0.75')
     ax.set_title(bh)
@@ -77,6 +77,7 @@ for i, bh in enumerate(ut.boreholes):
     # add horizontal lines
     ax.axhline(0.0, c='k')
     ax.axhline(bottom, c='k')
+    ax.set_xlim(-12.0, 2.0)
     ax.set_ylim(300.0, 0.0)
 
 # add common labels

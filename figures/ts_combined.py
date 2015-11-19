@@ -24,7 +24,7 @@ for i, bh in enumerate(ut.boreholes):
 
 # add label and legend
 ax.set_ylabel('water level (m)')
-ax.legend(lines, ut.boreholes)
+ax.legend(lines, ut.boreholes, loc='lower right')
 
 # add twin axes
 ax = ax.twinx()

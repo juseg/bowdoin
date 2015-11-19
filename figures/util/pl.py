@@ -113,7 +113,7 @@ def resample_plot(ax, ts, freq, c='b'):
     std = ts.resample(freq, how='std')
     avg.plot(ax=ax, color=c, ls='-')
     # for some reason not working
-    ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.2)
+    ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.25)
 
 
 def rolling_plot(ax, ts, window, c='b'):
@@ -121,4 +121,4 @@ def rolling_plot(ax, ts, window, c='b'):
     avg = pd.rolling_mean(ts, window)
     std = pd.rolling_std(ts, window)
     avg.plot(ax=ax, color=c, ls='-')
-    ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.2)
+    ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.25)
