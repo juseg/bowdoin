@@ -19,6 +19,12 @@ legend.frameon          : False     # draw a frame around legend
 ### FIGURE
 #figure.figsize         : 3.346, 2.362  #  85x 60mm
 figure.figsize          : 4.724, 3.937  # 120x100mm
+figure.subplot.left     : 0.083     #     10 / 120
+figure.subplot.right    : 0.916     # 1 - 10 / 120
+figure.subplot.bottom   : 0.100     #     10 / 100
+figure.subplot.top      : 0.9       # 1 - 10 / 100
+figure.subplot.wspace   : 0.1       # half the default
+figure.subplot.hspace   : 0.1       # half the default
 
 ### SAVING FIGURES
 savefig.dpi             : 254       # figure dots per inch
