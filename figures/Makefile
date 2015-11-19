@@ -1,7 +1,7 @@
 # Figures Makefile
 
-PY_FIGS = pf_temp.pdf \
-    ts_combined.pdf ts_gpsv.pdf ts_temp.pdf ts_tilt.pdf ts_wlev.pdf \
+PY_FIGS = map_grl.pdf pf_temp.pdf pf_tilt.pdf \
+          ts_combined.pdf ts_gpsv.pdf ts_temp.pdf ts_tilt.pdf ts_wlev.pdf
 
 ALL_FIGS = $(PY_FIGS)
 
