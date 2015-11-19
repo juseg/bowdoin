@@ -1,9 +1,25 @@
 # matplotlib configuration parameters
 
-font.family 		: sans-serif
-font.size   		: 6.0
+### LINES
+lines.markeredgewidth   : 0.0       # the line width around the marker symbol
 
-mathtext.default 	: regular
+### FONT
+font.size               : 6
+font.family             : sans-serif
 
-savefig.dpi         : 254
-savefig.format      : pdf
+### TEXT
+mathtext.default        : regular
+
+### AXES
+axes.grid               : False     # display grid or not
+
+### LEGEND
+legend.frameon          : False     # draw a frame around legend
+
+### FIGURE
+#figure.figsize         : 3.346, 2.362  #  85x 60mm
+figure.figsize          : 4.724, 3.937  # 120x100mm
+
+### SAVING FIGURES
+savefig.dpi             : 254       # figure dots per inch
+savefig.format          : pdf       # png, ps, pdf, svg
