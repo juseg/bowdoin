@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+# coding: utf-8
 
 import numpy as np
 import pandas as pd
@@ -77,6 +78,12 @@ for i, bh in enumerate(ut.boreholes):
     ax.axhline(0.0, c='k')
     ax.axhline(bottom, c='k')
     ax.set_ylim(300.0, 0.0)
+
+# add common labels
+figw, figh = fig.get_size_inches()*25.4
+xlabel = u'ice temperature from %s to %s (°C)' % (start, end)
+fig.text(0.5, 2.5/figh, xlabel, ha='center')
+fig.text(2.5/figw, 0.5, 'depth (m)', va='center', rotation='vertical')
 
 # save
 fig.savefig('pf_temp')

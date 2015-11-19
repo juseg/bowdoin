@@ -78,5 +78,11 @@ for i, bh in enumerate(ut.boreholes):
     ax.set_ylim(300.0, 0.0)
     ax.set_xlim(25.0, 0.0)
 
+# add common labels
+figw, figh = fig.get_size_inches()*25.4
+xlabel = 'ice deformation from %s to %s (m)' % (start, end)
+fig.text(0.5, 2.5/figh, xlabel, ha='center')
+fig.text(2.5/figw, 0.5, 'depth (m)', va='center', rotation='vertical')
+
 # save
 fig.savefig('pf_tilt')

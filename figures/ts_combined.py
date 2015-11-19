@@ -34,7 +34,7 @@ ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
 ut.pl.rolling_plot(ax, ts, 4*6, c=ut.colors[2])
 
 # add label and set limits
-ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
+ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', labelpad=0.0)
 ax.set_xlim('2014-07-17', '2015-07-20')
 
 # save
