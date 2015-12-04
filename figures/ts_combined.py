@@ -22,6 +22,10 @@ for i, bh in enumerate(ut.boreholes):
     ts.plot(ax=ax, c=ut.colors[i], legend=False)
     lines.append(ax.get_lines()[-1])  # select last line for the legend
 
+# add field campaigns
+ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette[7], alpha=0.25)
+ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette[7], alpha=0.25)
+
 # add label and legend
 ax.set_ylabel('water level (m)')
 ax.legend(lines, ut.boreholes, loc='lower right')
@@ -35,7 +39,7 @@ ut.pl.rolling_plot(ax, ts, 4*6, c=ut.colors[2])
 
 # add label and set limits
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', labelpad=0.0)
-ax.set_xlim('2014-07-17', '2015-07-20')
+ax.set_xlim('2014-07-14', '2015-07-21')
 
 # save
 fig.savefig('ts_combined')
