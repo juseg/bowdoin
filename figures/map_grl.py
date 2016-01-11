@@ -35,7 +35,7 @@ def open_measures_composite():
     """Average MEASURES Greenland velocities over five winters of data."""
 
     # data file names
-    dirname = '/scratch_net/ogive/juliens/geodata/glacier/measures/'
+    dirname = '/scratch_net/ogive/juliens/geodata/iceflow/measures-greenland/'
     basenames = ['2000.09.03/greenland_vel_mosaic500_2000_2001.tif',
                  '2005.12.13/greenland_vel_mosaic500_2005_2006.tif',
                  '2006.12.18/greenland_vel_mosaic500_2006_2007.tif',
