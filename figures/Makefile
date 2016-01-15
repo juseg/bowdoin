@@ -1,9 +1,10 @@
 # Figures Makefile
 
-PY_FIGS = fft_gpsv.pdf fft_temp.pdf fft_tilt.pdf fft_wlev \
-          map_bow.pdf map_grl.pdf pf_temp.pdf pf_tilt.pdf \
-          ts_combined.pdf ts_gpsv.pdf ts_temp.pdf ts_tilt.pdf ts_tvel \
-          ts_wlev.pdf ts_tilt_detrend.pdf
+EXT = pdf
+PY_FIGS = fft_gpsv fft_temp fft_tilt fft_wlev \
+          map_bow map_grl pf_temp pf_tilt \
+          ts_combined ts_gpsv ts_temp ts_tilt ts_tvel ts_wlev ts_tilt_detrend
+PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
 ALL_FIGS = $(PY_FIGS)
 
