@@ -14,15 +14,15 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # read tilt unit tilt
-    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('10T')
-    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('10T')
+    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('1H')
+    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('1H')
 
     # remove empty columns
     tiltx = tiltx.dropna(axis='columns', how='all').iloc[:,-1]
     tilty = tilty.dropna(axis='columns', how='all').iloc[:,-1]
 
     # compute tilt velocity
-    dt = 10.0*60*1e-6
+    dt = 1.0/24/365
     tilt = np.arcsin(np.sqrt((np.sin(tiltx).diff()[1:])**2+
                              (np.sin(tilty).diff()[1:])**2))*180/np.pi/dt
 
