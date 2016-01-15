@@ -16,8 +16,8 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # read tilt unit tilt
-    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)[d0:].resample('10T')
-    tilty = ut.io.load_data('tiltunit', 'tilty', bh)[d0:].resample('10T')
+    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('10T')
+    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('10T')
 
     # remove empty columns
     tiltx = tiltx.dropna(axis='columns', how='all').iloc[:,-1]
@@ -28,8 +28,8 @@ for i, bh in enumerate(ut.boreholes):
     tilt = np.arcsin(np.sqrt((np.sin(tiltx).diff()[1:])**2+
                              (np.sin(tilty).diff()[1:])**2))*180/np.pi/dt
 
-    # count nulls
-    assert tilt.isnull().sum() == 0
+    # get longest continuous segment
+    tilt = ut.io.longest_continuous(tilt)
 
     # compute fft
     freq = np.fft.rfftfreq(tilt.shape[-1], 10.0/60)
@@ -40,6 +40,7 @@ for i, bh in enumerate(ut.boreholes):
     ax.plot(freq, gain, c=c)
 
     # set title
+    ax.set_xlim(0.0, 60.0/10/2)
     ax.set_ylabel('power (dB) ' + bh)
 
 # save
