@@ -5,8 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import util as ut
 
-d0 = '2015-04-01'
-
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
 

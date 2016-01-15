@@ -5,8 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import util as ut
 
-d0 = '2015-04-01'
-
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)
 c = ut.colors[2]
