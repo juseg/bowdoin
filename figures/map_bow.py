@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+import util as ut
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
@@ -115,6 +116,21 @@ if __name__ == '__main__':
     cs = ax.contour(x, y, z, levels=levs[(levs % 100 == 0)],
                     colors='k', linewidths=0.25)
     cs.clabel(fmt='%d')
+
+    # plot locations of camera and boreholes
+    llz = {'qaanaaq':   (-69.230556, 77.466667,   0.000000),
+           'cam_lower': (-68.527481, 77.659782, 490.219243),
+           'cam_upper': (-68.504852, 77.691702, 289.044237),
+           'gcp_m1':    (-68.504733, 77.688107, 139.879200),
+           'gcp_m2':    (-68.628121, 77.721004, 172.288962),
+           'gcp_m3':    (-68.643724, 77.703824, 172.562631),
+           'bh1':       (-68.555749, 77.691244,  88.694913),  # upstream
+           'bh2':       (-68.555685, 77.691307,  87.746263),  # upstream
+           'bh3':       (-68.558857, 77.689995,  83.446628),  # downstream
+           'camp':      (-68.509920, 77.685890,  70.000000)}
+    ax.plot(*llz['bh1'][:2], c=ut.colors[1], marker='o', transform=ll)
+    ax.plot(*llz['bh3'][:2], c=ut.colors[0], marker='o', transform=ll)
+    ax.plot(*llz['cam_upper'][:2], c=ut.palette[7], marker='^', transform=ll)
 
     # save third frame
     fig.savefig('map_bow')
