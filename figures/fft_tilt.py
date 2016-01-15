@@ -1,0 +1,48 @@
+#!/usr/bin/env python2
+# coding: utf-8
+
+import numpy as np
+import matplotlib.pyplot as plt
+import util as ut
+
+d0 = '2015-04-01'
+
+# initialize figure
+fig, grid = plt.subplots(2, 1, sharex=True)
+
+# for each borehole
+for i, bh in enumerate(ut.boreholes):
+    ax = grid[i]
+    c = ut.colors[i]
+
+    # read tilt unit tilt
+    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)[d0:].resample('10T')
+    tilty = ut.io.load_data('tiltunit', 'tilty', bh)[d0:].resample('10T')
+
+    # remove empty columns
+    tiltx = tiltx.dropna(axis='columns', how='all').iloc[:,-1]
+    tilty = tilty.dropna(axis='columns', how='all').iloc[:,-1]
+
+    # compute tilt velocity
+    dt = 10.0*60*1e-6
+    tilt = np.arcsin(np.sqrt((np.sin(tiltx).diff()[1:])**2+
+                             (np.sin(tilty).diff()[1:])**2))*180/np.pi/dt
+
+    # count nulls
+    assert tilt.isnull().sum() == 0
+
+    # compute fft
+    freq = np.fft.rfftfreq(tilt.shape[-1], 10.0/60)
+    rfft = np.fft.rfft(tilt.values)
+    gain = 20*np.log10(np.abs(rfft))  # gain = 10*np.log10(power)
+
+    # plot
+    ax.plot(freq, gain, c=c)
+
+    # set title
+    ax.set_ylabel('power (dB) ' + bh)
+
+# save
+grid[0].set_title('tilt velocity FFT')
+grid[1].set_xlabel(r'frequency (h$^{-1}$)')
+fig.savefig('fft_tilt')
