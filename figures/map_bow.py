@@ -90,7 +90,7 @@ if __name__ == '__main__':
     extents = (-540e3, -525e3, -1230e3, -1215e3)
 
     # read velocity data
-    filename = ('/scratch_net/ogive/juliens/geodata/glacier/measures/gimp_dem/'
+    filename = ('/scratch_net/ogive/juliens/geodata/topography/measures-gimp/'
                 '30/gimpdem0_4.tif')
     x, y, z = open_gtif(filename, extents)
 
