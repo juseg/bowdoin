@@ -17,17 +17,9 @@ for i, bh in enumerate(ut.boreholes):
     df = df[df.columns[df.max()<5.0]]
     df.plot(ax=ax, c=c, legend=False)
 
-    # identify freezing times
-    for d in df.diff().abs().idxmax():
-        ax.axvline(d, c=c, ls='--')
-
     # plot tilt unit temperature
     df = ut.io.load_data('tiltunit', 'temp', bh)
     df.plot(ax=ax, c='0.75', legend=False)
-
-    # identify freezing times
-    for d in df.diff().abs().idxmax():
-        ax.axvline(d, c='0.75', ls='--')
 
     # plot pressure sensor temperature
     ts = ut.io.load_data('pressure', 'temp', bh)
