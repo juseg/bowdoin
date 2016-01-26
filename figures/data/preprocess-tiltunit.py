@@ -103,11 +103,12 @@ def extract_wlev_depth(df):
         chain_design = [0.0, 10.0, 20.0, 40.0, 50.0][2:]
     if bh == 'upstream':
         observ_date = '2014-07-17 16:15:00'  # assumed
-        water_depth = 46.0
+        water_depth = 48.0  # 46 m in pressure borehole, 48 m in tilt
         chain_design = [0.0, 7.0, 10.0, 15.0, 25.0, 35.0, 50.0][1:]
 
-    # extract water level above sensor unit
-    tiltunit_wlev = df['p']*9.80665
+    # extract water level above sensor unit (Pbar*1e5 = rhow*g*wlev)
+    g = 9.80665     # gravity
+    tiltunit_wlev = df['p']*1e2/g
 
     # compute tilt unit depth using water depth from all sensors
     tiltunit_depth = tiltunit_wlev.loc[observ_date] + water_depth
