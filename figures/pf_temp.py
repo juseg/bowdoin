@@ -32,13 +32,13 @@ start = '2014-11-01'
 end = '2015-07-01'
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, sharex=True, sharey=True,
-                              left=10.0, bottom=10.0, right=5.0, top=5.0,
-                              wspace=5.0, hspace=5.0)
+fig, ax = ut.pl.subplots_mm(nrows=1, ncols=1, sharex=True, sharey=True,
+                            left=10.0, bottom=10.0, right=5.0, top=5.0,
+                            wspace=5.0, hspace=5.0)
 
 # for each borehole
+base_depth = 0.0
 for i, bh in enumerate(ut.boreholes):
-    ax = grid[i]
 
     # read temperature values
     temp_temp = ut.io.load_data('thstring', 'temp', bh)
@@ -47,10 +47,11 @@ for i, bh in enumerate(ut.boreholes):
     # read depths
     temp_depth = ut.io.load_depth('thstring', bh).squeeze()
     tilt_depth = ut.io.load_depth('tiltunit', bh).squeeze()
-    bottom = ut.io.load_depth('pressure', bh).squeeze()
+    pres_depth = ut.io.load_depth('pressure', bh).squeeze()
+    base_depth = max(base_depth, pres_depth)
 
     # sensors can't be lower than the base
-    temp_depth = np.minimum(temp_depth, bottom)
+    temp_depth = np.minimum(temp_depth, base_depth)
 
     # resample and concatenate
     tilt_temp = tilt_temp.resample('1D')[start:end]
@@ -63,31 +64,32 @@ for i, bh in enumerate(ut.boreholes):
     tilt_z, tilt_tmin, tilt_tavg, tilt_tmax = get_profiles(tilt_depth, tilt_temp)
     #join_z, join_tmin, join_tavg, join_tmax = get_profiles(join_depth, join_temp)
 
-    # plot melting point
-    g = 9.80665     # gravity
-    rhoi = 910.0    # ice density
-    beta = 7.9e-8   # Luethi et al. (2002)
-    bottom_mp = -beta * rhoi * g * bottom
-    ax.plot([0.0, bottom_mp], [0.0, bottom], c='k', ls=':')
-
     # plot profiles
     ax.fill_betweenx(temp_z, temp_tmin, temp_tmax,
                      facecolor=ut.colors[i], edgecolor='none', alpha=0.25)
+    ax.fill_betweenx(tilt_z, tilt_tmin, tilt_tmax,
+                     facecolor='0.75', edgecolor='none', alpha=0.25)
     ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[i])
     ax.plot(tilt_tavg, tilt_z, '-^', c='0.75')
-    ax.set_title(bh)
 
-    # add horizontal lines
-    ax.axhline(0.0, c='k')
-    ax.axhline(bottom, c='k')
-    ax.set_xlim(-12.0, 2.0)
-    ax.set_ylim(300.0, 0.0)
+    # add base lines
+    ax.axhline(base_depth, c='k')
 
-# add common labels
-figw, figh = fig.get_size_inches()*25.4
-xlabel = u'ice temperature from %s to %s (°C)' % (start, end)
-fig.text(0.5, 2.5/figh, xlabel, ha='center')
-fig.text(2.5/figw, 0.5, 'depth (m)', va='center', rotation='vertical')
+# plot melting point
+g = 9.80665     # gravity
+rhoi = 910.0    # ice density
+beta = 7.9e-8   # Luethi et al. (2002)
+base_temp_melt = -beta * rhoi * g * base_depth
+ax.plot([0.0, base_temp_melt], [0.0, base_depth], c='k', ls=':')
+
+# add surface line
+ax.axhline(0.0, c='k')
+
+# set axes properties
+ax.set_xlim(-12.0, 2.0)
+ax.set_ylim(300.0, 0.0)
+ax.set_xlabel(u'ice temperature from %s to %s (°C)' % (start, end))
+ax.set_ylabel('depth (m)')
 
 # save
 fig.savefig('pf_temp')
