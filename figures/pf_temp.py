@@ -47,6 +47,7 @@ for i, bh in enumerate(ut.boreholes):
     # read depths
     temp_depth = ut.io.load_depth('thstring', bh).squeeze()
     tilt_depth = ut.io.load_depth('tiltunit', bh).squeeze()
+    bottom = ut.io.load_depth('pressure', bh).squeeze()
 
     # resample and concatenate
     tilt_temp = tilt_temp.resample('1D')[start:end]
@@ -58,7 +59,6 @@ for i, bh in enumerate(ut.boreholes):
     temp_z, temp_tmin, temp_tavg, temp_tmax = get_profiles(temp_depth, temp_temp)
     tilt_z, tilt_tmin, tilt_tavg, tilt_tmax = get_profiles(tilt_depth, tilt_temp)
     #join_z, join_tmin, join_tavg, join_tmax = get_profiles(join_depth, join_temp)
-    bottom = temp_z[-1]
 
     # plot melting point
     g = 9.80665     # gravity
