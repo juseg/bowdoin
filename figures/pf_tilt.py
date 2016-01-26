@@ -49,8 +49,12 @@ for i, bh in enumerate(ut.boreholes):
     depth = depth[notnull]
     exz = exz[notnull]
 
-    # fit to a power law with C = A * (rho*g*sin(alpha))**n
+    # fit to a power law with exp(C) = A * (rhoi*g*sin(alpha))**n
+    g = 9.80665     # gravity
+    rhoi = 910.0    # ice density
+    sina = 0.03     # FIXME: approx. value from MEASURES
     n, C = powerfit(depth, exz, 1)
+    A = np.exp(C) / (rhoi*g*sina)**n
 
     # plot deformation profile
     depth_fit = np.linspace(0.0, depth_base, 11)
@@ -77,6 +81,10 @@ for i, bh in enumerate(ut.boreholes):
     ax.axhline(depth_base, c='k')
     ax.set_ylim(300.0, 0.0)
     ax.set_xlim(25.0, 0.0)
+
+    # add fit values
+    ax.text(0.05, 0.05, r'A=%.2e$\,Pa^{-n}\,s^{-2}$, n=%.2f' % (A, n),
+            transform=ax.transAxes)
 
 # add common labels
 figw, figh = fig.get_size_inches()*25.4
