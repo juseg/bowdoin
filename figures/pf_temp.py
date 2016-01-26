@@ -49,6 +49,9 @@ for i, bh in enumerate(ut.boreholes):
     tilt_depth = ut.io.load_depth('tiltunit', bh).squeeze()
     bottom = ut.io.load_depth('pressure', bh).squeeze()
 
+    # sensors can't be lower than the base
+    temp_depth = np.minimum(temp_depth, bottom)
+
     # resample and concatenate
     tilt_temp = tilt_temp.resample('1D')[start:end]
     temp_temp = temp_temp.resample('1D')[start:end]
