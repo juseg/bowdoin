@@ -71,6 +71,24 @@ def shading(x, y, z, azimuth=315.0, altitude=30.0):
     return (zlight - u*xlight - v*ylight) / (1 + u**2 + v**2)**(0.5)
 
 
+def slope(x, y, z, smoothing=None):
+    """Compute slope map with optional smoothing."""
+
+    # optionally smooth data
+    if smoothing:
+        import scipy.ndimage as ndimage
+        z = ndimage.filters.gaussian_filter(z, smoothing)
+
+    # compute gradient along each coordinate
+    dx = x[1] - x[0]
+    dy = y[1] - y[0]
+    u, v = np.gradient(z, dx, dy)
+
+    # compute slope
+    slope = (u**2 + v**2)**0.5
+    return slope
+
+
 def imextent(x, y):
     """Compute image extent from coordinate vectors."""
     w = (3*x[0]-x[1])/2
@@ -88,7 +106,8 @@ if __name__ == '__main__':
                               true_scale_latitude=70.0)
 
     # subregion w, e, s, n
-    extents = (-540e3, -525e3, -1230e3, -1215e3)
+    extents = (-540e3, -525e3, -1230e3, -1215e3)  # lower Bowdoin Glacier
+    #extents = (-538e3, -533e3, -1229e3, -1224e3)  # boreholes
 
     # read velocity data
     filename = ('/scratch_net/ogive/juliens/geodata/topography/measures-gimp/'
@@ -116,6 +135,11 @@ if __name__ == '__main__':
     cs = ax.contour(x, y, z, levels=levs[(levs % 100 == 0)],
                     colors='k', linewidths=0.25)
     cs.clabel(fmt='%d')
+
+    # plot slope map
+    #s = slope(x, y, z, smoothing=10)
+    #im = ax.imshow(s, extent=imextent(x, y), vmin=0.0, vmax=0.05, cmap='magma_r')
+    #fig.colorbar(im)
 
     # plot locations of camera and boreholes
     llz = {'qaanaaq':   (-69.230556, 77.466667,   0.000000),
