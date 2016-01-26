@@ -45,11 +45,20 @@ def get_depth(bh):
     date = '2015-07-18 12:00:00'
 
     # calculate sensor depths
+    # Design of sensor-chains:
+    #   Th-Bowdoin-2  : BH1A  l=180m  160-140-120-100-80-60-40-20-0
+    #   (upstream)      BH1B  l=3??m  320-300-280-260-240-220-200-180-160
+    #
+    #   Th-Bowdoin-1  : BH2A  l=???m  200-175-150-125-100-75-50-25-0
+    #   (downstream)    BH2B  l=???m  400-375-350-325-300-275-250-225-200
+
     if bh == 'downstream':
-        bottom = -243.7
+        bottom = -243.7  # this makes no sense
         top = 31.25
-        lower = bottom + 20.0*np.arange(9)
-        upper = top + 20.0*np.arange(-6, 1)
+        #lower = bottom + 25.0*np.arange(9)
+        upper = top - 25.0*np.arange(7)[::-1]
+        # according to Conny there is 20 m between the two chains
+        lower = upper[0] - 20.0 - 25.0*np.arange(9)[::-1]
     if bh == 'upstream':
         bottom = -265.3
         top = 13.4
