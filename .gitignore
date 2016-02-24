@@ -1,6 +1,11 @@
-# figures
+# Figures
 *.pdf
 *.pyc
 
-# processed data
+# Animations
+*.png
+*.mp4
+*.ogg
+
+# Processed data
 figures/data/processed
