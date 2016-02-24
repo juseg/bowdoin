@@ -35,13 +35,11 @@ def open_measures_composite():
     """Average MEASURES Greenland velocities over five winters of data."""
 
     # data file names
-    dirname = '/scratch_net/ogive/juliens/geodata/iceflow/measures-greenland/'
-    basenames = ['2000.09.03/greenland_vel_mosaic500_2000_2001.tif',
-                 '2005.12.13/greenland_vel_mosaic500_2005_2006.tif',
-                 '2006.12.18/greenland_vel_mosaic500_2006_2007.tif',
-                 '2007.11.01/greenland_vel_mosaic500_2007_2008.tif',
-                 '2008.12.01/greenland_vel_mosaic500_2008_2009.tif']
-    filenames = [dirname + b for b in basenames]
+    filenames = ['data/external/greenland_vel_mosaic500_2000_2001.tif',
+                 'data/external/greenland_vel_mosaic500_2005_2006.tif',
+                 'data/external/greenland_vel_mosaic500_2006_2007.tif',
+                 'data/external/greenland_vel_mosaic500_2007_2008.tif',
+                 'data/external/greenland_vel_mosaic500_2008_2009.tif']
 
     # read geotiffs
     data, extents = zip(*[open_gtif(f) for f in filenames])

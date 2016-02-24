@@ -19,7 +19,8 @@ PRE_FILES = $(foreach VAR, $(PRE_VARS), \
                 processed/bowdoin-pressure-$(VAR)-$(BH).csv))
 ALL_FILES = $(GPS_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES)
 
-all: $(ALL_FILES)
+# default rule
+all: $(ALL_FILES) external
 
 # gps data is a special case
 $(GPS_FILES): preprocess-dgps.py
@@ -37,7 +38,11 @@ $(foreach VAR, $(INC_VARS), \
 	mkdir -p processed
 	python2 $<
 
-.PHONY: clean
+# retrieve external files
+external: retrieve-external.sh
+	sh $<
 
+# clean processed and downloaded files
+.PHONY: clean
 clean:
-	rm -f processed/*
+	rm -rf processed external

@@ -110,8 +110,7 @@ if __name__ == '__main__':
     #extents = (-538e3, -533e3, -1229e3, -1224e3)  # boreholes
 
     # read velocity data
-    filename = ('/scratch_net/ogive/juliens/geodata/topography/measures-gimp/'
-                '30/gimpdem0_4.tif')
+    filename = ('data/external/gimpdem0_4.tif')
     x, y, z = open_gtif(filename, extents)
 
     # initialize figure
