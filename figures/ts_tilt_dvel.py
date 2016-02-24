@@ -58,4 +58,4 @@ ax.set_ylim(20.0, 60.0)
 ax.legend()
 
 # save
-fig.savefig('ts_dvel')
+fig.savefig('ts_tilt_dvel')
