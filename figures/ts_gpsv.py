@@ -8,9 +8,10 @@ import util as ut
 fig, ax = plt.subplots(1, 1)
 
 # plot GPS velocity
+c = ut.colors[2]
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
-ut.pl.rolling_plot(ax, ts, 4*6, c=ut.colors[2])
-ts.plot(ax=ax, color='g', ls='', marker='.', markersize=0.5)
+ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
+ts.resample('1D').plot(ax=ax, c=c)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
