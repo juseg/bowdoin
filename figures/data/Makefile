@@ -21,19 +21,19 @@ ALL_FILES = $(GPS_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES)
 
 all: $(ALL_FILES)
 
+# gps data is a special case
 $(GPS_FILES): preprocess-dgps.py
 	mkdir -p processed
 	python2 $<
 
-$(INC_FILES): preprocess-tiltunit.py
-	mkdir -p processed
-	python2 $<
+# additional dependency of tilt processing on pressure water levels
+preprocess-tiltunit.py: $(foreach BH, $(BOREHOLES), \
+                          processed/bowdoin-pressure-wlev-$(BH).csv)
 
-$(TEM_FILES): preprocess-thstring.py
-	mkdir -p processed
-	python2 $<
-
-$(PRE_FILES): preprocess-pressure.py
+# general patterned rule to avoid multiple calls
+$(foreach VAR, $(INC_VARS), \
+  $(foreach BH, $(BOREHOLES), \
+    processed/bowdoin-%-$(VAR)-$(BH).csv)): preprocess-%.py
 	mkdir -p processed
 	python2 $<
 
