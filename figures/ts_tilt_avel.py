@@ -15,19 +15,21 @@ for i, bh in enumerate(ut.boreholes):
 
     # read tilt unit tilt
     d0 = '2015-04-01'
-    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('1H')
-    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('1H')
+    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('1D')
+    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('1D')
 
     # compute tilt velocity
-    dt = 1.0/24/365
-    tilt = np.arcsin(np.sqrt((np.sin(tiltx).diff()[1:])**2+
-                             (np.sin(tilty).diff()[1:])**2))*180/np.pi/dt
+    dt = 1.0/365
+    exz_x = np.sin(tiltx).diff()
+    exz_y = np.sin(tilty).diff()
+    exz = np.sqrt(exz_x**2+exz_y**2)
+    tilt = np.arcsin(exz)*180/np.pi/dt
 
     # plot
-    ut.pl.rolling_plot(ax, tilt.iloc[:, -1], 24*1, c=c)
+    tilt.plot(ax=ax, c=c, legend=False)
 
     # set title
-    ax.set_ylabel(r'tilt velocity ' + bh + ' ($^{\circ}\,a^{-1}$)')
+    ax.set_ylabel(r'tilt angle velocity ' + bh + ' ($^{\circ}\,a^{-1}$)')
     ax.set_ylim(0.0, 15.0)
 
 # save
