@@ -7,11 +7,17 @@ PY_FIGS = fft_gpsv fft_temp fft_tilt fft_wlev \
           ts_tilt_dvel ts_tilt_avel ts_tilt_detrend
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
-ALL_FIGS = $(PY_FIGS)
+PY_ANIS = anim_tilt.mp4
 
-all: data $(ALL_FIGS)
+ALL_FIGS = $(PY_FIGS)
+ALL_ANIS = $(PY_ANIS)
+
+all: data $(ALL_FIGS) $(ALL_ANIS)
 
 $(PY_FIGS): %.pdf : %.py util matplotlibrc
+	python2 $<
+
+$(PY_ANIS): %.mp4 : %.py util matplotlibrc
 	python2 $<
 
 .PHONY: data clean cleandata
@@ -20,7 +26,7 @@ data:
 	cd data && $(MAKE)
 
 clean: cleandata
-	rm -f $(ALL_FIGS)
+	rm -f $(ALL_FIGS) $(ALL_ANIS)
 
 cleandata:
 	cd data && $(MAKE) clean

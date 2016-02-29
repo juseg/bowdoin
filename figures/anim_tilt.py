@@ -64,4 +64,4 @@ anim = FuncAnimation(fig, draw, frames=exz.index,
                      fargs=(fig, grid, xlabel))
 
 # save
-anim.save('anim_dvel.mp4', fps=25, dpi=254, bitrate=1024)
+anim.save('anim_tilt.mp4', fps=25, dpi=254, bitrate=1024)
