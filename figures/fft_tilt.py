@@ -27,7 +27,7 @@ for i, bh in enumerate(ut.boreholes):
                              (np.sin(tilty).diff()[1:])**2))*180/np.pi/dt
 
     # get longest continuous segment
-    tilt = ut.io.longest_continuous(tilt)
+    tilt = ut.al.longest_continuous(tilt)
 
     # compute fft
     freq = np.fft.rfftfreq(tilt.shape[-1], 10.0/60)

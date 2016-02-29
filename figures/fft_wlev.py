@@ -18,7 +18,7 @@ for i, bh in enumerate(ut.boreholes):
     ts = ts.iloc[2:]  # remove the first hour corresponding to drilling
 
     # get longest continuous segment
-    ts = ut.io.longest_continuous(ts)
+    ts = ut.al.longest_continuous(ts)
 
     # compute fft
     freq = np.fft.rfftfreq(ts.shape[-1], 30.0/60)

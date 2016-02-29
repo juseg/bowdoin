@@ -17,7 +17,7 @@ for i, bh in enumerate(ut.boreholes):
     ts = ut.io.load_data('thstring', 'temp', bh).iloc[:, 0].resample('30T')
 
     # get longest continuous segment
-    ts = ut.io.longest_continuous(ts)
+    ts = ut.al.longest_continuous(ts)
 
     # compute fft
     freq = np.fft.rfftfreq(ts.shape[-1], 30.0/60)

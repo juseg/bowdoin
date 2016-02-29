@@ -3,7 +3,9 @@
 
 """Plotting tools."""
 
+import numpy as np
 import pandas as pd
+import al
 
 
 # functions to create a figure
@@ -122,3 +124,41 @@ def rolling_plot(ax, ts, window, c='b'):
     std = pd.rolling_std(ts, window)
     avg.plot(ax=ax, color=c, ls='-')
     ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.25)
+
+
+def plot_vsia_profile(depth, exz, depth_base, ax=None, c='k', n=101):
+    """Fit and plot tilt velocity profile."""
+
+    # get current axes if None provided
+    ax = ax or plt.gca()
+
+    # prepare depth vector for fitting curve
+    depth_fit = np.linspace(0.0, depth_base, n)
+
+    # fit to glen's law
+    n, A = al.glenfit(depth, exz)
+
+    # compute velocity profiles
+    v_fit = al.vsia(depth_fit, depth_base, n, A)
+    v_obs = al.vsia(depth, depth_base, n, A)
+
+    # plot fitted velocity profiles
+    ax.plot(v_fit, depth_fit, c=c)
+    ax.fill_betweenx(depth_fit, 0.0, v_fit, color=c, alpha=0.25)
+
+    # add velocity arrows at observation points
+    for d, v in zip(depth, v_obs):
+        ax.arrow(0.0, d, v, 0.0, fc='none', ec=c,
+                 head_width=5.0, head_length=1.0, length_includes_head=True)
+
+    # add tilt arrows
+    ax.quiver(v_obs, depth, -exz*2, np.sqrt(1-(2*exz)**2),
+              angles='xy', scale=5.0)
+
+    # add horizontal lines
+    ax.axhline(0.0, c='k')
+    ax.axhline(depth_base, c='k')
+
+    # add fit values
+    ax.text(0.05, 0.05, r'A=%.2e$\,Pa^{-n}\,s^{-2}$, n=%.2f' % (A, n),
+            transform=ax.transAxes)

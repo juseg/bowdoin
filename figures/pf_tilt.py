@@ -27,7 +27,7 @@ for i, bh in enumerate(ut.boreholes):
     exz = exz[notnull]
 
     # plot velocity profile
-    ut.tilt.plot_profile(depth, exz, depth_base, ax=ax, c=c)
+    ut.pl.plot_vsia_profile(depth, exz, depth_base, ax=ax, c=c)
 
     # set axes properties
     ax.set_title(bh)

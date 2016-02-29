@@ -24,10 +24,10 @@ for i, bh in enumerate(ut.boreholes):
         exz.drop(broken, axis='columns', inplace=True)
 
     # fit to a Glen's law
-    n, A = ut.tilt.glenfit(depth, exz.T)
+    n, A = ut.al.glenfit(depth, exz.T)
 
     # calc deformation velocity
-    vdef = ut.tilt.vsia(0.0, depth_base, n, A)
+    vdef = ut.al.vsia(0.0, depth_base, n, A)
     vdef = pd.Series(index=exz.index, data=vdef)
 
     # plot

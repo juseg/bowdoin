@@ -112,20 +112,3 @@ def load_total_strain(borehole, start, end, as_angle=False):
 
     # return strain rate
     return exz
-
-
-def longest_continuous(ts):
-    """Return longest continuous segment of a data series."""
-
-    # assign group ids to continuous data segments
-    groupids = (ts.notnull().shift(1) != ts.notnull()).cumsum()
-    groupids[ts.isnull()] = np.nan
-
-    # split groups and select the one with maximum lenght
-    groups = groupids.groupby(groupids)
-    maxlen = groups.cumcount().max()
-    end = groups.cumcount().idxmax()
-    start = end - maxlen
-
-    # return subset data series
-    return ts[start:end]

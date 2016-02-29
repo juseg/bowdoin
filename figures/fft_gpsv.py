@@ -13,7 +13,7 @@ c = ut.colors[2]
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
 
 # get longest continuous segment
-ts = ut.io.longest_continuous(ts)
+ts = ut.al.longest_continuous(ts)
 
 # compute fft
 freq = np.fft.rfftfreq(ts.shape[-1], 15.0/60)
