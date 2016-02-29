@@ -58,35 +58,9 @@ def load_strain_rate(borehole, freq, as_angle=False):
     return exz
 
 
-def load_relative_strain(borehole, refdate, as_angle=False):
-    """Return horizontal shear strain rate relative to reference date."""
-
-    # check argument validity
-    assert borehole in ('downstream', 'upstream')
-
-    # load tilt data
-    tiltx = load_data('tiltunit', 'tiltx', borehole)
-    tilty = load_data('tiltunit', 'tilty', borehole)
-
-    # compute reference value
-    tx0 = tiltx[refdate].mean()
-    ty0 = tilty[refdate].mean()
-
-    # compute deformation rate in horizontal plane
-    exz_x = np.sin(tiltx)-np.sin(tx0)
-    exz_y = np.sin(tilty)-np.sin(ty0)
-    exz = np.sqrt(exz_x**2+exz_y**2)
-
-    # convert to angles
-    if as_angle == True:
-        exz = np.arcsin(exz)*180/np.pi
-
-    # return strain rate
-    return exz
-
-
-def load_total_strain(borehole, start, end, as_angle=False):
-    """Return horizontal shear strain rate from tilt between two dates."""
+def load_total_strain(borehole, start, end=None, as_angle=False):
+    """Return horizontal shear strain rate from tilt relative to a start date
+    or between two dates."""
 
     # check argument validity
     assert borehole in ('downstream', 'upstream')
@@ -98,8 +72,12 @@ def load_total_strain(borehole, start, end, as_angle=False):
     # compute start and end values
     tx0 = tiltx[start].mean()
     ty0 = tilty[start].mean()
-    tx1 = tiltx[end].mean()
-    ty1 = tilty[end].mean()
+    if end is not None:
+        tx1 = tiltx[end].mean()
+        ty1 = tilty[end].mean()
+    else:
+        tx1 = tiltx
+        ty1 = tilty
 
     # compute deformation rate in horizontal plane
     exz_x = np.sin(tx1)-np.sin(tx0)
