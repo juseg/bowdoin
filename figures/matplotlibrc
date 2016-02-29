@@ -30,3 +30,7 @@ figure.subplot.hspace   : 0.1       # half the default
 ### SAVING FIGURES
 savefig.dpi             : 254       # figure dots per inch
 savefig.format          : pdf       # png, ps, pdf, svg
+
+### ANIMATION
+animation.codec         : h264      # Codec to use for writing movie
+animation.bitrate       : 1024      # Controls size/quality tradeoff for movie.
