@@ -40,7 +40,7 @@ $(foreach VAR, $(INC_VARS), \
 
 # retrieve external files
 external: retrieve-external.sh
-	sh $<
+	bash $<
 
 # clean processed and downloaded files
 .PHONY: clean

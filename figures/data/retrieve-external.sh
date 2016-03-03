@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # make directory or update modification date
 mkdir -p external
