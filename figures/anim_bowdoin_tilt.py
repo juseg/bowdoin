@@ -40,12 +40,11 @@ def draw(date, fig, grid, cursor):
         ut.pl.plot_vsia_profile(depth[bh], exz[bh].loc[datestring],
                                 depth_base[bh], ax=ax, c=c)
 
-        # set axes limits
+        # set axes limits and labels
         ax.set_ylim(300.0, 0.0)
         ax.set_xlim(50.0, 0.0)
-
-    # set y label
-    ax.set_ylabel('depth (m)')
+        ax.set_title(bh)
+        ax.set_ylabel('depth (m)')
 
     # remove right axis tick labels
     for label in ax.get_yticklabels():
@@ -55,11 +54,11 @@ def draw(date, fig, grid, cursor):
     cursor.set_data(date, (0.0, 1.0))
 
 # initialize figure and labels
-figw, figh = 120.0, 140.0
+figw, figh = 135.0, 120.0
 fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, figsize=(figw, figh),
-                              left=10.0, bottom=50.0, right=5.0, top=5.0,
+                              left=10.0, bottom=45.0, right=2.5, top=5.0,
                               wspace=5.0, hspace=5.0, sharex=True, sharey=True)
-tsax = fig.add_axes([10.0/figw, 10.0/figh, 1-15.0/figw, 35.0/figh])
+tsax = fig.add_axes([10.0/figw, 10.0/figh, 1-12.5/figw, 30.0/figh])
 
 # plot time series
 for i, bh in enumerate(ut.boreholes):
@@ -83,10 +82,12 @@ tsax.set_ylabel(r'deformation velocity ($m\,a^{-1}$)')
 tsax.set_ylim(20.0, 60.0)
 tsax.legend()
 
+# add signature
+fig.text(1-2.5/figw, 2.5/figh, 'J. Seguinot et al. (2016)',
+         ha='right', va='bottom')
+
 # create animation
-anim = FuncAnimation(fig, draw, frames=exz.index,
-                     fargs=(fig, grid, cursor))
+anim = FuncAnimation(fig, draw, frames=exz.index, fargs=(fig, grid, cursor))
 
 # save
-anim.save('anim_tilt.mp4', fps=25, codec='h264')
-anim.save('anim_tilt.ogg', fps=25, codec='theora')
+anim.save('anim_bowdoin_tilt.mp4', fps=25)

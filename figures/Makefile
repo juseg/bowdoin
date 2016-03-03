@@ -7,7 +7,7 @@ PY_FIGS = fft_gpsv fft_temp fft_tilt fft_wlev \
           ts_tilt_dvel ts_tilt_avel ts_tilt_detrend
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
-PY_ANIS = anim_tilt.mp4
+PY_ANIS = anim_bowdoin_tilt.mp4
 
 ALL_FIGS = $(PY_FIGS)
 ALL_ANIS = $(PY_ANIS)
