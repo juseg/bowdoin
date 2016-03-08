@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     # plot ax3 satellite image
     background = cimgt.MapQuestOpenAerial()
-    ax3.add_image(background, 11)
+    ax3.add_image(background, 10)
 
     # plot locations of camera and boreholes
     llz = {'qaanaaq':   (-69.230556, 77.466667,   0.000000),
@@ -148,4 +148,3 @@ if __name__ == '__main__':
 
     # save third frame
     fig.savefig('map_grl')
-

@@ -126,7 +126,8 @@ def rolling_plot(ax, ts, window, c='b'):
     ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.25)
 
 
-def plot_vsia_profile(depth, exz, depth_base, ax=None, c='k', n=101):
+def plot_vsia_profile(depth, exz, depth_base, ax=None, c='k', n=101,
+                      annotate=True):
     """Fit and plot tilt velocity profile."""
 
     # get current axes if None provided
@@ -160,5 +161,6 @@ def plot_vsia_profile(depth, exz, depth_base, ax=None, c='k', n=101):
     ax.axhline(depth_base, c='k')
 
     # add fit values
-    ax.text(0.05, 0.05, r'A=%.2e$\,Pa^{-n}\,s^{-2}$, n=%.2f' % (A, n),
-            transform=ax.transAxes)
+    if annotate:
+        ax.text(0.05, 0.05, r'A=%.2e$\,Pa^{-n}\,s^{-2}$, n=%.2f' % (A, n),
+                transform=ax.transAxes)
