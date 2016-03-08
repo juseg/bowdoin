@@ -18,14 +18,13 @@ axes.grid               : False     # display grid or not
 legend.frameon          : False     # draw a frame around legend
 
 ### FIGURE
-#figure.figsize         : 3.346, 2.362  #  85x 60mm
-figure.figsize          : 4.725, 3.938  # 120x100mm
-figure.subplot.left     : 0.083     #     10 / 120
-figure.subplot.right    : 0.916     # 1 - 10 / 120
-figure.subplot.bottom   : 0.100     #     10 / 100
-figure.subplot.top      : 0.9       # 1 - 10 / 100
-figure.subplot.wspace   : 0.1       # half the default
-figure.subplot.hspace   : 0.1       # half the default
+figure.figsize          : 5.314961, 3.740157  # 135x95mm
+figure.subplot.left     : 0.074074  #     10 / 135
+figure.subplot.right    : 0.925926  # 1 - 10 / 135
+figure.subplot.bottom   : 0.105263  #     10 / 100
+figure.subplot.top      : 0.894737  # 1 - 10 / 100
+figure.subplot.wspace   : 0.090929  # 1 / (((135-20)/5+1)/2-1)
+figure.subplot.hspace   : 0.142865  # 1 / (((95-20)/5+1)/2-1)
 
 ### SAVING FIGURES
 savefig.dpi             : 254       # figure dots per inch

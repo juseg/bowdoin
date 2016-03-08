@@ -32,9 +32,7 @@ start = '2014-11-01'
 end = '2015-07-01'
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(nrows=1, ncols=1, sharex=True, sharey=True,
-                            left=10.0, bottom=10.0, right=5.0, top=5.0,
-                            wspace=5.0, hspace=5.0)
+fig, ax = ut.pl.subplots_mm(nrows=1, ncols=1, sharex=True, sharey=True)
 
 # for each borehole
 base_depth = 0.0

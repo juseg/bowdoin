@@ -7,9 +7,7 @@ start = '2014-11-01'
 end = '2015-07-01'
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, sharex=True, sharey=True,
-                              left=10.0, bottom=10.0, right=5.0, top=5.0,
-                              wspace=5.0, hspace=5.0)
+fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, sharex=True, sharey=True)
 
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
