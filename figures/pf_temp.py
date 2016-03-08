@@ -69,7 +69,7 @@ for i, bh in enumerate(ut.boreholes):
                      facecolor=ut.colors[i], edgecolor='none', alpha=0.25)
     ax.fill_betweenx(tilt_z, tilt_tmin, tilt_tmax,
                      facecolor='0.75', edgecolor='none', alpha=0.25)
-    ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[i])
+    ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[i], label=bh)
     ax.plot(tilt_tavg, tilt_z, '-^', c='0.75')
 
     # add base lines
@@ -88,8 +88,10 @@ ax.axhline(0.0, c='k')
 # set axes properties
 ax.set_xlim(-12.0, 2.0)
 ax.set_ylim(300.0, 0.0)
-ax.set_xlabel(u'ice temperature from %s to %s (°C)' % (start, end))
+ax.set_xlabel(u'ice temperature averaged between %s and %s (°C)' %
+              (start, end))
 ax.set_ylabel('depth (m)')
+ax.legend(loc='best')
 
 # save
 fig.savefig('pf_temp')
