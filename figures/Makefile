@@ -12,7 +12,9 @@ PY_ANIS = anim_bowdoin_tilt.mp4
 ALL_FIGS = $(PY_FIGS)
 ALL_ANIS = $(PY_ANIS)
 
-all: data $(ALL_FIGS) $(ALL_ANIS)
+figs: data $(ALL_FIGS)
+
+anim: $(ALL_ANIS)
 
 $(PY_FIGS): %.pdf : %.py util matplotlibrc
 	python2 $<
