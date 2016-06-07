@@ -42,14 +42,45 @@ vel = mat['V'][0]*365.0
 err = mat['S'][0]*365.0
 ax.errorbar(mid, vel, xerr=dt/2, yerr=err, c=c, ls='', zorder=3)
 
+# plot deformation velocity
+for i, bh in enumerate(ut.boreholes):
+    c = ut.colors[i]
+
+    # load data
+    exz = ut.io.load_strain_rate(bh, '1D')['2014-11':]
+    depth = ut.io.load_depth('tiltunit', bh).squeeze()
+    depth_base = ut.io.load_depth('pressure', bh).squeeze()
+
+    # ignore two lowest units on upstream borehole
+    if bh == 'upstream':
+        broken = ['unit02', 'unit03']
+        depth.drop(broken, inplace=True)
+        exz.drop(broken, axis='columns', inplace=True)
+
+    # fit to a Glen's law
+    n, A = ut.al.glenfit(depth, exz.T)
+
+    # calc deformation velocity
+    vdef = ut.al.vsia(0.0, depth_base, n, A)
+    vdef = pd.Series(index=exz.index, data=vdef)
+
+    # plot
+    vdef.plot(ax=ax, c=c, label=bh)
+
 # plot GPS velocity
 c = ut.colors[2]
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
 ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
 ts.resample('1D').plot(ax=ax, c=c)
 
+# add field campaigns
+ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette[7], alpha=0.25)
+ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette[7], alpha=0.25)
+ax.axvspan('2016-07-04', '2016-07-25', ec='none', fc=ut.palette[7], alpha=0.25)
+
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
+ax.set_xlim('2014-07-01', '2016-08-01')
 ax.set_ylim(0.0, 800.0)
 fig.autofmt_xdate()
 
