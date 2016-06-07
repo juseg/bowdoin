@@ -14,14 +14,11 @@ def longest_continuous(ts):
     groupids = (ts.notnull().shift(1) != ts.notnull()).cumsum()
     groupids[ts.isnull()] = np.nan
 
-    # split groups and select the one with maximum lenght
-    groups = groupids.groupby(groupids)
-    maxlen = groups.cumcount().max()
-    end = groups.cumcount().idxmax()
-    start = end - maxlen
-
-    # return subset data series
-    return ts[start:end]
+    # split groups and select the one with maximum size
+    grouped = ts.groupby(groupids)
+    longest = grouped.size().argmax()
+    ts = grouped.get_group(longest)
+    return ts
 
 
 def powerfit(x, y, deg, **kwargs):
