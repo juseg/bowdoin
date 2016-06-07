@@ -4,7 +4,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import util as ut
-import scipy.io
 
 # initialize figure
 fig, ax = plt.subplots(1, 1)
@@ -38,22 +37,19 @@ vel = df['vel (m/a)']
 err = df['vel_error (m/a)']
 mask = (dt <= pd.to_timedelta('12D'))
 ax.errorbar(mid[mask], vel[mask], xerr=dt[mask]/2, yerr=err[mask],
-            c=ut.palette[6], ls='', lw=0.5, zorder=3)
+            c=ut.palette[6], ls='', lw=0.5, zorder=4)
 ax.errorbar(mid[-mask], vel[-mask], xerr=dt[-mask]/2, yerr=err[-mask],
-            c=ut.palette[7], ls='', lw=0.5, zorder=3)
+            c=ut.palette[7], ls='', lw=0.5, zorder=4)
 
 # plot landsat velocity
 c = ut.palette[11]
-mat = scipy.io.loadmat('data/satellite/bowdoin-landsat.mat')
-start = ['2014-07-13', '2014-09-06', '2014-10-01', '2015-04-02', '2015-06-14']
-start = pd.to_datetime(start).values  #, unit='D').values
-end = ['2014-09-06', '2014-10-01', '2015-03-06', '2015-05-20', '2015-08-01']
-end = pd.to_datetime(end).values  #, unit='D').values
-dt = end - start
-mid = start + dt/2
-vel = mat['V'][0]*365.0
-err = mat['S'][0]*365.0
-ax.errorbar(mid, vel, xerr=dt/2, yerr=err, c=c, ls='', zorder=3)
+df = pd.read_csv('data/satellite/bowdoin-landsat.csv',
+                 parse_dates=['start', 'end'])
+dt = df['end'] - df['start']
+mid = df['start'] + dt/2
+vel = df['vel']
+err = df['err']
+ax.errorbar(mid, vel, xerr=dt/2, yerr=err, c=c, lw=0.5, ls='', zorder=3)
 
 # plot deformation velocity
 for i, bh in enumerate(ut.boreholes):
