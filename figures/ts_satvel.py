@@ -8,26 +8,6 @@ import util as ut
 # initialize figure
 fig, ax = plt.subplots(1, 1)
 
-# plot sentinel velocity 12 day
-c = ut.palette[8]
-df = pd.read_csv('data/satellite/bowdoin-sentinel-12day.txt',
-                 parse_dates=['start', 'end'])
-dt = df['end']-df['start']
-mid = df['start'] + dt/2
-vel = df['velocity']
-err = df['error']
-ax.errorbar(mid, vel, xerr=dt/2, yerr=err, c=c, ls='', zorder=3)
-
-# plot sentinel velocity 24 day
-c = ut.palette[9]
-df = pd.read_csv('data/satellite/bowdoin-sentinel-24day.txt',
-                 parse_dates=['start', 'end'])
-dt = df['end']-df['start']
-mid = df['start'] + dt/2
-vel = df['velocity']
-err = df['error']
-ax.errorbar(mid, vel, xerr=dt/2, yerr=err, c=c, ls='', zorder=3)
-
 # plot new sentinel velocity
 df = pd.read_csv('data/satellite/bowdoin-sentinel.txt', delimiter=',\s+',
                  index_col='YYYY-MM-DD (avg)', parse_dates=True)
@@ -37,19 +17,19 @@ vel = df['vel (m/a)']
 err = df['vel_error (m/a)']
 mask = (dt <= pd.to_timedelta('12D'))
 ax.errorbar(mid[mask], vel[mask], xerr=dt[mask]/2, yerr=err[mask],
-            c=ut.palette[6], ls='', lw=0.5, zorder=4)
+            c=ut.palette[8], ls='', lw=0.5, zorder=4, alpha=0.75)
 ax.errorbar(mid[-mask], vel[-mask], xerr=dt[-mask]/2, yerr=err[-mask],
-            c=ut.palette[7], ls='', lw=0.5, zorder=4)
+            c=ut.palette[9], ls='', lw=0.5, zorder=4, alpha=0.75)
 
 # plot landsat velocity
-c = ut.palette[11]
 df = pd.read_csv('data/satellite/bowdoin-landsat.csv',
                  parse_dates=['start', 'end'])
 dt = df['end'] - df['start']
 mid = df['start'] + dt/2
 vel = df['vel']
 err = df['err']
-ax.errorbar(mid, vel, xerr=dt/2, yerr=err, c=c, lw=0.5, ls='', zorder=3)
+ax.errorbar(mid, vel, xerr=dt/2, yerr=err,
+            c=ut.palette[7], lw=0.5, ls='', zorder=3, alpha=0.75)
 
 # plot deformation velocity
 for i, bh in enumerate(ut.boreholes):
