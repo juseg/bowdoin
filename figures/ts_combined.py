@@ -26,9 +26,10 @@ for i, bh in enumerate(ut.boreholes):
 ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette[7], alpha=0.25)
 ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette[7], alpha=0.25)
 
-# add label and legend
-ax.set_ylabel('water level (m)')
-ax.legend(lines, ut.boreholes, loc='lower right')
+# add labels
+ax.text('20140901', 230, 'downstream water level', color=ut.colors[0])
+ax.text('20140801', 200, 'upstream water level', color=ut.colors[1])
+ax.set_ylabel('water level (m)', color=ut.colors[0])
 
 # add twin axes
 ax = ax.twinx()
@@ -39,8 +40,9 @@ ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
 ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5)
 ts.resample('1D').plot(ax=ax, c=c)
 
-# add label and set limits
-ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', labelpad=0.0)
+# add labels and set limits
+ax.text('20150515', 750, 'GPS velocity', color=c)
+ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', color=ut.colors[2], labelpad=0.0)
 ax.set_xlim('2014-07-14', '2015-07-21')
 ax.set_ylim(-200, 1200)
 
