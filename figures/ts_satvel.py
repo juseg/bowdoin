@@ -29,6 +29,19 @@ vel = df['velocity']
 err = df['error']
 ax.errorbar(mid, vel, xerr=dt/2, yerr=err, c=c, ls='', zorder=3)
 
+# plot new sentinel velocity
+df = pd.read_csv('data/satellite/bowdoin-sentinel.txt', delimiter=',\s+',
+                 index_col='YYYY-MM-DD (avg)', parse_dates=True)
+dt = pd.to_timedelta(df['time-diff (days)'], unit='D')
+mid = df.index
+vel = df['vel (m/a)']
+err = df['vel_error (m/a)']
+mask = (dt <= pd.to_timedelta('12D'))
+ax.errorbar(mid[mask], vel[mask], xerr=dt[mask]/2, yerr=err[mask],
+            c=ut.palette[6], ls='', lw=0.5, zorder=3)
+ax.errorbar(mid[-mask], vel[-mask], xerr=dt[-mask]/2, yerr=err[-mask],
+            c=ut.palette[7], ls='', lw=0.5, zorder=3)
+
 # plot landsat velocity
 c = ut.palette[11]
 mat = scipy.io.loadmat('data/satellite/bowdoin-landsat.mat')
