@@ -106,8 +106,8 @@ if __name__ == '__main__':
                               true_scale_latitude=70.0)
 
     # subregion w, e, s, n
-    extents = (-540e3, -525e3, -1230e3, -1215e3)  # lower Bowdoin Glacier
-    #extents = (-538e3, -533e3, -1229e3, -1224e3)  # boreholes
+    #extents = (-540e3, -525e3, -1230e3, -1215e3)  # lower Bowdoin Glacier
+    extents = (-540e3, -531e3, -1231e3, -1225e3)  # boreholes
 
     # read velocity data
     filename = ('data/external/gimpdem0_4.tif')
@@ -151,9 +151,10 @@ if __name__ == '__main__':
            'bh2':       (-68.555685, 77.691307,  87.746263),  # upstream
            'bh3':       (-68.558857, 77.689995,  83.446628),  # downstream
            'camp':      (-68.509920, 77.685890,  70.000000)}
-    ax.plot(*llz['bh1'][:2], c=ut.colors[1], marker='o', transform=ll)
-    ax.plot(*llz['bh3'][:2], c=ut.colors[0], marker='o', transform=ll)
-    ax.plot(*llz['cam_upper'][:2], c=ut.palette[7], marker='^', transform=ll)
+    ax.plot(*llz['bh1'][:2], c=ut.colors[1], marker='o', ms=6,  transform=ll)
+    ax.plot(*llz['bh3'][:2], c=ut.colors[0], marker='o', ms=6, transform=ll)
+    ax.plot(*llz['cam_upper'][:2], c=ut.palette[7], marker='^', ms=6, transform=ll)
+    ax.plot(*llz['cam_lower'][:2], c=ut.palette[7], marker='^', ms=6, transform=ll)
 
     # save third frame
     fig.savefig('map_bow')
