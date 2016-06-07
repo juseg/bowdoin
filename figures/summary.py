@@ -47,8 +47,8 @@ bh = ut.boreholes[1]
 c = ut.colors[1]
 
 # read temperature values
-temp_temp = ut.io.load_data('thstring', 'temp', bh).resample('1D')[start:end]
-tilt_temp = ut.io.load_data('tiltunit', 'temp', bh).resample('1D')[start:end]
+temp_temp = ut.io.load_data('thstring', 'temp', bh).resample('1D').mean()[start:end]
+tilt_temp = ut.io.load_data('tiltunit', 'temp', bh).resample('1D').mean()[start:end]
 
 # read depths
 temp_depth = ut.io.load_depth('thstring', bh).squeeze()
@@ -106,7 +106,7 @@ ax.set_title(r'ice deformation (m a$^{-1}$)')
 ax = tsax
 bh = ut.boreholes[0]
 c = ut.colors[0]
-ts = ut.io.load_data('pressure', 'wlev', bh).resample('12H')[1:]
+ts = ut.io.load_data('pressure', 'wlev', bh).resample('12H').mean()[1:]
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label
@@ -116,7 +116,7 @@ ax.locator_params(axis='y', nbins=6)
 # plot GPS velocity
 ax = ax.twinx()
 c = ut.colors[2]
-ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('12H')
+ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('12H').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and set limits

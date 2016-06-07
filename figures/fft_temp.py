@@ -14,7 +14,7 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # read lowermost thermistor string temperature
-    ts = ut.io.load_data('thstring', 'temp', bh).iloc[:, 0].resample('30T')
+    ts = ut.io.load_data('thstring', 'temp', bh).iloc[:, 0].resample('30T').mean()
 
     # get longest continuous segment
     ts = ut.al.longest_continuous(ts)

@@ -52,8 +52,8 @@ for i, bh in enumerate(ut.boreholes):
     temp_depth = np.minimum(temp_depth, base_depth)
 
     # resample and concatenate
-    tilt_temp = tilt_temp.resample('1D')[start:end]
-    temp_temp = temp_temp.resample('1D')[start:end]
+    tilt_temp = tilt_temp.resample('1D').mean()[start:end]
+    temp_temp = temp_temp.resample('1D').mean()[start:end]
     #join_temp = pd.concat((temp_temp, tilt_temp), axis=1)
     #join_depth = pd.concat((temp_depth, tilt_depth))
 

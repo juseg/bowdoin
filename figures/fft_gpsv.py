@@ -10,7 +10,7 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 c = ut.colors[2]
 
 # read GPS velocity data
-ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
+ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
 
 # get longest continuous segment
 ts = ut.al.longest_continuous(ts)

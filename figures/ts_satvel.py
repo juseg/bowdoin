@@ -10,7 +10,8 @@ fig, ax = plt.subplots(1, 1)
 
 # plot new sentinel velocity
 df = pd.read_csv('data/satellite/bowdoin-sentinel.txt', delimiter=',\s+',
-                 index_col='YYYY-MM-DD (avg)', parse_dates=True)
+                 index_col='YYYY-MM-DD (avg)', parse_dates=True,
+                 engine='python')
 dt = pd.to_timedelta(df['time-diff (days)'], unit='D')
 mid = df.index
 vel = df['vel (m/a)']
@@ -58,9 +59,9 @@ for i, bh in enumerate(ut.boreholes):
 
 # plot GPS velocity
 c = ut.colors[2]
-ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
+ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
 ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
-ts.resample('1D').plot(ax=ax, c=c)
+ts.resample('1D').mean().plot(ax=ax, c=c)
 
 # add field campaigns
 ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette[7], alpha=0.25)

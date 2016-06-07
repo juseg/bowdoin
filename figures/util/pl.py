@@ -111,8 +111,8 @@ def unframe(ax, edges=['bottom', 'left']):
 
 def resample_plot(ax, ts, freq, c='b'):
     """Plot resampled mean and std of a timeseries."""
-    avg = ts.resample(freq, how='mean')
-    std = ts.resample(freq, how='std')
+    avg = ts.resample(freq).mean()
+    std = ts.resample(freq).std()
     avg.plot(ax=ax, color=c, ls='-')
     # for some reason not working
     ax.fill_between(avg.index, avg-2*std, avg+2*std, color=c, alpha=0.25)

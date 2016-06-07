@@ -37,8 +37,8 @@ def load_strain_rate(borehole, freq, as_angle=False):
     assert borehole in ('downstream', 'upstream')
 
     # load tilt data
-    tiltx = load_data('tiltunit', 'tiltx', borehole).resample(freq)
-    tilty = load_data('tiltunit', 'tilty', borehole).resample(freq)
+    tiltx = load_data('tiltunit', 'tiltx', borehole).resample(freq).mean()
+    tilty = load_data('tiltunit', 'tilty', borehole).resample(freq).mean()
 
     # compute horizontal shear strain
     exz_x = np.sin(tiltx).diff()

@@ -14,8 +14,8 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # read tilt unit tilt
-    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('1H')
-    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('1H')
+    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('1H').mean()
+    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('1H').mean()
 
     # remove empty columns
     tiltx = tiltx.dropna(axis='columns', how='all').iloc[:,-1]

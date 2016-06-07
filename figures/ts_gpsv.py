@@ -9,9 +9,9 @@ fig, ax = plt.subplots(1, 1)
 
 # plot GPS velocity
 c = ut.colors[2]
-ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T')
+ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
 ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
-ts.resample('1D').plot(ax=ax, c=c)
+ts.resample('1D').mean().plot(ax=ax, c=c)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')

@@ -13,11 +13,11 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # plot lowest tilt unit water level
-    ts = ut.io.load_data('tiltunit', 'wlev', bh).resample('30T').iloc[:,0]
+    ts = ut.io.load_data('tiltunit', 'wlev', bh).resample('30T').mean().iloc[:,0]
     ts.plot(ax=ax, c='0.75', legend=False)
 
     # plot pressure sensor water level
-    ts = ut.io.load_data('pressure', 'wlev', bh).resample('30T')
+    ts = ut.io.load_data('pressure', 'wlev', bh).resample('30T').mean()
     ts = ts.iloc[2:]  # remove the first hour corresponding to drilling
     ts.plot(ax=ax, c=ut.colors[i], legend=False)
     lines.append(ax.get_lines()[-1])  # select last line for the legend

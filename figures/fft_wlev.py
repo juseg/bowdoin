@@ -14,7 +14,7 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # read pressure sensor water level
-    ts = ut.io.load_data('pressure', 'wlev', bh).squeeze().resample('30T')
+    ts = ut.io.load_data('pressure', 'wlev', bh).squeeze().resample('30T').mean()
     ts = ts.iloc[2:]  # remove the first hour corresponding to drilling
 
     # get longest continuous segment
