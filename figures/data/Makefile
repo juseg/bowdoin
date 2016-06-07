@@ -20,7 +20,7 @@ PRE_FILES = $(foreach VAR, $(PRE_VARS), \
 ALL_FILES = $(GPS_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES)
 
 # default rule
-all: $(ALL_FILES) external
+all: $(ALL_FILES) external satellite/bowdoin-landsat.csv
 
 # gps data is a special case
 $(GPS_FILES): preprocess-dgps.py
@@ -41,6 +41,10 @@ $(foreach VAR, $(INC_VARS), \
 # retrieve external files
 external: retrieve-external.sh
 	bash $<
+
+# process landsat data from Daiki
+satellite/bowdoin-landsat.csv: preprocess-landsat.py
+	python2 $<
 
 # clean processed and downloaded files
 .PHONY: clean
