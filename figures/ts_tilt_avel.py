@@ -4,6 +4,8 @@
 import matplotlib.pyplot as plt
 import util as ut
 
+refdate = '2014-11-01'
+
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
 
@@ -13,7 +15,7 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # read tilt unit tilt
-    tilt = ut.io.load_strain_rate(bh, '1D', as_angle=True)
+    tilt = ut.io.load_strain_rate(bh, '1D', as_angle=True)[refdate:]
 
     # plot
     tilt.plot(ax=ax, c=c, legend=False)

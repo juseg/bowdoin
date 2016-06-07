@@ -65,8 +65,8 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # plot tilt unit temperature
-    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)
-    tilty = ut.io.load_data('tiltunit', 'tilty', bh)
+    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)[d0:]
+    tilty = ut.io.load_data('tiltunit', 'tilty', bh)[d0:]
 
     # compute reference values
     tx0 = tiltx[d0].mean()

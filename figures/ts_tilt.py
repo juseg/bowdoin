@@ -15,7 +15,7 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # plot tilt angle
-    tilt = ut.io.load_total_strain(bh, refdate, as_angle=True)
+    tilt = ut.io.load_total_strain(bh, refdate, as_angle=True)[refdate:]
     tilt.plot(ax=ax, c=c, legend=False)
 
     # set title

@@ -5,6 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import util as ut
 
+refdate = '2014-11-01'
+
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)
 
@@ -13,7 +15,7 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[i]
 
     # load data
-    exz = ut.io.load_strain_rate(bh, '1D')
+    exz = ut.io.load_strain_rate(bh, '1D')[refdate:]
     depth = ut.io.load_depth('tiltunit', bh).squeeze()
     depth_base = ut.io.load_depth('pressure', bh).squeeze()
 
