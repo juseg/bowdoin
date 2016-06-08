@@ -63,16 +63,24 @@ ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean(
 ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 
+# add annotations
+kwa = dict(fontweight='bold', ha='center', va='center')
+ax.text('20150801', 600, 'GPS', color=ut.colors[2], **kwa)
+ax.text('20150501', 250, 'Landsat', color=ut.palette[7], **kwa)
+ax.text('20160201', 450, 'Sentinel-1', color=ut.palette[9], **kwa)
+ax.text('20150201', 100, 'Boreholes', color=ut.colors[0], **kwa)
+
 # add field campaigns
-ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette[7], alpha=0.25)
-ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette[7], alpha=0.25)
-ax.axvspan('2016-07-04', '2016-07-25', ec='none', fc=ut.palette[7], alpha=0.25)
+kwa = dict(ec='none', fc='0.9')
+ax.axvspan('2014-07-15', '2014-07-29', **kwa)
+ax.axvspan('2015-07-06', '2015-07-20', **kwa)
+ax.axvspan('2016-07-04', '2016-07-25', **kwa)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
 ax.set_xlim('2014-07-01', '2016-08-01')
 ax.set_ylim(0.0, 800.0)
-fig.autofmt_xdate()
+#fig.autofmt_xdate()
 
 # save
 fig.savefig('ts_satvel')
