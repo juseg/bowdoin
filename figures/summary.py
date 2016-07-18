@@ -39,7 +39,7 @@ tsax.text(0.05, 0.88, '(c)', fontweight='bold', transform=tsax.transAxes)
 
 # dates to plot
 start = '2014-11-01'
-end = '2015-07-01'
+end = '2015-11-01'
 
 # plot upstream temperature profile
 ax = grid[0]
@@ -90,7 +90,7 @@ ax.set_title(u'ice temperature (°C)')
 ax = grid[1]
 
 # read data values
-exz = ut.io.load_total_strain(bh, start, end)*12/8
+exz = ut.io.load_total_strain(bh, start, end)
 notnull = exz.notnull()
 tilt_depth = tilt_depth[notnull]
 exz = exz[notnull]
