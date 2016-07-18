@@ -23,8 +23,7 @@ for i, bh in enumerate(ut.boreholes):
     lines.append(ax.get_lines()[-1])  # select last line for the legend
 
 # add field campaigns
-ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
-ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
+ut.pl.plot_campaigns(ax, y=350.0)
 
 # add labels
 ax.text('20140901', 230, 'downstream water level', color=ut.colors['downstream'])
@@ -43,7 +42,7 @@ ts.resample('1D').mean().plot(ax=ax, c=c)
 # add labels and set limits
 ax.text('20150515', 750, 'GPS velocity', color=c)
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', color=ut.colors['dgps'], labelpad=0.0)
-ax.set_xlim('2014-07-14', '2015-07-21')
+ax.set_xlim('2014-07-01', '2016-08-01')
 ax.set_ylim(-200, 1200)
 
 # save

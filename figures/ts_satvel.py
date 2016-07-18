@@ -71,9 +71,7 @@ ax.text('20160201', 450, 'Sentinel-1', color=ut.palette['darkpurple'], **kwa)
 ax.text('20150201', 100, 'Boreholes', color=ut.colors['upstream'], **kwa)
 
 # add field campaigns
-ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
-ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
-ax.axvspan('2016-07-04', '2016-07-25', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
+ut.pl.plot_campaigns(ax, y=750.0)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')

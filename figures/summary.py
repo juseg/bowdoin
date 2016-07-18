@@ -121,18 +121,12 @@ ts.plot(ax=ax, c=c, legend=False)
 
 # add label and set limits
 ax.set_ylabel(r'surface velocity ($m\,a^{-1}$)', labelpad=0.0, color=c)
-ax.set_xlim('2014-07-14', '2015-07-21')
+ax.set_xlim('2014-07-01', '2016-08-01')
 ax.set_ylim(0, 800)
 ax.locator_params(axis='y', nbins=6)
 
 # add field campaigns
-c = ut.palette['darkorange']
-ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=c, alpha=0.25)
-ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=c, alpha=0.25)
-ax.text(0.02, 0.05, 'field campaign 2014', ha='left', color=c,
-        transform=ax.transAxes)
-ax.text(0.99, 0.05, 'field campaign 2015', ha='right', color=c,
-        transform=ax.transAxes)
+ut.pl.plot_campaigns(ax, y=50.0)
 
 # save
 fig.savefig('summary')
