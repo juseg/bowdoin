@@ -50,7 +50,7 @@ def get_data(log):
 
     # open input file
     idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
-                      parse_dates=True, na_values='NAN')
+                      dtype=str, parse_dates=True, na_values='NAN')
 
     # rename index
     idf.index = idf.index.rename('date')
@@ -111,7 +111,7 @@ def extract_wlev_depth(df):
     tiltunit_wlev = df['p']*1e2/g
 
     # compute tilt unit depth using water depth from all sensors
-    tiltunit_depth = tiltunit_wlev.loc[observ_date] + water_depth
+    tiltunit_depth = tiltunit_wlev.loc[observ_date].squeeze() + water_depth
 
     # calibration interval
     calint = {'upstream':   ['2014-07-18', '2014-07-24'],
