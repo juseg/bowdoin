@@ -109,8 +109,10 @@ if __name__ == '__main__':
     cb.set_label(r'surface velocity ($m\,yr^{-1}$)', labelpad=0.0)
 
     # plot ax3 satellite image
-    background = cimgt.MapQuestOpenAerial()
-    ax3.add_image(background, 10)
+    # FIXME: this works only with an internet connection. Replace by
+    # a locally-stored satellite image.
+    #background = cimgt.MapQuestOpenAerial()
+    #ax3.add_image(background, 10)
 
     # plot locations of camera and boreholes
     llz = {'qaanaaq':   (-69.230556, 77.466667,   0.000000),
