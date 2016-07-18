@@ -11,7 +11,7 @@ fig, grid = plt.subplots(2, 1, sharex=True)
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
     ax = grid[1-i]
-    c = ut.colors[i]
+    c = ut.colors[bh]
 
     # read pressure sensor water level
     ts = ut.io.load_data('pressure', 'wlev', bh).squeeze().resample('30T').mean()

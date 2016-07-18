@@ -12,7 +12,7 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
-    c = ut.colors[i]
+    c = ut.colors[bh]
 
     # load data
     exz = ut.io.load_strain_rate(bh, '1D')[refdate:]

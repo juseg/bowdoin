@@ -62,7 +62,7 @@ fig, grid = plt.subplots(2, 1, sharex=True)
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
     ax = grid[1-i]
-    c = ut.colors[i]
+    c = ut.colors[bh]
 
     # plot tilt unit temperature
     tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)[d0:]

@@ -151,10 +151,12 @@ if __name__ == '__main__':
            'bh2':       (-68.555685, 77.691307,  87.746263),  # upstream
            'bh3':       (-68.558857, 77.689995,  83.446628),  # downstream
            'camp':      (-68.509920, 77.685890,  70.000000)}
-    ax.plot(*llz['bh1'][:2], c=ut.colors[1], marker='o', ms=6,  transform=ll)
-    ax.plot(*llz['bh3'][:2], c=ut.colors[0], marker='o', ms=6, transform=ll)
-    ax.plot(*llz['cam_upper'][:2], c=ut.palette[7], marker='^', ms=6, transform=ll)
-    ax.plot(*llz['cam_lower'][:2], c=ut.palette[7], marker='^', ms=6, transform=ll)
+    ax.plot(*llz['bh1'][:2], c=ut.colors['upstream'], marker='o', ms=6, transform=ll)
+    ax.plot(*llz['bh3'][:2], c=ut.colors['downstream'], marker='o', ms=6, transform=ll)
+    ax.plot(*llz['cam_upper'][:2], c=ut.palette['darkorange'], marker='^', ms=6,
+            transform=ll)
+    ax.plot(*llz['cam_lower'][:2], c=ut.palette['darkorange'], marker='^', ms=6,
+            transform=ll)
 
     # save third frame
     fig.savefig('map_bow')

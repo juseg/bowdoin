@@ -18,9 +18,9 @@ vel = df['vel (m/a)']
 err = df['vel_error (m/a)']
 mask = (dt <= pd.to_timedelta('12D'))
 ax.errorbar(mid[mask], vel[mask], xerr=dt[mask]/2, yerr=err[mask],
-            c=ut.palette[8], ls='', lw=0.5, zorder=4, alpha=0.75)
+            c=ut.palette['lightpurple'], ls='', lw=0.5, zorder=4, alpha=0.75)
 ax.errorbar(mid[-mask], vel[-mask], xerr=dt[-mask]/2, yerr=err[-mask],
-            c=ut.palette[9], ls='', lw=0.5, zorder=4, alpha=0.75)
+            c=ut.palette['darkpurple'], ls='', lw=0.5, zorder=4, alpha=0.75)
 
 # plot landsat velocity
 df = pd.read_csv('data/satellite/bowdoin-landsat.csv',
@@ -30,11 +30,11 @@ mid = df['start'] + dt/2
 vel = df['vel']
 err = df['err']
 ax.errorbar(mid, vel, xerr=dt/2, yerr=err,
-            c=ut.palette[7], lw=0.5, ls='', zorder=3, alpha=0.75)
+            c=ut.palette['darkorange'], lw=0.5, ls='', zorder=3, alpha=0.75)
 
 # plot deformation velocity
 for i, bh in enumerate(ut.boreholes):
-    c = ut.colors[i]
+    c = ut.colors[bh]
 
     # load data
     exz = ut.io.load_strain_rate(bh, '1D')['2014-11':]
@@ -58,23 +58,22 @@ for i, bh in enumerate(ut.boreholes):
     vdef.plot(ax=ax, c=c, label=bh)
 
 # plot GPS velocity
-c = ut.colors[2]
+c = ut.colors['dgps']
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
 ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 
 # add annotations
 kwa = dict(fontweight='bold', ha='center', va='center')
-ax.text('20150801', 600, 'GPS', color=ut.colors[2], **kwa)
-ax.text('20150501', 250, 'Landsat', color=ut.palette[7], **kwa)
-ax.text('20160201', 450, 'Sentinel-1', color=ut.palette[9], **kwa)
-ax.text('20150201', 100, 'Boreholes', color=ut.colors[0], **kwa)
+ax.text('20150801', 600, 'GPS', color=ut.colors['dgps'], **kwa)
+ax.text('20150501', 250, 'Landsat', color=ut.palette['darkorange'], **kwa)
+ax.text('20160201', 450, 'Sentinel-1', color=ut.palette['darkpurple'], **kwa)
+ax.text('20150201', 100, 'Boreholes', color=ut.colors['upstream'], **kwa)
 
 # add field campaigns
-kwa = dict(ec='none', fc='0.9')
-ax.axvspan('2014-07-15', '2014-07-29', **kwa)
-ax.axvspan('2015-07-06', '2015-07-20', **kwa)
-ax.axvspan('2016-07-04', '2016-07-25', **kwa)
+ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
+ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
+ax.axvspan('2016-07-04', '2016-07-25', ec='none', fc=ut.palette['darkorange'], alpha=0.25)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')

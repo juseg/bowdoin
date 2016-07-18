@@ -129,19 +129,21 @@ if __name__ == '__main__':
            'b1503':     (-68.554406, 77.706070, 133.6503),  # 150719 13:00
            'camp':      (-68.509920, 77.685890,  70.000000)}
     ax2.plot(*llz['qaanaaq'][:2], c='k', marker='o',  transform=ll)
-    ax3.plot(*llz['bh3'][:2], c=ut.colors[0], marker='o', transform=ll)
-    ax3.plot(*llz['b1501'][:2], c=ut.colors[1], marker='s', transform=ll)
-    ax3.plot(*llz['cam_lower'][:2], c=ut.palette[7], marker='^', transform=ll)
-    ax3.plot(*llz['cam_upper'][:2], c=ut.palette[7], marker='^', transform=ll)
+    ax3.plot(*llz['bh3'][:2], c=ut.palette['darkblue'], marker='o', transform=ll)
+    ax3.plot(*llz['b1501'][:2], c=ut.palette['darkred'], marker='s', transform=ll)
+    ax3.plot(*llz['cam_lower'][:2], c=ut.palette['darkorange'], marker='^',
+             transform=ll)
+    ax3.plot(*llz['cam_upper'][:2], c=ut.palette['darkorange'], marker='^',
+             transform=ll)
 
     # annotate
     ax2.text(-590000, -1250000, 'Qaanaaq', color='k',
              ha='center', fontweight='bold')
-    ax3.text(-532500, -1225500, 'boreholes', color=ut.colors[0],
+    ax3.text(-532500, -1225500, 'boreholes', color=ut.palette['darkblue'],
              ha='center', fontweight='bold')
-    ax3.text(-540000, -1229000, 'seismometers', color=ut.colors[1],
+    ax3.text(-540000, -1229000, 'seismometers', color=ut.palette['darkred'],
              ha='center', fontweight='bold')
-    ax3.text(-532000, -1229500, 'cameras', color=ut.palette[7],
+    ax3.text(-532000, -1229500, 'cameras', color=ut.palette['darkorange'],
              ha='center', fontweight='bold')
 
     # add scale

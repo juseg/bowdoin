@@ -12,7 +12,7 @@ fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, sharex=True, sharey=True)
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
     ax = grid[i]
-    c = ut.colors[i]
+    c = ut.colors[bh]
 
     # read data values
     depth = ut.io.load_depth('tiltunit', bh).squeeze()

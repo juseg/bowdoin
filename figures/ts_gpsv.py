@@ -8,7 +8,7 @@ import util as ut
 fig, ax = plt.subplots(1, 1)
 
 # plot GPS velocity
-c = ut.colors[2]
+c = ut.colors['dgps']
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
 ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
 ts.resample('1D').mean().plot(ax=ax, c=c)

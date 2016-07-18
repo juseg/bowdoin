@@ -44,7 +44,7 @@ end = '2015-07-01'
 # plot upstream temperature profile
 ax = grid[0]
 bh = ut.boreholes[1]
-c = ut.colors[1]
+c = ut.colors[bh]
 
 # read temperature values
 temp_temp = ut.io.load_data('thstring', 'temp', bh).resample('1D').mean()[start:end]
@@ -105,32 +105,33 @@ ax.set_title(r'ice deformation (m a$^{-1}$)')
 # plot downstream water level time series
 ax = tsax
 bh = ut.boreholes[0]
-c = ut.colors[0]
+c = ut.colors[bh]
 ts = ut.io.load_data('pressure', 'wlev', bh).resample('12H').mean()[1:]
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label
-ax.set_ylabel('water level (m)', color=ut.colors[0])
+ax.set_ylabel('water level (m)', color=c)
 ax.locator_params(axis='y', nbins=6)
 
 # plot GPS velocity
 ax = ax.twinx()
-c = ut.colors[2]
+c = ut.colors['dgps']
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('12H').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and set limits
-ax.set_ylabel(r'surface velocity ($m\,a^{-1}$)', labelpad=0.0, color=ut.colors[2])
+ax.set_ylabel(r'surface velocity ($m\,a^{-1}$)', labelpad=0.0, color=c)
 ax.set_xlim('2014-07-14', '2015-07-21')
 ax.set_ylim(0, 800)
 ax.locator_params(axis='y', nbins=6)
 
 # add field campaigns
-ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=ut.palette[7], alpha=0.25)
-ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=ut.palette[7], alpha=0.25)
-ax.text(0.02, 0.05, 'field campaign 2014', ha='left', color=ut.palette[7],
+c = ut.palette['darkorange']
+ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=c, alpha=0.25)
+ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=c, alpha=0.25)
+ax.text(0.02, 0.05, 'field campaign 2014', ha='left', color=c,
         transform=ax.transAxes)
-ax.text(0.99, 0.05, 'field campaign 2015', ha='right', color=ut.palette[7],
+ax.text(0.99, 0.05, 'field campaign 2015', ha='right', color=c,
         transform=ax.transAxes)
 
 # save

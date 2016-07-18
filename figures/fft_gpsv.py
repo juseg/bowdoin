@@ -7,7 +7,7 @@ import util as ut
 
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)
-c = ut.colors[2]
+c = ut.colors['dgps']
 
 # read GPS velocity data
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()

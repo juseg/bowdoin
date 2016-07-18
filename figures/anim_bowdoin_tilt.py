@@ -62,7 +62,7 @@ tsax = fig.add_axes([10.0/figw, 10.0/figh, 1-12.5/figw, 30.0/figh])
 
 # plot time series
 for i, bh in enumerate(ut.boreholes):
-    c = ut.colors[i]
+    c = ut.colors[bh]
 
     # fit to a Glen's law
     n, A = ut.al.glenfit(depth[bh], exz[bh].T)

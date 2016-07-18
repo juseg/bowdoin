@@ -13,7 +13,7 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 
 # plot water level
 bh = 'downstream'
-c = ut.palette[1]
+c = ut.colors[bh]
 
 # plot pressure sensor water level
 ts = ut.io.load_data('pressure', 'wlev', bh)[start:end].resample('1H').mean()
@@ -26,7 +26,7 @@ ax.set_ylim(205.0, 255.0)
 # plot upstream deformation velocity
 ax = ax.twinx()
 bh = 'upstream'
-c = ut.palette[5]
+c = ut.colors[bh]
 
 # load data
 exz = ut.io.load_strain_rate(bh, '1H')[start:end]

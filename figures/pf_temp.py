@@ -64,10 +64,10 @@ for i, bh in enumerate(ut.boreholes):
 
     # plot profiles
     ax.fill_betweenx(temp_z, temp_tmin, temp_tmax,
-                     facecolor=ut.colors[i], edgecolor='none', alpha=0.25)
+                     facecolor=ut.colors[bh], edgecolor='none', alpha=0.25)
     ax.fill_betweenx(tilt_z, tilt_tmin, tilt_tmax,
                      facecolor='0.75', edgecolor='none', alpha=0.25)
-    ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[i], label=bh)
+    ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[bh], label=bh)
     ax.plot(tilt_tavg, tilt_z, '-^', c='0.75')
 
     # add base lines
