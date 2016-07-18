@@ -29,7 +29,7 @@ def get_profiles(depth, temp):
 
 # dates to plot
 start = '2014-11-01'
-end = '2015-07-01'
+end = '2015-11-01'
 
 # initialize figure
 fig, ax = ut.pl.subplots_mm(nrows=1, ncols=1, sharex=True, sharey=True)

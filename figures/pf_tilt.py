@@ -4,7 +4,7 @@ import util as ut
 
 # dates to plot
 start = '2014-11-01'
-end = '2015-07-01'
+end = '2015-11-01'
 
 # initialize figure
 fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, sharex=True, sharey=True)
@@ -32,7 +32,7 @@ for i, bh in enumerate(ut.boreholes):
 
 # set axes properties
 ax.set_ylim(300.0, 0.0)
-ax.set_xlim(25.0, 0.0)
+ax.set_xlim(35.0, 0.0)
 
 # add common labels
 figw, figh = fig.get_size_inches()*25.4

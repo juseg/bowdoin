@@ -54,7 +54,7 @@ def detrend_dataframe(df, imin=None, imax=None):
 
 # reference dates
 d0 = '2014-11-01'
-d1 = '2015-07-01'
+d1 = '2015-11-01'
 
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
