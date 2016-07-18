@@ -36,7 +36,7 @@ def get_velocity(method='backward'):
     df['y'] = points[:,1]
 
     # resample with 15 minute frequency and fill with NaN
-    df = df.resample('15T')
+    df = df.resample('15T').mean()
 
     # compute cartesian velocity in meters per year
     v = df[['x', 'y', 'z']]
