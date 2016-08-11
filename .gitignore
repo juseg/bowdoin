@@ -1,0 +1,15 @@
+# Figures
+*.pdf
+*.pyc
+
+# Animations
+*.png
+*.mp4
+*.ogg
+
+# Data
+figures/data/processed
+figures/data/external
+*.tif
+*.zip
+*.csv
