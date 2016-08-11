@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx>
+
+  <!-- Carbon samples  -->
+
+  <wpt lat="77.685403078794479" lon="-68.51358306594193">
+    <ele>78.713134765625</ele>
+    <name>BOW16-CA-02</name>
+    <desc>18-JUL-16 18:05:37</desc>
+  </wpt>
+
+  <wpt lat="77.685429817065597" lon="-68.513842569664121">
+    <ele>77.9920654296875</ele>
+    <name>BOW16-CA-03</name>
+    <desc>18-JUL-16 18:08:37</desc>
+  </wpt>
+
+  <wpt lat="77.686068685725331" lon="-68.513292046263814">
+    <ele>77.511474609375</ele>
+    <name>BOW16-CA-04</name>
+    <desc>18-JUL-16 19:36:45</desc>
+  </wpt>
+
+  <!-- Cosmo samples  -->
+
+  <wpt lat="77.69107804633677" lon="-68.50159702822566">
+    <ele>294.52734375</ele>
+    <name>BOW16-JS-01</name>
+    <desc>10-JUL-16 20:31:44</desc>
+  </wpt>
+
+  <wpt lat="77.690861206501722" lon="-68.502738643437624">
+    <ele>294.52734375</ele>
+    <name>BOW16-JS-02</name>
+    <desc>10-JUL-16 20:29:30</desc>
+  </wpt>
+
+  <wpt lat="77.690811082720757" lon="-68.501660982146859">
+    <ele>293.5660400390625</ele>
+    <name>BOW16-JS-03</name>
+    <desc>10-JUL-16 20:27:18</desc>
+  </wpt>
+
+  <wpt lat="77.691165637224913" lon="-68.50162485614419">
+    <ele>295.72900390625</ele>
+    <name>BOW16-JS-04</name>
+    <desc>10-JUL-16 20:33:43</desc>
+  </wpt>
+
+  <wpt lat="77.69136973656714" lon="-68.500121561810374">
+    <ele>293.806396484375</ele>
+    <name>BOW16-JS-05</name>
+    <desc>10-JUL-16 20:35:47</desc>
+  </wpt>
+
+  <wpt lat="77.690599355846643" lon="-68.500208985060453">
+    <ele>269.773681640625</ele>
+    <name>BOW16-JS-06</name>
+    <desc>10-JUL-16 20:22:30</desc>
+  </wpt>
+
+  <wpt lat="77.703881235793233" lon="-68.378038052469492">
+    <ele>345.95751953125</ele>
+    <name>BOW16-JS-07</name>
+    <desc>14-JUL-16 17:56:47</desc>
+  </wpt>
+
+  <wpt lat="77.703797584399581" lon="-68.377952724695206">
+    <ele>338.7476806640625</ele>
+    <name>BOW16-JS-08</name>
+    <desc>14-JUL-16 19:19:35</desc>
+  </wpt>
+
+  <wpt lat="77.703401455655694" lon="-68.378004524856806">
+    <ele>334.9024658203125</ele>
+    <name>BOW16-JS-09</name>
+    <desc>14-JUL-16 20:01:41</desc>
+  </wpt>
+
+  <wpt lat="77.704333690926433" lon="-68.377435896545649">
+    <ele>329.3748779296875</ele>
+    <name>BOW16-JS-10</name>
+    <desc>14-JUL-16 20:33:20</desc>
+  </wpt>
+
+  <wpt lat="77.704429747536778" lon="-68.376465607434511">
+    <ele>331.05712890625</ele>
+    <name>BOW16-JS-11</name>
+    <desc>14-JUL-16 21:20:36</desc>
+  </wpt>
+
+  <wpt lat="77.665250049903989" lon="-68.586966460570693">
+    <ele>19.5924072265625</ele>
+    <name>BOW16-JS-12</name>
+    <desc>15-JUL-16 19:58:58</desc>
+  </wpt>
+
+  <wpt lat="77.665933342650533" lon="-68.584619862958789">
+    <ele>24.879638671875</ele>
+    <name>BOW16-JS-13</name>
+    <desc>15-JUL-16 21:47:18</desc>
+  </wpt>
+
+  <!-- Other  -->
+
+  <wpt lat="77.659782115370035" lon="-68.527482943609357">
+    <ele>489.913818359375</ele>
+    <name>Camera Lower</name>
+    <desc>04-JUL-16 12:37:53PM</desc>
+  </wpt>
+
+  <wpt lat="77.696059076115489" lon="-68.501126552000642">
+    <ele>244.2989501953125</ele>
+    <name>Camera Julien</name>
+    <desc>10-JUL-16 21:22:11</desc>
+  </wpt>
+
+  <wpt lat="77.69169176928699" lon="-68.501777406781912">
+    <ele>51.79638671875</ele>
+    <name>Camera Upper</name>
+    <desc>02-JUL-16 6:46:17PM</desc>
+  </wpt>
+
+  <wpt lat="77.678828984498978" lon="-68.586811060085893">
+    <ele>31.60888671875</ele>
+    <name>Depot Lower</name>
+    <desc>04-JUL-16 9:57:42AM</desc>
+  </wpt>
+
+  <wpt lat="77.685678759589791" lon="-68.562244204804301">
+    <ele>42.9041748046875</ele>
+    <name>Depot Upper</name>
+    <desc>04-JUL-16 9:49:32AM</desc>
+  </wpt>
+
+  <wpt lat="77.694283118471503" lon="-68.454980235546827">
+    <ele>195.752685546875</ele>
+    <name>Drone</name>
+    <desc>04-JUL-16 10:09:25AM</desc>
+  </wpt>
+
+  <wpt lat="77.675648890435696" lon="-68.543752636760473">
+    <ele>71.0225830078125</ele>
+    <name>Exit Lower</name>
+    <desc>04-JUL-16 4:10:18PM</desc>
+  </wpt>
+
+  <wpt lat="77.684865463525057" lon="-68.507085163146257">
+    <ele>83.5196533203125</ele>
+    <name>GPS0</name>
+    <desc>05-JUL-16 13:33:23</desc>
+  </wpt>
+
+  <wpt lat="77.692546723410487" lon="-68.447402575984597">
+    <ele>52.2769775390625</ele>
+    <name>Lake</name>
+    <desc>02-JUL-16 6:48:16PM</desc>
+  </wpt>
+
+  <wpt lat="77.684821290895343" lon="-68.510674713179469">
+    <ele>71.98388671875</ele>
+    <name>Tent Japanese</name>
+    <desc>05-JUL-16 13:26:22</desc>
+  </wpt>
+
+  <wpt lat="77.684714505448937" lon="-68.510582176968455">
+    <ele>68.859619140625</ele>
+    <name>Tent Swiss</name>
+    <desc>05-JUL-16 13:24:30</desc>
+  </wpt>
+
+  <wpt lat="77.685276260599494" lon="-68.51047346368432">
+    <ele>73.906494140625</ele>
+    <name>Tent Guillaume</name>
+    <desc>05-JUL-16 13:28:33</desc>
+  </wpt>
+
+  <wpt lat="77.685259245336056" lon="-68.50951231084764">
+    <ele>78.4727783203125</ele>
+    <name>Tent Julien Yvo</name>
+    <desc>05-JUL-16 13:30:36</desc>
+  </wpt>
+
+</gpx>
