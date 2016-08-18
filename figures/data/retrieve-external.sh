@@ -24,3 +24,9 @@ done
 orig=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
 dest=$(basename $orig)
 [ -f "$dest" ] || scp $orig $dest
+
+# Qaanaaq Sentinel-2A (S2A) image from 08 Aug. 2016
+orig=ogive:/scratch_net/ogive/juliens/geodata/satellite/sentinel-2a/composite/qaanaaq/rgb/S2A_20160808_175915_456_RGB.jpg
+dest=$(basename $orig)
+[ -f "$dest" ] || scp $orig ${orig%.jpg}.jpw $dest
+[ -f "${dest%.jpg}.jpw" ] || scp ${orig%.jpg}.jpw ${dest%.jpg}.jpw
