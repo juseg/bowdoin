@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+from netCDF4 import Dataset
 import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
 import gdal
@@ -54,6 +55,40 @@ def open_measures_composite():
     return data.mean(axis=0), extents[0]
 
 
+def open_cci_velocity():
+    """Average CCI Greenland velocities over two winters of data."""
+
+    # data file names
+    filename = 'data/external/greenland_iv_500m_s1_20141101_20151201_v1_0.nc'
+    data = []
+    extents = []
+    intervals = []
+
+    # open dataset
+    nc = Dataset(filename)
+    x = nc['x'][:]
+    y = nc['y'][:]
+    c = nc['land_ice_surface_velocity_magnitude'][:]*365.25
+
+    # compute image extent from coordinate vectors
+    w = (3*x[0]-x[1])/2
+    e = (3*x[-1]-x[-2])/2
+    s = (3*y[0]-y[1])/2
+    n = (3*y[-1]-y[-2])/2
+
+    # compute time interval
+    #start = pd.to_datetime(nc.time_coverage_start)  # ! wrong value
+    #end = pd.to_datetime(nc.time_coverage_end)      # ! wrong value
+    #start = pd.to_datetime(filename.split('_')[4])
+    #end = pd.to_datetime(filename.split('_')[5])
+
+    # close dataset
+    nc.close()
+
+    # return data and extent
+    return c, (w, e, s, n)
+
+
 if __name__ == '__main__':
 
     # projections and map boundaries
@@ -68,7 +103,7 @@ if __name__ == '__main__':
     jako = (-300e3, +000e3, -2350e3, -2050e3)  # 300x300
 
     # read velocity data
-    data, extent = open_measures_composite()
+    data, extent = open_cci_velocity()
 
     # initialize figure
     figw, figh = 135.0, 120.0
@@ -106,7 +141,7 @@ if __name__ == '__main__':
 
     # add colorbar
     cb = fig.colorbar(im, cax=cax)
-    cb.set_label(r'surface velocity ($m\,yr^{-1}$)', labelpad=0.0)
+    cb.set_label(r'surface velocity ($m\,a^{-1}$)', labelpad=0.0)
 
     # plot ax3 satellite image
     # FIXME: this works only with an internet connection. Replace by

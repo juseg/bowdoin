@@ -10,26 +10,19 @@ orig=ftp://sidads.colorado.edu/pub/DATASETS/nsidc0645_MEASURES_gimp_dem_v1/30/gi
 dest=$(basename $orig)
 [ -f "$dest" ] || wget $orig
 
-# Measures Greenland velocities
-root=ftp://n5eil01u.ecs.nsidc.org/SAN/MEASURES/NSIDC-0478.001
-for date in 2000.09.03 2005.12.13 2006.12.18 2007.11.01 2008.12.01
-do
-    year=${date:0:4}
-    orig=$root/$date/greenland_vel_mosaic500_$((year))_$((year+1)).tif
-    dest=$(basename $orig)
-    [ -f "$dest" ] || wget $orig
-done
-
-# Greenland Climate Change Initiative (CCI) velocity maps
+# Greenland Climate Change Initiative (CCI) 2015 velocity map
 root=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-cci
 orig=$root/greenland_ice_velocity_map_winter_2014_2015/\
 greenland_iv_500m_s1_20141101_20151201_v1_0.nc
 dest=$(basename $orig)
 [ -f "$dest" ] || scp $orig $dest
-orig=$root/greenland_ice_velocity_map_winter_2015_2016/\
-greenland_iv_500m_s1_20151223_20160331_v1_0.nc
-dest=$(basename $orig)
-[ -f "$dest" ] || scp $orig $dest
+
+## Greenland Climate Change Initiative (CCI) 2016 velocity map
+#root=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-cci
+#orig=$root/greenland_ice_velocity_map_winter_2015_2016/\
+#greenland_iv_500m_s1_20151223_20160331_v1_0.nc
+#dest=$(basename $orig)
+#[ -f "$dest" ] || scp $orig $dest
 
 # Greenland gravimetric mass balance (GMB) grids
 orig=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
@@ -41,3 +34,13 @@ orig=ogive:/scratch_net/ogive/juliens/geodata/satellite/sentinel-2a/composite/qa
 dest=$(basename $orig)
 [ -f "$dest" ] || scp $orig ${orig%.jpg}.jpw $dest
 [ -f "${dest%.jpg}.jpw" ] || scp ${orig%.jpg}.jpw ${dest%.jpg}.jpw
+
+## Greenland Measures velocity maps
+#root=ftp://n5eil01u.ecs.nsidc.org/SAN/MEASURES/NSIDC-0478.001
+#for date in 2000.09.03 2005.12.13 2006.12.18 2007.11.01 2008.12.01
+#do
+#    year=${date:0:4}
+#    orig=$root/$date/greenland_vel_mosaic500_$((year))_$((year+1)).tif
+#    dest=$(basename $orig)
+#    [ -f "$dest" ] || wget $orig
+#done
