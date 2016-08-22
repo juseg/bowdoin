@@ -38,13 +38,14 @@ $(foreach VAR, $(INC_VARS), \
 	mkdir -p processed
 	python2 $<
 
-# retrieve external files
-external: retrieve-external.sh
-	bash $<
-
 # process landsat data from Daiki
 satellite/bowdoin-landsat.csv: preprocess-landsat.py
 	python2 $<
+
+# retrieve external files
+.PHONY: external
+external: retrieve-external.sh
+	bash $<
 
 # clean processed and downloaded files
 .PHONY: clean

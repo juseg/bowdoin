@@ -20,6 +20,17 @@ do
     [ -f "$dest" ] || wget $orig
 done
 
+# Greenland Climate Change Initiative (CCI) velocity maps
+root=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-cci
+orig=$root/greenland_ice_velocity_map_winter_2014_2015/\
+greenland_iv_500m_s1_20141101_20151201_v1_0.nc
+dest=$(basename $orig)
+[ -f "$dest" ] || scp $orig $dest
+orig=$root/greenland_ice_velocity_map_winter_2015_2016/\
+greenland_iv_500m_s1_20151223_20160331_v1_0.nc
+dest=$(basename $orig)
+[ -f "$dest" ] || scp $orig $dest
+
 # Greenland gravimetric mass balance (GMB) grids
 orig=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
 dest=$(basename $orig)
