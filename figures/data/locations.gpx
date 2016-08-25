@@ -1,6 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <gpx>
 
+  <!-- Boreholes  -->
+
+  <wpt lat="77.69124388843444" lon="-68.55574939706277">
+    <ele>88.694913</ele>
+    <time>2014-07-16</time>
+    <name>B14BH1</name>
+    <!-- Upstream, inclino, 270 m -->
+  </wpt>
+
+  <wpt lat="77.69130659059496" lon="-68.5556849737656">
+    <ele>87.746263</ele>
+    <time>2014-07-17</time>
+    <name>B14BH2</name>
+    <!-- Upstream, pressure and thermistors, 260 m -->
+  </wpt>
+
+  <wpt lat="77.68999495500545" lon="-68.55885691559848">
+    <ele>83.446628</ele>
+    <time>2014-07-22</time>
+    <name>B14BH3</name>
+    <!-- Downstream, inclino, pressure and thermistors, 250 m -->
+  </wpt>
+
+  <!-- FIXME: ask Daiki for more precise 2016 coordinates -->
+
+  <wpt lat="77.6855277777777778" lon="-68.5681111111111111">
+    <ele>63</ele>
+    <time>2016-07-19T13:05</time>
+    <name>B16BH1</name>
+  </wpt>
+
+  <wpt lat="77.6856111111111112" lon="-68.5680000000000000">
+    <ele>60</ele>
+    <time>2016-07-19T13:16</time>
+    <name>B16BH2</name>
+  </wpt>
+
+  <wpt lat="77.6842222222222223" lon="-68.5725833333333333">
+    <ele>43</ele>
+    <time>2016-07-19T15:09</time>
+    <name>B16BH3</name>
+  </wpt>
+
   <!-- Carbon samples  -->
 
   <wpt lat="77.685403078794479" lon="-68.51358306594193">
@@ -258,6 +301,10 @@
     <ele>52.2769775390625</ele>
     <name>Lake</name>
     <time>2016-07-02T20:48:16Z</time>
+  </wpt>
+
+  <wpt lat="77.466667" lon="-69.230556">
+    <name>Qaanaaq</name>
   </wpt>
 
   <wpt lat="77.672160007059574" lon="-68.723918041214347">
