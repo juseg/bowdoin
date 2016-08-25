@@ -7,6 +7,22 @@ import numpy as np
 import pandas as pd
 
 
+def load_temp(site='B'):
+    """Return 2014--2016 weather station air temperature in a data series."""
+
+    # read data
+    prefix = 'data/weather/SIGMA_AWS_Site%s_' % site
+    filelist = [prefix+s for s in ['2014_level0_final.csv',
+                                   '2015_level0_final.csv',
+                                   '2016_level0_160824.csv']]
+    datalist = [pd.read_csv(filename, parse_dates=True, index_col='Date',
+                            dayfirst=True, na_values=(-50, -9999))
+                            ['Temperature_1[degC]']
+                for filename in filelist]
+    ts = pd.concat(datalist)
+    return ts
+
+
 def load_data(sensor, variable, borehole):
     """Return sensor variable data in a dataframe."""
 
