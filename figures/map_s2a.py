@@ -4,27 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import util as ut
-import gdal
-
-
-def open_gtif(filename):
-    """Open GeoTIFF and return data and extent."""
-
-    # read image data
-    ds = gdal.Open(filename)
-    data = ds.ReadAsArray()
-    rows, cols = data.shape[-2:]
-
-    # read geotransform
-    gt = ds.GetGeoTransform()
-    x0, dx, dxdy, y0, dydx, dy = ds.GetGeoTransform()
-    assert dxdy == dydx == 0.0  # rotation parameters should be zero
-    x1 = x0 + dx * cols
-    y1 = y0 + dy * rows
-
-    # return image data and extent
-    return data, (x0, x1, y0, y1)
-
 
 if __name__ == '__main__':
 
@@ -40,7 +19,7 @@ if __name__ == '__main__':
 
     # plot image data
     filename = 'data/external/S2A_20160808_175915_456_RGB.jpg'
-    data, extent = open_gtif(filename)
+    data, extent = ut.ma.open_gtif(filename)
     data = np.moveaxis(data, 0, 2)
     ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 

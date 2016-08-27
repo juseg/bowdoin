@@ -4,89 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-from netCDF4 import Dataset
 import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
-import gdal
 
 
 import util as ut
-
-
-def open_gtif(filename):
-    """Open GeoTIFF and return data and extent."""
-
-    # read image data
-    ds = gdal.Open(filename)
-    data = ds.ReadAsArray()
-    rows, cols = data.shape
-
-    # read geotransform
-    gt = ds.GetGeoTransform()
-    x0, dx, dxdy, y0, dydx, dy = ds.GetGeoTransform()
-    assert dxdy == dydx == 0.0  # rotation parameters should be zero
-    x1 = x0 + dx * cols
-    y1 = y0 + dy * rows
-
-    # return image data and extent
-    return data, (x0, x1, y0, y1)
-
-
-def open_measures_composite():
-    """Average MEASURES Greenland velocities over five winters of data."""
-
-    # data file names
-    filenames = ['data/external/greenland_vel_mosaic500_2000_2001.tif',
-                 'data/external/greenland_vel_mosaic500_2005_2006.tif',
-                 'data/external/greenland_vel_mosaic500_2006_2007.tif',
-                 'data/external/greenland_vel_mosaic500_2007_2008.tif',
-                 'data/external/greenland_vel_mosaic500_2008_2009.tif']
-
-    # read geotiffs
-    data, extents = zip(*[open_gtif(f) for f in filenames])
-
-    # check that all extents are the same
-    assert extents.count(extents[0]) == len(extents)
-    
-    # mask null values
-    data = np.ma.masked_equal(data, 0.1)
-
-    # return average and extent
-    return data.mean(axis=0), extents[0]
-
-
-def open_cci_velocity():
-    """Average CCI Greenland velocities over two winters of data."""
-
-    # data file names
-    filename = 'data/external/greenland_iv_500m_s1_20141101_20151201_v1_0.nc'
-    data = []
-    extents = []
-    intervals = []
-
-    # open dataset
-    nc = Dataset(filename)
-    x = nc['x'][:]
-    y = nc['y'][:]
-    c = nc['land_ice_surface_velocity_magnitude'][:]*365.25
-
-    # compute image extent from coordinate vectors
-    w = (3*x[0]-x[1])/2
-    e = (3*x[-1]-x[-2])/2
-    s = (3*y[0]-y[1])/2
-    n = (3*y[-1]-y[-2])/2
-
-    # compute time interval
-    #start = pd.to_datetime(nc.time_coverage_start)  # ! wrong value
-    #end = pd.to_datetime(nc.time_coverage_end)      # ! wrong value
-    #start = pd.to_datetime(filename.split('_')[4])
-    #end = pd.to_datetime(filename.split('_')[5])
-
-    # close dataset
-    nc.close()
-
-    # return data and extent
-    return c, (w, e, s, n)
 
 
 if __name__ == '__main__':
@@ -103,7 +25,7 @@ if __name__ == '__main__':
     jako = (-300e3, +000e3, -2350e3, -2050e3)  # 300x300
 
     # read velocity data
-    data, extent = open_cci_velocity()
+    data, extent = ut.ma.open_cci_velocity()
 
     # initialize figure
     figw, figh = 135.0, 120.0

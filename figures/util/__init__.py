@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 import al
 import io
+import ma
 import pl
 
 # build color brewer Paired palette
