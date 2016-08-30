@@ -6,7 +6,7 @@ from matplotlib.colors import LogNorm
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
-
+import gpxpy
 
 import util as ut
 
@@ -15,6 +15,7 @@ if __name__ == '__main__':
 
     # projections and map boundaries
     ll = ccrs.PlateCarree()
+    utm = ccrs.UTM(19)
     proj = ccrs.Stereographic(central_latitude=90.0, central_longitude=-45.0,
                               true_scale_latitude=70.0)
 
@@ -71,27 +72,17 @@ if __name__ == '__main__':
     #background = cimgt.MapQuestOpenAerial()
     #ax3.add_image(background, 10)
 
-    # plot locations of camera and boreholes
-    llz = {'qaanaaq':   (-69.230556, 77.466667,   0.000000),
-           'cam_lower': (-68.527481, 77.659782, 490.219243),
-           'cam_upper': (-68.504852, 77.691702, 289.044237),
-           'gcp_m1':    (-68.504733, 77.688107, 139.879200),
-           'gcp_m2':    (-68.628121, 77.721004, 172.288962),
-           'gcp_m3':    (-68.643724, 77.703824, 172.562631),
-           'bh1':       (-68.555749, 77.691244,  88.694913),  # upstream
-           'bh2':       (-68.555685, 77.691307,  87.746263),  # upstream
-           'bh3':       (-68.558857, 77.689995,  83.446628),  # downstream
-           'b1501':     (-68.607773, 77.679805,  59.2910),  # 150719 17:30
-           'b1502':     (-68.564605, 77.693997,  96.2647),  # 150719 14:30
-           'b1503':     (-68.554406, 77.706070, 133.6503),  # 150719 13:00
-           'camp':      (-68.509920, 77.685890,  70.000000)}
-    ax2.plot(*llz['qaanaaq'][:2], c='k', marker='o',  transform=ll)
-    ax3.plot(*llz['bh3'][:2], c=ut.palette['darkblue'], marker='o', transform=ll)
-    ax3.plot(*llz['b1501'][:2], c=ut.palette['darkred'], marker='s', transform=ll)
-    ax3.plot(*llz['cam_lower'][:2], c=ut.palette['darkorange'], marker='^',
-             transform=ll)
-    ax3.plot(*llz['cam_upper'][:2], c=ut.palette['darkorange'], marker='^',
-             transform=ll)
+    # plot Qaanaaq, borehole and camera locations
+    ut.ma.annotate('Qaanaaq', ax=ax2, color='k', marker='o')
+    kwa = dict(ax=ax3, color=ut.colors['upstream'], marker='o')
+    ut.ma.annotate('B14BH1', **kwa)
+    ut.ma.annotate('B16BH1', **kwa)
+    kwa = dict(ax=ax3, color=ut.colors['downstream'], marker='o')
+    ut.ma.annotate('B14BH3', **kwa)
+    ut.ma.annotate('B16BH3', **kwa)
+    kwa = dict(ax=ax3, color=ut.palette['darkorange'], marker='^')
+    ut.ma.annotate('Camera Upper', **kwa)
+    ut.ma.annotate('Camera Lower', **kwa)
 
     # annotate
     ax2.text(-590000, -1250000, 'Qaanaaq', color='k',

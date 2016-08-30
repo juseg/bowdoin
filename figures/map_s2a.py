@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import util as ut
+import gpxpy
 
 if __name__ == '__main__':
 
@@ -23,13 +24,16 @@ if __name__ == '__main__':
     data = np.moveaxis(data, 0, 2)
     ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 
-    # plot locations of cameras
-    llz = {'cam_lower': (-68.527481, 77.659782, 490.219243),
-           'cam_upper': (-68.504852, 77.691702, 289.044237)}
-    ax.plot(*llz['cam_lower'][:2], c=ut.palette['darkorange'], marker='^',
-             transform=ll)
-    ax.plot(*llz['cam_upper'][:2], c=ut.palette['darkorange'], marker='^',
-             transform=ll)
+    # plot borehole and camera locations
+    kwa = dict(color=ut.colors['upstream'], marker='o')
+    ut.ma.annotate('B14BH1', **kwa)
+    ut.ma.annotate('B16BH1', **kwa)
+    kwa = dict(color=ut.colors['downstream'], marker='o')
+    ut.ma.annotate('B14BH3', text='2014', **kwa)
+    ut.ma.annotate('B16BH3', text='2016', **kwa)
+    kwa = dict(color=ut.palette['darkorange'], marker='^')
+    ut.ma.annotate('Camera Upper', **kwa)
+    ut.ma.annotate('Camera Lower', **kwa)
 
-    # save third frame
+    # save
     fig.savefig('map_s2a')

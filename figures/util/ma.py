@@ -6,11 +6,17 @@
 import numpy as np
 from netCDF4 import Dataset
 from osgeo import gdal
+import gpxpy
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+
+
+# geographic projections
+ll = ccrs.PlateCarree()
 
 
 def open_gtif(filename, extent=None):
     """Open GeoTIFF and return data and extent."""
-    """Extract GeoTiff data over map extent and build coordinate vectors."""
 
     # open dataset
     ds = gdal.Open(filename)
@@ -171,3 +177,27 @@ def coords_from_extent(extent, cols, rows):
 
     # return coordinate vectors
     return x, y
+
+
+def annotate(name, ax=None, text=None, color=None, marker=None):
+    """Plot and annotate waypoint from GPX file"""
+
+    # get current axes if None given
+    ax = ax or plt.gca()
+
+    # open GPX file
+    with open('data/locations.gpx', 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+        for wpt in gpx.waypoints:
+            if wpt.name == name:
+                #c = ut.colors['downstream']
+                xy = ax.projection.transform_point(wpt.longitude, wpt.latitude, ll)
+                ax.plot(*xy, color=color, marker=marker)
+                if text:
+                    ax.annotate(text, xy=xy, xytext=(-10, 10), color=color,
+                        ha='right', va='bottom', fontweight='bold',
+                        textcoords='offset points',
+                        bbox=dict(pad=0, ec='none', fc='none'),
+                        arrowprops=dict(arrowstyle='->', color=color,
+                                        relpos=(1, 0)))
+

@@ -4,6 +4,7 @@ import util as ut
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import gpxpy
 
 if __name__ == '__main__':
 
@@ -48,23 +49,16 @@ if __name__ == '__main__':
     #im = ax.imshow(s, extent=extent, vmin=0.0, vmax=0.05, cmap='magma_r')
     #fig.colorbar(im)
 
-    # plot locations of camera and boreholes
-    llz = {'qaanaaq':   (-69.230556, 77.466667,   0.000000),
-           'cam_lower': (-68.527481, 77.659782, 490.219243),
-           'cam_upper': (-68.504852, 77.691702, 289.044237),
-           'gcp_m1':    (-68.504733, 77.688107, 139.879200),
-           'gcp_m2':    (-68.628121, 77.721004, 172.288962),
-           'gcp_m3':    (-68.643724, 77.703824, 172.562631),
-           'bh1':       (-68.555749, 77.691244,  88.694913),  # upstream
-           'bh2':       (-68.555685, 77.691307,  87.746263),  # upstream
-           'bh3':       (-68.558857, 77.689995,  83.446628),  # downstream
-           'camp':      (-68.509920, 77.685890,  70.000000)}
-    ax.plot(*llz['bh1'][:2], c=ut.colors['upstream'], marker='o', ms=6, transform=ll)
-    ax.plot(*llz['bh3'][:2], c=ut.colors['downstream'], marker='o', ms=6, transform=ll)
-    ax.plot(*llz['cam_upper'][:2], c=ut.palette['darkorange'], marker='^', ms=6,
-            transform=ll)
-    ax.plot(*llz['cam_lower'][:2], c=ut.palette['darkorange'], marker='^', ms=6,
-            transform=ll)
+    # plot borehole and camera locations
+    kwa = dict(color=ut.colors['upstream'], marker='o')
+    ut.ma.annotate('B14BH1', **kwa)
+    ut.ma.annotate('B16BH1', **kwa)
+    kwa = dict(color=ut.colors['downstream'], marker='o')
+    ut.ma.annotate('B14BH3', text='2014', **kwa)
+    ut.ma.annotate('B16BH3', text='2016', **kwa)
+    kwa = dict(color=ut.palette['darkorange'], marker='^')
+    ut.ma.annotate('Camera Upper', **kwa)
+    ut.ma.annotate('Camera Lower', **kwa)
 
     # save third frame
     fig.savefig('map_bow')
