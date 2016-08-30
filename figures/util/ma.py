@@ -43,6 +43,14 @@ def open_gtif(filename, extent=None):
         row0 = int((n-y0)/dy)  # index of first (N) row
         col1 = int((e-x0)/dx) + 1  # index of last (E) column
         row1 = int((s-y0)/dy) + 1  # index of last (S) row
+
+        # make sure indexes are within data extent
+        col0 = max(0, col0)
+        row0 = max(0, row0)
+        col1 = min(ds.RasterXSize, col1)
+        row1 = min(ds.RasterYSize, row1)
+
+        # compute number of cols and rows needed
         cols = col1 - col0  # number of cols needed
         rows = row1 - row0  # number of rows needed
 
@@ -55,6 +63,7 @@ def open_gtif(filename, extent=None):
     y1 = y0 + dy*rows
 
     # read image data
+    print col0, row0, cols, rows
     data = ds.ReadAsArray(col0, row0, cols, rows)
 
     # close dataset and return image data and extent

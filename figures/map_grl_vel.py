@@ -20,13 +20,13 @@ if __name__ == '__main__':
                               true_scale_latitude=70.0)
 
     # subregions w, e, s, n
-    grld = (-650e3, +900e3, -0600e3, -3400e3)  # 1550x2800 (38.75*40x70*40)
+    grld = (-650e3, +900e3, -3400e3, -0600e3)  # 1550x2800 (38.75*40x70*40)
     qaaq = (-650e3, -450e3, -1325e3, -1125e3)  # 200x200
     bowd = (-547e3, -517e3, -1237e3, -1207e3)  # 30x30
     jako = (-300e3, +000e3, -2350e3, -2050e3)  # 300x300
 
     # read velocity data
-    data, extent = ut.ma.open_gtif('data/external/greenland_vel_mosaic250_v1.tif')
+    filename = 'data/external/greenland_vel_mosaic250_v1.tif'
 
     # initialize figure
     figw, figh = 85.0, 75.0
@@ -55,26 +55,25 @@ if __name__ == '__main__':
 
     # plot ax1 velocity map
     norm = LogNorm(1e0, 1e4)
+    data, extent = ut.ma.open_gtif(filename, extent=grld)
     im = ax1.imshow(data, extent=extent, cmap='Blues', norm=norm)
     cl = ax1.coastlines(resolution='50m', lw=0.5)
 
     # plot ax2 velocity map
+    data, extent = ut.ma.open_gtif(filename, extent=qaaq)
     im = ax2.imshow(data, extent=extent, cmap='Blues', norm=norm)
     cl = ax2.coastlines(resolution='10m', lw=0.5)
 
     # plot ax3 velocity map
+    data, extent = ut.ma.open_gtif(filename, extent=bowd)
     im = ax3.imshow(data, extent=extent, cmap='Blues', norm=norm)
     cl = ax3.coastlines(resolution='10m', lw=0.5)
+#    cl = ax3.contour(data, extent=extent, levels=[-1e9], colors=['k'],
+#                     linestyles='-', linewidths=0.5)
 
     # add colorbar
     cb = fig.colorbar(im, cax=cax)
-    cb.set_label(r'surface velocity ($m\,a^{-1}$)', labelpad=0.0)
-
-    # plot ax3 satellite image
-    # FIXME: this works only with an internet connection. Replace by
-    # a locally-stored satellite image.
-    #background = cimgt.MapQuestOpenAerial()
-    #ax3.add_image(background, 10)
+    cb.set_label(r'surface velocity ($m\,a^{-1}$)', labelpad=-2)
 
     # plot Qaanaaq, borehole and camera locations
     ut.ma.annotate('Qaanaaq', ax=ax2, color='k', marker='o')
