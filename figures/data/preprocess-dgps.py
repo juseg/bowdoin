@@ -16,7 +16,7 @@ def get_velocity(method='backward'):
 
     # append dataframes corresponding to each year
     dflist = []
-    df = pd.concat([pd.read_fwf('original/gps/B14BH1_%d_15min.dat' % year,
+    df = pd.concat([pd.read_fwf('original/gps/B14BH1/B14BH1_%d_15min.dat' % year,
                                 names=columns, index_col=0,
                                 usecols=['daydate', 'time', 'lon', 'lat', 'z'],
                                 parse_dates={'date': ['daydate', 'time']})
