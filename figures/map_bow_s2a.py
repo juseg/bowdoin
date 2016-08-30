@@ -11,10 +11,11 @@ if __name__ == '__main__':
     # projections and map boundaries
     ll = ccrs.PlateCarree()
     utm = ccrs.UTM(19)
-    bowd = 504e3, 515.5e3, 8626.5e3, 8619e3
+    bowd = 505e3, 513.5e3, 8619.5e3, 8625.5e3
 
     # initialize figure
-    fig, ax = plt.subplots(1, 1, subplot_kw=dict(projection=utm))
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1], projection=utm)
     ax.set_rasterization_zorder(2.5)
     ax.set_extent(bowd, crs=utm)
 

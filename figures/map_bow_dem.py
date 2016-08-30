@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     # initialize figure
     fig = plt.figure()
-    ax = fig.add_subplot(111, projection=proj)
+    ax = fig.add_axes([0, 0, 1, 1], projection=proj)
     ax.set_rasterization_zorder(2.5)
     ax.set_extent(extent, crs=proj)
 

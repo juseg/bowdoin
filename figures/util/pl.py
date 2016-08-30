@@ -179,6 +179,6 @@ def plot_campaigns(ax, y=0.0):
     # add text annotations
     # FIXME: use hybrid coordinates
     props = dict(color=c)
-    ax.text('2014-07-10', y, 'field campaign 2014', ha='left', color=c)
-    ax.text('2015-07-13', y, 'field campaign 2015', ha='center', color=c)
-    ax.text('2016-07-26', y, 'field campaign 2016', ha='right', color=c)
+    ax.text('2014-07-10', y, 'f.c. 2014', ha='left', color=c)
+    ax.text('2015-07-13', y, 'f.c. 2015', ha='center', color=c)
+    ax.text('2016-07-26', y, 'f.c. 2016', ha='right', color=c)

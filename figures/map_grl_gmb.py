@@ -34,13 +34,13 @@ def plot(targets, ofile='map_grl_gmb'):
                               true_scale_latitude=70.0)
 
     # initialize figure
-    figw, figh = 135.0, 95.0
+    figw, figh = 85.0, 90.0
     fig, grid = plt.subplots(1, 2, figsize=(figw/25.4, figh/25.4),
-                             gridspec_kw=dict(left=5/figw, right=1-25/figw,
-                                              bottom=5/figh, top=1-5/figh,
-                                              wspace=1/(((figw-30)/5+1)/2-1)),
+                             gridspec_kw=dict(left=2.5/figw, right=1-2.5/figw,
+                                              bottom=15.0/figh, top=1-5.0/figh,
+                                              wspace=1/(((figw-5.0)/2.5+1)/2-1)),
                              subplot_kw=dict(projection=proj))
-    cax = fig.add_axes([1-20/figw, 5/figh, 5/figw, 1-10/figh])
+    cax = fig.add_axes([2.5/figw, 7.5/figh, 1-5.0/figw, 5.0/figh])
 
     # plot
     for i, ax in enumerate(grid):
@@ -51,13 +51,13 @@ def plot(targets, ofile='map_grl_gmb'):
 
     # set axes limits and add coastline
     for ax in grid:
-        ax.set_xlim(-700e3, 900e3)    # 1600 km
-        ax.set_ylim(-3370e3, -650e3)  # 2720 = 1600*50/85
-        ax.coastlines(resolution='50m', lw=0.5)
+        ax.set_xlim(-650e3, 900e3)    # 1550 km = 38.75 * 40
+        ax.set_ylim(-3400e3, -600e3)  # 2800 km = 70.00 * 40
+        ax.coastlines(resolution='50m', c='k', lw=0.5)
 
     # add colorbar and save
-    cb = fig.colorbar(cs, cax)
-    cb.set_label('Mass change rate ($mm\ w.eq.\,a^{-1}$ or $kg\,m^{-1}\,a^{-1}$)')
+    cb = fig.colorbar(cs, cax, orientation='horizontal')
+    cb.set_label('Mass change rate ($mm\ w.eq.\,a^{-1}$ or $kg\,m^{-1}\,a^{-1}$)', labelpad=2)
     plt.savefig(ofile)
 
     # close dataset

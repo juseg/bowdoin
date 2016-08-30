@@ -20,7 +20,7 @@ if __name__ == '__main__':
                               true_scale_latitude=70.0)
 
     # subregions w, e, s, n
-    grld = (-725e3, +900e3, -0550e3, -3425e3)  # 1625x2875 (65*25x115*25)
+    grld = (-650e3, +900e3, -0600e3, -3400e3)  # 1550x2800 (38.75*40x70*40)
     qaaq = (-650e3, -450e3, -1325e3, -1125e3)  # 200x200
     bowd = (-547e3, -517e3, -1237e3, -1207e3)  # 30x30
     jako = (-300e3, +000e3, -2350e3, -2050e3)  # 300x300
@@ -29,15 +29,15 @@ if __name__ == '__main__':
     data, extent = ut.ma.open_gtif('data/external/greenland_vel_mosaic250_v1.tif')
 
     # initialize figure
-    figw, figh = 135.0, 120.0
+    figw, figh = 85.0, 75.0
     fig = plt.figure(0, (figw/25.4, figh/25.4))
-    rect1 = [2.5/figw, 2.5/figh, 65.0/figw, 115.0/figh]
-    rect2 = [70.0/figw, 67.5/figh, 50.0/figw, 50.0/figh]
-    rect3 = [70.0/figw, 2.5/figh, 62.5/figw, 62.5/figh]
+    rect1 = [2.5/figw, 2.5/figh, 38.75/figw, 70.0/figh]
+    rect2 = [43.75/figw, 43.75/figh, 28.75/figw, 28.75/figh]
+    rect3 = [43.75/figw, 2.5/figh, 38.75/figw, 38.75/figh]
     ax1 = fig.add_axes(rect1, projection=proj)
     ax2 = fig.add_axes(rect2, projection=proj)
     ax3 = fig.add_axes(rect3, projection=proj)
-    cax = plt.axes([122.5/figw, 77.5/figh, 2.5/figw, 40.0/figh])
+    cax = plt.axes([75.0/figw, 43.75/figh, 2.5/figw, 28.75/figh])
 
     # set rasterization levels
     ax1.set_rasterization_zorder(2.5)
