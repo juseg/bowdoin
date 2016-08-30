@@ -188,7 +188,7 @@ def coords_from_extent(extent, cols, rows):
 
 
 def add_waypoint(name, ax=None, color=None, marker='o',
-                 text=None, textpos='ur', offset=10):
+                 text=None, textpos='ul', offset=10):
     """Plot and annotate waypoint from GPX file"""
 
     # get current axes if None given
