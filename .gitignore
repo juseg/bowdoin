@@ -3,6 +3,7 @@
 *.pyc
 
 # Animations
+*.gif
 *.png
 *.mp4
 *.ogg
