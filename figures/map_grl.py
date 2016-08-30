@@ -26,7 +26,7 @@ if __name__ == '__main__':
     jako = (-300e3, +000e3, -2350e3, -2050e3)  # 300x300
 
     # read velocity data
-    data, extent = ut.ma.open_cci_velocity()
+    data, extent = ut.ma.open_gtif('data/external/greenland_vel_mosaic250_v1.tif')
 
     # initialize figure
     figw, figh = 135.0, 120.0
@@ -61,6 +61,10 @@ if __name__ == '__main__':
     # plot ax2 velocity map
     im = ax2.imshow(data, extent=extent, cmap='Blues', norm=norm)
     cl = ax2.coastlines(resolution='10m', lw=0.5)
+
+    # plot ax3 velocity map
+    im = ax3.imshow(data, extent=extent, cmap='Blues', norm=norm)
+    cl = ax3.coastlines(resolution='10m', lw=0.5)
 
     # add colorbar
     cb = fig.colorbar(im, cax=cax)
