@@ -76,16 +76,16 @@ if __name__ == '__main__':
     cb.set_label(r'surface velocity ($m\,a^{-1}$)', labelpad=-2)
 
     # plot Qaanaaq, borehole and camera locations
-    ut.ma.annotate('Qaanaaq', ax=ax2, color='k', marker='o')
+    ut.ma.add_waypoint('Qaanaaq', ax=ax2, color='k', marker='o')
     kwa = dict(ax=ax3, color=ut.colors['upstream'], marker='o')
-    ut.ma.annotate('B14BH1', **kwa)
-    ut.ma.annotate('B16BH1', **kwa)
+    ut.ma.add_waypoint('B14BH1', **kwa)
+    ut.ma.add_waypoint('B16BH1', **kwa)
     kwa = dict(ax=ax3, color=ut.colors['downstream'], marker='o')
-    ut.ma.annotate('B14BH3', **kwa)
-    ut.ma.annotate('B16BH3', **kwa)
+    ut.ma.add_waypoint('B14BH3', **kwa)
+    ut.ma.add_waypoint('B16BH3', **kwa)
     kwa = dict(ax=ax3, color=ut.palette['darkorange'], marker='^')
-    ut.ma.annotate('Camera Upper', **kwa)
-    ut.ma.annotate('Camera Lower', **kwa)
+    ut.ma.add_waypoint('Camera Upper', **kwa)
+    ut.ma.add_waypoint('Camera Lower', **kwa)
 
     # annotate
     ax2.text(-590000, -1250000, 'Qaanaaq', color='k',

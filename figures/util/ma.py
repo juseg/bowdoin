@@ -63,7 +63,6 @@ def open_gtif(filename, extent=None):
     y1 = y0 + dy*rows
 
     # read image data
-    print col0, row0, cols, rows
     data = ds.ReadAsArray(col0, row0, cols, rows)
 
     # close dataset and return image data and extent
@@ -188,7 +187,8 @@ def coords_from_extent(extent, cols, rows):
     return x, y
 
 
-def annotate(name, ax=None, text=None, color=None, marker=None):
+def add_waypoint(name, ax=None, color=None, marker='o',
+                 text=None, textpos='ur', offset=10):
     """Plot and annotate waypoint from GPX file"""
 
     # get current axes if None given
@@ -197,16 +197,29 @@ def annotate(name, ax=None, text=None, color=None, marker=None):
     # open GPX file
     with open('data/locations.gpx', 'r') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
+
+        # find the right waypoint
         for wpt in gpx.waypoints:
             if wpt.name == name:
-                #c = ut.colors['downstream']
-                xy = ax.projection.transform_point(wpt.longitude, wpt.latitude, ll)
+
+                # plot waypoint
+                proj = ax.projection
+                xy = proj.transform_point(wpt.longitude, wpt.latitude, ll)
                 ax.plot(*xy, color=color, marker=marker)
+
+                # add annotation
                 if text:
-                    ax.annotate(text, xy=xy, xytext=(-10, 10), color=color,
-                        ha='right', va='bottom', fontweight='bold',
-                        textcoords='offset points',
-                        bbox=dict(pad=0, ec='none', fc='none'),
-                        arrowprops=dict(arrowstyle='->', color=color,
-                                        relpos=(1, 0)))
+                    isright = (textpos[1] == 'r')
+                    isup = (textpos[0] == 'u')
+                    xytext = ((2*isright-1)*offset, (2*isup-1)*offset)
+                    ax.annotate(text, xy=xy, xytext=xytext, color=color,
+                                ha=('left' if isright else 'right'),
+                                va=('bottom' if isup else 'top'),
+                                fontweight='bold', textcoords='offset points',
+                                bbox=dict(pad=0, ec='none', fc='none'),
+                                arrowprops=dict(arrowstyle='->', color=color,
+                                                relpos=(1-isright, 1-isup)))
+
+                # break the for loop
+                break
 
