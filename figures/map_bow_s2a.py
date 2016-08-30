@@ -36,4 +36,4 @@ if __name__ == '__main__':
     ut.ma.annotate('Camera Lower', **kwa)
 
     # save
-    fig.savefig('map_s2a')
+    fig.savefig('map_bow_s2a')

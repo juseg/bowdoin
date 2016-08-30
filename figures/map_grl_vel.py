@@ -103,4 +103,4 @@ if __name__ == '__main__':
     ax3.text(-522.5e3, -1234e3, '5km', ha='center')
 
     # save third frame
-    fig.savefig('map_grl')
+    fig.savefig('map_grl_vel')

@@ -61,5 +61,5 @@ if __name__ == '__main__':
     ut.ma.annotate('Camera Lower', **kwa)
 
     # save third frame
-    fig.savefig('map_bow')
+    fig.savefig('map_bow_dem')
 
