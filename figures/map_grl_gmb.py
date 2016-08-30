@@ -53,7 +53,7 @@ def plot(targets, ofile='map_grl_gmb'):
     for ax in grid:
         ax.set_xlim(-650e3, 900e3)    # 1550 km = 38.75 * 40
         ax.set_ylim(-3400e3, -600e3)  # 2800 km = 70.00 * 40
-        ax.coastlines(resolution='50m', c='k', lw=0.5)
+        ax.coastlines(resolution='50m', color='k', lw=0.5)
 
     # add colorbar and save
     cb = fig.colorbar(cs, cax, orientation='horizontal')

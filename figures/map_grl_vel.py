@@ -19,87 +19,68 @@ if __name__ == '__main__':
     proj = ccrs.Stereographic(central_latitude=90.0, central_longitude=-45.0,
                               true_scale_latitude=70.0)
 
-    # subregions w, e, s, n
-    grld = (-650e3, +900e3, -3400e3, -0600e3)  # 1550x2800 (38.75*40x70*40)
-    qaaq = (-650e3, -450e3, -1325e3, -1125e3)  # 200x200
-    bowd = (-547e3, -517e3, -1237e3, -1207e3)  # 30x30
-    jako = (-300e3, +000e3, -2350e3, -2050e3)  # 300x300
-
     # read velocity data
     filename = 'data/external/greenland_vel_mosaic250_v1.tif'
 
     # initialize figure
     figw, figh = 85.0, 75.0
     fig = plt.figure(0, (figw/25.4, figh/25.4))
-    rect1 = [2.5/figw, 2.5/figh, 38.75/figw, 70.0/figh]
-    rect2 = [43.75/figw, 43.75/figh, 28.75/figw, 28.75/figh]
-    rect3 = [43.75/figw, 2.5/figh, 38.75/figw, 38.75/figh]
-    ax1 = fig.add_axes(rect1, projection=proj)
-    ax2 = fig.add_axes(rect2, projection=proj)
-    ax3 = fig.add_axes(rect3, projection=proj)
-    cax = plt.axes([75.0/figw, 43.75/figh, 2.5/figw, 28.75/figh])
+    cax = fig.add_axes([75.0/figw, 50.0/figh, 2.5/figw, 22.5/figh])
+    grid = [fig.add_axes(rect, projection=proj) for rect in [
+                [02.50/figw, 02.50/figh, 38.75/figw, 70.00/figh],
+                [43.75/figw, 43.75/figh, 28.75/figw, 28.75/figh],
+                [43.75/figw, 02.50/figh, 38.75/figw, 38.75/figh]]]
 
-    # set rasterization levels
-    ax1.set_rasterization_zorder(2.5)
-    ax2.set_rasterization_zorder(2.5)
-    ax3.set_rasterization_zorder(2.5)
-
-    # set map extents
-    ax1.set_extent(grld, crs=proj)
-    ax2.set_extent(qaaq, crs=proj)
-    ax3.set_extent(bowd, crs=proj)
+    # subregions w, e, s, n
+    regions = [
+        (-650e3, +900e3, -3400e3, -0600e3),  # Grl. 1550x2800 (38.75*40x70*40)
+        (-650e3, -450e3, -1325e3, -1125e3),  # Inglefield 200x200
+        (-547e3, -517e3, -1237e3, -1207e3)]  # Bowdoin 30x30
 
     # mark inset locations
-    mark_inset(ax1, ax2, loc1=2, loc2=3, fc='none', ec='k', lw=0.5)
-    mark_inset(ax2, ax3, loc1=1, loc2=2, fc='none', ec='k', lw=0.5)
+    mark_inset(grid[0], grid[1], loc1=2, loc2=3, fc='none', ec='k', lw=0.5)
+    mark_inset(grid[1], grid[2], loc1=1, loc2=2, fc='none', ec='k', lw=0.5)
 
-    # plot ax1 velocity map
+    # plot
     norm = LogNorm(1e0, 1e4)
-    data, extent = ut.ma.open_gtif(filename, extent=grld)
-    im = ax1.imshow(data, extent=extent, cmap='Blues', norm=norm)
-    cl = ax1.coastlines(resolution='50m', lw=0.5)
+    for ax, reg in zip(grid, regions):
+        ax.set_rasterization_zorder(2.5)
+        ax.set_extent(reg, crs=ax.projection)
+        data, extent = ut.ma.open_gtif(filename, extent=reg)
+        im = ax.imshow(data, extent=extent, cmap='Blues', norm=norm)
 
-    # plot ax2 velocity map
-    data, extent = ut.ma.open_gtif(filename, extent=qaaq)
-    im = ax2.imshow(data, extent=extent, cmap='Blues', norm=norm)
-    cl = ax2.coastlines(resolution='10m', lw=0.5)
-
-    # plot ax3 velocity map
-    data, extent = ut.ma.open_gtif(filename, extent=bowd)
-    im = ax3.imshow(data, extent=extent, cmap='Blues', norm=norm)
-    cl = ax3.coastlines(resolution='10m', lw=0.5)
-#    cl = ax3.contour(data, extent=extent, levels=[-1e9], colors=['k'],
-#                     linestyles='-', linewidths=0.5)
+    # add coastlines
+    grid[0].coastlines(resolution='50m', lw=0.5)
+    grid[1].coastlines(resolution='10m', lw=0.5)
+    grid[2].contour(data, extent=extent, levels=[-1e9], colors='k',
+                    linestyles='-', linewidths=0.5)
 
     # add colorbar
     cb = fig.colorbar(im, cax=cax)
     cb.set_label(r'surface velocity ($m\,a^{-1}$)', labelpad=-2)
 
-    # plot Qaanaaq, borehole and camera locations
-    ut.ma.add_waypoint('Qaanaaq', ax=ax2, color='k', marker='o')
-    kwa = dict(ax=ax3, color=ut.colors['upstream'], marker='o')
-    ut.ma.add_waypoint('B14BH1', **kwa)
-    ut.ma.add_waypoint('B16BH1', **kwa)
-    kwa = dict(ax=ax3, color=ut.colors['downstream'], marker='o')
-    ut.ma.add_waypoint('B14BH3', **kwa)
-    ut.ma.add_waypoint('B16BH3', **kwa)
-    kwa = dict(ax=ax3, color=ut.palette['darkorange'], marker='^')
-    ut.ma.add_waypoint('Camera Upper', **kwa)
-    ut.ma.add_waypoint('Camera Lower', **kwa)
+    # plot Qaanaaq location
+    c = 'k'
+    ax = grid[1]
+    kwa = dict(ha='center', fontweight='bold')
+    ut.ma.add_waypoint('Qaanaaq', ax=ax, color=c)
+    ax.text(-605000, -1250000, 'Qaanaaq', color=c, **kwa)
 
-    # annotate
-    ax2.text(-590000, -1250000, 'Qaanaaq', color='k',
-             ha='center', fontweight='bold')
-    ax3.text(-532500, -1225500, 'boreholes', color=ut.palette['darkblue'],
-             ha='center', fontweight='bold')
-    ax3.text(-540000, -1229000, 'seismometers', color=ut.palette['darkred'],
-             ha='center', fontweight='bold')
-    ax3.text(-532000, -1229500, 'cameras', color=ut.palette['darkorange'],
-             ha='center', fontweight='bold')
+    # plot borehole locations
+    c = ut.colors['upstream']
+    ax = grid[2]
+    ut.ma.add_waypoint('B14BH3', ax=grid[2], color=c)
+    ax.text(-537000, -1225500, 'boreholes', color=c, **kwa)
+
+    # plot camera locations
+    c = ut.palette['darkorange']
+    ut.ma.add_waypoint('Camera Upper', ax=ax, color=c, marker='^')
+    ut.ma.add_waypoint('Camera Lower', ax=ax, color=c, marker='^')
+    ax.text(-532000, -1229500, 'cameras', color=c, **kwa)
 
     # add scale
-    ax3.plot([-525e3, -520e3], [-1235e3, -1235e3], 'k-|', mew=1.0)
-    ax3.text(-522.5e3, -1234e3, '5km', ha='center')
+    grid[2].plot([-525e3, -520e3], [-1235e3, -1235e3], 'k-|', mew=1.0)
+    grid[2].text(-522.5e3, -1234e3, '5km', ha='center')
 
     # save third frame
     fig.savefig('map_grl_vel')
