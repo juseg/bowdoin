@@ -6,7 +6,8 @@ import pandas as pd
 import util as ut
 
 # initialize figure
-fig, ax = plt.subplots(1, 1)
+fig, ax = ut.pl.subplots_mm(figsize=(135.0, 80.0),
+                            left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # plot new sentinel velocity
 df = pd.read_csv('data/satellite/bowdoin-sentinel.txt', delimiter=',\s+',
@@ -75,7 +76,7 @@ ut.pl.plot_campaigns(ax, y=750.0)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
-ax.set_xlim('2014-07-01', '2016-08-01')
+ax.set_xlim('2014-07', '2016-08')
 ax.set_ylim(0.0, 800.0)
 #fig.autofmt_xdate()
 

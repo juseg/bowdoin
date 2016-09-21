@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import util as ut
 
 # initialize figure
-fig, ax = plt.subplots(1, 1)
+fig, ax = ut.pl.subplots_mm(figsize=(135.0, 80.0),
+                            left=10.0, right=10.0, bottom=10.0, top=2.5)
 
 # for each borehole
 lines = []
@@ -42,7 +43,7 @@ ts.resample('1D').mean().plot(ax=ax, c=c)
 # add labels and set limits
 ax.text('20150515', 750, 'GPS velocity', color=c)
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', color=ut.colors['dgps'], labelpad=0.0)
-ax.set_xlim('2014-07-01', '2016-08-01')
+ax.set_xlim('2014-07', '2016-08')
 ax.set_ylim(-200, 1200)
 
 # save
