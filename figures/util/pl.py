@@ -3,9 +3,16 @@
 
 """Plotting tools."""
 
-import numpy as np
-import pandas as pd
 import util as ut
+
+import cartopy.crs as ccrs
+import numpy as np
+import matplotlib.pyplot as plt
+import gpxpy
+
+# cartographic projections
+
+ll = ccrs.PlateCarree()
 
 
 # subplot helper functions
@@ -176,18 +183,48 @@ def add_waypoint(name, ax=None, color=None, marker='o',
                 break
 
 
-def annotated_scatter(ax, points, text, textpos):
-    """Draw scatter plot with text labels."""
-    ax.scatter(points[:,0], points[:,1], c='red')
-    for i, xy in enumerate(points):
-        isright = (textpos[i][1] == 'r')
-        isup = (textpos[i][0] == 'u')
-        xoffset = (2*isright - 1)*20
-        yoffset = (2*isup - 1)*20
-        ax.annotate(text[i], xy=xy, xytext=(xoffset, yoffset),
-                    textcoords='offset points',
-                    ha=('left' if isright else 'right'),
-                    va=('bottom' if isup else 'top'),
-                    bbox=dict(boxstyle='square,pad=0.5', fc='w'),
-                    arrowprops=dict(arrowstyle='->', color='k',
-                                    relpos=(1-isright, 1-isup)))
+def waypoint_scatter(names, ax=None, textloc='ur', offset=20, **kwargs):
+    """Draw annotated scatter plot from GPX waypoints."""
+
+    # get current axes if None given
+    ax = ax or plt.gca()
+
+    # initialize coordinate lists
+    xlist = []
+    ylist = []
+
+    # expand textpos to a list
+    if type(textloc) is str:
+        textloc = [textloc] * len(names)
+
+    # open GPX file
+    with open('data/locations.gpx', 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+
+        # find the right waypoints
+        for wpt in gpx.waypoints:
+            if wpt.name in names:
+
+                # extract point coordinates
+                proj = ax.projection
+                xy = proj.transform_point(wpt.longitude, wpt.latitude, ll)
+                x, y = xy
+                xlist.append(x)
+                ylist.append(y)
+
+                # add annotation
+                text = '%s\n%.0f m' % (wpt.name, wpt.elevation)
+                loc = textloc[names.index(wpt.name)]
+                isright = (loc[1] == 'r')
+                isup = (loc[0] == 'u')
+                xytext = ((2*isright-1)*offset, (2*isup-1)*offset)
+                ax.annotate(text, xy=xy, xytext=xytext,
+                            ha=('left' if isright else 'right'),
+                            va=('bottom' if isup else 'top'),
+                            textcoords='offset points',
+                            bbox=dict(boxstyle='square,pad=0.5', fc='w'),
+                            arrowprops=dict(arrowstyle='->', color='k',
+                                            relpos=(1-isright, 1-isup)))
+
+    # add scatter plot
+    ax.scatter(xlist, ylist, **kwargs)

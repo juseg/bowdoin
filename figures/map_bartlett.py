@@ -49,15 +49,9 @@ if __name__ == "__main__":
     cs.clabel(fmt='%d')
 
     # plot sample locations
-    samples = np.genfromtxt('samples.txt', dtype=None, names=True)
-    points = proj.transform_points(ll, samples['longitude'],
-                                   samples['latitude'])[:, :2]
-    text = ['%s\n%.0f m' % (s['name'], s['elevation']) for s in samples]
-    textpos = ['ul', 'lr', 'ul', 'lr', 'ul', 'lr', 'lr', 'll', 'ul']
-    ut.pl.annotated_scatter(ax, points, text, textpos)
-
-    # plot camera location
-    ax.plot(-68.527481, 77.659782, 'b^', transform=ll)
+    names = ['BOW15-%02d' % i for i in range(1, 10)]
+    textloc = ['ul', 'lr', 'ul', 'lr', 'ul', 'lr', 'lr', 'll', 'ul']
+    ut.pl.waypoint_scatter(names, textloc=textloc, c='red')
 
 
 # save
