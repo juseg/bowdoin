@@ -1,0 +1,37 @@
+# matplotlib configuration parameters
+
+### LINES
+lines.markeredgewidth   : 0.0       # the line width around the marker symbol
+lines.markersize        : 4         # markersize, in points
+
+### FONT
+font.size               : 6
+font.family             : sans-serif
+
+### TEXT
+mathtext.default        : regular
+
+### AXES
+axes.grid               : False     # display grid or not
+
+### LEGEND
+legend.frameon          : False     # draw a frame around legend
+
+### FIGURE
+figure.figsize          : 3.346456692913386, 2.362204724409449  # 85x60mm
+figure.subplot.left     : 0.11764705882352941  #     10 / 135
+figure.subplot.right    : 0.88235294117647060  # 1 - 10 / 135
+figure.subplot.bottom   : 0.15384615384615385  #     10 / 65
+figure.subplot.top      : 0.92307692307692310  # 1 - 5 / 65
+figure.subplot.wspace   : 0.08                 # 1 / (((85-20)/5+1)/2-1)
+figure.subplot.hspace   : 0.11764705882352941  # 1 / (((65-20)/5+1)/2-1)
+
+### SAVING FIGURES
+savefig.dpi             : 254       # figure dots per inch
+savefig.format          : pdf       # png, ps, pdf, svg
+
+### ANIMATION
+animation.writer        : ffmpeg    # MovieWriter 'backend' to use
+animation.codec         : h264      # Codec to use for writing movie
+animation.bitrate       : 1024      # Bitrate, -1 to auto-determine
+animation.ffmpeg_args   : -pix_fmt, yuv420p  # Compatibility with old players

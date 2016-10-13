@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     # projections and map boundaries
     proj = ccrs.UTM(19)
-    extent = 509e3, 513e3, 8619e3, 8622e3
+    extent = 511e3, 512.6e3, 8623e3, 8624.2e3
 
     # initialize figure
     fig = plt.figure(figsize=(160.0/25.4, 120.0/25.4))
@@ -37,12 +37,15 @@ if __name__ == "__main__":
                     colors='k', linewidths=0.5)
     cs.clabel(fmt='%d')
 
-    # plot sample locations
-    names = ['BOW15-%02d' % i for i in range(1, 10)]
-    names += ['BOW16-JS-%02d' % i for i in (12, 13)]
-    textloc = ['ul', 'lr', 'ul', 'lr', 'ul', 'lr', 'lr', 'll', 'ul',
-               'ul', 'lr']
-    ut.pl.waypoint_scatter(names, textloc=textloc, c='red')
+    # plot cosmo sample locations
+    names = ['BOW16-JS-%02d' % i for i in range(1, 7)]
+    textloc = ['cr', 'cl', 'll', 'ul', 'ur', 'lr']
+    ut.pl.waypoint_scatter(names, textloc=textloc, c=ut.palette['darkred'])
+
+    # plot carbon sample locations
+    names = ['BOW16-CA-%02d' % i for i in range(2, 5)]
+    textloc = ['ll', 'lr', 'ul']
+    ut.pl.waypoint_scatter(names, textloc=textloc, c='w')
 
 # save
-plt.savefig('map_bartlett')
+plt.savefig('map_camp')

@@ -215,16 +215,21 @@ def waypoint_scatter(names, ax=None, textloc='ur', offset=20, **kwargs):
                 # add annotation
                 text = '%s\n%.0f m' % (wpt.name, wpt.elevation)
                 loc = textloc[names.index(wpt.name)]
-                isright = (loc[1] == 'r')
-                isup = (loc[0] == 'u')
-                xytext = ((2*isright-1)*offset, (2*isup-1)*offset)
+                xshift = ((loc[1] == 'r')-(loc[1] == 'l'))
+                xoffset = xshift * offset
+                yshift = ((loc[0] == 'u')-(loc[0] == 'l'))
+                yoffset = yshift * offset
+                ha={'r': 'left', 'l': 'right', 'c': 'center'}[loc[1]]
+                va={'u': 'bottom', 'l': 'top', 'c': 'center'}[loc[0]]
+                xytext = xoffset, yoffset
                 ax.annotate(text, xy=xy, xytext=xytext,
-                            ha=('left' if isright else 'right'),
-                            va=('bottom' if isup else 'top'),
+                            ha=ha,
+                            va=va,
                             textcoords='offset points',
                             bbox=dict(boxstyle='square,pad=0.5', fc='w'),
                             arrowprops=dict(arrowstyle='->', color='k',
-                                            relpos=(1-isright, 1-isup)))
+                                            relpos=(0.5*(1-xshift), 0.5*(1-yshift))
+                                            ))
 
     # add scatter plot
     ax.scatter(xlist, ylist, **kwargs)

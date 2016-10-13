@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     # projections and map boundaries
     proj = ccrs.UTM(19)
-    extent = 509e3, 513e3, 8619e3, 8622e3
+    extent = 505e3, 507e3, 8620.8e3, 8622.3e3
 
     # initialize figure
     fig = plt.figure(figsize=(160.0/25.4, 120.0/25.4))
@@ -38,11 +38,10 @@ if __name__ == "__main__":
     cs.clabel(fmt='%d')
 
     # plot sample locations
-    names = ['BOW15-%02d' % i for i in range(1, 10)]
-    names += ['BOW16-JS-%02d' % i for i in (12, 13)]
-    textloc = ['ul', 'lr', 'ul', 'lr', 'ul', 'lr', 'lr', 'll', 'ul',
-               'ul', 'lr']
+    names = ['BOW16-MF-BED%d' % i for i in range(1, 4)]
+    names += ['BOW16-MF-BOU%d' % i for i in range(1, 4)]
+    textloc = ['ul', 'lr', 'll', 'll', 'lr', 'ur']
     ut.pl.waypoint_scatter(names, textloc=textloc, c='red')
 
 # save
-plt.savefig('map_bartlett')
+plt.savefig('map_sentinel')
