@@ -1,0 +1,193 @@
+#!/usr/bin/env python2
+# coding: utf-8
+
+"""Plotting tools."""
+
+import numpy as np
+import pandas as pd
+import util as ut
+
+
+# subplot helper functions
+
+def subplots_inches(nrows=1, ncols=1, figsize=None,
+                    left=None, bottom=None, right=None, top=None,
+                    wspace=None, hspace=None, projection=None, **kwargs):
+    from matplotlib.pyplot import rcParams, subplots
+
+    # get figure dimensions from rc params if missing
+    figw, figh = figsize or rcParams['figure.figsize']
+
+    # normalize inner spacing to axes dimensions
+    if wspace is not None:
+        wspace = (((figw-left-right)/wspace+1)/ncols-1)**(-1)
+    if hspace is not None:
+        hspace = (((figh-bottom-top)/hspace+1)/nrows-1)**(-1)
+
+    # normalize outer margins to figure dimensions
+    if left is not None:
+        left = left/figw
+    if right is not None:
+        right = 1-right/figw
+    if bottom is not None:
+        bottom = bottom/figh
+    if top is not None:
+        top = 1-top/figh
+
+    # pass projection argument to subplot keywords
+    subplot_kw = kwargs.pop('subplot_kw', {})
+    if projection is not None:
+        subplot_kw['projection'] = projection
+
+    # return figure and subplot grid
+    return subplots(nrows=nrows, ncols=ncols, figsize=figsize,
+                    gridspec_kw={'left': left, 'right': right,
+                                 'bottom': bottom, 'top': top,
+                                 'wspace': wspace, 'hspace': hspace},
+                    subplot_kw=subplot_kw, **kwargs)
+
+
+def subplots_mm(nrows=1, ncols=1, figsize=None,
+                left=None, bottom=None, right=None, top=None,
+                wspace=None, hspace=None, projection=None, **kwargs):
+
+    # convert all non null arguments in inches
+    mm = 1/25.4
+    if figsize is not None:
+        figw, figh = figsize
+        figsize = (figw*mm, figh*mm)
+    if left is not None:
+        left *= mm
+    if right is not None:
+        right *= mm
+    if bottom is not None:
+        bottom = bottom*mm
+    if top is not None:
+        top = top*mm
+    if wspace is not None:
+        wspace = wspace*mm
+    if hspace is not None:
+        hspace = hspace*mm
+
+    # use inches helper to align subplots
+    return subplots_inches(nrows=nrows, ncols=ncols, figsize=figsize,
+                           left=left, right=right, bottom=bottom, top=top,
+                           wspace=wspace, hspace=hspace,
+                           projection=projection, **kwargs)
+
+
+# map drawing functions
+
+def shading(z, dx=None, dy=None, azimuth=315.0, altitude=30.0):
+    """Compute shaded relief map."""
+
+    # convert to anti-clockwise rad
+    azimuth = -azimuth*np.pi / 180.
+    altitude = altitude*np.pi / 180.
+
+    # compute cartesian coords of the illumination direction
+    xlight = np.cos(azimuth) * np.cos(altitude)
+    ylight = np.sin(azimuth) * np.cos(altitude)
+    zlight = np.sin(altitude)
+    # zlight = 0.0  # remove shades from horizontal surfaces
+
+    # compute hillshade (dot product of normal and light direction vectors)
+    u, v = np.gradient(z, dx, dy)
+    return (zlight - u*xlight - v*ylight) / (1 + u**2 + v**2)**(0.5)
+
+
+def slope(z, dx=None, dy=None, smoothing=None):
+    """Compute slope map with optional smoothing."""
+
+    # optionally smooth data
+    if smoothing:
+        import scipy.ndimage as ndimage
+        z = ndimage.filters.gaussian_filter(z, smoothing)
+
+    # compute gradient along each coordinate
+    u, v = np.gradient(z, dx, dy)
+
+    # compute slope
+    slope = (u**2 + v**2)**0.5
+    return slope
+
+
+def extent_from_coords(x, y):
+    """Compute image extent from coordinate vectors."""
+    w = (3*x[0]-x[1])/2
+    e = (3*x[-1]-x[-2])/2
+    s = (3*y[0]-y[1])/2
+    n = (3*y[-1]-y[-2])/2
+    return w, e, s, n
+
+
+def coords_from_extent(extent, cols, rows):
+    """Compute coordinate vectors from image extent."""
+
+    # compute dx and dy
+    (w, e, s, n) = extent
+    dx = (e-w) / cols
+    dy = (n-s) / rows
+
+    # prepare coordinate vectors
+    xwcol = w + 0.5*dx  # x-coord of W row cell centers
+    ysrow = s + 0.5*dy  # y-coord of N row cell centers
+    x = xwcol + np.arange(cols)*dx  # from W to E
+    y = ysrow + np.arange(rows)*dy  # from S to N
+
+    # return coordinate vectors
+    return x, y
+
+
+def add_waypoint(name, ax=None, color=None, marker='o',
+                 text=None, textpos='ul', offset=10):
+    """Plot and annotate waypoint from GPX file"""
+
+    # get current axes if None given
+    ax = ax or plt.gca()
+
+    # open GPX file
+    with open('data/locations.gpx', 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+
+        # find the right waypoint
+        for wpt in gpx.waypoints:
+            if wpt.name == name:
+
+                # plot waypoint
+                proj = ax.projection
+                xy = proj.transform_point(wpt.longitude, wpt.latitude, ll)
+                ax.plot(*xy, color=color, marker=marker)
+
+                # add annotation
+                if text:
+                    isright = (textpos[1] == 'r')
+                    isup = (textpos[0] == 'u')
+                    xytext = ((2*isright-1)*offset, (2*isup-1)*offset)
+                    ax.annotate(text, xy=xy, xytext=xytext, color=color,
+                                ha=('left' if isright else 'right'),
+                                va=('bottom' if isup else 'top'),
+                                fontweight='bold', textcoords='offset points',
+                                bbox=dict(pad=0, ec='none', fc='none'),
+                                arrowprops=dict(arrowstyle='->', color=color,
+                                                relpos=(1-isright, 1-isup)))
+
+                # break the for loop
+                break
+
+
+def annotated_scatter(ax, points, text, textpos):
+    """Draw scatter plot with text labels."""
+    ax.scatter(points[:,0], points[:,1], c='red')
+    for i, xy in enumerate(points):
+        isright = (textpos[i][1] == 'r')
+        isup = (textpos[i][0] == 'u')
+        xoffset = (2*isright - 1)*20
+        yoffset = (2*isup - 1)*20
+        ax.annotate(text[i], xy=xy, xytext=(xoffset, yoffset),
+                    textcoords='offset points',
+                    ha=('left' if isright else 'right'),
+                    va=('bottom' if isup else 'top'),
+                    bbox=dict(boxstyle='square,pad=0.5', fc='w'),
+                    arrowprops=dict(arrowstyle='->', color='k',
+                                    relpos=(1-isright, 1-isup)))
