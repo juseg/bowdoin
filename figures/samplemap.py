@@ -55,12 +55,7 @@ if __name__ == '__main__':
     filename = 'data/bowdoin_20100904_15m_20140929.tif'
     data, extent = ut.io.open_gtif(filename, regions[0])
     levs = np.arange(0.0, 800.0, 10.0)
-
-    # compute shaded relief
-    rows, cols = data.shape
-    dx = (extent[1]-extent[0])/cols
-    dy = (extent[2]-extent[3])/rows
-    shades = ut.pl.shading(data, dx, dy)
+    shades = ut.pl.shading(data, extent=extent)
 
     # plot shades and contours
     for ax in grid:

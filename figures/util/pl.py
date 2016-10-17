@@ -85,8 +85,15 @@ def subplots_mm(nrows=1, ncols=1, figsize=None,
 
 # map drawing functions
 
-def shading(z, dx=None, dy=None, azimuth=315.0, altitude=30.0):
+def shading(z, dx=None, dy=None, extent=None, azimuth=315.0, altitude=30.0):
     """Compute shaded relief map."""
+
+    # get horizontal resolution
+    if (dx is None or dy is None) and (extent is None):
+        raise ValueError("Either dx and dy or extent must be given.")
+    rows, cols = z.shape
+    dx = dx or (extent[1]-extent[0])/cols
+    dy = dy or (extent[2]-extent[3])/rows
 
     # convert to anti-clockwise rad
     azimuth = -azimuth*np.pi / 180.
@@ -103,8 +110,15 @@ def shading(z, dx=None, dy=None, azimuth=315.0, altitude=30.0):
     return (zlight - u*xlight - v*ylight) / (1 + u**2 + v**2)**(0.5)
 
 
-def slope(z, dx=None, dy=None, smoothing=None):
+def slope(z, dx=None, dy=None, extent=None, smoothing=None):
     """Compute slope map with optional smoothing."""
+
+    # get horizontal resolution
+    if (dx is None or dy is None) and (extent is None):
+        raise ValueError("Either dx and dy or extent must be given.")
+    rows, cols = z.shape
+    dx = dx or (extent[1]-extent[0])/cols
+    dy = dy or (extent[2]-extent[3])/rows
 
     # optionally smooth data
     if smoothing:
