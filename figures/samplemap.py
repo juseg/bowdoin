@@ -65,36 +65,40 @@ if __name__ == '__main__':
         cs.clabel(fmt='%d')
 
     # plot Sentinel hill sample locations
-    names = ['BOW16-MF-BED%d' % i for i in range(1, 4)]
-    names += ['BOW16-MF-BOU%d' % i for i in range(1, 4)]
-    textloc = ['ul', 'lr', 'll', 'll', 'cr', 'ur']
-    ut.pl.waypoint_scatter(names, ax=grid[1], textloc=textloc,
-                           c=ut.palette['darkred'])
+    cbed = ut.palette['darkblue']
+    cbou = ut.palette['darkred']
+    ccar = 'w'
+    ut.pl.waypoint_scatter(['BOW16-MF-BED%d' % i for i in range(1, 4)],
+                           textloc=['ul', 'lr', 'll'],
+                           ax=grid[1], c=cbed)
+    ut.pl.waypoint_scatter(['BOW16-MF-BOU%d' % i for i in range(1, 4)],
+                           textloc=['ll', 'cr', 'ur'],
+                           ax=grid[1], c=cbou)
 
     # plot Bartlett hill sample locations
-    names = ['BOW15-%02d' % i for i in range(1, 10)]
-    names += ['BOW16-JS-%02d' % i for i in (12, 13)]
-    textloc = ['ur', 'cr', 'cl', 'ur', 'ul', 'cr', 'lr', 'll', 'cl',
-               'cl', 'ul']
-    ut.pl.waypoint_scatter(names, ax=grid[2], textloc=textloc,
-                           c=ut.palette['darkred'])
+    ut.pl.waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
+                           ['BOW16-JS-%02d' % i for i in (12, 13)],
+                           textloc=['ur', 'cr', 'cl', 'ur', 'ul', 'cr', 'lr',
+                                    'll', 'cl', 'cl', 'ul'],
+                           ax=grid[2], c=cbou)
 
     # plot Camp carbon sample locations
-    names = ['BOW16-CA-%02d' % i for i in range(2, 5)]
-    textloc = ['lr', 'cr', 'ur']
-    ut.pl.waypoint_scatter(names, ax=grid[3], textloc=textloc, c='w')
+    ut.pl.waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
+                           textloc=['lr', 'cr', 'ur'],
+                           ax=grid[3], c=ccar)
 
     # plot Upper cam hill sample locations
-    names = ['BOW16-JS-%02d' % i for i in range(1, 7)]
-    textloc = ['cr', 'cl', 'll', 'ul', 'ur', 'lr']
-    ut.pl.waypoint_scatter(names, ax=grid[3], textloc=textloc,
-                           c=ut.palette['darkred'])
+    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)],
+                           textloc=['cr', 'cl', 'll'],
+                           ax=grid[3], c=cbed)
+    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(4, 7)],
+                           textloc=['ul', 'ur', 'lr'],
+                           ax=grid[3], c=cbou)
 
     # plot Eastarm moraine sample locations
-    names = ['BOW16-JS-%02d' % i for i in range(7, 12)]
-    textloc = ['cl', 'lr', 'll', 'ul', 'ur']
-    ut.pl.waypoint_scatter(names, ax=grid[4], textloc=textloc,
-                           c=ut.palette['darkred'])
+    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
+                           textloc=['cl', 'lr', 'll', 'ul', 'ur'],
+                           ax=grid[4], c=cbou)
 
     # save
     fig.savefig('samplemap')
