@@ -6,7 +6,7 @@ import cartopy.crs as ccrs
 import util as ut
 import gpxpy
 
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+#from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 if __name__ == '__main__':
 
@@ -37,12 +37,24 @@ if __name__ == '__main__':
         ax.outline_patch.set_linewidth(2.0)
         ax.outline_patch.set_edgecolor('k')
 
-    # mark inset locations
-    kwa = dict(fc='none', ec='k', lw=1.0, alpha=0.75)
-    mark_inset(grid[0], grid[1], loc1=1, loc2=2, **kwa)
-    mark_inset(grid[0], grid[2], loc1=1, loc2=3, **kwa)
-    mark_inset(grid[0], grid[3], loc1=2, loc2=3, **kwa)
-    mark_inset(grid[0], grid[4], loc1=2, loc2=4, **kwa)
+#    # mark inset locations
+#    kwa = dict(fc='none', ec='k', lw=1.0, alpha=0.75)
+#    mark_inset(grid[0], grid[1], loc1='none', loc2='none', **kwa)
+#    mark_inset(grid[0], grid[2], loc1=1, loc2=3, **kwa)
+#    mark_inset(grid[0], grid[3], loc1=2, loc2=3, **kwa)
+#    mark_inset(grid[0], grid[4], loc1=2, loc2=4, **kwa)
+
+    # add subfigure labels
+    for reg, label in zip(regions[1:], list('bcde')):
+        w, e, s, n = reg
+        rect = plt.Rectangle((w, n), (e-w), (s-n), fc='none')
+        grid[0].add_patch(rect)
+        grid[0].text(w, n+100, '(%s)' % label, fontweight='bold')
+    ut.pl.add_subfig_label('(a) Bowdoin Glacier', ax=grid[0])
+    ut.pl.add_subfig_label('(b) Sentinel hill', ax=grid[1])
+    ut.pl.add_subfig_label('(c) Bartlett hill', ax=grid[2])
+    ut.pl.add_subfig_label('(d) Upper cam. hill', ax=grid[3])
+    ut.pl.add_subfig_label('(e) East Arm moraine', ax=grid[4])
 
     # plot S2A image
     filename = 'data/S2A_20160410_180125_659_RGB.jpg'
@@ -107,9 +119,9 @@ if __name__ == '__main__':
                            textloc=['ul', 'ur', 'lr'],
                            ax=grid[3], **boukwa)
 
-    # plot Eastarm moraine sample locations
+    # plot East Arm moraine sample locations
     ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
-                           textloc=['cl', 'lr', 'll', 'ul', 'ur'],
+                           textloc=['cr', 'lr', 'll', 'ul', 'ur'],
                            ax=grid[4], **boukwa)
 
     # save

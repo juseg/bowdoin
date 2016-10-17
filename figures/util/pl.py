@@ -10,6 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import gpxpy
 
+from matplotlib.transforms import ScaledTranslation
+
 # cartographic projections
 
 ll = ccrs.PlateCarree()
@@ -81,6 +83,17 @@ def subplots_mm(nrows=1, ncols=1, figsize=None,
                            left=left, right=right, bottom=bottom, top=top,
                            wspace=wspace, hspace=hspace,
                            projection=projection, **kwargs)
+
+
+def add_subfig_label(s, ax=None, ha='left', va='top', offset=2.5/25.4):
+    ax = ax or plt.gca()
+    x = (ha == 'right')  # 0 for left edge, 1 for right edge
+    y = (va == 'top')  # 0 for bottom edge, 1 for top edge
+    xoffset = (1 - 2*x)*offset
+    yoffset = (1 - 2*y)*offset
+    offset = ScaledTranslation(xoffset, yoffset, ax.figure.dpi_scale_trans)
+    return ax.text(x, y, s, ha=ha, va=va, fontweight='bold',
+                   transform=ax.transAxes + offset)
 
 
 # map drawing functions
@@ -244,8 +257,7 @@ def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
                 xytext = xoffset, yoffset
                 ax.annotate(text, xy=xy, xytext=xytext, ha=ha, va=va,
                             textcoords='offset points',
-                            bbox=dict(boxstyle='square,pad=0.5', fc='w',
-                                      alpha=alpha),
+                            bbox=dict(boxstyle='square,pad=0.5', fc='w'),
                             arrowprops=dict(arrowstyle='->', color='k',
                                             relpos=relpos, alpha=alpha))
 
