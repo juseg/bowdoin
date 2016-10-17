@@ -35,35 +35,33 @@ if __name__ == '__main__':
     for ax, reg in zip(grid, regions):
         ax.set_extent(reg, crs=utm)
         ax.outline_patch.set_linewidth(2.0)
-        ax.outline_patch.set_edgecolor('w')
+        ax.outline_patch.set_edgecolor('k')
 
     # mark inset locations
-    kwa = dict(fc='none', ec='w', lw=1.0)
+    kwa = dict(fc='none', ec='k', lw=1.0, alpha=0.75)
     mark_inset(grid[0], grid[1], loc1=1, loc2=2, **kwa)
-    mark_inset(grid[0], grid[2], loc1=1, loc2=2, **kwa)
+    mark_inset(grid[0], grid[2], loc1=1, loc2=3, **kwa)
     mark_inset(grid[0], grid[3], loc1=2, loc2=3, **kwa)
-    mark_inset(grid[0], grid[4], loc1=2, loc2=3, **kwa)
+    mark_inset(grid[0], grid[4], loc1=2, loc2=4, **kwa)
 
-#    # plot S2A image
-#    filename = 'data/S2A_20160808_175915_456_RGB.jpg'
-#    data, extent = ut.io.open_gtif(filename, regions[0])
-#    data = np.moveaxis(data, 0, 2)
-#    for ax in grid:
-#        ax.imshow(data, extent=extent, transform=utm)
+    # plot S2A image
+    filename = 'data/S2A_20160410_180125_659_RGB.jpg'
+    data, extent = ut.io.open_gtif(filename, regions[0])
+    data = np.moveaxis(data, 0, 2)
+    for ax in grid:
+        ax.imshow(data, extent=extent, transform=utm)
 
     # open Yvo's digital elevation model
     filename = 'data/bowdoin_20100904_15m_20140929.tif'
     data, extent = ut.io.open_gtif(filename, regions[0])
-    levs = np.arange(0.0, 800.0, 10.0)
-    shades = ut.pl.shading(data, extent=extent)
+    levs = np.arange(0.0, 800.0, 20.0)
 
     # plot shades and contours
     for ax in grid:
-        ax.imshow(shades, extent=extent, cmap='Greys', vmin=0.0, vmax=1.0)
         cs = ax.contour(data, levels=levs[(levs % 100 != 0)], extent=extent,
-                        colors='k', linewidths=0.25)
+                        colors='k', linewidths=0.1, alpha=0.75)
         cs = ax.contour(data, levels=levs[(levs % 100 == 0)], extent=extent,
-                        colors='k', linewidths=0.5)
+                        colors='k', linewidths=0.25, alpha=0.75)
         cs.clabel(fmt='%d')
 
     # plot Sentinel hill sample locations

@@ -10,6 +10,8 @@
 # Data
 figures/data/processed
 figures/data/external
+*.jpg
+*.jpw
 *.tif
 *.zip
 *.csv
