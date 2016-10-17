@@ -197,7 +197,8 @@ def add_waypoint(name, ax=None, color=None, marker='o',
                 break
 
 
-def waypoint_scatter(names, ax=None, textloc='ur', offset=15, **kwargs):
+def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
+                     alpha=1.0, **kwargs):
     """Draw annotated scatter plot from GPX waypoints."""
 
     # get current axes if None given
@@ -226,6 +227,10 @@ def waypoint_scatter(names, ax=None, textloc='ur', offset=15, **kwargs):
                 xlist.append(x)
                 ylist.append(y)
 
+                # stop here if text is unwanted
+                if text == False:
+                    continue
+
                 # add annotation
                 text = '%s\n%.0f m' % (wpt.name, wpt.elevation)
                 loc = textloc[names.index(wpt.name)]
@@ -233,15 +238,16 @@ def waypoint_scatter(names, ax=None, textloc='ur', offset=15, **kwargs):
                 xoffset = xshift * offset
                 yshift = ((loc[0] == 'u')-(loc[0] == 'l'))
                 yoffset = yshift * offset
+                relpos = (0.5*(1-xshift), 0.5*(1-yshift))
                 ha={'r': 'left', 'l': 'right', 'c': 'center'}[loc[1]]
                 va={'u': 'bottom', 'l': 'top', 'c': 'center'}[loc[0]]
                 xytext = xoffset, yoffset
                 ax.annotate(text, xy=xy, xytext=xytext, ha=ha, va=va,
                             textcoords='offset points',
-                            bbox=dict(boxstyle='square,pad=0.5', fc='w'),
+                            bbox=dict(boxstyle='square,pad=0.5', fc='w',
+                                      alpha=alpha),
                             arrowprops=dict(arrowstyle='->', color='k',
-                                            relpos=(0.5*(1-xshift), 0.5*(1-yshift))
-                                            ))
+                                            relpos=relpos, alpha=alpha))
 
     # add scatter plot
-    ax.scatter(xlist, ylist, **kwargs)
+    ax.scatter(xlist, ylist, alpha=alpha, **kwargs)

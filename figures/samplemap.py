@@ -56,7 +56,7 @@ if __name__ == '__main__':
     data, extent = ut.io.open_gtif(filename, regions[0])
     levs = np.arange(0.0, 800.0, 20.0)
 
-    # plot shades and contours
+    # plot contours
     for ax in grid:
         cs = ax.contour(data, levels=levs[(levs % 100 != 0)], extent=extent,
                         colors='k', linewidths=0.1, alpha=0.75)
@@ -64,41 +64,53 @@ if __name__ == '__main__':
                         colors='k', linewidths=0.25, alpha=0.75)
         cs.clabel(fmt='%d')
 
+    # plot all sample locations on main panel
+    comkwa = dict(s=40, alpha=0.5)
+    bedkwa = dict(marker='s', c=ut.palette['darkblue'], **comkwa)
+    boukwa = dict(marker='o', c=ut.palette['darkred'], **comkwa)
+    carkwa = dict(marker='^', c='w', **comkwa)
+    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)] +
+                           ['BOW16-MF-BED%d' % i for i in range(1, 4)],
+                           ax=grid[0], text=False, **bedkwa)
+    ut.pl.waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
+                           ['BOW16-JS-%02d' % i for i in range(4, 14)] +
+                           ['BOW16-MF-BOU%d' % i for i in range(1, 4)],
+                           ax=grid[0], text=False, **boukwa)
+    ut.pl.waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
+                           ax=grid[0], text=False, **carkwa)
+
     # plot Sentinel hill sample locations
-    cbed = ut.palette['darkblue']
-    cbou = ut.palette['darkred']
-    ccar = 'w'
     ut.pl.waypoint_scatter(['BOW16-MF-BED%d' % i for i in range(1, 4)],
                            textloc=['ul', 'lr', 'll'],
-                           ax=grid[1], c=cbed)
+                           ax=grid[1], **bedkwa)
     ut.pl.waypoint_scatter(['BOW16-MF-BOU%d' % i for i in range(1, 4)],
                            textloc=['ll', 'cr', 'ur'],
-                           ax=grid[1], c=cbou)
+                           ax=grid[1], **boukwa)
 
     # plot Bartlett hill sample locations
     ut.pl.waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
                            ['BOW16-JS-%02d' % i for i in (12, 13)],
                            textloc=['ur', 'cr', 'cl', 'ur', 'ul', 'cr', 'lr',
                                     'll', 'cl', 'cl', 'ul'],
-                           ax=grid[2], c=cbou)
+                           ax=grid[2], **boukwa)
 
     # plot Camp carbon sample locations
     ut.pl.waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
                            textloc=['lr', 'cr', 'ur'],
-                           ax=grid[3], c=ccar)
+                           ax=grid[3], **carkwa)
 
     # plot Upper cam hill sample locations
     ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)],
                            textloc=['cr', 'cl', 'll'],
-                           ax=grid[3], c=cbed)
+                           ax=grid[3], **bedkwa)
     ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(4, 7)],
                            textloc=['ul', 'ur', 'lr'],
-                           ax=grid[3], c=cbou)
+                           ax=grid[3], **boukwa)
 
     # plot Eastarm moraine sample locations
     ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
                            textloc=['cl', 'lr', 'll', 'ul', 'ur'],
-                           ax=grid[4], c=cbou)
+                           ax=grid[4], **boukwa)
 
     # save
     fig.savefig('samplemap')
