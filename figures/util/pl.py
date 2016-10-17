@@ -183,7 +183,7 @@ def add_waypoint(name, ax=None, color=None, marker='o',
                 break
 
 
-def waypoint_scatter(names, ax=None, textloc='ur', offset=20, **kwargs):
+def waypoint_scatter(names, ax=None, textloc='ur', offset=15, **kwargs):
     """Draw annotated scatter plot from GPX waypoints."""
 
     # get current axes if None given
@@ -222,9 +222,7 @@ def waypoint_scatter(names, ax=None, textloc='ur', offset=20, **kwargs):
                 ha={'r': 'left', 'l': 'right', 'c': 'center'}[loc[1]]
                 va={'u': 'bottom', 'l': 'top', 'c': 'center'}[loc[0]]
                 xytext = xoffset, yoffset
-                ax.annotate(text, xy=xy, xytext=xytext,
-                            ha=ha,
-                            va=va,
+                ax.annotate(text, xy=xy, xytext=xytext, ha=ha, va=va,
                             textcoords='offset points',
                             bbox=dict(boxstyle='square,pad=0.5', fc='w'),
                             arrowprops=dict(arrowstyle='->', color='k',
