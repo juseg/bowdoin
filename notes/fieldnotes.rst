@@ -192,7 +192,7 @@ next to the upper, automated ETH camera, about 5 m from the main cairn, which
 was perhaps build by Riccardo last year. No nearby obstacle, shielding from
 distant mountains only.
 
-:UTM19 coords: 77.69108, -68.50159, 295 m
+:Geog. coords: 77.69108, -68.50159, 295 m
 :Sample depth: 3 cm
 :Shielding:
     ======== === === === ===
@@ -206,7 +206,7 @@ distant mountains only.
 Bedrock sample, granitic rock. I used an existing crack for easier sampling but
 it was still surprisingly hard. No nearby obstacle.
 
-:UTM19 coords: 77.69086, -68.50274, 295 m
+:Geog. coords: 77.69086, -68.50274, 295 m
 :Sample depth: 4 cm
 :Shielding: same as for BOW16-JS-01
 
@@ -218,7 +218,7 @@ crack. Spent hours for just a small sample. Located about 20 m from both
 BOW16-JS-01 and BOW16-JS-02, in the direction of the camp and of lower camera
 hill. No nearby obstacle.
 
-:UTM19 coords: 77.69081, -68.50166, 294 m
+:Geog. coords: 77.69081, -68.50166, 294 m
 :Sample depth: 5 cm
 :Shielding: same as for BOW16-JS-01
 
@@ -230,7 +230,7 @@ to sample thanks to vertical cracks near the summit of the boulder. Located
 5 m from the large cairn, 8 m from bedrock sample BOW16-JS-01, resting directly
 on the bedrock. No nearby obstacle.
 
-:UTM19 coords: 77.69116, -68.50163, 296 m
+:Geog. coords: 77.69116, -68.50163, 296 m
 :Sample depth: 4 cm
 :Shielding: same as for BOW16-JS-01
 
@@ -244,7 +244,7 @@ nearby obstacle is the hilltop with the cairn but that is negligible, as the
 hilltop is almost aligned with the horizon from top of boulder view, and the
 cairn probably much younger.
 
-:UTM19 coords: 77.69137, -68.50012, 294 m
+:Geog. coords: 77.69137, -68.50012, 294 m
 :Sample depth: 2 cm
 :Shielding: same as for BOW16-JS-01
 
@@ -257,40 +257,86 @@ looks rich in Quartz. Resting on bedrock on three edges. The boulder is only
 30 cm high, but about 80 cm wide. Located about 30 or 40 m from bedrock sample
 BOW16-JS-03, in the direction of Mirror Glacier.
 
-:UTM19 coords: 77.69060, -68.50021, 270 m
+:Geog. coords: 77.69060, -68.50021, 270 m
 :Sample depth: 3 cm
 :Shielding: same as for BOW16-JS-01
 
 
 *BOW16-JS-07*
-:UTM19 coords:
-:Sample depth:
+
+Boulder sample, 80 cm diameter, resting on bedrock. Granitic type, I think
+similar to the ones that I sampled on the upper camera hill, foliated and
+quartz-rich. Located on the crestline, about 20 m east of the third spillway.
+No nearby obstacle, the nearest mountain is about 500 m to the East.
+
+:Geog. coords: 77.70388, -68.37804, 346 m
+:Sample depth: 3 cm
 :Shielding:
+    ======== === === === === === === ===
+    Azimuth  155 210 215 278  72  78 132
+    Altitude  15   9   3   1   1   6   7
+    ======== === === === === === === ===
 
 
 *BOW16-JS-08*
-:UTM19 coords:
-:Sample depth:
-:Shielding:
+
+Boulder sample, 80 cm diameter, resting on bedrock. Same lithology as previous
+sample but much harder to crush. Located 5 m South-East of the previous sample.
+No nearby obstacles.
+
+:Geog. coords: 77.70380, -68.37795, 339 m
+:Sample depth: 4 cm
+:Shielding: same as for BOW16-JS-07
 
 
 *BOW16-JS-09*
-:UTM19 coords:
-:Sample depth:
+
+Boulder sample, 1 m diameter, resting on broken bedrock. Same lithology as
+previous, easy to crush thanks to existing cracks. Located about 40 m
+South-East of the previous sample. Shielding same as previous sample exept for
+one nearby obstacle (N 215, 5 deg).
+
+:Geog. coords: 77.70340, -68.37801, 335 m
+:Sample depth: 3 cm
 :Shielding:
+    ======== === === === === === === ===
+    Azimuth  155 210 215 278  72  78 132
+    Altitude  15   9   5   1   1   6   7
+    ======== === === === === === === ===
 
 
 *BOW16-JS-10*
-:UTM19 coords:
-:Sample depth:
-:Shielding:
+
+Boulder sample, 2 m diameter, resting on other boulders on top of bedrock.
+Granitic type. I sampled the uppermost 4 cm that are very weathered. Located
+about 40 m North of today's first sample BOW16-JS-07. The boulder is part of a
+small ridge of boulders. I interpret this landform as the remain from the
+moraine that has been preserved by water. Here, all the "fines" (everything
+with diameter smaller than 20 cm) are gone, perhaps washed away. But this
+landform is not located on the main crest but it is a little bit lower to the
+North, towards the so-called East Arm Glacier.
+
+:Geog. coords: 77.70433, -68.37743, 329 m
+:Sample depth: 4 cm
+:Shielding: same as for BOW16-JS-07
 
 
 *BOW16-JS-11*
-:UTM19 coords:
-:Sample depth:
-:Shielding:
 
+Boulder sample, 1 m diameter. Granitic type, hard rock but easy sampling thanks
+to cracks and the sharp top edge of the boulder. Resting on other boulders,
+similarly as in the previous spot, except that bedrock is not visible: there
+are too many boulders to see it. I assume this is the same landform as for the
+previous sample. Located about 20 m North-East of the previous sample, towards
+the waterfall.
+
+:Geog. coords: 77.70443, -68.37646, 331 m
+:Sample depth: 6 cm
+:Shielding: same as for BOW16-JS-07
+
+
+*BOW16-JS-12*
+*BOW16-JS-13*
 
 
 Carbon sampling 2016
