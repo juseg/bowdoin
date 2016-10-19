@@ -24,7 +24,6 @@ Cosmogenic sampling 2015
     ======== === === === === === === === === === === === ===
 :Weight: 765 g
 
-
 .. photos/bow15-01-150716-0009.jpg
 .. photos/bow15-01-150716-0007.jpg
 .. photos/bow15-01-150716-0010.jpg
@@ -336,7 +335,43 @@ the waterfall.
 
 
 *BOW16-JS-12*
+
+Boulder sample, 2 m diameter. Resting on bedrock, surrounded by soil and
+vegetation. Pink granite, relatively hard to sample, but a 1 cm thick top
+layer came out more easily than the rest. Located about 300 m downvalley from
+the calving front, about 40 m from the shore and about 2 m above the vegetation
+limit that probably corresponds to the Little Ice Age maximum. The local slope
+is about 30 degrees. There was potentially some additional shielding by the
+glacier when it was larger than today.
+
+:Geog. coords: 77.66525, -68.58697,  20 m
+:Sample depth: 1 cm
+:Shielding:
+    ======== === === === === === === === === ===
+    Azimuth   70  92 142 212 230 292 306 353  12
+    Altitude   2   3  25  14   3   1   6   1   6
+    ======== === === === === === === === === ===
+
+
 *BOW16-JS-13*
+
+Boulder sample, 3 m diameter. Resting on bedrock, surrounded by vegetation. I
+think this is my first non-granitic sample. This rock has a lot of amphibole,
+garnets with 1 cm diameter, and a lot of quartz. I think there is no other
+mineral. A quartz vein more than 10 cm thick builds one of the boulder faces
+and passes near the summit of the boulder. I sampled in the rock matrix and in
+the vein. The sampling was easy thanks to a pointy summit and existing cracks.
+Located about 100 m downvalley from the calving front, 60 m from the shore, and
+6 m from the vegetation limit. I measured shielding by the local slope, but
+used values from the previous boulder for the far field (N 292 -- 12).
+
+:Geog. coords: 77.66593, -68.58462,  25 m
+:Sample depth: 5 cm
+:Shielding:
+    ======== === === === === === === === ===
+    Azimuth   67 130 198 242 292 306 353  12
+    Altitude   3  18  18   5   1   6   1   6
+    ======== === === === === === === === ===
 
 
 Carbon sampling 2016
