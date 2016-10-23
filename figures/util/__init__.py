@@ -12,8 +12,8 @@ import pl
 
 # build color brewer Paired palette
 colorkeys = [tone+hue
-            for hue in ('blue', 'green', 'red', 'orange', 'purple', 'brown')
-            for tone in ('light', 'dark')]
+             for hue in ('blue', 'green', 'red', 'orange', 'purple', 'brown')
+             for tone in ('light', 'dark')]
 colorvals = plt.get_cmap('Paired', 12)(range(12))
 palette = dict(zip(colorkeys, colorvals))
 
