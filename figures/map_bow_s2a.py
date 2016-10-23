@@ -11,7 +11,7 @@ if __name__ == '__main__':
     # projections and map boundaries
     ll = ccrs.PlateCarree()
     utm = ccrs.UTM(19)
-    bowd = 505e3, 513.5e3, 8619.5e3, 8625.5e3
+    bowd = 505.0e3, 513.5e3, 8619.5e3, 8625.5e3
 
     # initialize figure
     fig = plt.figure()
@@ -34,7 +34,10 @@ if __name__ == '__main__':
     ut.ma.add_waypoint('B16BH3', text='2016', **kwa)
     kwa = dict(color=ut.palette['darkorange'], marker='^')
     ut.ma.add_waypoint('Camera Upper', **kwa)
-    ut.ma.add_waypoint('Camera Lower', **kwa)
+    ut.ma.add_waypoint('Camera Lower', text='Camera', **kwa)
+    kwa = dict(color=ut.palette['darkgreen'], marker='^')
+    ut.ma.add_waypoint('Tent Swiss', text='Camp', textpos='ur', **kwa)
+    ut.ma.add_waypoint('Camp Hill', **kwa)
 
     # save
     fig.savefig('map_bow_s2a')
