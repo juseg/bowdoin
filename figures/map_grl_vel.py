@@ -69,14 +69,14 @@ if __name__ == '__main__':
     # plot borehole locations
     c = ut.colors['upstream']
     ax = grid[2]
-    ut.ma.add_waypoint('B14BH3', ax=grid[2], color=c)
-    ax.text(-537000, -1225500, 'boreholes', color=c, **kwa)
+    ut.ma.add_waypoint('B14BH3', ax=ax, color=c)
+    ut.ma.add_waypoint('B16BH3', ax=ax, color=c)
+    ax.text(-535000, -1225500, 'boreholes', color=c, **kwa)
 
-    # plot camera locations
-    c = ut.palette['darkorange']
-    ut.ma.add_waypoint('Camera Upper', ax=ax, color=c, marker='^')
-    ut.ma.add_waypoint('Camera Lower', ax=ax, color=c, marker='^')
-    ax.text(-532000, -1229500, 'cameras', color=c, **kwa)
+    # plot camp locations
+    c = ut.palette['darkgreen']
+    ut.ma.add_waypoint('Tent Swiss', ax=ax, color=c, marker='^')
+    ax.text(-530000, -1230000, 'camp', color=c, **kwa)
 
     # add scale
     grid[2].plot([-525e3, -520e3], [-1235e3, -1235e3], 'k-|', mew=1.0)
