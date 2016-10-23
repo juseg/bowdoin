@@ -5,7 +5,7 @@ PY_FIGS = fft_gpsv fft_temp fft_tilt fft_wlev \
           map_bow_dem map_bow_s2a map_grl_gmb map_grl_vel \
           pf_temp pf_tilt spec_2015 summary \
           summer_2014 summer_2015 summer_2016 \
-          ts_combined ts_gpsv ts_satvel ts_temp ts_tilt ts_wlev \
+          ts_combined ts_drainage ts_gpsv ts_satvel ts_temp ts_tilt ts_wlev \
           ts_tilt_dvel ts_tilt_avel ts_tilt_detrend
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
