@@ -32,11 +32,12 @@ start = '2014-11-01'
 end = '2015-11-01'
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(nrows=1, ncols=1, sharex=True, sharey=True)
+fig, ax = plt.subplots()
 
 # for each borehole
 base_depth = 0.0
 for i, bh in enumerate(ut.boreholes):
+    #if bh == 'downstream': continue
 
     # read temperature values
     temp_temp = ut.io.load_data('thstring', 'temp', bh)
@@ -84,10 +85,10 @@ ax.plot([0.0, base_temp_melt], [0.0, base_depth], c='k', ls=':')
 ax.axhline(0.0, c='k')
 
 # set axes properties
-ax.set_xlim(-12.0, 2.0)
-ax.set_ylim(300.0, 0.0)
-ax.set_xlabel(u'ice temperature averaged between %s and %s (°C)' %
-              (start, end))
+ax.set_xlim(-11.0, 1.0)
+ax.set_ylim(275.0, 0.0)
+ax.set_title(r'%s to %s' % (start, end))
+ax.set_xlabel(u'ice temperature (°C)')
 ax.set_ylabel('depth (m)')
 ax.legend(loc='best')
 
