@@ -7,7 +7,8 @@ import util as ut
 refdate = '2014-11-01'
 
 # initialize figure
-fig, grid = plt.subplots(2, 1, sharex=True)
+fig, grid = plt.subplots(2, 1, sharex=True, sharey=True)
+grid[0].set_title('tilt angle velocity ($^{\circ}\,a^{-1}$)')
 
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
@@ -15,13 +16,15 @@ for i, bh in enumerate(ut.boreholes):
     c = ut.colors[bh]
 
     # read tilt unit tilt
-    tilt = ut.io.load_strain_rate(bh, '1D', as_angle=True)[refdate:]
+    tilt = ut.io.load_strain_rate(bh, '1D', as_angle=True)  #[refdate:]
 
     # plot
     tilt.plot(ax=ax, c=c, legend=False)
 
     # set title
-    ax.set_ylabel(r'tilt angle velocity ' + bh + ' ($^{\circ}\,a^{-1}$)')
+    ax.axvspan('2014-06-01', refdate, ec='none', fc='0.9')
+    ax.set_xlim('2014-06-01', '2016-09-01')
+    ax.set_ylabel(bh)
     ax.set_ylim(0.0, 15.0)
 
 # save
