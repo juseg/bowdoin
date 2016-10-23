@@ -57,14 +57,14 @@ if __name__ == '__main__':
     ut.pl.add_subfig_label('(e) East Branch moraine', ax=grid[4])
 
     # plot S2A image
-    filename = 'data/S2A_20160410_180125_659_RGB.jpg'
+    filename = 'data/external/S2A_20160410_180125_659_RGB.jpg'
     data, extent = ut.io.open_gtif(filename, regions[0])
     data = np.moveaxis(data, 0, 2)
     for ax in grid:
         ax.imshow(data, extent=extent, transform=utm)
 
     # open Yvo's digital elevation model
-    filename = 'data/bowdoin_20100904_15m_20140929.tif'
+    filename = 'data/external/bowdoin_20100904_15m_20140929.tif'
     data, extent = ut.io.open_gtif(filename, regions[0])
     levs = np.arange(0.0, 800.0, 20.0)
 

@@ -30,14 +30,24 @@ dest=$(basename $orig)
 #dest=$(basename $orig)
 #[ -f "$dest" ] || scp $orig $dest
 
+geodata="ogive:/scratch_net/ogive_second/juliens/geodata"
+s2adata="$geodata/satellite/sentinel-2a"
+
 # Greenland gravimetric mass balance (GMB) grids
-orig=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
+orig=$geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
 dest=$(basename $orig)
 [ -f "$dest" ] || scp $orig $dest
 
-# Qaanaaq Sentinel-2A (S2A) image from 08 Aug. 2016
-orig=ogive:/scratch_net/ogive/juliens/geodata/satellite/sentinel-2a/composite/qaanaaq/rgb/S2A_20160808_175915_456_RGB.jpg
-dest=$(basename $orig)
-[ -f "$dest" ] || scp $orig ${orig%.jpg}.jpw $dest
-[ -f "${dest%.jpg}.jpw" ] || scp ${orig%.jpg}.jpw ${dest%.jpg}.jpw
+# Yvo's DEM
+orig="ogive:/usr/itetnas01/data-vaw-01/glazioarch/GlacioProject/bowdoin/\
+bowdoin_2015/GIS/Data/DSM/bowdoin_20100904_15m_20140929.tif"
+dest="$(basename $orig)"
+[ -f "$dest" ] || scp $orig $dest
 
+# Qaanaaq Sentinel-2A (S2A) images
+for date in 20160410_180125_659 20160808_175915_456
+do
+    orig=$s2adata/composite/greenland/qaanaaq/rgb/S2A_${date}_RGB.jpg
+    dest=$(basename $orig)
+    [ -f "$dest" ] ||[ -f "${dest%.jpg}.jpw" ] || scp $orig ${orig%.jpg}.jpw .
+done
