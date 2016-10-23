@@ -21,23 +21,23 @@ if __name__ == '__main__':
 
     # plot image data
     filename = 'data/external/S2A_20160808_175915_456_RGB.jpg'
-    data, extent = ut.ma.open_gtif(filename)
+    data, extent = ut.io.open_gtif(filename)
     data = np.moveaxis(data, 0, 2)
     ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 
     # plot borehole and camera locations
     kwa = dict(color=ut.colors['upstream'], marker='o')
-    ut.ma.add_waypoint('B14BH1', **kwa)
-    ut.ma.add_waypoint('B16BH1', **kwa)
+    ut.pl.add_waypoint('B14BH1', **kwa)
+    ut.pl.add_waypoint('B16BH1', **kwa)
     kwa = dict(color=ut.colors['downstream'], marker='o')
-    ut.ma.add_waypoint('B14BH3', text='2014', **kwa)
-    ut.ma.add_waypoint('B16BH3', text='2016', **kwa)
+    ut.pl.add_waypoint('B14BH3', text='2014', **kwa)
+    ut.pl.add_waypoint('B16BH3', text='2016', **kwa)
     kwa = dict(color=ut.palette['darkorange'], marker='^')
-    ut.ma.add_waypoint('Camera Upper', **kwa)
-    ut.ma.add_waypoint('Camera Lower', text='Camera', **kwa)
+    ut.pl.add_waypoint('Camera Upper', **kwa)
+    ut.pl.add_waypoint('Camera Lower', text='Camera', **kwa)
     kwa = dict(color=ut.palette['darkgreen'], marker='^')
-    ut.ma.add_waypoint('Tent Swiss', text='Camp', textpos='ur', **kwa)
-    ut.ma.add_waypoint('Camp Hill', **kwa)
+    ut.pl.add_waypoint('Tent Swiss', text='Camp', textpos='ur', **kwa)
+    ut.pl.add_waypoint('Camp Hill', **kwa)
 
     # save
     fig.savefig('map_bow_s2a')

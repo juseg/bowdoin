@@ -58,7 +58,7 @@ def plot(targets, ofile='map_grl_gmb'):
 
     # plot Qaanaaq location
     c = 'k'
-    ut.ma.add_waypoint('Qaanaaq', ax=ax, color=c)
+    ut.pl.add_waypoint('Qaanaaq', ax=ax, color=c)
     ax.text(-450000, -1250000, 'Qaanaaq', color=c, ha='left', fontweight='bold')
 
     # add colorbar and save

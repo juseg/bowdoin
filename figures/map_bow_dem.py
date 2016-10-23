@@ -45,14 +45,14 @@ if __name__ == '__main__':
 
     # plot borehole and camera locations
     kwa = dict(color=ut.colors['upstream'], marker='o')
-    ut.ma.add_waypoint('B14BH1', **kwa)
-    ut.ma.add_waypoint('B16BH1', **kwa)
+    ut.pl.add_waypoint('B14BH1', **kwa)
+    ut.pl.add_waypoint('B16BH1', **kwa)
     kwa = dict(color=ut.colors['downstream'], marker='o')
-    ut.ma.add_waypoint('B14BH3', text='2014', **kwa)
-    ut.ma.add_waypoint('B16BH3', text='2016', **kwa)
+    ut.pl.add_waypoint('B14BH3', text='2014', **kwa)
+    ut.pl.add_waypoint('B16BH3', text='2016', **kwa)
     kwa = dict(color=ut.palette['darkorange'], marker='^')
-    ut.ma.add_waypoint('Camera Upper', **kwa)
-    ut.ma.add_waypoint('Camera Lower', **kwa)
+    ut.pl.add_waypoint('Camera Upper', **kwa)
+    ut.pl.add_waypoint('Camera Lower', **kwa)
 
     # save third frame
     fig.savefig('map_bow_dem')
