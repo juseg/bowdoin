@@ -54,7 +54,7 @@ if __name__ == '__main__':
     ut.pl.add_subfig_label('(b) Sentinel hill', ax=grid[1])
     ut.pl.add_subfig_label('(c) Bartlett hill', ax=grid[2])
     ut.pl.add_subfig_label('(d) Upper cam. hill', ax=grid[3])
-    ut.pl.add_subfig_label('(e) East Arm moraine', ax=grid[4])
+    ut.pl.add_subfig_label('(e) East Branch moraine', ax=grid[4])
 
     # plot S2A image
     filename = 'data/S2A_20160410_180125_659_RGB.jpg'
@@ -119,7 +119,7 @@ if __name__ == '__main__':
                            textloc=['ul', 'ur', 'lr'],
                            ax=grid[3], **boukwa)
 
-    # plot East Arm moraine sample locations
+    # plot East Branch moraine sample locations
     ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
                            textloc=['cr', 'lr', 'll', 'ul', 'ur'],
                            ax=grid[4], **boukwa)

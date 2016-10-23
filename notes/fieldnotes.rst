@@ -313,7 +313,7 @@ small ridge of boulders. I interpret this landform as the remain from the
 moraine that has been preserved by water. Here, all the "fines" (everything
 with diameter smaller than 20 cm) are gone, perhaps washed away. But this
 landform is not located on the main crest but it is a little bit lower to the
-North, towards the so-called East Arm Glacier.
+North, towards the so-called East Branch Glacier.
 
 :Geog. coords: 77.70433, -68.37743, 329 m
 :Sample depth: 4 cm
