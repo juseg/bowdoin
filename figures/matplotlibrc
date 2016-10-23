@@ -14,6 +14,11 @@ mathtext.default        : regular
 ### AXES
 axes.grid               : False     # display grid or not
 
+### IMAGES
+image.interpolation     : bilinear
+image.origin            : upper
+image.composite_image   : False
+
 ### LEGEND
 legend.frameon          : False     # draw a frame around legend
 
