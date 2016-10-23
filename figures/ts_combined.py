@@ -27,9 +27,10 @@ for i, bh in enumerate(ut.boreholes):
 ut.pl.plot_campaigns(ax, y=350.0)
 
 # add labels
-ax.text('20140901', 230, 'downstream water level', color=ut.colors['downstream'])
-ax.text('20140801', 200, 'upstream water level', color=ut.colors['upstream'])
-ax.set_ylabel('water level (m)', color=ut.palette['darkblue'])
+kwa = dict(fontweight='bold', ha='left', va='center')
+ax.text('20141001', 235, 'downstream water level', color=ut.colors['downstream'], **kwa)
+ax.text('20140901', 200, 'upstream water level', color=ut.colors['upstream'], **kwa)
+ax.set_ylabel('water level (m)', color=ut.palette['darkblue'], **kwa)
 
 # add twin axes
 ax = ax.twinx()
@@ -41,10 +42,10 @@ ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 
 # add labels and set limits
-ax.text('20150515', 750, 'GPS velocity', color=c)
+ax.text('20150801', 600, 'GPS velocity', color=c, **kwa)
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', color=ut.colors['dgps'], labelpad=0.0)
 ax.set_xlim('2014-07', '2016-08')
-ax.set_ylim(-200, 1200)
+ax.set_ylim(0, 800)
 
 # save
 fig.savefig('ts_combined')
