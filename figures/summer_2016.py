@@ -6,22 +6,20 @@ import matplotlib.pyplot as plt
 import util as ut
 
 start = '2016-06-01'
-end = '2016-08-01'
+end = '2016-07-15'
 
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)
 
-# plot water level
-bh = 'downstream'
-c = ut.colors[bh]
-
-# plot pressure sensor water level
-ts = ut.io.load_data('pressure', 'wlev', bh)[start:end].resample('1H').mean()
+# plot ice cap air temp
+c = '0.25'
+ts = ut.io.load_temp()[start:end].resample('3H').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and legend
-ax.set_ylabel('water level (m)', color=c)
-ax.set_ylim(205.0, 255.0)
+ax.axhline(0.0, c='k', lw=0.5)
+ax.set_ylabel(u'Qaanaaq ice cap air temp. (°C)', color=c)
+ax.set_ylim(-10.0, 40.0)
 
 # plot upstream deformation velocity
 ax = ax.twinx()
@@ -29,7 +27,7 @@ bh = 'upstream'
 c = ut.colors[bh]
 
 # load data
-exz = ut.io.load_strain_rate(bh, '1H')[start:end]
+exz = ut.io.load_strain_rate(bh, '3H')[start:end]
 depth = ut.io.load_depth('tiltunit', bh).squeeze()
 depth_base = ut.io.load_depth('pressure', bh).squeeze()
 
@@ -49,8 +47,8 @@ vdef = pd.Series(index=exz.index, data=vdef)
 vdef.plot(ax=ax, c=c)
 
 # set labels
-ax.set_ylabel(r'deformation velocity ($m\,a^{-1}$)', color=c)
-ax.set_ylim(-50.0, 250.0)
+ax.set_ylabel(r'upstream deformation velocity ($m\,a^{-1}$)', color=c)
+ax.set_ylim(-20.0, 80.0)
 ax.set_xlim(start, end)
 
 # save
