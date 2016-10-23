@@ -43,7 +43,7 @@ end = '2015-11-01'
 
 # plot upstream temperature profile
 ax = grid[0]
-bh = ut.boreholes[1]
+bh = ut.boreholes[0]
 c = ut.colors[bh]
 
 # read temperature values

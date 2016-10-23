@@ -34,7 +34,7 @@ def draw(date, fig, grid, cursor):
     for j, bh in enumerate(ut.boreholes):
         ax = grid[j]
         ax.cla()
-        c = ut.colors[j]
+        c = ut.colors[bh]
 
         # plot velocity profile
         ut.pl.plot_vsia_profile(depth[bh], exz[bh].loc[datestring],

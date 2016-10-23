@@ -11,7 +11,7 @@ fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, sharex=True, sharey=True)
 
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
-    ax = grid[i]
+    ax = grid[1-i]
     c = ut.colors[bh]
 
     # read data values
