@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+import util as ut
 import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -54,6 +55,11 @@ def plot(targets, ofile='map_grl_gmb'):
         ax.set_xlim(-650e3, 900e3)    # 1550 km = 38.75 * 40
         ax.set_ylim(-3400e3, -600e3)  # 2800 km = 70.00 * 40
         ax.coastlines(resolution='50m', color='k', lw=0.5)
+
+    # plot Qaanaaq location
+    c = 'k'
+    ut.ma.add_waypoint('Qaanaaq', ax=ax, color=c)
+    ax.text(-450000, -1250000, 'Qaanaaq', color=c, ha='left', fontweight='bold')
 
     # add colorbar and save
     cb = fig.colorbar(cs, cax, orientation='horizontal')
