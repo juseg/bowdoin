@@ -125,4 +125,4 @@ if __name__ == '__main__':
                            ax=grid[4], **boukwa)
 
     # save
-    fig.savefig('samplemap')
+    fig.savefig('map_bow_pal')
