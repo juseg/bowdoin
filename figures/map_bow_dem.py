@@ -21,35 +21,25 @@ if __name__ == '__main__':
     ax.set_rasterization_zorder(2.5)
     ax.set_extent(extent, crs=utm)
 
-    # calculate extent in data projection
-    w, e, s, n = extent
-    x_utm = np.array((w, w, e, e))
-    y_utm = np.array((s, n, s, n))
-    x_ste, y_ste = ste.transform_points(utm, x_utm, y_utm).T[:2]
-    extent_ste = [x_ste.min(), x_ste.max(), y_ste.min(), y_ste.max()]
-
     # read velocity data
     filename = ('data/external/gimpdem0_4.tif')
-    z, extent = ut.ma.open_gtif(filename, extent_ste)
+    filename = 'data/external/bowdoin_20100904_15m_20140929.tif'
+    z, extent = ut.io.open_gtif(filename, extent)
 
     # plot shadows
-    (w, e, s, n) = extent
-    rows, cols = z.shape
-    dx = (e-w) / cols
-    dy = (s-n) / rows
-    s = ut.ma.shading(z, dx=dx, dy=dy)
-    ax.imshow(s, extent=extent, cmap='Greys', vmin=0.0, vmax=1.0, transform=ste)
+    s = ut.pl.shading(z, extent=extent)
+    ax.imshow(s, extent=extent, cmap='Greys', vmin=0.0, vmax=1.0)
 
     # plot contours
-    levs = np.arange(0.0, 1500.0, 20.0)
+    levs = np.arange(0.0, 800.0, 20.0)
     cs = ax.contour(z, levels=levs[(levs % 100 != 0)], extent=extent,
-                    colors='k', linewidths=0.1, transform=ste)
+                    colors='k', linewidths=0.1)
     cs = ax.contour(z, levels=levs[(levs % 100 == 0)], extent=extent,
-                    colors='k', linewidths=0.25, transform=ste)
+                    colors='k', linewidths=0.25)
     cs.clabel(fmt='%d')
 
     # plot slope map
-    #s = ut.ma.slope(z, dx=dx, dy=dy, smoothing=10)
+    #s = ut.pl.slope(z, extent=extent, smoothing=10)
     #im = ax.imshow(s, extent=extent, vmin=0.0, vmax=0.05, cmap='magma_r')
     #fig.colorbar(im)
 

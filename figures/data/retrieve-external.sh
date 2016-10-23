@@ -5,10 +5,10 @@ mkdir -p external
 touch external
 cd external
 
-# Greenland MEaSUREs Ice Mapping Project (GIMP) dem
-orig=ftp://sidads.colorado.edu/pub/DATASETS/nsidc0645_MEASURES_gimp_dem_v1/30/gimpdem0_4.tif
-dest=$(basename $orig)
-[ -f "$dest" ] || wget $orig
+## Greenland MEaSUREs Ice Mapping Project (GIMP) dem
+#orig=ftp://sidads.colorado.edu/pub/DATASETS/nsidc0645_MEASURES_gimp_dem_v1/30/gimpdem0_4.tif
+#dest=$(basename $orig)
+#[ -f "$dest" ] || wget $orig
 
 # Greenland MEaSUREs 250m multi-year velocity mosaic
 orig=ftp://sidads.colorado.edu/DATASETS/nsidc0670_MEASURES_my_vel_mosaic_v1/\
