@@ -3,9 +3,19 @@
 \usepackage{authblk}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage[pdftex]{xcolor}
+
+\definecolor{darkblue}{cmyk}{0.9,0.3,0.0,0.0}
+\definecolor{darkgreen}{cmyk}{0.8,0.0,1.0,0.0}
+\definecolor{darkred}{cmyk}{0.1,0.9,0.8,0.0}
+
+\newcommand{\idea}[1]{\textcolor{darkgreen}{\emph{[\textbf{IDEA:} #1]}}}
+\newcommand{\note}[1]{\textcolor{darkblue}{\emph{[\textbf{NOTE:} #1]}}}
+\newcommand{\todo}[1]{\textcolor{darkred}{\emph{[\textbf{TODO:} #1]}}}
+\newcommand{\aref}[0]{\textcolor{darkblue}{\textbf{[REF.]}}}
 
 \title{Englacial warming indicates deep crevassing in Bowdoin tidewater
-       glacier, nortwest Greenland}
+       glacier, northwest Greenland}
 
 \author[1]{Julien Seguinot
            \thanks{Correspondence to seguinot@vaw.baug.ethz.ch}}
@@ -25,6 +35,41 @@
 % ======================================================================
 
 \maketitle
+
+\begin{abstract}
+
+    \note{Preliminary abstract. The two first paragraphs will be shortened and
+          reworked to better reflect the introduction.}
+
+    The observed rapid retreat of ocean-terminating glaciers in southern
+    Greenland in the last two decades has now propagated to the northwest.
+    Hence, tidewater glaciers in this area, some of which have remain stable
+    for decades, have started retreating rapidly through iceberg calving in
+    recent years, thus allowing a monitoring and investigation of ice dynamical
+    changes starting the early stages of retreat.
+
+    Bowdoin Glacier, a small and relatively accessible calving glacier in
+    Northwest Greenland, appeared to be very stable since its frontal position
+    had been first documented by explorers in the late 19th century. However,
+    following a two-fold increase of surface velocity in the early 2000s, the
+    calving front of Bowdoin Glacier has experienced a rapid retreat of ca.
+    2\,km between 2007 and 2013. Since 2013, the ice front is once again
+    stable, yet the glacier surface continues to experience lowering at an
+    alarming rate of ca. 6\,m/a.
+
+    Here, we present a two-year record of englacial temperatures measured in
+    the tidewater glacier tongue. The measured temperature profiles indicate
+    that the glacier's ice is below pressure melting point except for its
+    temperate base. More surprisingly, a temperature difference of up to 2
+    degrees was measured between two boreholes that are located only 250 meter
+    apart along a flowline. In addition, the warmer profile shows a slow
+    warming trend of up to ca.~0.5\,$^\circ$C\,a$^{-1}$\todo{Refine.}. This
+    patterns can be explained by latent heat release from meltwater freezing in
+    transverse crevasses that reach to or near the glacier bed. These crevasses
+    may be related to the tide-modulated extensional strain regime of the
+    tidewater glacier tongue.
+
+\end{abstract}
 
 % ======================================================================
 \end{document}
