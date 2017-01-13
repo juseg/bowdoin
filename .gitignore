@@ -1,7 +1,7 @@
 # Temporary files
 *~
 
-# Latex
+# Articles
 *.aux
 *.bbl
 *.blg
@@ -26,5 +26,5 @@
 figures/data/processed
 figures/data/external
 figures/data/satellite/*.csv
+*.nc
 *.tif
-*.zip
