@@ -1,7 +1,8 @@
 # Figures Makefile
 
 EXT = pdf
-PY_FIGS = fft_gpsv fft_temp fft_tilt fft_wlev \
+PY_FIGS = campaign_2016 \
+          fft_gpsv fft_temp fft_tilt fft_wlev \
           hist_ls8 hist_ls8_uv \
           map_bow_dem map_bow_ls8 map_bow_ls8_uv map_bow_pal map_bow_s2a \
           map_bow_vgd map_bow_vgd_uv map_grl_gmb map_grl_vel \
