@@ -1,42 +1,89 @@
-# matplotlib configuration parameters
+# Matplotlib configuration
+# ------------------------
+
+# Defaults are relative to mpl 1.5.1
 
 ### LINES
-lines.markeredgewidth   : 0.0       # the line width around the marker symbol
-lines.markersize        : 4         # markersize, in points
+lines.linewidth         : 1.0     # line width in points (default 1.0)
+lines.linestyle         : -       # -, --, -., : or tuple (default -)
+lines.color             : 0.25    # also see prop_cycle (default blue)
+lines.marker            : None    # the default marker (default None)
+lines.markeredgewidth   : 0.25    # line width around marker (default 0.5)
+lines.markersize        : 4       # markersize, in points (default 6)
+
+### PATCHES
+patch.linewidth         : 1.0     # edge width in points (default 1.0)
+patch.facecolor         : 0.75    # polygons face color (default blue)
+patch.edgecolor         : black   # polygons edge color (default black)
 
 ### FONT
-font.size               : 6
-font.family             : sans-serif
+font.family             : sans-serif # serif, sans-serif, cursive, fantasy,
+                                     # monospace or font name (def. sans-serif)
+font.style              : normal  # normal (or roman), italic or oblique
+font.variant            : normal  # normal or small-caps
+font.weight             : normal  # normal, bold, bolder, lighter or number
+font.stretch            : normal  # not currently implemented
+font.size               : 6.0     # default font size in points (default 12.0)
 
 ### TEXT
-mathtext.default        : regular
+text.color              : black   # text color (default black)
+text.usetex             : False   # use latex for all text (default False)
+mathtext.default        : regular # font to use for math (default it)
 
 ### AXES
-axes.grid               : False     # display grid or not
+axes.facecolor          : white   # axes background color (default white)
+axes.edgecolor          : black   # axes edge color (default black)
+axes.linewidth          : 1.0     # edge linewidth (default 1.0)
+axes.grid               : False   # display grid or not (default False)
+axes.titlesize          : medium  # fontsize of the axes title (default large)
+axes.labelsize          : medium  # fontsize of x and y labels (default medium)
+axes.labelpad           : 4.0     # space between label and axis (default 5.0)
+axes.labelweight        : normal  # weight of x and y labels (default normal)
+axes.labelcolor         : black   # color of x and y labels (default black)
+axes.axisbelow          : False   # gridlines below drawing (default False)
+axes.formatter.limits   : -4, 4   # sci. not. outside range (default -7, 7)
+axes.formatter.use_mathtext : True    # mathtext for sci. not. (default False)
+axes.formatter.useoffset    : False   # tick relative to an offset (def. True)
+axes.prop_cycle: cycler('color', ['1f78b4','33a02c','e31a1c','ff7f00','6a3d9a','b15928'])
 
-### IMAGES
-image.interpolation     : bilinear
-image.origin            : upper
-image.composite_image   : False
-
-### LEGEND
-legend.frameon          : False     # draw a frame around legend
+### GRIDS
+grid.color              :   0.5   # grid color (default black)
+grid.linestyle          :   -     # grid style (default :)
+grid.linewidth          :   0.1   # grid width in points (default 0.5)
+grid.alpha              :   1.0   # transparency (default 1.0)
 
 ### FIGURE
 figure.figsize          : 3.346456692913386, 2.362204724409449  # 85x60mm
-figure.subplot.left     : 0.11764705882352941  #     10 / 135
-figure.subplot.right    : 0.88235294117647060  # 1 - 10 / 135
-figure.subplot.bottom   : 0.15384615384615385  #     10 / 65
-figure.subplot.top      : 0.92307692307692310  # 1 - 5 / 65
-figure.subplot.wspace   : 0.08                 # 1 / (((85-20)/5+1)/2-1)
-figure.subplot.hspace   : 0.11764705882352941  # 1 / (((65-20)/5+1)/2-1)
+figure.subplot.left     : 0.11764705882352941  #     10 / 85
+figure.subplot.right    : 0.88235294117647060  # 1 - 10 / 85
+figure.subplot.bottom   : 0.16666666666666666  #     10 / 60
+figure.subplot.top      : 0.91666666666666666  # 1 -  5 / 60
+figure.subplot.wspace   : 0.08                 # 1 / (((85-20)/2.5+1)/2-1)
+figure.subplot.hspace   : 0.11764705882352941  # 1 / (((60-15)/2.5+1)/2-1)
+figure.max_open_warning : 1  # max open figures before warning (default 20)
+
+### IMAGES
+image.aspect            : equal   # equal, auto or a number (default equal)
+image.interpolation     : none    # many options (default bilinear)
+image.origin            : lower   # lower or upper (default upper)
+image.cmap              : Blues   # default colormap (default jet)
+image.composite_image   : False   # composition on mpl>=1.5 (default True)
+
+### CONTOUR PLOTS
+contour.negative_linestyle  : dashed  # dashed or solid (default dashed)
+contour.corner_mask     : True    # True, False or legacy (default True)
 
 ### SAVING FIGURES
-savefig.dpi             : 254       # figure dots per inch
-savefig.format          : pdf       # png, ps, pdf, svg
+path.sketch             : none    # None, or e.g (1, 100, 2)
+savefig.dpi             : 254     # saved figure dots per inch (default 100)
+savefig.facecolor       : white   # saved figure facecolor (default white)
+savefig.edgecolor       : white   # saved figure edgecolor (default white)
+savefig.format          : pdf     # png, ps, pdf, svg (default png)
+savefig.jpeg_quality    : 85      # default jpeg quality parameter (default 95)
+savefig.transparent     : False   # save transparent background (default False)
 
 ### ANIMATION
-animation.writer        : ffmpeg    # MovieWriter 'backend' to use
-animation.codec         : h264      # Codec to use for writing movie
-animation.bitrate       : 1024      # Bitrate, -1 to auto-determine
-animation.ffmpeg_args   : -pix_fmt, yuv420p  # Compatibility with old players
+animation.writer        : avconv  # movie writer backend (default ffmpeg)
+animation.codec         : h264    # codec (default mpeg4)
+animation.bitrate       : -1      # bitrate (default -1 to auto-determine)
+animation.avconv_args   : -pix_fmt, yuv420p  # compatibility with old players
