@@ -1,14 +1,21 @@
+# Article Makefile
+# ================
+
+
+# Variables
+# ---------
+
 PAPER = bowdoin-temperature
 
-all: $(PAPER).pdf
 
-$(PAPER).pdf: $(PAPER).tex figures
+# Rules
+# -----
+
+# default rule
+$(PAPER).pdf: $(PAPER).tex
 	latexmk -pdf -dvi- -ps- $<
 
-.PHONY: figures
-figures:
-	cd ../figures && $(MAKE)
-
+# clean up
 .PHONY: clean
 clean:
 	latexmk -CA

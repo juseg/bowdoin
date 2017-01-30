@@ -1,12 +1,17 @@
 # Data Makefile
+# =============
 
-# borehole names and inclinometer variables
+
+# Variables
+# ---------
+
+# borehole names and processed variables
 BOREHOLES = upstream downstream
 INC_VARS = depth temp tiltx tilty wlev
 TEM_VARS = depth temp
 PRE_VARS = depth temp wlev
 
-# processed files
+# processed borehole data
 GPS_FILES = processed/bowdoin-dgps-velocity-upstream.csv
 INC_FILES = $(foreach VAR, $(INC_VARS), \
               $(foreach BH, $(BOREHOLES), \
@@ -17,10 +22,24 @@ TEM_FILES = $(foreach VAR, $(TEM_VARS), \
 PRE_FILES = $(foreach VAR, $(PRE_VARS), \
               $(foreach BH, $(BOREHOLES), \
                 processed/bowdoin-pressure-$(VAR)-$(BH).csv))
-ALL_FILES = $(GPS_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES)
+
+# satellite data from Daiki
+SAT_FILES = satellite/bowdoin-landsat.csv \
+            satellite/bowdoin-landsat-uv.csv
+
+# all files to process
+ALL_FILES = $(GPS_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES) $(SAT_FILES)
+
+
+# Rules
+# -----
 
 # default rule
-all: $(ALL_FILES) external satellite/bowdoin-landsat.csv
+all: external $(ALL_FILES)
+
+# retrieve external files
+external: retrieve-external.sh
+	bash $<
 
 # gps data is a special case
 $(GPS_FILES): preprocess-dgps.py
@@ -39,15 +58,10 @@ $(foreach VAR, $(INC_VARS), \
 	python2 $<
 
 # process landsat data from Daiki
-satellite/bowdoin-landsat.csv: preprocess-landsat.py
+satellite/bowdoin-%.csv: preprocess-%.py
 	python2 $<
 
-# retrieve external files
-.PHONY: external
-external: retrieve-external.sh
-	bash $<
-
-# clean processed and downloaded files
+# clean up
 .PHONY: clean
 clean:
-	rm -rf processed external
+	rm -rf external processed $(SAT_FILES)
