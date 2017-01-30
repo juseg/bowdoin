@@ -22,8 +22,8 @@ if __name__ == '__main__':
     ax.set_extent(extent, crs=utm)
 
     # read velocity data
-    filename = ('data/external/gimpdem0_4.tif')
-    filename = 'data/external/bowdoin_20100904_15m_20140929.tif'
+    filename = ('../data/external/gimpdem0_4.tif')
+    filename = '../data/external/bowdoin_20100904_15m_20140929.tif'
     z, extent = ut.io.open_gtif(filename, extent)
 
     # plot shadows

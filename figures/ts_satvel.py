@@ -10,7 +10,7 @@ fig, ax = ut.pl.subplots_mm(figsize=(135.0, 80.0),
                             left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # plot new sentinel velocity
-df = pd.read_csv('data/satellite/bowdoin-sentinel.txt', delimiter=',\s+',
+df = pd.read_csv('../data/satellite/bowdoin-sentinel.txt', delimiter=',\s+',
                  index_col='YYYY-MM-DD (avg)', parse_dates=True,
                  engine='python')
 dt = pd.to_timedelta(df['time-diff (days)'], unit='D')
@@ -24,7 +24,7 @@ ax.errorbar(mid[-mask], vel[-mask], xerr=dt[-mask]/2, yerr=err[-mask],
             c=ut.palette['darkpurple'], ls='', lw=0.5, zorder=4, alpha=0.75)
 
 # plot landsat velocity
-df = pd.read_csv('data/satellite/bowdoin-landsat.csv',
+df = pd.read_csv('../data/satellite/bowdoin-landsat.csv',
                  parse_dates=['start', 'end'])
 dt = df['end'] - df['start']
 mid = df['start'] + dt/2

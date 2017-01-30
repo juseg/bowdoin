@@ -20,7 +20,7 @@ if __name__ == '__main__':
                               true_scale_latitude=70.0)
 
     # read velocity data
-    filename = 'data/external/greenland_vel_mosaic250_v1.tif'
+    filename = '../data/external/greenland_vel_mosaic250_v1.tif'
 
     # initialize figure
     figw, figh = 85.0, 75.0

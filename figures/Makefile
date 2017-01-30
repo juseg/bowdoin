@@ -18,7 +18,7 @@ PY_ANIS = anim_bowdoin_tilt.mp4
 ALL_FIGS = $(PY_FIGS)
 ALL_ANIS = $(PY_ANIS)
 
-figs: data $(ALL_FIGS)
+figs: $(ALL_FIGS)
 
 anim: $(ALL_ANIS)
 
@@ -30,11 +30,6 @@ $(PY_ANIS): %.mp4 : %.py util matplotlibrc
 
 .PHONY: data clean cleandata
 
-data:
-	cd data && $(MAKE)
-
-clean: cleandata
+clean:
 	rm -f $(ALL_FIGS) $(ALL_ANIS)
 
-cleandata:
-	cd data && $(MAKE) clean

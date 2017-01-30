@@ -11,8 +11,8 @@ if __name__ == '__main__':
 
     # plot histogram
     basename = '16072015_17082015_161111_1117_f'
-    upath = 'data/satellite/bowdoin-landsat-uv/%s_u.nc' % basename
-    vpath = 'data/satellite/bowdoin-landsat-uv/%s_v.nc' % basename
+    upath = '../data/satellite/bowdoin-landsat-uv/%s_u.nc' % basename
+    vpath = '../data/satellite/bowdoin-landsat-uv/%s_v.nc' % basename
     unc = nc4.Dataset(upath)
     vnc = nc4.Dataset(vpath)
     u = unc['z'][:]

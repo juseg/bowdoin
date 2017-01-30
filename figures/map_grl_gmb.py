@@ -10,7 +10,7 @@ def plot(targets, ofile='map_grl_gmb'):
     """Plot mass change rates pairwise between three target dates."""
 
     # open dataset
-    ds = xr.open_dataset('data/external/GIS_GMB_grid.nc')
+    ds = xr.open_dataset('../data/external/GIS_GMB_grid.nc')
     dm = ds['dm']
 
     # print available dates

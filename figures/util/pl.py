@@ -291,7 +291,7 @@ def add_waypoint(name, ax=None, color=None, marker='o',
     ax = ax or plt.gca()
 
     # open GPX file
-    with open('data/locations.gpx', 'r') as gpx_file:
+    with open('../data/locations.gpx', 'r') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
 
         # find the right waypoint
@@ -336,7 +336,7 @@ def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
         textloc = [textloc] * len(names)
 
     # open GPX file
-    with open('data/locations.gpx', 'r') as gpx_file:
+    with open('../data/locations.gpx', 'r') as gpx_file:
         gpx = gpxpy.parse(gpx_file)
 
         # find the right waypoints

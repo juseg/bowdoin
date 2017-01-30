@@ -14,7 +14,7 @@ def load_temp(site='B'):
     """Return 2014--2016 weather station air temperature in a data series."""
 
     # read data
-    prefix = 'data/weather/SIGMA_AWS_Site%s_' % site
+    prefix = '../data/weather/SIGMA_AWS_Site%s_' % site
     filelist = [prefix+s for s in ['2014_level0_final.csv',
                                    '2015_level0_final.csv',
                                    '2016_level0_160824.csv']]
@@ -35,7 +35,7 @@ def load_data(sensor, variable, borehole):
     assert borehole in ('downstream', 'upstream')
 
     # read data
-    filename = ('data/processed/bowdoin-%s-%s-%s.csv'
+    filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
                 % (sensor, variable, borehole))
     df = pd.read_csv(filename, parse_dates=True, index_col='date')
     return df

@@ -23,8 +23,8 @@
 *.ogg
 
 # Data
-figures/data/processed
-figures/data/external
-figures/data/satellite/*.csv
+data/processed
+data/external
+data/satellite/*.csv
 *.nc
 *.tif

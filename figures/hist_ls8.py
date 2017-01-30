@@ -9,7 +9,7 @@ if __name__ == '__main__':
     fig, ax = plt.subplots()
 
     # plot histogram
-    filename = 'data/satellite/bowdoin-landsat/16072015_17082015.tif'
+    filename = '../data/satellite/bowdoin-landsat/16072015_17082015.tif'
     data, extent = ut.io.open_gtif(filename)
     ax.hist(data.flatten(), bins=range(0,451,1), ec='none', fc=ut.palette['darkorange'])
 
