@@ -1,19 +1,33 @@
 \documentclass{article}
 
+% Packages
 \usepackage{lineno}
 \usepackage{geometry}
 \usepackage{setspace}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage[authoryear,round]{natbib}
 
+% Options
 \onehalfspacing
 \linenumbers
 
+% Document properties
 \title{Dynamic changes of tidewater outlet glaciers:\\
        Bowdoin glacier, Northwest Greenland\\\bigskip
        \large Final report (1 May 2014 -- 28 Feb. 2017)}
 \author{}
 \date{}
+
+% Common units
+\newcommand{\e}[1]{\ensuremath{\times 10^{#1}}}
+\newcommand{\chem}[1]{\ensuremath{\mathrm{#1}}}
+\newcommand{\unit}[1]{\ensuremath{\mathrm{#1}}}
+\newcommand{\degree}[0]{\ensuremath{^{\circ}}}
+\newcommand{\degC}[0]{\unit{{\degree}C}}
+
+% Bold emphasis
+%\DeclareTextFontCommand{\emph}{\bfseries}
 
 % ----------------------------------------------------------------------
 % Instructions
@@ -70,7 +84,7 @@ project was planned as a collaboration between ETH Zürich (M.~Funk,
 J.~Seguinot, G.~Jouvet) and Hokkaido University (S.~Sugiyama, S.~Tatsuki,
 D.~Sakakibara).
 
-Three field campaings, i.e. one more than origninally planned for, were
+Three field campaigns, i.e. one more than originally planned for, were
 conducted. Due to weather conditions and technical issues with electronics in
 the cold and dark polar winter, not all experiments were successful. However, a
 large set of unprecedented data were collected, whose analysis is still ongoing
@@ -78,10 +92,10 @@ under new projects (SNF grant No.~SNF 200020-169558 to M.~Funk, ETH grant
 No.~ETH-12 16-2 to G.~Jouvet, UZH grant No.~??? to ???).
 
 During the \emph{summer 2014 field campaign} (15 -- 29 July 2014), two
-boreholes were drilled and equipped with thermistor strings throughout the ice
-column, pressure sensors at the glacier bed, and inclinometers at different
-depths. Two automated cameras were installed on elevated hills and set-up to
-record through the polar winter.
+boreholes were drilled with hot water and equipped with thermistor strings
+throughout the ice column, pressure sensors at the glacier bed, and
+tilt sensors at different depths. Two automated cameras were installed on
+elevated hills and set-up to record through the polar winter.
 
 During the \emph{summer 2015 field campaign} (6 -- 20 July 2015), the first
 borehole data were collected. Automated camera and borehole installation
@@ -114,6 +128,81 @@ and remaining borehole installations.
 % ----------------------------------------------------------------------
 \section{Main results}
 % ----------------------------------------------------------------------
+
+\subsection{Ice temperature}
+
+Borehole temperature measurements were \emph{very successful} and yielded a
+continuous, one-year (2014--2015) record of temperature profile evolution.
+Although we expected to observe no intrinsic temperature variations at depth,
+this temporally-resolved record was needed to ensure the complete dissipation
+of the thermal anomaly due to the hot water drilling itself. Our record shows
+that this initial phase took three months, after which an equilibrium profile
+was attained. Ice temperature was recorded to be below the pressure melting
+point over the entire column, except for the melting ice base. Although this
+result could be expected from ice thermodynamic theories, ice temperature
+measurements in tidewater glaciers are rare and our measured values are crucial
+to interpret the other borehole observations.
+
+More surprisingly, the temperature profiles we measured in the two boreholes,
+distant only by 250\,m, although similar in shape, exhibit temperature
+differences of up to 2\degC. Although such localized temperature differences
+have already been observed in Greenland \citep{Luthi.etal.20xx}, this is to our
+knowledge the first time they are found to extend over the entire glacier
+depth. In addition, one of the temperature profiles exhibit a quick warming
+trend which can not be explained by temperature advection and diffusion
+processed known to occur in glaciers. This surprising observation lead us to
+extend the observation for this profiles by a second year (2015--2016). We
+interpret the spatial temperature difference and the warming trend as the
+expression of latent heating due to meltwater refreezing in deep crevasses
+\citep{Seguinot.etal.inprepa}. A punctual temperature measurement confirming
+the warming trend is planned for the summer 2017.
+
+
+\subsection{Basal water pressure}
+
+Borehole subglacial water pressure measurements were only \emph{partly
+successful} It has previously been observed when drilling to glacier beds, that
+some borehole seem to hit an efficient subglacial drainage network (hot water
+used for drilling evacuate the borehole in seconds after it reaches the bed)
+while others remain disconnected from that system (hot water remains in the
+borehole after it reaches the bed). During the borehole drilling on Bowdoin
+Glacier in summer 2014, one borehole connected to the subglacial system, and
+one remained hydrologically isolated.
+
+The two boreholes were set-up for observation for two years (2014--2016), yet
+unfortunately the connected borehole batteries drained twice very quickly,
+perhaps due to a deffect in the data logger, thus leaving data only covering two
+short summer periods. The lower borehole water pressure was recorded
+continuously for two years (2014--2016). An increase in water pressure during
+summer 2016 shows that the sensor, moving along with the glacier flow, probably
+eventually reached an area connected to the subglacial hydrological system,
+which would allow for comparison on the ice deformation record. We hope to
+collect a final year of data (2016--2017) from this sensor in summer 2017.
+
+
+\subsection{Ice deformation}
+
+Borehole ice deformation measurements were only \emph{partly successful}, as
+the deepermost tilt sensors were lost during installation, resulting in lower
+precision in the extrapolated ice deformation velocity profile. Nevertheless, a
+continuous deformation record was obtained for one year (Nov.~2014--Nov.~2015)
+from one borehole (until the cable broke in a crevasse), and for almost two
+years (Nov.~2014--July~2016) from the other. As far as we know this is both the
+first ice deformation record from the terminal part of a tidewater glacier, as
+well as one of the longest ice deformation time-series recorded.
+
+The deformation velocity extrapolated from tilt measurements account for about
+as little as 10\% of the observed glacier surface velocities, showing that
+Bowdoin Glacier flow is dominated by sliding. Although this result could be
+expected from ice flow dynamics theory, this is to our knowledge the first time
+that ice internal deformation and sliding are quantified on a tidewater
+glacier. Moreover, our continuous deformation record indicate distinct speed-up
+events associated with periods of warm weather during summer, showing that
+fluctuations of ice velocity related to subglacial meltwater intrusions are
+reverberated onto internal deformation \citep{Seguinot.etal.inprepb}. We hope
+confirm this finding with a final year of data (2016--2017) to be collected
+from the remaining tilt sensor chain in summer 2017.
+
 
 \begin{itemize}
 \item Borehole measurements (two publications planned, project extended).
