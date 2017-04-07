@@ -53,14 +53,14 @@ def get_depth(bh):
     #   (downstream)    BH2B  l=???m  400-375-350-325-300-275-250-225-200
 
     if bh == 'downstream':
-        bottom = -243.7  # this makes no sense
+        bottom = 6.3 - 250.0
+        bottom -= 60.0  # FIXME: guessed shift of the lower chain
         top = 31.25
-        #lower = bottom + 25.0*np.arange(9)
-        upper = top - 25.0*np.arange(7)[::-1]
-        # according to Conny there is 20 m between the two chains
-        lower = upper[0] - 20.0 - 25.0*np.arange(9)[::-1]
+        lower = bottom + 20.0*np.arange(9)
+        upper = top + 20.0*np.arange(-6, 1)
     if bh == 'upstream':
-        bottom = -265.3
+        bottom = 19.7 - 275.0
+        bottom -= 10.0  # FIXME: guessed shift of the lower chain
         top = 13.4
         lower = bottom + 20.0*np.arange(9)
         upper = top + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
