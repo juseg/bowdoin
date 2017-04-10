@@ -60,16 +60,17 @@ def get_depth(bh):
         date = ['2015-07-18 12:30', '2016-07-19 13:20']
         bottom = np.array([7.30, 9.70]) - 250.0
         top =  np.array([11.25, 13.65]) + 20.0
-        bottom -= 60.0  # FIXME: guessed shift of the lower chain
         lower = bottom[:, None] + 20.0*np.arange(9)
         upper = top[:, None] + 20.0*np.arange(-6, 1)
     if bh == 'upstream':
         date = ['2015-07-18 10:30', '2016-07-19 11:45']
         bottom = np.array([19.70, 21.60]) - 275.0
         top =  np.array([13.40, 15.30]) + 0.0
-        bottom -= 10.0  # FIXME: guessed shift of the lower chain
         lower = bottom[:, None] + 20.0*np.arange(9)
         upper = top[:, None] + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
+
+    # lower depths make no sense; mark as unknown
+    lower[:] = np.nan
     depth = -np.hstack([lower, upper])
 
     # return as a pandas data series
