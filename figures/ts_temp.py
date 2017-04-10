@@ -4,29 +4,38 @@
 import matplotlib.pyplot as plt
 import util as ut
 
+
+# plot only if data between these dates
+start = '2015-01-01'
+end = '2016-07-01'
+
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
 
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
     ax = grid[i]
-    c = ut.colors[bh]
 
-    # plot thermistor string temperature (in ice only)
-    df = ut.io.load_data('thstring', 'temp', bh)
-    df = df[df.columns[df.max()<5.0]]
-    df.plot(ax=ax, c=c, legend=False)
+    # colors per sensor type
+    colors = dict(temp=ut.colors[bh], unit='0.75', pres='k')
 
-    # plot tilt unit temperature
-    df = ut.io.load_data('tiltunit', 'temp', bh)
-    df.plot(ax=ax, c='0.75', legend=False)
+    # read temperature and depth
+    temp = ut.io.load_all_temp(bh, freq='1H')
+    depth = ut.io.load_all_depth(bh)
 
-    # plot pressure sensor temperature
-    ts = ut.io.load_data('pressure', 'temp', bh)
-    ts.plot(ax=ax, c='k', legend=False)
+    # order by depth, remove nulls and sensors above ground
+    subglac = depth > 0.0
+    notnull = depth.notnull() & temp[start:end].notnull().any()
+    depth = depth[notnull&subglac].sort_values()
+    temp = temp[depth.index.values]
+
+    # plot with different colors
+    for sensor, c in colors.iteritems():
+        cols = [s for s in depth.index if s.startswith(sensor)]
+        temp[cols].plot(ax=ax, c=c, legend=False)
 
     # set title
-    ax.set_ylabel('temperature ' + bh)
+    ax.set_ylabel(bh)
 
 # save
 fig.savefig('ts_temp')
