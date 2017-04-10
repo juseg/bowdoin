@@ -45,25 +45,25 @@ def get_depth(bh):
     date = '2015-07-18 12:00:00'
 
     # Measured surfacing cable lenghts
-    # * Th-Bowdoin-2: BH1A 2015-07-18 10:30, 19.70 m to 275 m mark
+    # * Th-Bowdoin-2: BH1A 2015-07-18 12:30, 19.70 m to 275 m mark
     #   (upstream)         2016-07-19 11:45, 21.60 m to 275 m mark
-    #                 BH1B 2015-07-18 10:30, 13.40 m to sensor 7
+    #                 BH1B 2015-07-18 12:30, 13.40 m to sensor 7
     #                      2016-07-19 11:45, 15.30 m to sensor 7
     #
-    # * Th-Bowdoin-1: BH2A 2015-07-18 12:30, 7.30 m to 250 m mark
+    # * Th-Bowdoin-1: BH2A 2015-07-18 14:30, 7.30 m to 250 m mark
     #   (downstream)       2016-07-19 13:20, 9.70 m to 250 m mark
-    #                 BH2B 2015-07-18 12:30, 11.25 m to sensor 6
+    #                 BH2B 2015-07-18 14:30, 11.25 m to sensor 6
     #                      2016-07-19 13:20, 13.65 m to sensor 6
 
     # calculate sensor depths
     if bh == 'downstream':
-        date = ['2015-07-18 12:30', '2016-07-19 13:20']
+        date = ['2015-07-18 14:30', '2016-07-19 13:20']
         bottom = np.array([7.30, 9.70]) - 250.0
         top =  np.array([11.25, 13.65]) + 20.0
         lower = bottom[:, None] + 20.0*np.arange(9)
         upper = top[:, None] + 20.0*np.arange(-6, 1)
     if bh == 'upstream':
-        date = ['2015-07-18 10:30', '2016-07-19 11:45']
+        date = ['2015-07-18 12:30', '2016-07-19 11:45']
         bottom = np.array([19.70, 21.60]) - 275.0
         top =  np.array([13.40, 15.30]) + 0.0
         lower = bottom[:, None] + 20.0*np.arange(9)
