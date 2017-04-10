@@ -26,6 +26,34 @@ def load_temp(site='B'):
     return ts
 
 
+def load_all_depth(borehole):
+    """Load all sensor depths in a single dataset."""
+
+    # read depths
+    temp_depth = load_depth('thstring', borehole)
+    tilt_depth = load_depth('tiltunit', borehole)
+    pres_depth = load_depth('pressure', borehole)
+    pres_depth.index = ['pres']
+
+    # concatenate datasets
+    df = pd.concat((temp_depth, tilt_depth, pres_depth))
+    return df
+
+
+def load_all_temp(borehole, freq='1D'):
+    """Load all temperatures in a single dataset."""
+
+    # read temperature values
+    temp_temp = load_data('thstring', 'temp', borehole).resample(freq).mean()
+    tilt_temp = load_data('tiltunit', 'temp', borehole).resample(freq).mean()
+    pres_temp = load_data('pressure', 'temp', borehole).resample(freq).mean()
+    pres_temp.columns = ['pres']
+
+    # concatenate datasets
+    df = pd.concat((temp_temp, tilt_temp, pres_temp), axis=1)
+    return df
+
+
 def load_data(sensor, variable, borehole):
     """Return sensor variable data in a dataframe."""
 

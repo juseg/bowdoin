@@ -43,42 +43,22 @@ for i, bh in enumerate(ut.boreholes):
     #if bh == 'downstream': continue
 
     # read temperature values
-    temp_temp = ut.io.load_data('thstring', 'temp', bh)
-    tilt_temp = ut.io.load_data('tiltunit', 'temp', bh)
-    pres_temp = ut.io.load_data('pressure', 'temp', bh)
+    temp = ut.io.load_all_temp(bh)[start:end]
 
     # read depths
-    temp_depth = ut.io.load_depth('thstring', bh)
-    tilt_depth = ut.io.load_depth('tiltunit', bh)
-    pres_depth = ut.io.load_depth('pressure', bh)
-    base_depth = max(base_depth, pres_depth.squeeze())
+    depth = ut.io.load_all_depth(bh)
+    base_depth = max(base_depth, depth['pres'])
 
     # sensors can't be lower than the base
-    temp_depth = np.minimum(temp_depth, base_depth)
-
-    # resample and concatenate
-    tilt_temp = tilt_temp.resample('1D').mean()[start:end]
-    temp_temp = temp_temp.resample('1D').mean()[start:end]
-    pres_temp = pres_temp.resample('1D').mean()[start:end]
-    #join_temp = pd.concat((temp_temp, tilt_temp), axis=1)
-    #join_depth = pd.concat((temp_depth, tilt_depth))
+    depth = np.minimum(depth, base_depth)
 
     # extract profiles
-    temp_z, temp_tmin, temp_tavg, temp_tmax = get_profiles(temp_depth, temp_temp)
-    tilt_z, tilt_tmin, tilt_tavg, tilt_tmax = get_profiles(tilt_depth, tilt_temp)
-    pres_z, pres_tmin, pres_tavg, pres_tmax = get_profiles(pres_depth, pres_temp)
-    #join_z, join_tmin, join_tavg, join_tmax = get_profiles(join_depth, join_temp)
+    temp_z, temp_tmin, temp_tavg, temp_tmax = get_profiles(depth, temp)
 
     # plot profiles
     ax.fill_betweenx(temp_z, temp_tmin, temp_tmax,
                      facecolor=ut.colors[bh], edgecolor='none', alpha=0.25)
-    ax.fill_betweenx(tilt_z, tilt_tmin, tilt_tmax,
-                     facecolor='0.75', edgecolor='none', alpha=0.25)
-    ax.fill_betweenx(pres_z, pres_tmin, pres_tmax,
-                     facecolor='0.75', edgecolor='none', alpha=0.25)
     ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[bh], label=bh)
-    ax.plot(tilt_tavg, tilt_z, '-^', c=ut.colors[bh])
-    ax.plot(pres_tavg, pres_z, '-s', c=ut.colors[bh])
 
     # add base lines
     ax.axhline(base_depth, c='k')
