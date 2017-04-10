@@ -7,32 +7,12 @@ import matplotlib.pyplot as plt
 import util as ut
 
 
-def get_profiles(depth, temp):
-    """Return avg, min and max temperature profile from data frame."""
-
-    # if dataset has several columns
-    if len(temp.columns) > 1:
-
-        # remove sensors above the ground
-        inicecols = depth > 0.0
-        temp = temp[temp.columns[inicecols]]
-        depth = depth[inicecols]
-
-        # order by depth
-        depth = depth.sort_values()
-        temp = temp[depth.index.values]
-
-    # extract values
-    tmin = temp.min().values
-    tavg = temp.mean().values
-    tmax = temp.max().values
-    z = depth.values
-
-    return z, tmin, tavg, tmax
-
 # dates to plot
-start = '2014-11-01'
-end = '2015-11-01'
+start = '2015-01-01'
+end = '2016-07-01'
+
+# markers per sensor type
+markers = dict(temp='o', unit='^', pres='s')
 
 # initialize figure
 fig, ax = plt.subplots()
@@ -40,28 +20,34 @@ fig, ax = plt.subplots()
 # for each borehole
 base_depth = 0.0
 for i, bh in enumerate(ut.boreholes):
-    #if bh == 'downstream': continue
 
-    # read temperature values
-    temp = ut.io.load_all_temp(bh)[start:end]
-
-    # read depths
+    # read temperature and depth
+    temp = ut.io.load_all_temp(bh)[start:end] #.dropna(axis=1, how='all')
     depth = ut.io.load_all_depth(bh)
     base_depth = max(base_depth, depth['pres'])
 
-    # sensors can't be lower than the base
-    depth = np.minimum(depth, base_depth)
+    # order by depth, remove nulls and sensors above ground
+    subglac = depth > 0.0
+    notnull = depth.notnull() & temp.notnull().any()
+    depth = depth[notnull&subglac].sort_values()
+    temp = temp[depth.index.values]
 
     # extract profiles
-    temp_z, temp_tmin, temp_tavg, temp_tmax = get_profiles(depth, temp)
+    tmin = temp.min()
+    tavg = temp.mean()
+    tmax = temp.max()
 
     # plot profiles
-    ax.fill_betweenx(temp_z, temp_tmin, temp_tmax,
+    ax.fill_betweenx(depth, tmin, tmax,
                      facecolor=ut.colors[bh], edgecolor='none', alpha=0.25)
-    ax.plot(temp_tavg, temp_z, '-o', c=ut.colors[bh], label=bh)
+    ax.plot(tavg, depth, '-', c=ut.colors[bh], label=bh)
+    for sensor, marker in markers.iteritems():
+        cols = [s for s in depth.index if s.startswith(sensor)]
+        ax.plot(tavg[cols], depth[cols], marker, c=ut.colors[bh])
 
-    # add base lines
-    ax.axhline(base_depth, c='k')
+    # add base line
+    ax.plot([tavg['pres']-0.5, tavg['pres']+0.5],
+            [depth['pres'], depth['pres']], c='k')
 
 # plot melting point
 g = 9.80665     # gravity
