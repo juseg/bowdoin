@@ -44,30 +44,36 @@ def get_depth(bh):
     # notebook and complete the picture with measurements from 2014.
     date = '2015-07-18 12:00:00'
 
-    # calculate sensor depths
-    # Design of sensor-chains:
-    #   Th-Bowdoin-2  : BH1A  l=180m  160-140-120-100-80-60-40-20-0
-    #   (upstream)      BH1B  l=3??m  320-300-280-260-240-220-200-180-160
+    # Measured surfacing cable lenghts
+    # * Th-Bowdoin-2: BH1A 2015-07-18 10:30, 19.70 m to 275 m mark
+    #   (upstream)         2016-07-19 11:45, 21.60 m to 275 m mark
+    #                 BH1B 2015-07-18 10:30, 13.40 m to sensor 7
+    #                      2016-07-19 11:45, 15.30 m to sensor 7
     #
-    #   Th-Bowdoin-1  : BH2A  l=???m  200-175-150-125-100-75-50-25-0
-    #   (downstream)    BH2B  l=???m  400-375-350-325-300-275-250-225-200
+    # * Th-Bowdoin-1: BH2A 2015-07-18 12:30, 7.30 m to 250 m mark
+    #   (downstream)       2016-07-19 13:20, 9.70 m to 250 m mark
+    #                 BH2B 2015-07-18 12:30, 11.25 m to sensor 6
+    #                      2016-07-19 13:20, 13.65 m to sensor 6
 
+    # calculate sensor depths
     if bh == 'downstream':
-        bottom = 6.3 - 250.0
+        date = ['2015-07-18 12:30', '2016-07-19 13:20']
+        bottom = np.array([7.30, 9.70]) - 250.0
+        top =  np.array([11.25, 13.65]) + 20.0
         bottom -= 60.0  # FIXME: guessed shift of the lower chain
-        top = 31.25
-        lower = bottom + 20.0*np.arange(9)
-        upper = top + 20.0*np.arange(-6, 1)
+        lower = bottom[:, None] + 20.0*np.arange(9)
+        upper = top[:, None] + 20.0*np.arange(-6, 1)
     if bh == 'upstream':
-        bottom = 19.7 - 275.0
+        date = ['2015-07-18 10:30', '2016-07-19 11:45']
+        bottom = np.array([19.70, 21.60]) - 275.0
+        top =  np.array([13.40, 15.30]) + 0.0
         bottom -= 10.0  # FIXME: guessed shift of the lower chain
-        top = 13.4
-        lower = bottom + 20.0*np.arange(9)
-        upper = top + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
+        lower = bottom[:, None] + 20.0*np.arange(9)
+        upper = top[:, None] + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
     depth = -np.hstack([lower, upper])
 
     # return as a pandas data series
-    df = pd.DataFrame(index=[date], columns=columns, data=[depth])
+    df = pd.DataFrame(index=date, columns=columns, data=depth)
     df.index = df.index.rename('date')
     return df
 
