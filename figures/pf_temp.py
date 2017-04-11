@@ -13,6 +13,7 @@ end = '2016-07-01'
 
 # markers per sensor type
 markers = dict(temp='o', unit='^')  #, pres='s')
+meltestimate = dict(upstream=1.9, downstream=2.4)
 
 # initialize figure
 fig, ax = plt.subplots()
@@ -24,7 +25,7 @@ for i, bh in enumerate(ut.boreholes):
     # read temperature and depth
     temp = ut.io.load_all_temp(bh)[start:end] #.dropna(axis=1, how='all')
     depth = ut.io.load_all_depth(bh)
-    depth['temp01'] = depth['pres']
+    depth['temp01'] = depth['pres'] - meltestimate[bh]
     base_depth = max(base_depth, depth['pres'])
 
     # order by depth, remove nulls and sensors above ground
