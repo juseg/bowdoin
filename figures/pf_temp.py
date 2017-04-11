@@ -12,7 +12,7 @@ start = '2015-01-01'
 end = '2016-07-01'
 
 # markers per sensor type
-markers = dict(temp='o', unit='^', pres='s')
+markers = dict(temp='o', unit='^')  #, pres='s')
 
 # initialize figure
 fig, ax = plt.subplots()
@@ -24,6 +24,7 @@ for i, bh in enumerate(ut.boreholes):
     # read temperature and depth
     temp = ut.io.load_all_temp(bh)[start:end] #.dropna(axis=1, how='all')
     depth = ut.io.load_all_depth(bh)
+    depth['temp01'] = depth['pres']
     base_depth = max(base_depth, depth['pres'])
 
     # order by depth, remove nulls and sensors above ground
@@ -42,12 +43,11 @@ for i, bh in enumerate(ut.boreholes):
                      facecolor=ut.colors[bh], edgecolor='none', alpha=0.25)
     ax.plot(tavg, depth, '-', c=ut.colors[bh], label=bh)
     for sensor, marker in markers.iteritems():
-        cols = [s for s in depth.index if s.startswith(sensor)]
+        cols = [s for s in temp.columns if s.startswith(sensor)]
         ax.plot(tavg[cols], depth[cols], marker, c=ut.colors[bh])
 
     # add base line
-    ax.plot([tavg['pres']-0.5, tavg['pres']+0.5],
-            [depth['pres'], depth['pres']], c='k')
+    ax.plot([tavg[-1]-0.5, tavg[-1]+0.5], [depth[-1], depth[-1]], c='k')
 
 # plot melting point
 g = 9.80665     # gravity

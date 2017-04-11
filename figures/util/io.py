@@ -46,11 +46,9 @@ def load_all_temp(borehole, freq='1D'):
     # read temperature values
     temp_temp = load_data('thstring', 'temp', borehole).resample(freq).mean()
     tilt_temp = load_data('tiltunit', 'temp', borehole).resample(freq).mean()
-    pres_temp = load_data('pressure', 'temp', borehole).resample(freq).mean()
-    pres_temp.columns = ['pres']
 
     # concatenate datasets
-    df = pd.concat((temp_temp, tilt_temp, pres_temp), axis=1)
+    df = pd.concat((temp_temp, tilt_temp), axis=1)
     return df
 
 
