@@ -53,7 +53,7 @@ preprocess-tiltunit.py: $(foreach BH, $(BOREHOLES), \
 # general patterned rule to avoid multiple calls
 $(foreach VAR, $(INC_VARS), \
   $(foreach BH, $(BOREHOLES), \
-    processed/bowdoin-%-$(VAR)-$(BH).csv)): preprocess-%.py
+    processed/bowdoin-%-$(VAR)-$(BH).csv)): preprocess-%.py util.py
 	mkdir -p processed
 	python2 $<
 

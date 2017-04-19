@@ -13,7 +13,7 @@ end = '2016-07-01'
 
 # markers per sensor type
 markers = dict(temp='o', unit='^')  #, pres='s')
-meltestimate = dict(upstream=1.9, downstream=2.4)
+meltestimate = dict(upstream=1.9, downstream=2.4)  # FIXME: move to preproc.
 
 # initialize figure
 fig, ax = plt.subplots()

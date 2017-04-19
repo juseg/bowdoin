@@ -83,13 +83,14 @@ def get_depth(bh):
 # for each borehole
 for bh, log in loggers.iteritems():
 
-    # preprocess temperatures
-    filename = 'processed/bowdoin-thstring-temp-%s.csv' % bh
-    df = get_temperature(log)
-    df = ut.cal_temperature(df, bh)
-    df.to_csv(filename)
-
     # compute sensor depths
     filename = 'processed/bowdoin-thstring-depth-%s.csv' % bh
-    df = get_depth(bh)
-    df.to_csv(filename)
+    depth = get_depth(bh)
+    depth.to_csv(filename)
+
+    # preprocess temperatures
+    # FIXME: depth was measured in 2015, temp in 2014
+    filename = 'processed/bowdoin-thstring-temp-%s.csv' % bh
+    temp = get_temperature(log)
+    temp = ut.cal_temperature(temp, depth, bh)
+    temp.to_csv(filename)
