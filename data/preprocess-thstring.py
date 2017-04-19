@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import util as ut
 
 loggers = {'downstream': 'Th-Bowdoin-1',
            'upstream':   'Th-Bowdoin-2'}
@@ -85,6 +86,7 @@ for bh, log in loggers.iteritems():
     # preprocess temperatures
     filename = 'processed/bowdoin-thstring-temp-%s.csv' % bh
     df = get_temperature(log)
+    df = ut.cal_temperature(df, bh)
     df.to_csv(filename)
 
     # compute sensor depths

@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import util as ut
 
 loggers = {'downstream': 'BOWDOIN-1',
            'upstream':   'BOWDOIN-2'}
@@ -158,6 +159,7 @@ for bh, log in loggers.iteritems():
 
     # extract temperatures
     temp = extract_temp(df)
+    temp = ut.cal_temperature(temp, bh)
     temp.to_csv('processed/bowdoin-tiltunit-temp-%s.csv' % bh)
 
     # extract water level and sensor depth
