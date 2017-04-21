@@ -63,6 +63,8 @@ def get_depth(bh):
         top =  np.array([11.25, 13.65]) + 20.0
         lower = bottom[:, None] + 20.0*np.arange(9)
         upper = top[:, None] + 20.0*np.arange(-6, 1)
+        gap = upper[:, 0] - lower[:, -1]
+        lower += gap[:, None] - 20.0 # according to conny
     if bh == 'upstream':
         date = ['2015-07-18 12:30', '2016-07-19 11:45']
         bottom = np.array([19.70, 21.60]) - 275.0
