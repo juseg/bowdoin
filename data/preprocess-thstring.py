@@ -9,12 +9,13 @@ loggers = {'downstream': 'Th-Bowdoin-1',
 columns = ['temp%02d' % (i+1) for i in range(16)]
 
 
-def get_temperature(log):
+def get_temperature(log, manual=False):
     """Return calibrated temperature in a data frame."""
 
     # input file names
+    postfix = 'Manual' if manual else 'Therm'
     cfilename = 'original/temperature/%s_Coefs.dat' % log
-    ifilename = 'original/temperature/%s_Therm.dat' % log
+    ifilename = 'original/temperature/%s_%s.dat' % (log, postfix)
 
     # read rearranged calibration coefficients
     # sensor order downstream: BH2A[1-9] + BH2B[1-7],
@@ -22,9 +23,10 @@ def get_temperature(log):
     a1, a2, a3 = np.loadtxt(cfilename, unpack=True)
 
     # read resistance data
-    df = pd.read_csv(ifilename, skiprows=[0, 2, 3], na_values='NAN',
-                     index_col=0)
-    df = df[[col for col in df.columns if col.startswith('Resist')]]
+    skiprows = [0] if manual else [0, 2, 3]
+    df = pd.read_csv(ifilename, skiprows=skiprows, comment='#',
+                     na_values='NAN', index_col=0)
+    df = df[['Resist({:d})'.format(i+1) for i in range(16)]]
 
     # compute temperature from resistance
     df = np.log(df)
@@ -90,9 +92,16 @@ for bh, log in loggers.iteritems():
     depth = get_depth(bh)
     depth.to_csv(filename)
 
-    # preprocess temperatures
+    # preprocess data logger temperatures
     # FIXME: depth was measured in 2015, temp in 2014
     filename = 'processed/bowdoin-thstring-temp-%s.csv' % bh
     temp = get_temperature(log)
-    temp = ut.cal_temperature(temp, depth, bh)
+    moff = ut.melt_offset(temp, depth, bh)
+    temp += moff
+    temp.to_csv(filename)
+
+    # preprocess manual temperatures
+    filename = 'processed/bowdoin-thstring-mantemp-%s.csv' % bh
+    temp = get_temperature(log, manual=True)
+    #temp += moff
     temp.to_csv(filename)
