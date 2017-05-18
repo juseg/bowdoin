@@ -15,27 +15,40 @@ fig, grid = plt.subplots(2, 1, sharex=True)
 # for each borehole
 for i, bh in enumerate(ut.boreholes):
     ax = grid[i]
+    c = ut.colors[bh]
 
-    # colors per sensor type
-    colors = dict(temp=ut.colors[bh], unit='0.75')  #, pres='k')
+    # read tilt unit temperature and depth
+    temp = ut.io.load_data('tiltunit', 'temp', bh)
+    depth = ut.io.load_depth('tiltunit', bh)
+    depth_pres = ut.io.load_depth('pressure', bh)
+    depth['temp01'] = depth_pres
 
-    # read temperature and depth
-    temp = ut.io.load_all_temp(bh, freq='1H')
-    depth = ut.io.load_all_depth(bh)
-    depth['temp01'] = depth['pres']
+    # plot tilt unit temperature
+    temp.plot(ax=ax, c='0.75', legend=False)
+
+    # read thermistor string temperature and depth
+    temp = ut.io.load_data('thstring', 'temp', bh)  #.resample('1D').mean()
+    depth = ut.io.load_depth('thstring', bh)
+    depth_pres = ut.io.load_depth('pressure', bh)
+    depth['temp01'] = depth_pres
 
     # order by depth, remove nulls and sensors above ground
     subglac = depth > 0.0
     notnull = depth.notnull() & temp[start:end].notnull().any()
     depth = depth[notnull&subglac].sort_values()
     temp = temp[depth.index.values]
+    temp.plot(ax=ax, c=c, legend=False)
 
-    # plot with different colors
-    for sensor, c in colors.iteritems():
-        cols = [s for s in temp.columns if s.startswith(sensor)]
-        temp[cols].plot(ax=ax, c=c, legend=False)
+    # read manual temperature
+    temp = ut.io.load_data('thstring', 'mantemp', bh)
 
-    # set title
+    # order by depth, remove nulls and sensors above ground
+    temp = temp[depth.index.values]
+
+    # plot manual temperature
+    temp.plot(ax=ax, c=c, ls='', marker='o', legend=False)
+
+    # set label
     ax.set_ylabel(bh)
 
 # save

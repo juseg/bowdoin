@@ -57,7 +57,8 @@ def load_data(sensor, variable, borehole):
 
     # check argument validity
     assert sensor in ('dgps', 'pressure', 'thstring', 'tiltunit')
-    assert variable in ('depth', 'temp', 'tiltx', 'tilty', 'wlev', 'velocity')
+    assert variable in ('depth', 'mantemp', 'temp', 'tiltx', 'tilty',
+                        'wlev', 'velocity')
     assert borehole in ('downstream', 'upstream')
 
     # read data
