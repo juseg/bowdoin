@@ -4,6 +4,9 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[pdftex]{xcolor}
+\usepackage[pdftex]{graphicx}
+
+\graphicspath{{../../figures/}}
 
 \definecolor{darkblue}{cmyk}{0.9,0.3,0.0,0.0}
 \definecolor{darkgreen}{cmyk}{0.8,0.0,1.0,0.0}
@@ -71,39 +74,78 @@
 
 \end{abstract}
 
+% ----------------------------------------------------------------------
 \section{Introduction}
+% ----------------------------------------------------------------------
 
     Ice rheology depends on temperature. But temperature was never measured on
     tidewater glaciers. Yet Bowdoin Glacier allows to do it.
 
+
+% ----------------------------------------------------------------------
 \section{Methods}
+% ----------------------------------------------------------------------
 
 \subsection{Drilling sites}
-
-    Fig. 1 -- Location map.
+    Fig.~\ref{fig:locmap} -- Location map.
 
 \subsection{Instrumentation}
 
+
+% ----------------------------------------------------------------------
 \section{Results}
+% ----------------------------------------------------------------------
 
 \subsection{Borehole closure}
-
-    Fig. 2 -- Temperature time series.
+    Fig.~\ref{fig:timeseries} -- Temperature time series.
 
 \subsection{Temperature profiles}
-
-    Fig. 3 -- Temperature profiles.
+    Fig.~\ref{fig:profiles} -- Temperature profiles.
 
 \subsection{Englacial warming}
 
-    Fig. 4 -- Warming profiles.
 
+% ----------------------------------------------------------------------
 \section{Discussion}
+% ----------------------------------------------------------------------
 
 \subsection{Deep crevassing}
 \subsection{Tidal effects}
 
+% ----------------------------------------------------------------------
 \section{Conclusions}
+% ----------------------------------------------------------------------
+
+
+% ----------------------------------------------------------------------
+% Figures
+\clearpage
+% ----------------------------------------------------------------------
+
+    \begin{figure}
+      \centerline{\includegraphics{bowtem_locmap}}
+      \caption{Location map.
+               \todo{Add an inset with Greenland.}}
+      \label{fig:locmap}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowtem_timeseries}}
+      \caption{Temperature time series.
+               \todo{Increase figure size. Split x-axis to evidence phases
+                     before and after refreezing of the boreholes.}}
+      \label{fig:timeseries}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowtem_profiles}}
+      \caption{Temperature profiles.
+               \todo{Increase figure size. Add right panel with observed
+                     temperature change between 2014 and 2016 and theoretical
+                     diffusive temperature flux.}}
+      \label{fig:profiles}
+    \end{figure}
+
 
 % ======================================================================
 \end{document}
