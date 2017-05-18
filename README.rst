@@ -13,5 +13,8 @@ BOWDEF: bowdoin-deformation
     Tidewater glacier dynamics dominated by sliding at Bowdoin Glacier,
     Northwest Greenland
 
+BOWSTR:
+    Tidal stress directly measured at Bowdoin Glacier, Northwest Greenland.
+
 BOWPAL: bowdoin-paleo
     Palaeoglaciology of Bowdoin Fjord, Northwest Greenland

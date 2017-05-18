@@ -64,7 +64,7 @@ def plot(targets, ofile='map_grl_gmb'):
     # add colorbar and save
     cb = fig.colorbar(cs, cax, orientation='horizontal')
     cb.set_label('Mass change rate ($mm\ w.eq.\,a^{-1}$ or $kg\,m^{-1}\,a^{-1}$)', labelpad=2)
-    plt.savefig(ofile)
+    ut.pl.savefig(fig)
 
     # close dataset
     ds.close()
