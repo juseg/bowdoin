@@ -40,4 +40,4 @@ ax.set_ylim(0.0, 50.0)
 ax.set_xlim(start, end)
 
 # save
-fig.savefig('ts_drainage')
+ut.pl.savefig(fig)

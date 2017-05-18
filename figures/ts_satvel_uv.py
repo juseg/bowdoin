@@ -81,4 +81,4 @@ ax.set_ylim(0.0, 800.0)
 #fig.autofmt_xdate()
 
 # save
-fig.savefig('ts_satvel_uv')
+ut.pl.savefig(fig)

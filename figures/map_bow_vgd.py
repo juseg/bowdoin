@@ -44,4 +44,4 @@ if __name__ == '__main__':
     cb.set_label('velocity gradient (a$^{-1}$)', labelpad=2)
 
     # save
-    fig.savefig('map_bow_vgd')
+    ut.pl.savefig(fig)

@@ -3,6 +3,8 @@
 
 """Plotting tools."""
 
+import os
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,12 +17,14 @@ import al
 from matplotlib.transforms import ScaledTranslation
 
 
-# cartographic projections
+# Geographic data
+# ---------------
 
 ll = ccrs.PlateCarree()
 
 
-# functions to create a figure
+# Figure creation
+# ---------------
 
 def subplots_inches(nrows=1, ncols=1, figsize=None,
                     left=None, bottom=None, right=None, top=None,
@@ -88,7 +92,8 @@ def subplots_mm(nrows=1, ncols=1, figsize=None,
                            projection=projection, **kwargs)
 
 
-# functions to modify axes properties
+# Axes properties
+# ---------------
 
 def add_subfig_label(s, ax=None, ha='left', va='top', offset=2.5/25.4):
     ax = ax or plt.gca()
@@ -130,7 +135,8 @@ def unframe(ax, edges=['bottom', 'left']):
         ax.xaxis.set_label_position('top')
 
 
-# functions to plot data
+# Timeseries elements
+# -------------------
 
 def resample_plot(ax, ts, freq, c='b'):
     """Plot resampled mean and std of a timeseries."""
@@ -206,7 +212,8 @@ def plot_campaigns(ax, y=0.0):
     ax.text('2016-07-26', y, 'field campaign 2016', ha='right', color=c)
 
 
-# map drawing functions
+# Map elements
+# ------------
 
 def shading(z, dx=None, dy=None, extent=None, azimuth=315.0, altitude=30.0):
     """Compute shaded relief map."""
@@ -373,3 +380,11 @@ def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
 
     # add scatter plot
     ax.scatter(xlist, ylist, alpha=alpha, **kwargs)
+
+
+# Saving figures
+def savefig(fig=None):
+    """Save figure to script filename."""
+    fig = fig or plt.gcf()
+    res = fig.savefig(os.path.splitext(sys.argv[0])[0])
+    return res

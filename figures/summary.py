@@ -129,4 +129,4 @@ ax.locator_params(axis='y', nbins=6)
 ut.pl.plot_campaigns(ax, y=50.0)
 
 # save
-fig.savefig('summary')
+ut.pl.savefig(fig)

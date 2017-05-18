@@ -45,4 +45,4 @@ if __name__ == '__main__':
     cb.set_label('ice velocity (m a$^{-1}$)', labelpad=2)
 
     # save
-    fig.savefig('map_bow_ls8')
+    ut.pl.savefig(fig)

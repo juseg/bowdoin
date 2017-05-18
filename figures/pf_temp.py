@@ -69,4 +69,4 @@ ax.set_ylabel('depth (m)')
 ax.legend(loc='best')
 
 # save
-fig.savefig('pf_temp')
+ut.pl.savefig(fig)

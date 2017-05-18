@@ -41,4 +41,4 @@ fig.text(0.5, 2.5/figh, xlabel, ha='center')
 fig.text(2.5/figw, 0.5, 'depth (m)', va='center', rotation='vertical')
 
 # save
-fig.savefig('pf_tilt')
+ut.pl.savefig(fig)

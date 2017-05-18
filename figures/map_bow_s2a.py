@@ -40,4 +40,4 @@ if __name__ == '__main__':
     ut.pl.add_waypoint('Camp Hill', **kwa)
 
     # save
-    fig.savefig('map_bow_s2a')
+    ut.pl.savefig(fig)

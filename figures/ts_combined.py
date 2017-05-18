@@ -48,4 +48,4 @@ ax.set_xlim('2014-07', '2016-08')
 ax.set_ylim(0, 800)
 
 # save
-fig.savefig('ts_combined')
+ut.pl.savefig(fig)

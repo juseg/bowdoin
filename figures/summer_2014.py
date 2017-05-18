@@ -52,4 +52,4 @@ ax.set_ylim(-20.0, 80.0)
 ax.set_xlim(start, end)
 
 # save
-fig.savefig('summer_2014')
+ut.pl.savefig(fig)

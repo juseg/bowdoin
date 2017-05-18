@@ -14,4 +14,4 @@ if __name__ == '__main__':
     ax.hist(data.flatten(), bins=range(0,451,1), ec='none', fc=ut.palette['darkorange'])
 
     # save
-    fig.savefig('hist_ls8')
+    ut.pl.savefig(fig)

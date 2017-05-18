@@ -34,4 +34,4 @@ for i, bh in enumerate(ut.boreholes):
 # save
 grid[0].set_title('water level FFT')
 grid[1].set_xlabel(r'frequency (h$^{-1}$)')
-fig.savefig('fft_wlev')
+ut.pl.savefig(fig)

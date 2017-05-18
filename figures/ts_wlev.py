@@ -27,4 +27,4 @@ ax.set_ylabel('water level (m)')
 ax.legend(lines, ut.boreholes)
 
 # save
-fig.savefig('ts_wlev')
+ut.pl.savefig(fig)

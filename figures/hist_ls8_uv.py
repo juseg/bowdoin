@@ -23,4 +23,4 @@ if __name__ == '__main__':
     ax.hist(c.compressed(), bins=range(0,451,1), ec='none', fc=ut.palette['darkorange'])
 
     # save
-    fig.savefig('hist_ls8_uv')
+    ut.pl.savefig(fig)

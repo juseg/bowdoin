@@ -83,4 +83,4 @@ if __name__ == '__main__':
     grid[2].text(-522.5e3, -1234e3, '5km', ha='center')
 
     # save third frame
-    fig.savefig('map_grl_vel')
+    ut.pl.savefig(fig)

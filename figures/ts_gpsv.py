@@ -17,4 +17,4 @@ ts.resample('1D').mean().plot(ax=ax, c=c)
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
 
 # save
-fig.savefig('ts_gpsv')
+ut.pl.savefig(fig)

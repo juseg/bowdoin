@@ -30,4 +30,4 @@ ax.set_ylabel('power (dB)')
 # save
 ax.set_title('GPS velocity FFT')
 ax.set_xlabel(r'frequency (h$^{-1}$)')
-fig.savefig('fft_gpsv')
+ut.pl.savefig(fig)

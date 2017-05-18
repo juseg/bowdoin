@@ -87,4 +87,4 @@ for i, bh in enumerate(ut.boreholes):
     ax.set_ylim(0.0, 0.2)
 
 # save
-fig.savefig('ts_tilt_detrend')
+ut.pl.savefig(fig)

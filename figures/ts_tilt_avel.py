@@ -28,4 +28,4 @@ for i, bh in enumerate(ut.boreholes):
     ax.set_ylim(0.0, 15.0)
 
 # save
-fig.savefig('ts_tilt_avel')
+ut.pl.savefig(fig)

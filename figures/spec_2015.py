@@ -74,4 +74,4 @@ cbar = fig.colorbar(im, cax=cax)
 cbar.set_label('Amplitude', labelpad=2)
 
 # save
-fig.savefig('spec_2015')
+ut.pl.savefig(fig)

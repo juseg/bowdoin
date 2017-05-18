@@ -55,5 +55,5 @@ if __name__ == '__main__':
     ut.pl.add_waypoint('Camera Lower', **kwa)
 
     # save third frame
-    fig.savefig('map_bow_dem')
+    ut.pl.savefig(fig)
 

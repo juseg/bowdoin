@@ -25,4 +25,4 @@ for i, bh in enumerate(ut.boreholes):
     ax.set_ylabel(bh)
 
 # save
-fig.savefig('ts_tilt')
+ut.pl.savefig(fig)

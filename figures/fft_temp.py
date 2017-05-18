@@ -34,4 +34,4 @@ for i, bh in enumerate(ut.boreholes):
 # save
 grid[0].set_title('bottom temperature FFT')
 grid[1].set_xlabel(r'frequency (h$^{-1}$)')
-fig.savefig('fft_temp')
+ut.pl.savefig(fig)
