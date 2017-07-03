@@ -1,4 +1,3 @@
 [submodule "references"]
 	path = references
-	url = iceberg:git/research/references.git
-	url = git@framagit.org:jsegu/references.git
+	url = git@framagit.org:juseg/references.git
