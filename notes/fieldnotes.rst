@@ -198,6 +198,7 @@ distant mountains only.
     Azimuth  140 224 348  90
     Altitude   5   1   1   2
     ======== === === === ===
+:Weight: 575 g
 
 
 *BOW16-JS-02*
@@ -208,6 +209,7 @@ it was still surprisingly hard. No nearby obstacle.
 :Geog. coords: 77.69086, -68.50274, 295 m
 :Sample depth: 4 cm
 :Shielding: same as for BOW16-JS-01
+:Weight: 640 g
 
 
 *BOW16-JS-03*
@@ -220,6 +222,7 @@ hill. No nearby obstacle.
 :Geog. coords: 77.69081, -68.50166, 294 m
 :Sample depth: 5 cm
 :Shielding: same as for BOW16-JS-01
+:Weight: 350 g
 
 
 *BOW16-JS-04*
@@ -232,6 +235,7 @@ on the bedrock. No nearby obstacle.
 :Geog. coords: 77.69116, -68.50163, 296 m
 :Sample depth: 4 cm
 :Shielding: same as for BOW16-JS-01
+:Weight: 620 g
 
 
 *BOW16-JS-05*
@@ -246,6 +250,7 @@ cairn probably much younger.
 :Geog. coords: 77.69137, -68.50012, 294 m
 :Sample depth: 2 cm
 :Shielding: same as for BOW16-JS-01
+:Weight: 445 g
 
 
 *BOW16-JS-06*
@@ -259,6 +264,7 @@ BOW16-JS-03, in the direction of Mirror Glacier.
 :Geog. coords: 77.69060, -68.50021, 270 m
 :Sample depth: 3 cm
 :Shielding: same as for BOW16-JS-01
+:Weight: 280 g
 
 
 *BOW16-JS-07*
@@ -275,6 +281,7 @@ No nearby obstacle, the nearest mountain is about 500 m to the East.
     Azimuth  155 210 215 278  72  78 132
     Altitude  15   9   3   1   1   6   7
     ======== === === === === === === ===
+:Weight: 435 g
 
 
 *BOW16-JS-08*
@@ -286,6 +293,7 @@ No nearby obstacles.
 :Geog. coords: 77.70380, -68.37795, 339 m
 :Sample depth: 4 cm
 :Shielding: same as for BOW16-JS-07
+:Weight: 495 g
 
 
 *BOW16-JS-09*
@@ -302,6 +310,7 @@ one nearby obstacle (N 215, 5 deg).
     Azimuth  155 210 215 278  72  78 132
     Altitude  15   9   5   1   1   6   7
     ======== === === === === === === ===
+:Weight: 565 g
 
 
 *BOW16-JS-10*
@@ -318,6 +327,7 @@ North, towards the so-called East Branch Glacier.
 :Geog. coords: 77.70433, -68.37743, 329 m
 :Sample depth: 4 cm
 :Shielding: same as for BOW16-JS-07
+:Weight: 990 g
 
 
 *BOW16-JS-11*
@@ -332,6 +342,7 @@ the waterfall.
 :Geog. coords: 77.70443, -68.37646, 331 m
 :Sample depth: 6 cm
 :Shielding: same as for BOW16-JS-07
+:Weight: 720 g
 
 
 *BOW16-JS-12*
@@ -351,6 +362,7 @@ glacier when it was larger than today.
     Azimuth   70  92 142 212 230 292 306 353  12
     Altitude   2   3  25  14   3   1   6   1   6
     ======== === === === === === === === === ===
+:Weight: 415 g
 
 
 *BOW16-JS-13*
@@ -372,6 +384,37 @@ used values from the previous boulder for the far field (N 292 -- 12).
     Azimuth   67 130 198 242 292 306 353  12
     Altitude   3  18  18   5   1   6   1   6
     ======== === === === === === === === ===
+:Weight: 845 g
+
+
+*BOW16-MF-BOU1*
+
+:Weight: 5275 g
+
+
+*BOW16-MF-BOU2*
+
+:Weight: 2590 g
+
+
+*BOW16-MF-BOU3*
+
+:Weight: 1225 g
+
+
+*BOW16-MF-BED1*
+
+:Weight: 2135 g
+
+
+*BOW16-MF-BED2*
+
+:Weight: 1745 g
+
+
+*BOW16-MF-BED3*
+
+:Weight: 1265 g
 
 
 Carbon sampling 2016
