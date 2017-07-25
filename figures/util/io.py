@@ -17,7 +17,7 @@ def load_temp(site='B'):
     prefix = '../data/weather/SIGMA_AWS_Site%s_' % site
     filelist = [prefix+s for s in ['2014_level0_final.csv',
                                    '2015_level0_final.csv',
-                                   '2016_level0_160824.csv']]
+                                   '2016_level0_161121.csv']]
     datalist = [pd.read_csv(filename, parse_dates=True, index_col='Date',
                             dayfirst=True, na_values=(-50, -9999))
                             ['Temperature_1[degC]']
