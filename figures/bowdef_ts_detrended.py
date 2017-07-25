@@ -84,7 +84,6 @@ for i, bh in enumerate(ut.boreholes):
 
     # set title
     ax.set_ylabel('detrended tilt ' + bh)
-    ax.set_ylim(0.0, 0.2)
 
 # save
 ut.pl.savefig(fig)

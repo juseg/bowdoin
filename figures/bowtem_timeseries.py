@@ -50,7 +50,7 @@ for i, bh in enumerate(ut.boreholes):
 
     # set label
     ax.set_ylabel(bh)
-    #ax.set_xlim('2016-07-10', '2016-07-20')
+    ax.set_xlim('2014-07-01', '2017-08-01')
 
 # save
 ut.pl.savefig(fig)

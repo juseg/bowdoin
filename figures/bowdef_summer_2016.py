@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import util as ut
 
 start = '2016-06-01'
-end = '2016-07-15'
+end = '2016-09-01'
 
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)

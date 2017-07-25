@@ -44,7 +44,7 @@ ts.resample('1D').mean().plot(ax=ax, c=c)
 # add labels and set limits
 ax.text('20150801', 600, 'GPS velocity', color=c, **kwa)
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)', color=ut.colors['dgps'], labelpad=0.0)
-ax.set_xlim('2014-07', '2016-08')
+ax.set_xlim('2014-07-01', '2017-08-01')
 ax.set_ylim(0, 800)
 
 # save

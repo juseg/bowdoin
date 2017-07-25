@@ -37,7 +37,6 @@ for i, bh in enumerate(ut.boreholes):
 
 # set labels
 ax.set_ylabel(r'deformation velocity ($m\,a^{-1}$)')
-ax.set_ylim(20.0, 60.0)
 ax.legend()
 
 # save

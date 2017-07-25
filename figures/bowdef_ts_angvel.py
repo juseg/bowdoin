@@ -23,9 +23,9 @@ for i, bh in enumerate(ut.boreholes):
 
     # set title
     ax.axvspan('2014-06-01', refdate, ec='none', fc='0.9')
-    ax.set_xlim('2014-06-01', '2016-09-01')
+    ax.set_xlim('2014-07-01', '2017-08-01')
     ax.set_ylabel(bh)
-    ax.set_ylim(0.0, 15.0)
+    ax.set_ylim(0.0, 20.0)
 
 # save
 ut.pl.savefig(fig)
