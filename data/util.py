@@ -19,7 +19,8 @@ def melt_offset(temp, depth, borehole):
 
     # compute offset to melting point
     if borehole == 'downstream':
-        depth['temp01'] = 243.849292443  # FIXME: move this to preproc
+        if 'temp01' in depth:
+            depth['temp01'] = 243.849292443  # FIXME: move this to preproc
         melt = melting_point(depth.iloc[0])  # FIXME: find nearest date
         calt = temp['2014-07-23 11:20':'2014-07-23 15:00'].mean()
         offset = (melt - calt).fillna(0.0)
@@ -27,7 +28,7 @@ def melt_offset(temp, depth, borehole):
         offset = 0.0
 
     # return offset
-    return offsets
+    return offset
 
 
 def melting_point(depth, g=9.80665, rhoi=910.0, beta=7.9e-8):
