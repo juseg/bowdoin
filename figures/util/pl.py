@@ -194,7 +194,7 @@ def plot_vsia_profile(depth, exz, depth_base, ax=None, c='k', n=101,
         ax.text(0.05, 0.05, r'A=%.2e$\,Pa^{-n}\,s^{-2}$, n=%.2f' % (A, n),
                 transform=ax.transAxes)
 
-def plot_campaigns(ax, y=0.0):
+def plot_campaigns(ax, y=0.95, va='baseline'):
     """Plot 2014--2016 summer field campaigns."""
 
     # add rectangular spans
@@ -204,13 +204,16 @@ def plot_campaigns(ax, y=0.0):
     ax.axvspan('2016-07-04', '2016-07-21', ec='none', fc=c, alpha=0.25)
     ax.axvspan('2017-07-04', '2017-07-17', ec='none', fc=c, alpha=0.25)
 
+    # prepare blended transform
+    trans = plt.matplotlib.transforms.blended_transform_factory(
+        ax.transData, ax.transAxes)
+
     # add text annotations
-    # FIXME: use hybrid coordinates
-    props = dict(color=c)
-    ax.text('2014-07-10', y, 'field campaign 2014', ha='left', color=c)
-    ax.text('2015-07-13', y, 'field campaign 2015', ha='center', color=c)
-    ax.text('2016-07-13', y, 'field campaign 2016', ha='center', color=c)
-    ax.text('2017-07-22', y, 'field campaign 2017', ha='right', color=c)
+    kwa = dict(color=c, transform=trans, va=va)
+    ax.text('2014-07-10', y, 'field campaign 2014', ha='left', **kwa)
+    ax.text('2015-07-13', y, 'field campaign 2015', ha='center', **kwa)
+    ax.text('2016-07-13', y, 'field campaign 2016', ha='center', **kwa)
+    ax.text('2017-07-22', y, 'field campaign 2017', ha='right', **kwa)
 
 
 # Map elements

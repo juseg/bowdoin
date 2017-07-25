@@ -126,7 +126,7 @@ ax.set_ylim(0, 800)
 ax.locator_params(axis='y', nbins=6)
 
 # add field campaigns
-ut.pl.plot_campaigns(ax, y=50.0)
+ut.pl.plot_campaigns(ax)
 
 # save
 ut.pl.savefig(fig)

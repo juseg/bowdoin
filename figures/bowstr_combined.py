@@ -24,7 +24,7 @@ for i, bh in enumerate(ut.boreholes):
     lines.append(ax.get_lines()[-1])  # select last line for the legend
 
 # add field campaigns
-ut.pl.plot_campaigns(ax, y=350.0)
+ut.pl.plot_campaigns(ax)
 
 # add labels
 kwa = dict(fontweight='bold', ha='left', va='center')

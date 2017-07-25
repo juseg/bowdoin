@@ -72,7 +72,7 @@ ax.text('20160201', 450, 'Sentinel-1', color=ut.palette['darkpurple'], **kwa)
 ax.text('20150201', 100, 'Boreholes', color=ut.colors['upstream'], **kwa)
 
 # add field campaigns
-ut.pl.plot_campaigns(ax, y=750.0)
+ut.pl.plot_campaigns(ax)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
