@@ -198,18 +198,19 @@ def plot_campaigns(ax, y=0.0):
     """Plot 2014--2016 summer field campaigns."""
 
     # add rectangular spans
-    # FIXME: evtl. correct date after departure 2016
     c = ut.palette['darkorange']
     ax.axvspan('2014-07-15', '2014-07-29', ec='none', fc=c, alpha=0.25)
     ax.axvspan('2015-07-06', '2015-07-20', ec='none', fc=c, alpha=0.25)
     ax.axvspan('2016-07-04', '2016-07-21', ec='none', fc=c, alpha=0.25)
+    ax.axvspan('2017-07-04', '2017-07-17', ec='none', fc=c, alpha=0.25)
 
     # add text annotations
     # FIXME: use hybrid coordinates
     props = dict(color=c)
     ax.text('2014-07-10', y, 'field campaign 2014', ha='left', color=c)
     ax.text('2015-07-13', y, 'field campaign 2015', ha='center', color=c)
-    ax.text('2016-07-26', y, 'field campaign 2016', ha='right', color=c)
+    ax.text('2016-07-13', y, 'field campaign 2016', ha='center', color=c)
+    ax.text('2017-07-22', y, 'field campaign 2017', ha='right', color=c)
 
 
 # Map elements
