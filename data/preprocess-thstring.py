@@ -75,11 +75,13 @@ def get_depth(bh):
     depth = -np.hstack([lower, upper])
 
     # except for the lowest sensor, assumed to be at the base
-    # FIXME: replace 2015-16 melt extimate by 2014-15 melt measurement
-    meltestimate = dict(upstream=1.9, downstream=2.4)
+    # ``SMB was measured [...] on Bowdoin Glacier at [...] BH1 (71 m a.s.l.)
+    # from 19 July 2014 to 16 July 2015 [...] SMB on Bowdoin Glacier for
+    # 2014/15 was [...] -1.96 m a-1 at [...] BH1'' (Tsutaki et al., 2016).
+    melt = 1.96
     filename = 'processed/bowdoin-pressure-depth-%s.csv' % bh
     base = pd.read_csv(filename, parse_dates=True, index_col='date').squeeze()
-    depth[0] = base - meltestimate[bh]
+    depth[0] = base - melt
 
     # return as a pandas data series
     df = pd.DataFrame(index=[date], columns=columns, data=[depth])
