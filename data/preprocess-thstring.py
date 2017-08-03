@@ -43,10 +43,6 @@ def get_temperature(log, manual=False):
 def get_depth(bh):
     """Return temperature sensor depths in a data series."""
 
-    # FIXME: I think this was measured on 18 July 2015. Check in Martin's
-    # notebook and complete the picture with measurements from 2014.
-    date = '2015-07-18 12:00:00'
-
     # Measured surfacing cable lenghts
     # * Th-Bowdoin-2: BH1A 2015-07-18 12:30, 19.70 m to 275 m mark
     #   (upstream)         2016-07-19 11:45, 21.60 m to 275 m mark
