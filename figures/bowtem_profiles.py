@@ -14,7 +14,6 @@ styles = ['-', ':', ':']
 
 # markers per sensor type
 markers = dict(temp='o', unit='^')  #, pres='s')
-meltestimate = dict(upstream=1.9, downstream=2.4)  # FIXME: move to preproc.
 
 # initialize figure
 fig, ax = plt.subplots()
@@ -29,7 +28,6 @@ for i, bh in enumerate(ut.boreholes):
     tilt_depth = ut.io.load_depth('tiltunit', bh)
     pres_depth = ut.io.load_depth('pressure', bh)
     pres_depth.index = ['pres']
-    temp_depth['temp01'] = pres_depth - meltestimate[bh]  # FIXME: move to preprocessing
     manu_temp = ut.io.load_data('thstring', 'mantemp', bh)
     temp_temp = ut.io.load_data('thstring', 'temp', bh)
     tilt_temp = ut.io.load_data('tiltunit', 'temp', bh)

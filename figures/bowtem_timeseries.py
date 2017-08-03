@@ -30,7 +30,6 @@ for i, bh in enumerate(ut.boreholes):
     temp = ut.io.load_data('thstring', 'temp', bh)  #.resample('1D').mean()
     depth = ut.io.load_depth('thstring', bh)
     depth_pres = ut.io.load_depth('pressure', bh)
-    depth['temp01'] = depth_pres
 
     # order by depth, remove nulls and sensors above ground
     subglac = depth > 0.0

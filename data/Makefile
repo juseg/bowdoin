@@ -50,6 +50,10 @@ $(GPS_FILES): preprocess-dgps.py
 preprocess-tiltunit.py: $(foreach BH, $(BOREHOLES), \
                           processed/bowdoin-pressure-wlev-$(BH).csv)
 
+# additional dependency of temp processing on pressure depth
+preprocess-tiltunit.py: $(foreach BH, $(BOREHOLES), \
+                          processed/bowdoin-pressure-depth-$(BH).csv)
+
 # general patterned rule to avoid multiple calls
 $(foreach VAR, $(INC_VARS), \
   $(foreach BH, $(BOREHOLES), \
