@@ -55,21 +55,20 @@ def get_depth(bh):
     #                      2016-07-19 13:20, 13.65 m to sensor 6
 
     # calculate sensor depths
-    # FIXME: use only 2015 depth for simplification
     if bh == 'downstream':
-        date = ['2015-07-18 14:30', '2016-07-19 13:20']
-        bottom = np.array([7.30, 9.70]) - 250.0
-        top =  np.array([11.25, 13.65]) + 20.0
-        lower = bottom[:, None] + 20.0*np.arange(9)
-        upper = top[:, None] + 20.0*np.arange(-6, 1)
-        gap = upper[:, 0] - lower[:, -1]
-        lower += gap[:, None] - 20.0 # according to conny
+        date = '2015-07-18 14:30'
+        bottom = 7.30 - 250.0
+        top =  11.25 + 20.0
+        lower = bottom + 20.0*np.arange(9)
+        upper = top + 20.0*np.arange(-6, 1)
+        gap = upper[0] - lower[-1]
+        lower += gap - 20.0 # according to conny
     if bh == 'upstream':
-        date = ['2015-07-18 12:30', '2016-07-19 11:45']
-        bottom = np.array([19.70, 21.60]) - 275.0
-        top =  np.array([13.40, 15.30]) + 0.0
-        lower = bottom[:, None] + 20.0*np.arange(9)
-        upper = top[:, None] + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
+        date = '2015-07-18 12:30'
+        bottom = 19.70 - 275.0
+        top =  13.40 + 0.0
+        lower = bottom + 20.0*np.arange(9)
+        upper = top + 20.0*np.array([-6, -5, -4, -3, 0, -2, -1])
 
     # lower depths make no sense; mark as unknown
     lower[:] = np.nan
@@ -80,11 +79,10 @@ def get_depth(bh):
     meltestimate = dict(upstream=1.9, downstream=2.4)
     filename = 'processed/bowdoin-pressure-depth-%s.csv' % bh
     base = pd.read_csv(filename, parse_dates=True, index_col='date').squeeze()
-    depth[0, 0] = base - 1*meltestimate[bh]
-    depth[1, 0] = base - 2*meltestimate[bh]
+    depth[0] = base - meltestimate[bh]
 
     # return as a pandas data series
-    df = pd.DataFrame(index=date, columns=columns, data=depth)
+    df = pd.DataFrame(index=[date], columns=columns, data=[depth])
     df.index = df.index.rename('date')
     return df
 

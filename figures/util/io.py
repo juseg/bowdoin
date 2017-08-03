@@ -71,7 +71,7 @@ def load_data(sensor, variable, borehole):
 def load_depth(sensor, borehole):
     """Return sensor depths in a data series."""
 
-    # read first depth measurement
+    # read data as a series
     df = load_data(sensor, 'depth', borehole).iloc[0]
     return df
 
