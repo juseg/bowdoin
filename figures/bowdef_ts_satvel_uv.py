@@ -30,6 +30,7 @@ dt = df['end'] - df['start']
 mid = df['start'] + dt/2
 vel = df['vel']
 err = df['err']
+mid = pd.DatetimeIndex(mid)
 ax.errorbar(mid, vel, xerr=dt/2, yerr=err,
             c=ut.palette['darkorange'], lw=0.5, ls='', zorder=3, alpha=0.75)
 
@@ -61,7 +62,7 @@ for i, bh in enumerate(ut.boreholes):
 # plot GPS velocity
 c = ut.colors['dgps']
 ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
-ts.plot(ax=ax, color=c, ls='', marker='.', markersize=0.5)
+ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5, alpha=0.25)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 
 # add annotations
@@ -76,7 +77,7 @@ ut.pl.plot_campaigns(ax)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
-ax.set_xlim('2014-06', '2016-09')
+ax.set_xlim('2014-07-01', '2017-08-01')
 ax.set_ylim(0.0, 800.0)
 #fig.autofmt_xdate()
 

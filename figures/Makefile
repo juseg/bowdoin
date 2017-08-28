@@ -18,7 +18,7 @@ PY_FIGS = campaign_2016 summary \
             $(addprefix hist_, ls8 ls8_uv) \
             $(addprefix map_, dem gmb gsv ls8 ls8_uv vgd vgd_uv) \
             $(addprefix summer_, 2014 2015 2016) \
-            $(addprefix ts_, angvel defvel detrended gpsvel tilt)) \
+            $(addprefix ts_, angvel defvel detrended gpsvel satvel satvel_uv tilt)) \
           $(addprefix bowpal_, samplemap) \
           $(addprefix bowstr_, combined drainage fft timeseries) \
           $(addprefix bowtem_, fft locmap profiles timeseries)
