@@ -20,7 +20,7 @@ def get_velocity(method='backward'):
                                 names=columns, index_col=0,
                                 usecols=['daydate', 'time', 'lon', 'lat', 'z'],
                                 parse_dates={'date': ['daydate', 'time']})
-                    for year in [2014, 2015, 2016]])
+                    for year in [2014, 2015, 2016, 2017]])
 
     # find samples not taken at multiples of 15 min (900 sec) and remove them
     # it seems that these (18) values were recorded directly after each data gap
