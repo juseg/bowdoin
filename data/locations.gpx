@@ -44,6 +44,24 @@
     <name>B16BH3</name>
   </wpt>
 
+  <wpt lat="77.683226656" lon="-68.574849719">
+    <ele>57.506</ele>
+    <time>2017-07-14T16:54:58</time>
+    <name>B17BH1</name>
+  </wpt>
+
+  <wpt lat="77.68329165" lon="-68.574826225">
+    <ele>56.7208</ele>
+    <time>2017-07-14T16:59:04</time>
+    <name>B17BH2</name>
+  </wpt>
+
+  <wpt lat="77.681909437" lon="-68.579959922">
+    <ele>54.0724</ele>
+    <time>2017-07-14T17:25:50</time>
+    <name>B17BH3</name>
+  </wpt>
+
   <!-- Carbon samples  -->
 
   <wpt lat="77.685403078794479" lon="-68.51358306594193">
