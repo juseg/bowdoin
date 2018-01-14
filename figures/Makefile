@@ -20,8 +20,8 @@ PY_FIGS = campaign_2016 summary \
             $(addprefix summer_, 2014 2015 2016) \
             $(addprefix ts_, angvel defvel detrended gpsvel satvel satvel_uv tilt)) \
           $(addprefix bowpal_, samplemap) \
-          $(addprefix bowstr_, combined drainage fft timeseries) \
-          $(addprefix bowtem_, fft locmap profiles timeseries)
+          $(addprefix bowtem_, fft locmap profiles timeseries) \
+          $(addprefix bowtid_, combined drainage fft timeseries)
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
 # all figures
