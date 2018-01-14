@@ -1,29 +1,33 @@
 # Matplotlib configuration
 # ------------------------
 
-# Defaults are relative to mpl 1.5.1
+# Defaults are relative to mpl 2.0.0
 
 ### LINES
-lines.linewidth         : 1.0     # line width in points (default 1.0)
+lines.linewidth         : 1.0     # line width in points (default 1.5)
 lines.linestyle         : -       # -, --, -., : or tuple (default -)
-lines.color             : 0.25    # also see prop_cycle (default blue)
+lines.color             : 0.25    # also see prop_cycle (default C0)
 lines.marker            : None    # the default marker (default None)
-lines.markeredgewidth   : 0.25    # line width around marker (default 0.5)
+lines.markeredgewidth   : 1.0     # line width around marker (default 1.0)
 lines.markersize        : 4       # markersize, in points (default 6)
 
 ### PATCHES
-patch.linewidth         : 1.0     # edge width in points (default 1.0)
-patch.facecolor         : 0.75    # polygons face color (default blue)
+patch.linewidth         : 0.5     # edge width in points (default 1.0)
+patch.facecolor         : 0.75    # polygons face color (default C0)
 patch.edgecolor         : black   # polygons edge color (default black)
+
+### HATCHES
+hatch.color             : black   # hatches color (default black)
+hatch.linewidth         : 1.0     # hatches line width (default 1.0)
 
 ### FONT
 font.family             : sans-serif # serif, sans-serif, cursive, fantasy,
                                      # monospace or font name (def. sans-serif)
 font.style              : normal  # normal (or roman), italic or oblique
 font.variant            : normal  # normal or small-caps
-font.weight             : normal  # normal, bold, bolder, lighter or number
+font.weight             : medium  # normal, bold, bolder, lighter or number
 font.stretch            : normal  # not currently implemented
-font.size               : 6.0     # default font size in points (default 12.0)
+font.size               : 6.0     # default font size in points (default 10.0)
 
 ### TEXT
 text.color              : black   # text color (default black)
@@ -33,26 +37,87 @@ mathtext.default        : regular # font to use for math (default it)
 ### AXES
 axes.facecolor          : white   # axes background color (default white)
 axes.edgecolor          : black   # axes edge color (default black)
-axes.linewidth          : 1.0     # edge linewidth (default 1.0)
+axes.linewidth          : 0.5     # edge linewidth (default 0.8)
 axes.grid               : False   # display grid or not (default False)
 axes.titlesize          : medium  # fontsize of the axes title (default large)
+axes.titlepad           : 4.0     # space between axes and title (default 6.0)
 axes.labelsize          : medium  # fontsize of x and y labels (default medium)
-axes.labelpad           : 4.0     # space between label and axis (default 5.0)
+axes.labelpad           : 4.0     # space between label and axis (default 4.0)
 axes.labelweight        : normal  # weight of x and y labels (default normal)
 axes.labelcolor         : black   # color of x and y labels (default black)
-axes.axisbelow          : False   # gridlines below drawing (default False)
+axes.axisbelow          : line    # gridlines below drawing (default line)
 axes.formatter.limits   : -4, 4   # sci. not. outside range (default -7, 7)
 axes.formatter.use_mathtext : True    # mathtext for sci. not. (default False)
 axes.formatter.useoffset    : False   # tick relative to an offset (def. True)
 axes.prop_cycle: cycler('color', ['1f78b4','33a02c','e31a1c','ff7f00','6a3d9a','b15928'])
+axes.autolimit_mode     : data    # limits to data (default) or round_number
+axes.xmargin            : 0.05    # x margin (default 0.05)
+axes.ymargin            : 0.05    # y margin (default 0.05)
+
+### X-TICKS
+xtick.top               : False   # draw ticks on top side (default False)
+xtick.bottom            : True    # draw ticks on bottom side (default True)
+xtick.major.size        : 4.0     # major tick size in points (default 3.5)
+xtick.minor.size        : 2.0     # minor tick size in points (default 2)
+xtick.major.width       : 0.5     # major tick width in points (default 0.8)
+xtick.minor.width       : 0.25    # minor tick width in points (default 0.6)
+xtick.major.pad         : 2.0     # dist to tick label in points (default 3.5)
+xtick.minor.pad         : 2.0     # dist to tick label in points (default 3.4)
+xtick.color             : k       # color of the tick labels (default k)
+xtick.labelsize         : medium  # fontsize of tick labels (default medium)
+xtick.direction         : inout   # direction: in, out, or inout (default out)
+xtick.minor.visible     : False   # visibility of minor ticks (default False)
+xtick.major.top         : True    # draw x top major ticks (default True)
+xtick.major.bottom      : True    # draw x bottom major ticks (default True)
+xtick.minor.top         : True    # draw x top minor ticks (default True)
+xtick.minor.bottom      : True    # draw x bottom minor ticks (default True)
+
+### Y-TICKS
+ytick.left              : True    # draw ticks on left side (default True)
+ytick.right             : False   # draw ticks on right side (default False)
+ytick.major.size        : 4.0     # major tick size in points (default 3.5)
+ytick.minor.size        : 2.0     # minor tick size in points (default 2)
+ytick.major.width       : 0.5     # major tick width in points (default 0.8)
+ytick.minor.width       : 0.25    # minor tick width in points (default 0.6)
+ytick.major.pad         : 2.0     # dist to tick label in points (default 3.5)
+ytick.minor.pad         : 2.0     # dist to tick label in points (default 3.4)
+ytick.color             : k       # color of the tick labels (default k)
+ytick.labelsize         : medium  # fontsize of tick labels (default medium)
+ytick.direction         : inout   # direction: in, out, or inout (default out)
+ytick.minor.visible     : False   # visibility of minor ticks (default False)
+ytick.major.left        : True    # draw y left major ticks (default True)
+ytick.major.right       : True    # draw y right major ticks (default True)
+ytick.minor.left        : True    # draw y left minor ticks (default True)
+ytick.minor.right       : True    # draw y right minor ticks (default True)
 
 ### GRIDS
-grid.color              :   0.5   # grid color (default black)
-grid.linestyle          :   -     # grid style (default :)
-grid.linewidth          :   0.1   # grid width in points (default 0.5)
-grid.alpha              :   1.0   # transparency (default 1.0)
+grid.color              : 0.5      # grid color (default b0b0b0)
+grid.linestyle          : -        # grid style (default -)
+grid.linewidth          : 0.5      # grid width in points (default 0.8)
+grid.alpha              : 1.0      # transparency (default 1.0)
+
+### LEGEND
+legend.loc              : best     # location (default best)
+legend.frameon          : True     # if True, draw the legend on a background patch  (default True)
+legend.framealpha       : 0.75     # legend patch transparency (default 0.8)
+legend.facecolor        : inherit  # inherit from axes.facecolor; or color spec
+legend.edgecolor        : black    # background patch boundary color (default 0.8)
+legend.fancybox         : False    # use a rounded box (default True)
+legend.shadow           : False    # shadow effect (default False)
+legend.numpoints        : 1        # number of marker points (default 1)
+legend.scatterpoints    : 1        # number of scatter points (default 1)
+legend.markerscale      : 1.0      # relative size of markers (default 1)
+legend.fontsize         : medium   # legend font size (default medium)
+legend.borderpad        : 0.5      # border rel to fontsize (default 0.4)
+legend.labelspacing     : 0.5      # v space between entries (default 0.5)
+legend.handlelength     : 2.0      # length of the legend lines (default 2.0)
+legend.handleheight     : 1.0      # height of the legend lines (default 0.7)
+legend.handletextpad    : 0.75     # space between line and text (default 0.8)
+legend.borderaxespad    : 0.5      # space between axes and frame (default 0.5)
+legend.columnspacing    : 2.0      # column separation (default 2.0)
 
 ### FIGURE
+figure.dpi              : 254      # figure dots per inch (default 100)
 figure.figsize          : 3.346456692913386, 2.362204724409449  # 85x60mm
 figure.subplot.left     : 0.11764705882352941  #     10 / 85
 figure.subplot.right    : 0.88235294117647060  # 1 - 10 / 85
@@ -66,7 +131,7 @@ figure.max_open_warning : 1  # max open figures before warning (default 20)
 image.aspect            : equal   # equal, auto or a number (default equal)
 image.interpolation     : none    # many options (default bilinear)
 image.origin            : lower   # lower or upper (default upper)
-image.cmap              : Blues   # default colormap (default jet)
+image.cmap              : Blues   # default colormap (default viridis)
 image.composite_image   : False   # composition on mpl>=1.5 (default True)
 
 ### CONTOUR PLOTS
@@ -74,8 +139,8 @@ contour.negative_linestyle  : dashed  # dashed or solid (default dashed)
 contour.corner_mask     : True    # True, False or legacy (default True)
 
 ### SAVING FIGURES
-path.sketch             : none    # None, or e.g (1, 100, 2)
-savefig.dpi             : 254     # saved figure dots per inch (default 100)
+path.sketch             : None    # None, or e.g (1, 100, 2) (default None)
+savefig.dpi             : figure  # saved figure dots per inch (default figure)
 savefig.facecolor       : white   # saved figure facecolor (default white)
 savefig.edgecolor       : white   # saved figure edgecolor (default white)
 savefig.format          : pdf     # png, ps, pdf, svg (default png)
