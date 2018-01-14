@@ -10,11 +10,11 @@ end = '2016-07-21'
 
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)
-bh = 'upstream'
+bh = 'upper'
 
 # plot water pressure
 c = ut.palette['darkblue']
-ts = ut.io.load_data('pressure', 'wlev', 'downstream')[start:end].resample('1H').mean()
+ts = ut.io.load_data('pressure', 'wlev', 'lower')[start:end].resample('1H').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and legend
@@ -23,7 +23,7 @@ ax.set_ylabel(bh + ' water level (m)', color=c)
 ax.set_ylim(227.0, 237.0)
 ax.grid(axis='x', which='minor', ls=':', lw=0.1)
 
-# plot upstream deformation velocity
+# plot upper deformation velocity
 ax = ax.twinx()
 c = ut.palette['darkred']
 
@@ -32,7 +32,7 @@ exz = ut.io.load_strain_rate(bh, '2H')[start:end]
 depth = ut.io.load_depth('tiltunit', bh).squeeze()
 depth_base = ut.io.load_depth('pressure', bh).squeeze()
 
-# ignore two lowest units on upstream borehole
+# ignore two lowest units on upper borehole
 broken = ['unit02', 'unit03']
 depth.drop(broken, inplace=True)
 exz.drop(broken, axis='columns', inplace=True)

@@ -3,6 +3,7 @@
 
 """Data input functions."""
 
+import util as ut
 import numpy as np
 import pandas as pd
 from osgeo import gdal
@@ -59,7 +60,7 @@ def load_data(sensor, variable, borehole):
     assert sensor in ('dgps', 'pressure', 'thstring', 'tiltunit')
     assert variable in ('depth', 'mantemp', 'temp', 'tiltx', 'tilty',
                         'wlev', 'velocity')
-    assert borehole in ('downstream', 'upstream')
+    assert borehole in ut.boreholes
 
     # read data
     filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
@@ -80,7 +81,7 @@ def load_strain_rate(borehole, freq, as_angle=False):
     """Return horizontal shear strain rate from tilt at given frequency."""
 
     # check argument validity
-    assert borehole in ('downstream', 'upstream')
+    assert borehole in ut.boreholes
 
     # load tilt data
     tiltx = load_data('tiltunit', 'tiltx', borehole).resample(freq).mean()
@@ -109,7 +110,7 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
     or between two dates."""
 
     # check argument validity
-    assert borehole in ('downstream', 'upstream')
+    assert borehole in ut.boreholes
 
     # load tilt data
     tiltx = load_data('tiltunit', 'tiltx', borehole)

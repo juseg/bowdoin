@@ -13,10 +13,10 @@ exz = {bh: ut.io.load_total_strain(bh, start)[start:end] for bh in ut.boreholes}
 depth = {bh: ut.io.load_depth('tiltunit', bh).squeeze() for bh in ut.boreholes}
 depth_base = {bh: ut.io.load_depth('pressure', bh).squeeze() for bh in ut.boreholes}
 
-# ignore two lowest units on upstream borehole
+# ignore two lowest units on upper borehole
 broken = ['unit02', 'unit03']
-depth['upstream'].drop(broken, inplace=True)
-exz['upstream'].drop(broken, axis='columns', inplace=True)
+depth['upper'].drop(broken, inplace=True)
+exz['upper'].drop(broken, axis='columns', inplace=True)
 
 # concatenate and resample
 exz = pd.concat(exz, axis='columns', keys=ut.boreholes)

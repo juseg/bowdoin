@@ -6,13 +6,13 @@
 # ---------
 
 # borehole names and processed variables
-BOREHOLES = upstream downstream
+BOREHOLES = upper lower
 INC_VARS = depth temp tiltx tilty wlev
 TEM_VARS = depth temp
 PRE_VARS = depth temp wlev
 
 # processed borehole data
-GPS_FILES = processed/bowdoin-dgps-velocity-upstream.csv
+GPS_FILES = processed/bowdoin-dgps-velocity-upper.csv
 INC_FILES = $(foreach VAR, $(INC_VARS), \
               $(foreach BH, $(BOREHOLES), \
                 processed/bowdoin-tiltunit-$(VAR)-$(BH).csv))

@@ -44,10 +44,10 @@ if __name__ == '__main__':
     #fig.colorbar(im)
 
     # plot borehole and camera locations
-    kwa = dict(color=ut.colors['upstream'], marker='o')
+    kwa = dict(color=ut.colors['upper'], marker='o')
     ut.pl.add_waypoint('B14BH1', **kwa)
     ut.pl.add_waypoint('B16BH1', **kwa)
-    kwa = dict(color=ut.colors['downstream'], marker='o')
+    kwa = dict(color=ut.colors['lower'], marker='o')
     ut.pl.add_waypoint('B14BH3', text='2014', **kwa)
     ut.pl.add_waypoint('B16BH3', text='2016', **kwa)
     kwa = dict(color=ut.palette['darkorange'], marker='^')

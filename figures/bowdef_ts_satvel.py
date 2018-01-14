@@ -45,8 +45,8 @@ for i, bh in enumerate(ut.boreholes):
     depth = ut.io.load_depth('tiltunit', bh).squeeze()
     depth_base = ut.io.load_depth('pressure', bh).squeeze()
 
-    # ignore two lowest units on upstream borehole
-    if bh == 'upstream':
+    # ignore two lowest units on upper borehole
+    if bh == 'upper':
         broken = ['unit02', 'unit03']
         depth.drop(broken, inplace=True)
         exz.drop(broken, axis='columns', inplace=True)
@@ -63,7 +63,7 @@ for i, bh in enumerate(ut.boreholes):
 
 # plot GPS velocity
 c = ut.colors['dgps']
-ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
+ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('15T').mean()
 ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5, alpha=0.25)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 
@@ -72,7 +72,7 @@ kwa = dict(fontweight='bold', ha='center', va='center')
 ax.text('20150801', 600, 'GPS', color=ut.colors['dgps'], **kwa)
 ax.text('20150501', 250, 'Landsat', color=ut.palette['darkorange'], **kwa)
 ax.text('20160201', 450, 'Sentinel-1', color=ut.palette['darkpurple'], **kwa)
-ax.text('20150201', 100, 'Boreholes', color=ut.colors['upstream'], **kwa)
+ax.text('20150201', 100, 'Boreholes', color=ut.colors['upper'], **kwa)
 
 # add field campaigns
 ut.pl.plot_campaigns(ax)

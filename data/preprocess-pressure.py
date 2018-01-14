@@ -4,8 +4,8 @@ import datetime
 import numpy as np
 import pandas as pd
 
-loggers = {'downstream': 'drucksens073303',
-           'upstream':   'drucksens094419'}
+loggers = {'lower': 'drucksens073303',
+           'upper': 'drucksens094419'}
 columns = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
 
 

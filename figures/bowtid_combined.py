@@ -28,8 +28,8 @@ ut.pl.plot_campaigns(ax)
 
 # add labels
 kwa = dict(fontweight='bold', ha='left', va='center')
-ax.text('20141001', 235, 'downstream water level', color=ut.colors['downstream'], **kwa)
-ax.text('20140901', 200, 'upstream water level', color=ut.colors['upstream'], **kwa)
+ax.text('20141001', 235, 'lower water level', color=ut.colors['lower'], **kwa)
+ax.text('20140901', 200, 'upper water level', color=ut.colors['upper'], **kwa)
 ax.set_ylabel('water level (m)', color=ut.palette['darkblue'], **kwa)
 
 # add twin axes
@@ -37,7 +37,7 @@ ax = ax.twinx()
 
 # plot GPS velocity
 c = ut.colors['dgps']
-ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('15T').mean()
+ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('15T').mean()
 ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 

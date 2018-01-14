@@ -3,7 +3,7 @@
 
 def cal_temperature(temp, depth, borehole):
     """
-    Recalibrate downstream temperature to zero degrees.
+    Recalibrate lower temperature to zero degrees.
     """
     return temp + melt_offset(temp, depth, borehole)
 
@@ -11,14 +11,14 @@ def cal_temperature(temp, depth, borehole):
 def melt_offset(temp, depth, borehole):
     """
     Return offset between measured temp and melting point.
-    Unfortunately initial upstream data were lost.
+    Unfortunately initial upper data were lost.
     """
 
     # check argument validity
-    assert borehole in ('downstream', 'upstream')
+    assert borehole in ('lower', 'upper')
 
     # compute offset to melting point
-    if borehole == 'downstream':
+    if borehole == 'lower':
         if 'temp01' in depth:
             depth['temp01'] = 243.849292443  # FIXME: move this to preproc
         melt = melting_point(depth.iloc[0])  # FIXME: find nearest date

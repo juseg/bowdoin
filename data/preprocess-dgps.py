@@ -61,4 +61,4 @@ def get_velocity(method='backward'):
 
 # preprocess gps data
 df = get_velocity()
-df.to_csv('processed/bowdoin-dgps-velocity-upstream.csv')
+df.to_csv('processed/bowdoin-dgps-velocity-upper.csv')

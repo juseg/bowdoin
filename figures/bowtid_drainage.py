@@ -12,7 +12,7 @@ end = '2016-06-15'
 fig, ax = plt.subplots(1, 1, sharex=True)
 
 # plot water level
-bh = 'downstream'
+bh = 'lower'
 c = ut.colors[bh]
 
 # plot pressure sensor water level
@@ -23,9 +23,9 @@ ts.plot(ax=ax, c=c, legend=False)
 ax.set_ylabel('water level (m)', color=c)
 ax.set_ylim(200.0, 225.0)
 
-# plot upstream angular velocities
+# plot upper angular velocities
 ax = ax.twinx()
-bh = 'upstream'
+bh = 'upper'
 c = ut.colors[bh]
 
 # read tilt unit tilt

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import util as ut
 
-loggers = {'downstream': 'BOWDOIN-1',
-           'upstream':   'BOWDOIN-2'}
+loggers = {'lower': 'BOWDOIN-1',
+           'upper':   'BOWDOIN-2'}
 instruments = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
 input_instruments = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
 output_instruments = ['ixr', 'iyr', 'p', 'tp', 't']
@@ -98,11 +98,11 @@ def extract_wlev_depth(df):
     """Return water level and unit depths."""
 
     # observed water depths
-    if bh == 'downstream':
+    if bh == 'lower':
         observ_date = '2014-07-22 23:40:00'
         water_depth = 0.0
         chain_design = [0.0, 10.0, 20.0, 40.0, 50.0][2:]
-    if bh == 'upstream':
+    if bh == 'upper':
         observ_date = '2014-07-17 16:15:00'  # assumed
         water_depth = 48.0  # 46 m in pressure borehole, 48 m in tilt
         chain_design = [0.0, 7.0, 10.0, 15.0, 25.0, 35.0, 50.0][1:]
@@ -115,8 +115,8 @@ def extract_wlev_depth(df):
     tiltunit_depth = tiltunit_wlev.loc[observ_date].squeeze() + water_depth
 
     # calibration interval
-    calint = {'upstream':   ['2014-07-18', '2014-07-24'],
-              'downstream': ['2014-07-29', '2014-08-04']}[bh]
+    calint = {'upper':   ['2014-07-18', '2014-07-24'],
+              'lower': ['2014-07-29', '2014-08-04']}[bh]
 
     # open preprocessed pressure sensor water level as a reference
     pressure_wlev = pd.read_csv('processed/bowdoin-pressure-wlev-%s.csv' % bh,

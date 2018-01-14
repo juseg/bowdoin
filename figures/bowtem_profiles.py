@@ -8,8 +8,8 @@ import util as ut
 
 
 # dates to plot
-dates = dict(upstream=['2015-01-01', '2016-07-12'],
-             downstream=['2015-01-01', '2015-11-12', '2016-07-19'])
+dates = dict(upper=['2015-01-01', '2016-07-12'],
+             lower=['2015-01-01', '2015-11-12', '2016-07-19'])
 styles = ['-', ':', ':']
 
 # markers per sensor type

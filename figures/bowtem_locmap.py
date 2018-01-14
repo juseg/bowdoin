@@ -26,11 +26,11 @@ if __name__ == '__main__':
     ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 
     # plot borehole and camera locations
-    kwa = dict(color=ut.colors['upstream'], marker='o')
+    kwa = dict(color=ut.colors['upper'], marker='o')
     ut.pl.add_waypoint('B14BH1', **kwa)
     ut.pl.add_waypoint('B16BH1', **kwa)
     ut.pl.add_waypoint('B17BH1', **kwa)
-    kwa = dict(color=ut.colors['downstream'], marker='o')
+    kwa = dict(color=ut.colors['lower'], marker='o')
     ut.pl.add_waypoint('B14BH3', text='2014', **kwa)
     ut.pl.add_waypoint('B16BH3', text='2016', **kwa)
     ut.pl.add_waypoint('B17BH3', text='2017', **kwa)

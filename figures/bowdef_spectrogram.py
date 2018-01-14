@@ -14,7 +14,7 @@ end = '2015-09'
 fig, grid = ut.pl.subplots_mm(2, 1, right=15.0, sharex=True)
 
 # select one borehole
-bh = 'upstream'
+bh = 'upper'
 c = ut.colors[bh]
 
 # load data
@@ -22,8 +22,8 @@ exz = ut.io.load_strain_rate(bh, '2H')[start:end]
 depth = ut.io.load_depth('tiltunit', bh).squeeze()
 depth_base = ut.io.load_depth('pressure', bh).squeeze()
 
-# ignore two lowest units on upstream borehole
-if bh == 'upstream':
+# ignore two lowest units on upper borehole
+if bh == 'upper':
     broken = ['unit02', 'unit03']
     depth.drop(broken, inplace=True)
     exz.drop(broken, axis='columns', inplace=True)

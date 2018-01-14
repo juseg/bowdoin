@@ -11,7 +11,7 @@ EXT = pdf
 # python executable
 PY = python2
 
-# all python figures (broken bowdef_ts_satvel bowdef_ts_satvel_uv)
+# all python figures
 PY_FIGS = campaign_2016 summary \
           $(addprefix bowdef_, profiles spectrogram \
             $(addprefix fft_, gpsv tilt) \

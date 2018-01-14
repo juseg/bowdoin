@@ -21,7 +21,7 @@ colorvals = plt.get_cmap('Paired', 12)(range(12))
 palette = dict(zip(colorkeys, colorvals))
 
 # borehole properties
-boreholes = ['upstream', 'downstream']
-colors = {'downstream': palette['darkblue'],
-          'upstream': palette['darkred'],
+boreholes = ['upper', 'lower']
+colors = {'lower': palette['darkblue'],
+          'upper': palette['darkred'],
           'dgps': palette['darkgreen']}

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import util as ut
 
-loggers = {'downstream': 'Th-Bowdoin-1',
-           'upstream':   'Th-Bowdoin-2'}
+loggers = {'lower': 'Th-Bowdoin-1',
+           'upper':   'Th-Bowdoin-2'}
 columns = ['temp%02d' % (i+1) for i in range(16)]
 
 
@@ -18,8 +18,8 @@ def get_temperature(log, manual=False):
     ifilename = 'original/temperature/%s_%s.dat' % (log, postfix)
 
     # read rearranged calibration coefficients
-    # sensor order downstream: BH2A[1-9] + BH2B[1-7],
-    #                upstream: BH1A[1-9] + BH1B[1-4,7,5-6].
+    # sensor order lower: BH2A[1-9] + BH2B[1-7],
+    #              upper: BH1A[1-9] + BH1B[1-4,7,5-6].
     a1, a2, a3 = np.loadtxt(cfilename, unpack=True)
 
     # read resistance data
@@ -45,17 +45,17 @@ def get_depth(bh):
 
     # Measured surfacing cable lenghts
     # * Th-Bowdoin-2: BH1A 2015-07-18 12:30, 19.70 m to 275 m mark
-    #   (upstream)         2016-07-19 11:45, 21.60 m to 275 m mark
+    #   (upper)            2016-07-19 11:45, 21.60 m to 275 m mark
     #                 BH1B 2015-07-18 12:30, 13.40 m to sensor 7
     #                      2016-07-19 11:45, 15.30 m to sensor 7
     #
     # * Th-Bowdoin-1: BH2A 2015-07-18 14:30, 7.30 m to 250 m mark
-    #   (downstream)       2016-07-19 13:20, 9.70 m to 250 m mark
+    #   (lower)            2016-07-19 13:20, 9.70 m to 250 m mark
     #                 BH2B 2015-07-18 14:30, 11.25 m to sensor 6
     #                      2016-07-19 13:20, 13.65 m to sensor 6
 
     # calculate sensor depths
-    if bh == 'downstream':
+    if bh == 'lower':
         date = '2015-07-18 14:30'
         bottom = 7.30 - 250.0
         top =  11.25 + 20.0
@@ -63,7 +63,7 @@ def get_depth(bh):
         upper = top + 20.0*np.arange(-6, 1)
         gap = upper[0] - lower[-1]
         lower += gap - 20.0 # according to conny
-    if bh == 'upstream':
+    if bh == 'upper':
         date = '2015-07-18 12:30'
         bottom = 19.70 - 275.0
         top =  13.40 + 0.0

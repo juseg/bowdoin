@@ -41,7 +41,7 @@ tsax.text(0.05, 0.88, '(c)', fontweight='bold', transform=tsax.transAxes)
 start = '2014-11-01'
 end = '2015-11-01'
 
-# plot upstream temperature profile
+# plot upper temperature profile
 ax = grid[0]
 bh = ut.boreholes[0]
 c = ut.colors[bh]
@@ -86,7 +86,7 @@ ax.set_ylim(270.0, 0.0)
 ax.set_ylabel('depth (m)')
 ax.set_title(u'ice temperature (°C)')
 
-# plot upstream tilt profile
+# plot upper tilt profile
 ax = grid[1]
 
 # read data values
@@ -102,7 +102,7 @@ ut.pl.plot_vsia_profile(tilt_depth, exz, base_depth, ax=ax, c=c, annotate=False)
 ax.set_xlim(32.5, 0.0)
 ax.set_title(r'ice deformation (m a$^{-1}$)')
 
-# plot downstream water level time series
+# plot lower water level time series
 ax = tsax
 bh = ut.boreholes[0]
 c = ut.colors[bh]
@@ -116,7 +116,7 @@ ax.locator_params(axis='y', nbins=6)
 # plot GPS velocity
 ax = ax.twinx()
 c = ut.colors['dgps']
-ts = ut.io.load_data('dgps', 'velocity', 'upstream')['vh'].resample('12H').mean()
+ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('12H').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and set limits

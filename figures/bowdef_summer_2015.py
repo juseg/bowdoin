@@ -21,9 +21,9 @@ ax.axhline(0.0, c='k', lw=0.5)
 ax.set_ylabel(u'Qaanaaq ice cap air temp. (°C)', color=c)
 ax.set_ylim(-10.0, 40.0)
 
-# plot upstream deformation velocity
+# plot upper deformation velocity
 ax = ax.twinx()
-bh = 'upstream'
+bh = 'upper'
 c = ut.colors[bh]
 
 # load data
@@ -31,7 +31,7 @@ exz = ut.io.load_strain_rate(bh, '3H')[start:end]
 depth = ut.io.load_depth('tiltunit', bh).squeeze()
 depth_base = ut.io.load_depth('pressure', bh).squeeze()
 
-# ignore two lowest units on upstream borehole
+# ignore two lowest units on upper borehole
 broken = ['unit02', 'unit03']
 depth.drop(broken, inplace=True)
 exz.drop(broken, axis='columns', inplace=True)

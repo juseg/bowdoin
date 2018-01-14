@@ -67,7 +67,7 @@ if __name__ == '__main__':
     ax.text(-605000, -1250000, 'Qaanaaq', color=c, **kwa)
 
     # plot borehole locations
-    c = ut.colors['upstream']
+    c = ut.colors['upper']
     ax = grid[2]
     ut.pl.add_waypoint('B14BH3', ax=ax, color=c)
     ut.pl.add_waypoint('B16BH3', ax=ax, color=c)
