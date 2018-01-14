@@ -130,11 +130,8 @@ def extract_wlev_depth(df):
     # the mean difference gives the pressure sensor depth
     pressure_depth = tiltunit_depth.iloc[0] + diff.mean()
 
-    # reconstruct unit height from all depths
-    tiltunit_height = diff.mean() + tiltunit_depth.iloc[0] - tiltunit_depth
-
-    # calibrate water level
-    tiltunit_wlev = tiltunit_wlev + tiltunit_height
+    # calibrate tilt unit water level
+    #tiltunit_wlev += pressure_depth - tiltunit_depth
 
     # return calibrated water level and sensor depths as dataframes
     tiltunit_depth = pd.DataFrame([tiltunit_depth])
