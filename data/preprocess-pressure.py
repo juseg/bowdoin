@@ -27,5 +27,7 @@ for bh, log in loggers.iteritems():
 
     # write csv files
     for var in ['temp', 'wlev']:
-        df[var].to_csv('processed/bowdoin-pressure-%s-%s.csv' % (var, bh),
-                       header=True)
+        ts = df[var]
+        ts.name = bh[0].upper() + 'P'
+        ts.to_csv('processed/bowdoin-pressure-%s-%s.csv' % (var, bh),
+                  header=True)

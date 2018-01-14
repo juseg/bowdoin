@@ -60,9 +60,9 @@ for i, bh in enumerate(ut.boreholes):
                 cols = [s for s in temp.index if s.startswith(sensor)]
                 ax.plot(temp[cols], depth[cols], marker, c=ut.colors[bh])
 
-    # add base line
-    ax.plot([temp['temp01']-0.5, temp['temp01']+0.5],
-            [depth['temp01'], depth['temp01']], c='k')
+    # add base line  # FIXME UI02 is lower than that
+    #ax.plot([temp['temp01']-0.5, temp['temp01']+0.5],
+    #        [depth['temp01'], depth['temp01']], c='k')
 
     # compute maximum depth
     base_depth = max(base_depth, pres_depth.squeeze())

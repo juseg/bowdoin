@@ -5,7 +5,7 @@ import pandas as pd
 import util as ut
 
 loggers = {'lower': 'BOWDOIN-1',
-           'upper':   'BOWDOIN-2'}
+           'upper': 'BOWDOIN-2'}
 instruments = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
 input_instruments = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
 output_instruments = ['ixr', 'iyr', 'p', 'tp', 't']
@@ -19,7 +19,7 @@ def floatornan(x):
         return np.nan
 
 
-def splitstrings(ts):
+def splitstrings(bh, ts):
     """Split series of data strings into multi-column data frame."""
 
     # split data strings into new multi-column dataframe and fill with NaN
@@ -27,7 +27,7 @@ def splitstrings(ts):
     df.fillna(value=np.nan, inplace=True)
 
     # rename columns
-    unitname = 'unit%02d' % int(ts.name[4:-1])
+    unitname = bh[0].upper() + 'I%02d' % int(ts.name[-2:-1])
     df.columns = [instruments, [unitname]*len(instruments)]
 
     # replace nan values by nan
@@ -42,8 +42,7 @@ def splitstrings(ts):
     return df
 
 
-
-def get_data(log):
+def get_data(bh, log):
     """Return data values in a data frame."""
 
     # input file names
@@ -63,7 +62,7 @@ def get_data(log):
     rescols = [col for col in rescols if not idf[col].isnull().all()]
 
     # split remaining columns into new dataframe
-    odf = pd.concat([splitstrings(idf[col]) for col in rescols], axis=1)
+    odf = pd.concat([splitstrings(bh, idf[col]) for col in rescols], axis=1)
 
     # return filled dataframe
     return odf
@@ -115,7 +114,7 @@ def extract_wlev_depth(df):
     tiltunit_depth = tiltunit_wlev.loc[observ_date].squeeze() + water_depth
 
     # calibration interval
-    calint = {'upper':   ['2014-07-18', '2014-07-24'],
+    calint = {'upper': ['2014-07-18', '2014-07-24'],
               'lower': ['2014-07-29', '2014-08-04']}[bh]
 
     # open preprocessed pressure sensor water level as a reference
@@ -135,7 +134,7 @@ def extract_wlev_depth(df):
 
     # return calibrated water level and sensor depths as dataframes
     tiltunit_depth = pd.DataFrame([tiltunit_depth])
-    pressure_depth = pd.DataFrame(columns=['depth'],
+    pressure_depth = pd.DataFrame(columns=[bh[0].upper() + 'P'],
                                   index=[observ_date],
                                   data=[pressure_depth])
     tiltunit_depth.index = tiltunit_depth.index.rename('date')
@@ -147,7 +146,7 @@ def extract_wlev_depth(df):
 for bh, log in loggers.iteritems():
 
     # get all data
-    df = get_data(log)
+    df = get_data(bh, log)
 
     # extract water level and sensor depth
     tu_wlev, tu_depth, pr_depth = extract_wlev_depth(df)

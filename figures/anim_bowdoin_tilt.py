@@ -14,7 +14,7 @@ depth = {bh: ut.io.load_depth('tiltunit', bh).squeeze() for bh in ut.boreholes}
 depth_base = {bh: ut.io.load_depth('pressure', bh).squeeze() for bh in ut.boreholes}
 
 # ignore two lowest units on upper borehole
-broken = ['unit02', 'unit03']
+broken = ['UI02', 'UI03']
 depth['upper'].drop(broken, inplace=True)
 exz['upper'].drop(broken, axis='columns', inplace=True)
 

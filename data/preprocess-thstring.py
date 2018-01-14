@@ -5,11 +5,11 @@ import pandas as pd
 import util as ut
 
 loggers = {'lower': 'Th-Bowdoin-1',
-           'upper':   'Th-Bowdoin-2'}
+           'upper': 'Th-Bowdoin-2'}
 columns = ['temp%02d' % (i+1) for i in range(16)]
 
 
-def get_temperature(log, manual=False):
+def get_temperature(bh, log, manual=False):
     """Return calibrated temperature in a data frame."""
 
     # input file names
@@ -34,7 +34,8 @@ def get_temperature(log, manual=False):
 
     # rename index and columns
     df.index = df.index.rename('date')
-    df.columns = columns
+    df.columns = [bh[0].upper() + 'T%02d' % (i+1) for i in range(16)]
+
 
     # return as dataframe
     return df
@@ -84,6 +85,7 @@ def get_depth(bh):
     depth[0] = base - melt
 
     # return as a pandas data series
+    columns = [bh[0].upper() + 'T%02d' % (i+1) for i in range(16)]
     df = pd.DataFrame(index=[date], columns=columns, data=[depth])
     df.index = df.index.rename('date')
     return df
@@ -100,13 +102,13 @@ for bh, log in loggers.iteritems():
     # preprocess data logger temperatures
     # FIXME: depth was measured in 2015, temp in 2014
     filename = 'processed/bowdoin-thstring-temp-%s.csv' % bh
-    temp = get_temperature(log)
+    temp = get_temperature(bh, log)
     moff = ut.melt_offset(temp, depth, bh)
     temp += moff
     temp.to_csv(filename)
 
     # preprocess manual temperatures
     filename = 'processed/bowdoin-thstring-mantemp-%s.csv' % bh
-    temp = get_temperature(log, manual=True)
+    temp = get_temperature(bh, log, manual=True)
     #temp += moff
     temp.to_csv(filename)
