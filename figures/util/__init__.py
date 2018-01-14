@@ -9,6 +9,10 @@ import al
 import io
 import pl
 
+# temporary fix for https://github.com/pydata/xarray/issues/1661
+from pandas.tseries import converter
+converter.register()
+
 # build color brewer Paired palette
 colorkeys = [tone+hue
              for hue in ('blue', 'green', 'red', 'orange', 'purple', 'brown')
