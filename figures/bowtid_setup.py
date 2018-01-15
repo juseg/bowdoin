@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # coding: utf-8
 
-import matplotlib.pyplot as plt
 import util as ut
 
 distances = {'U':2.0, 'L':1.85}
