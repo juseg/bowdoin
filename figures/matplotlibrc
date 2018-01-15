@@ -49,7 +49,7 @@ axes.axisbelow          : line    # gridlines below drawing (default line)
 axes.formatter.limits   : -4, 4   # sci. not. outside range (default -7, 7)
 axes.formatter.use_mathtext : True    # mathtext for sci. not. (default False)
 axes.formatter.useoffset    : False   # tick relative to an offset (def. True)
-axes.prop_cycle: cycler('color', ['1f78b4','33a02c','e31a1c','ff7f00','6a3d9a','b15928'])
+#axes.prop_cycle: cycler('color', ['1f78b4','33a02c','e31a1c','ff7f00','6a3d9a','b15928'])
 axes.autolimit_mode     : data    # limits to data (default) or round_number
 axes.xmargin            : 0.05    # x margin (default 0.05)
 axes.ymargin            : 0.05    # y margin (default 0.05)
