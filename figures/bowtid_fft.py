@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 # coding: utf-8
 
-import numpy as np
-import matplotlib.pyplot as plt
 import util as ut
+import numpy as np
 
 # initialize figure
 fig, grid = ut.pl.subplots_mm(figsize=(85.0, 65.0), nrows=3, ncols=3,
