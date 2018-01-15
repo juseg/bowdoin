@@ -81,6 +81,19 @@ def load_depth(sensor, borehole):
     return df
 
 
+def load_bowtid_depth():
+    ts = ut.io.load_depth('tiltunit', 'both').sort_index(ascending=False)
+    ts.index = [c[0::3] for c in ts.index]
+    return ts
+
+
+def load_bowtid_data(var):
+    df = ut.io.load_data('tiltunit', var, 'both')
+    df = df.sort_index(axis=1, ascending=False)
+    df.columns = [c[0::3] for c in df.columns]
+    return df
+
+
 def load_strain_rate(borehole, freq, as_angle=False):
     """Return horizontal shear strain rate from tilt at given frequency."""
 

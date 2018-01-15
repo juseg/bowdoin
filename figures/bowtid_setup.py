@@ -11,11 +11,11 @@ fig, ax = ut.pl.subplots_mm(figsize=(85.0, 60.0),
                             left=12.0, right=1.5, bottom=9.0, top=1.5)
 
 # plot tilt unit depths
-z = ut.io.load_depth('tiltunit', 'both')
+z = ut.io.load_bowtid_depth()
 for u in z.index:
     x = distances[u[0]]
     ax.plot(x, z[u], marker='s')
-    ax.text(x+0.01, z[u], u[0::3], va='center')
+    ax.text(x+0.01, z[u], u, va='center')
 
 # add base line
 zp = ut.io.load_depth('pressure', 'both')
