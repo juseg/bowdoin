@@ -4,25 +4,24 @@
 import matplotlib.pyplot as plt
 import util as ut
 
-distances = [2.0, 1.85]
+distances = {'U':2.0, 'L':1.85}
 
 # initialize figure
-fig, ax = plt.subplots(1, 1, sharey=True)  # FIXME: use iceplotlib subplots
+fig, ax = ut.pl.subplots_mm(figsize=(85.0, 60.0),
+                            left=12.0, right=1.5, bottom=9.0, top=1.5)
 
-# for each borehole
-for i, bh in enumerate(ut.boreholes):
-    x = distances[i]
+# plot tilt unit depths
+z = ut.io.load_depth('tiltunit', 'both')
+for u in z.index:
+    x = distances[u[0]]
+    ax.plot(x, z[u], marker='s')
+    ax.text(x+0.01, z[u], u[0::3], va='center')
 
-    z = ut.io.load_data('tiltunit', 'depth', bh)
-    # plot tilt unit locations
-    for u in z:
-        label = bh[0].upper() + u[-1]  # FIXME: move to preprocessing
-        ax.plot(x, z[u], marker='s', label=label)
-        ax.text(x+0.01, z[u], label, va='center')
-
-    # add base line
-    b = ut.io.load_depth('pressure', bh).squeeze()
-    b = max(b, z.squeeze().max())
+# add base line
+zp = ut.io.load_depth('pressure', 'both')
+for u in zp.index:
+    x = distances[u[0]]
+    b = max(zp[u], z[z.index.str.startswith(u[0])].max())
     ax.plot([x, x], [b, 0.0], 'k-_')
 
 # add flow direction arrow
@@ -33,7 +32,7 @@ ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
 
 # set axes properties
 ax.set_xlim(1.75, 2.15)
-ax.set_xticks(distances)
+ax.set_xticks(distances.values())
 ax.set_xlabel('approximate distance from front in 2014 (km)')
 ax.set_ylabel('depth (m)')
 ax.invert_yaxis()

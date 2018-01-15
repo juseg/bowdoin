@@ -60,20 +60,24 @@ def load_data(sensor, variable, borehole):
     assert sensor in ('dgps', 'pressure', 'thstring', 'tiltunit')
     assert variable in ('depth', 'mantemp', 'temp', 'tiltx', 'tilty',
                         'wlev', 'velocity')
-    assert borehole in ut.boreholes
+    assert borehole in ('both', 'lower', 'upper')
 
     # read data
-    filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
-                % (sensor, variable, borehole))
-    df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    if borehole in ut.boreholes:
+        filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
+                    % (sensor, variable, borehole))
+        df = pd.read_csv(filename, parse_dates=True, index_col='date')
+    elif borehole == 'both':
+        dfu = ut.io.load_data(sensor, variable, 'upper')
+        dfl = ut.io.load_data(sensor, variable, 'lower')
+        df = pd.concat([dfl, dfu])
     return df
-
 
 def load_depth(sensor, borehole):
     """Return sensor depths in a data series."""
 
     # read data as a series
-    df = load_data(sensor, 'depth', borehole).iloc[0]
+    df = load_data(sensor, 'depth', borehole).mean()
     return df
 
 
