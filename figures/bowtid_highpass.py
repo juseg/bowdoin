@@ -4,10 +4,12 @@
 import util as ut
 import numpy as np
 from scipy import signal
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(figsize=(85.0, 65.0),
-                            left=12.0, right=1.5, bottom=9.0, top=1.5)
+fig, grid = ut.pl.subplots_mm(figsize=(150.0, 80.0), nrows=1, ncols=2,
+                              sharex=False, sharey=True, wspace=7.5,
+                              left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # prepare filter
 n = 2  # filter order
@@ -26,12 +28,23 @@ for i, u in enumerate(p):
     ts[:] = signal.filtfilt(b, a, ts) + 10 - i
 
     # plot
-    ts.plot(ax=ax)
+    for ax in grid:
+        ts.plot(ax=ax)
 
 # set axes properties
-ax.set_ylim(1.0, 11.0)
-ax.set_ylabel('pressure head (m w.e.)')
-ax.legend(ncol=3)
+grid[0].set_ylim(1.0, 11.0)
+grid[0].set_ylabel('pressure head (m w.e.)')
+grid[0].legend(ncol=3, loc='lower right')
+
+# set up zoom
+x0, x1 = '20140901', '20141001'  # zoom with all sensors, L3 not frozen
+#x0, x1 = '20140910', '20140915'  # zoom on phase, L3 not frozen
+#x0, x1 = '20141120', '20141125'  # zoom phase, U2 and U2 lost
+#x0, x1 = '20150101', '20150201'  # zoom on 14-day modulation, 2 cycles
+#x0, x1 = '20150901', '20151101'  # zoom on 14-day modulation, 4 cycles
+#x0, x1 = '20150601', '20150715'  # zoom on summer, more complicated
+grid[1].set_xlim(x0, x1)
+mark_inset(grid[0], grid[1], loc1=2, loc2=3, ec='0.5', ls='--')
 
 # save
 ut.pl.savefig(fig)
