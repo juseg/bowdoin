@@ -4,14 +4,13 @@
 import util as ut
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(figsize=(85.0, 65.0), nrows=9, ncols=1,
-                              sharex=True, sharey=True, hspace=1.5, wspace=1.5,
-                              left=12.0, right=1.5, bottom=9.0, top=1.5)
+fig, grid = ut.pl.subplots_mm(figsize=(150.0, 80.0), nrows=9, ncols=2,
+                              sharex='col', sharey=True, wspace=7.5, hspace=2.5,
+                              left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')
 for i, u in enumerate(p):
-    ax = grid.flat[i]
     c = 'C%d' % i
 
     # extract time steps
@@ -20,15 +19,21 @@ for i, u in enumerate(p):
     ts = ts[1:].resample('1H').mean()  # resample to get a nice date axis
 
     # plot
-    ts.plot(ax=ax, c=c)
+    for ax in grid[i]:
+        ts.plot(ax=ax, c=c)
 
     # add corner tag
-    ax.text(0.95, 0.2, u, color=c, transform=ax.transAxes)
-    ax.set_yticks([0, 2])
-    ax.set_ylim(-0.5, 2.5)
+    grid[i, 0].text(0.95, 0.2, u, color=c, transform=grid[i, 0].transAxes)
+    grid[i, 0].set_yticks([0, 2])
+    grid[i, 0].set_ylim(-0.5, 2.5)
+
+    # set up zoom
+    x0, x1 = ['20141101', '20141201']
+    grid[i, 1].set_xlim(x0, x1)
+    grid[i, 0].axvspan(x0, x1, ec='0.5', fc='none', ls='--')
 
 # set y label
-grid[4].set_ylabel('time step (h)')
+grid[4, 0].set_ylabel('time step (h)')
 
 # save
 ut.pl.savefig(fig)
