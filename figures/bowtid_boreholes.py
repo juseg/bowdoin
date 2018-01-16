@@ -2,12 +2,71 @@
 # coding: utf-8
 
 import util as ut
+import numpy as np
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
 
-distances = {'U':2.0, 'L':1.85}
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(figsize=(85.0, 60.0),
-                            left=12.0, right=1.5, bottom=9.0, top=1.5)
+# -----------------
+
+# projections and map boundaries
+ll = ccrs.PlateCarree()
+utm = ccrs.UTM(19)
+reg = 508e3, 512e3, 8620e3, 8626e3
+
+# initialize figure
+figw, figh = 150.0, 80.0
+fig = plt.figure(figsize=(figw/25.4, figh/25.4))
+ax1 = fig.add_axes([2.5/figw, 2.5/figh, 50.0/figw, 1-5.0/figh], projection=utm)
+ax2 = fig.add_axes([62.5/figw, 7.5/figh, 85.0/figw, 1-10.0/figh])
+
+
+# map axes
+# --------
+
+ax = ax1
+
+# initialize figure
+#fig = plt.figure()
+#ax = fig.add_axes([0, 0, 1, 1], projection=utm)
+ax.set_rasterization_zorder(2.5)
+ax.set_extent(reg, crs=utm)
+
+# plot image data
+filename = '../data/external/S2A_20160808_175915_456_RGB.jpg'
+data, extent = ut.io.open_gtif(filename)
+data = np.moveaxis(data, 0, 2)
+ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
+
+# plot borehole and camera locations
+kwa = dict(ax=ax, color='C0', marker='o')
+ut.pl.add_waypoint('B14BH1', text='2014', **kwa)
+ut.pl.add_waypoint('B16BH1', text='2016', **kwa)
+ut.pl.add_waypoint('B17BH1', text='2017', **kwa)
+kwa = dict(ax=ax, color='C6', marker='o')
+ut.pl.add_waypoint('B14BH3', **kwa)
+ut.pl.add_waypoint('B16BH3', **kwa)
+ut.pl.add_waypoint('B17BH3', **kwa)
+kwa = dict(ax=ax, color='C1', marker='^')
+ut.pl.add_waypoint('Camera Upper', **kwa)
+ut.pl.add_waypoint('Camera Lower', text='Camera', **kwa)
+kwa = dict(ax=ax, color='C3', marker='^')
+ut.pl.add_waypoint('Tent Swiss', text='Camp', **kwa)
+#ut.pl.add_waypoint('Camp Hill', text='Hill', **kwa)
+
+# add scale
+ax.plot([508.25e3, 509.25e3], [8620.25e3]*2, 'w|-')
+ax.text(508.75e3, 8620.4e3, '1km', color='w', ha='center', fontweight='bold')
+
+
+# distance axes
+# -------------
+
+ax = ax2
+
+# arbitrary borehole distances
+distances = {'U':2.0, 'L':1.85}
 
 # plot tilt unit depths
 z = ut.io.load_bowtid_depth()
