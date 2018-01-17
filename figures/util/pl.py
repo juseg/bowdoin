@@ -387,8 +387,8 @@ def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
 
 
 # Saving figures
-def savefig(fig=None):
+def savefig(fig=None, suffix=''):
     """Save figure to script filename."""
     fig = fig or plt.gcf()
-    res = fig.savefig(os.path.splitext(sys.argv[0])[0])
+    res = fig.savefig(os.path.splitext(sys.argv[0])[0]+suffix)
     return res
