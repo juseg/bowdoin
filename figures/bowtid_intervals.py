@@ -2,10 +2,11 @@
 # coding: utf-8
 
 import util as ut
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 # initialize figure
 fig, grid = ut.pl.subplots_mm(figsize=(150.0, 80.0), nrows=9, ncols=2,
-                              sharex='col', sharey=True, wspace=7.5, hspace=2.5,
+                              sharex='col', sharey=True, wspace=2.5, hspace=2.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # for each tilt unit
@@ -30,7 +31,7 @@ for i, u in enumerate(p):
     # set up zoom
     x0, x1 = ['20141101', '20141201']
     grid[i, 1].set_xlim(x0, x1)
-    grid[i, 0].axvspan(x0, x1, ec='0.5', fc='none', ls='--')
+    mark_inset(grid[i, 0], grid[i, 1], loc1=2, loc2=3, ec='0.5', ls='--')
 
 # set y label
 grid[4, 0].set_ylabel('time step (h)')
