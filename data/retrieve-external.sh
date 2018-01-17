@@ -30,7 +30,7 @@ dest=$(basename $orig)
 #dest=$(basename $orig)
 #[ -f "$dest" ] || scp $orig $dest
 
-geodata="ogive:/scratch_net/ogive_second/juliens/geodata"
+geodata="iceberg:/scratch_net/iceberg_second/juliens/geodata"
 s2adata="$geodata/satellite/sentinel-2a"
 
 # Greenland gravimetric mass balance (GMB) grids
@@ -39,7 +39,7 @@ dest=$(basename $orig)
 [ -f "$dest" ] || scp $orig $dest
 
 # Yvo's DEM
-orig="ogive:/usr/itetnas01/data-vaw-01/glazioarch/GlacioProject/bowdoin/\
+orig="iceberg:/usr/itetnas01/data-vaw-01/glazioarch/GlacioProject/bowdoin/\
 bowdoin_2015/GIS/Data/DSM/bowdoin_20100904_15m_20140929.tif"
 dest="$(basename $orig)"
 [ -f "$dest" ] || scp $orig $dest
