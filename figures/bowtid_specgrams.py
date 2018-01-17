@@ -9,7 +9,7 @@ import matplotlib.colors as mcolors
 
 
 # initialize figure
-figw, figh = 150.0, 80.0
+figw, figh = 150.0, 75.0
 fig, grid = ut.pl.subplots_mm(figsize=(figw, figh), nrows=9, ncols=1,
                               sharex=True, sharey=False, hspace=2.5,
                               left=10.0, right=15.0, bottom=10.0, top=2.5)

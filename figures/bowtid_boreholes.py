@@ -16,7 +16,7 @@ utm = ccrs.UTM(19)
 reg = 508e3, 512e3, 8620e3, 8626e3
 
 # initialize figure
-figw, figh = 150.0, 80.0
+figw, figh = 150.0, 75.0
 fig = plt.figure(figsize=(figw/25.4, figh/25.4))
 ax1 = fig.add_axes([2.5/figw, 2.5/figh, 50.0/figw, 1-5.0/figh], projection=utm)
 ax2 = fig.add_axes([62.5/figw, 7.5/figh, 85.0/figw, 1-10.0/figh])

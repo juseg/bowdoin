@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(figsize=(150.0, 80.0), nrows=1, ncols=2,
+fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
                               sharex=False, sharey=False, wspace=7.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 

@@ -5,7 +5,7 @@ import util as ut
 import numpy as np
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(figsize=(150.0, 80.0), nrows=3, ncols=3,
+fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=3, ncols=3,
                               sharex=True, sharey=True, hspace=2.5, wspace=2.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
