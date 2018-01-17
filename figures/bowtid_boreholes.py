@@ -13,13 +13,13 @@ import cartopy.crs as ccrs
 # projections and map boundaries
 ll = ccrs.PlateCarree()
 utm = ccrs.UTM(19)
-reg = 508e3, 512e3, 8620e3, 8626e3
+reg = 507.5e3, 512.5e3, 8620e3, 8627e3
 
 # initialize figure
 figw, figh = 150.0, 75.0
 fig = plt.figure(figsize=(figw/25.4, figh/25.4))
 ax1 = fig.add_axes([2.5/figw, 2.5/figh, 50.0/figw, 1-5.0/figh], projection=utm)
-ax2 = fig.add_axes([62.5/figw, 7.5/figh, 85.0/figw, 1-10.0/figh])
+ax2 = fig.add_axes([67.5/figw, 10.0/figh, 80.0/figw, 1-12.5/figh])
 
 
 # map axes
