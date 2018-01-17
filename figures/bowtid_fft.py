@@ -5,9 +5,9 @@ import util as ut
 import numpy as np
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(figsize=(85.0, 65.0), nrows=3, ncols=3,
-                              sharex=True, sharey=True, hspace=1.5, wspace=1.5,
-                              left=12.0, right=1.5, bottom=9.0, top=1.5)
+fig, grid = ut.pl.subplots_mm(figsize=(150.0, 80.0), nrows=3, ncols=3,
+                              sharex=True, sharey=True, hspace=2.5, wspace=2.5,
+                              left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')

@@ -5,15 +5,15 @@ import util as ut
 import numpy as np
 import pandas as pd
 import scipy.signal as sg
-import matplotlib.dates as mdates
+import matplotlib.colors as mcolors
 
 
 # initialize figure
-figw, figh = 85.0, 65.0
+figw, figh = 150.0, 80.0
 fig, grid = ut.pl.subplots_mm(figsize=(figw, figh), nrows=9, ncols=1,
-                              sharex=True, sharey=False, hspace=1.5, wspace=1.5,
-                              left=9.0, right=15.0, bottom=9.0, top=1.5)
-cax = fig.add_axes([1-13.5/figw, 9.0/figh, 3.0/figw, 1-10.5/figh])
+                              sharex=True, sharey=False, hspace=2.5,
+                              left=10.0, right=15.0, bottom=10.0, top=2.5)
+cax = fig.add_axes([1-12.5/figw, 10.0/figh, 2.5/figw, 1-12.5/figh])
 
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')
