@@ -24,11 +24,14 @@ for i, u in enumerate(p):
     # compute fft
     freq = np.fft.rfftfreq(ts.shape[-1], 1/24.0)
     rfft = np.fft.rfft(ts.values)
-    gain = 20*np.log10(np.abs(rfft))  # gain = 10*np.log10(power)
+    ampl = np.abs(rfft)
+    spow = ampl**2
+    gain = 10.0*np.log10(spow)
 
     # plot
-    ax.plot(1/freq[1:], gain[1:], c=c)  # freq[0]=0.0
+    ax.plot(1/freq[1:], spow[1:], c=c)  # freq[0]=0.0
     ax.set_xscale('log')
+    ax.set_yscale('log')
 
     # add corner tag
     ax.text(0.8, 0.1, u, color=c, transform=ax.transAxes)
@@ -36,9 +39,8 @@ for i, u in enumerate(p):
     ax.axvline(1.0, c='0.75', lw=0.1, zorder=1)
 
 # set axes properties
-grid[0, 1].set_title('water level FFT')
 grid[2, 1].set_xlabel('period (days)')
-grid[1, 0].set_ylabel('spectral power (dB)')
+grid[1, 0].set_ylabel(r'spectral power (m$^2$)', labelpad=0)
 
 # save
 ut.pl.savefig(fig)

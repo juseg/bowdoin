@@ -17,6 +17,7 @@ cax = fig.add_axes([1-13.5/figw, 9.0/figh, 3.0/figw, 1-10.5/figh])
 
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')
+norm = mcolors.LogNorm(1e-6, 1e2)
 for i, u in enumerate(p):
     ax = grid.flat[i]
     c = 'C%d' % i
@@ -41,8 +42,7 @@ for i, u in enumerate(p):
     gain = 10.0*np.log10(spec)
 
     # plot amplitudes
-    im = ax.pcolormesh(t.to_pydatetime(), f, gain, cmap='magma',
-                       vmin=-60.0, vmax=20.0)
+    im = ax.pcolormesh(t.to_pydatetime(), f, spec, cmap='Greys', norm=norm)
 
     # add corner tag
     ax.text(0.95, 0.2, u, color=c, transform=ax.transAxes,
@@ -55,10 +55,10 @@ for i, u in enumerate(p):
 
 # add colorbar
 cb = fig.colorbar(im, cax=cax, extend='both')
-cb.set_label('power spectral density (dB)')
+cb.set_label(r'power spectral density (m${^2}$ day)', labelpad=0)
 
 # set axes properties
-grid[4].set_ylabel('frequency (day$^{-1})$', labelpad=2)
+grid[4].set_ylabel('frequency (day$^{-1})$')
 
 # save
 ut.pl.savefig(fig)
