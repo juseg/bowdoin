@@ -23,7 +23,7 @@ def load_temp(site='B'):
                             dayfirst=True, na_values=(-50, -9999))
                             ['Temperature_1[degC]']
                 for filename in filelist]
-    ts = pd.concat(datalist)
+    ts = pd.concat(datalist)  # FIXME?
     return ts
 
 
@@ -37,7 +37,7 @@ def load_all_depth(borehole):
     pres_depth.index = ['pres']
 
     # concatenate datasets
-    df = pd.concat((temp_depth, tilt_depth, pres_depth))
+    df = pd.concat((temp_depth, tilt_depth, pres_depth))  # FIXME?
     return df
 
 
@@ -49,7 +49,7 @@ def load_all_temp(borehole, freq='1D'):
     tilt_temp = load_data('tiltunit', 'temp', borehole).resample(freq).mean()
 
     # concatenate datasets
-    df = pd.concat((temp_temp, tilt_temp), axis=1)
+    df = pd.concat((temp_temp, tilt_temp), axis=1)  # FIXME?
     return df
 
 
@@ -70,7 +70,7 @@ def load_data(sensor, variable, borehole):
     elif borehole == 'both':
         dfu = ut.io.load_data(sensor, variable, 'upper')
         dfl = ut.io.load_data(sensor, variable, 'lower')
-        df = pd.concat([dfl, dfu])
+        df = dfu.join(dfl)
     return df
 
 def load_depth(sensor, borehole):
