@@ -13,7 +13,7 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
 
 # prepare filter
 n = 2  # filter order
-w = 1/24.  # cutoff frequency
+w = 2/24.  # cutoff frequency
 b, a = signal.butter(n, w, 'high') 
 
 # for each tilt unit
@@ -25,16 +25,20 @@ for i, u in enumerate(p):
     ts = p[u].dropna().resample('1H').mean().interpolate()
 
     # apply filter in both directions
-    ts[:] = signal.filtfilt(b, a, ts) + 10 - i
+    ts[:] = signal.filtfilt(b, a, ts) + 9 - i
 
     # plot
     for ax in grid:
         ts.plot(ax=ax)
 
+# plot tide data
+z = ut.io.load_tide_data()['20140715':'20170715']
+z.plot(ax=grid[1], c='k', label='Tide')
+
 # set axes properties
-grid[0].set_ylim(1.0, 11.0)
+grid[0].set_ylim(-1.0, 10.0)
 grid[0].set_ylabel('pressure head (m w.e.)')
-grid[0].legend(ncol=3, loc='lower right')
+grid[0].legend(ncol=2, loc='lower right')
 
 # zooming windows
 zooms = dict(

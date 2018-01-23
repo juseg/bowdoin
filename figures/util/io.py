@@ -27,6 +27,31 @@ def load_temp(site='B'):
     return ts
 
 
+def load_tide_data():
+    """Load GLOSS Pituffik tide gauge data."""
+
+    # date parser
+    def parser(index):
+        date_str = index[11:-1].replace(' ', '0')
+        hour_str = {'1': '00', '2': '12'}[index[-1]]
+        return pd.datetime.strptime(date_str+hour_str, '%Y%m%d%H')
+
+    # read data
+    skiprows = [0, 245, 976, 1709, 2440, 3171, 3902,
+                4635, 5366, 6097, 6828, 7561]
+    df = pd.read_fwf('../data/external/h808.dat', skiprows=skiprows,
+                     index_col=0, parse_dates=True, date_parser=parser,
+                     header=None, delimiter=' ', dtype=None, na_values='9999')
+
+    # stack and reindex
+    df = df.stack()
+    df.index = df.index.map(lambda x: x[0] + pd.to_timedelta(x[1], unit='H'))
+
+    # convert to meter and remove mean
+    df = (df-df.mean())/1e3
+    return df
+
+
 def load_all_depth(borehole):
     """Load all sensor depths in a single dataset."""
 
