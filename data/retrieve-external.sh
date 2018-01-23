@@ -30,6 +30,12 @@ dest=$(basename $orig)
 #dest=$(basename $orig)
 #[ -f "$dest" ] || scp $orig $dest
 
+# Global Sea Level Observing System (GLOSS) Pituffik tide data
+orig="http://ilikai.soest.hawaii.edu/woce/h808.dat"
+dest=$(basename $orig)
+[ -f "$dest" ] || wget $orig -o $dest
+
+# Office desktop locations
 geodata="iceberg:/scratch_net/iceberg_second/juliens/geodata"
 s2adata="$geodata/satellite/sentinel-2a"
 
