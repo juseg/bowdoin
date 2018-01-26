@@ -9,13 +9,13 @@ loggers = {'lower': 'drucksens073303',
 columns = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
 
 
-# date converter
 def date_parser(year, day, time):
     datestring = '%04d.%03d.%04d' % tuple(map(int, [year, day, time]))
     return datetime.datetime.strptime(datestring, '%Y.%j.%H%M')
 
-# for each borehole
-for bh, log in loggers.iteritems():
+
+def get_data(bh, log):
+    """Return data values in a data frame."""
 
     # read original file
     df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % log,
@@ -25,9 +25,20 @@ for bh, log in loggers.iteritems():
     # replace extreme values by nan (including a strange peak on 2017-07-03)
     df[df<-1000.0] = np.nan
 
-    # write csv files
-    for var in ['temp', 'wlev']:
-        ts = df[var]
-        ts.name = bh[0].upper() + 'P'
-        ts.to_csv('processed/bowdoin-pressure-%s-%s.csv' % (var, bh),
-                  header=True)
+    # return dataframe
+    return df
+
+
+# for each borehole
+for bh, log in loggers.iteritems():
+
+    # get all data
+    df = get_data(bh, log)
+
+    # extract water level
+    wlev = df['wlev'].rename(bh[0].upper() + 'P')
+    wlev.to_csv('processed/bowdoin-pressure-wlev-%s.csv' % bh, header=True)
+
+    # extract temperature
+    temp = df['temp'].rename(bh[0].upper() + 'P')
+    temp.to_csv('processed/bowdoin-pressure-temp-%s.csv' % bh, header=True)
