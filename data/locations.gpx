@@ -5,26 +5,24 @@
 
   <wpt lat="77.69124388843444" lon="-68.55574939706277">
     <ele>88.694913</ele>
-    <time>2014-07-16T00:00:00Z</time>
+    <time>2014-07-17T18:00:00Z</time>
     <name>B14BH1</name>
-    <!-- Upstream, inclino, 270 m -->
+    <!-- Upper, inclino, 270 m -->
   </wpt>
 
   <wpt lat="77.69130659059496" lon="-68.5556849737656">
     <ele>87.746263</ele>
-    <time>2014-07-17T00:00:00Z</time>
+    <time>2014-07-17T18:00:00Z</time>
     <name>B14BH2</name>
-    <!-- Upstream, pressure and thermistors, 260 m -->
+    <!-- Upper, pressure and thermistors, 260 m -->
   </wpt>
 
   <wpt lat="77.68999495500545" lon="-68.55885691559848">
     <ele>83.446628</ele>
-    <time>2014-07-22T00:00:00Z</time>
+    <time>2014-07-23T00:30:00Z</time>
     <name>B14BH3</name>
-    <!-- Downstream, inclino, pressure and thermistors, 250 m -->
+    <!-- Lower, inclino, pressure and thermistors, 250 m -->
   </wpt>
-
-  <!-- FIXME: ask Daiki for more precise 2016 coordinates -->
 
   <wpt lat="77.6855277777777778" lon="-68.5681111111111111">
     <ele>63</ele>
