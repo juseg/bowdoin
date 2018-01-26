@@ -325,6 +325,10 @@
     <name>Qaanaaq</name>
   </wpt>
 
+  <wpt lat="76.533333" lon="-68.75">
+    <name>Pituffik</name>
+  </wpt>
+
   <wpt lat="77.672160007059574" lon="-68.723918041214347">
     <ele>482.67923000000002</ele>
     <time>2016-07-12T12:10:30Z</time>
