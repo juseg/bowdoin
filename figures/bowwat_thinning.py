@@ -1,0 +1,128 @@
+#!/usr/bin/env python2
+# coding: utf-8
+
+import util as ut
+import gpxpy
+import numpy as np
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+
+
+years = [2014, 2016, 2017]
+colors = ['C0', 'C1', 'C2']
+
+# Initialize figure
+# -----------------
+
+# projections and map boundaries
+ll = ccrs.PlateCarree()
+utm = ccrs.UTM(19)
+reg = 507.5e3, 512.5e3, 8620e3, 8627e3
+
+# initialize figure
+figw, figh = 150.0, 75.0
+fig = plt.figure(figsize=(figw/25.4, figh/25.4))
+ax1 = fig.add_axes([2.5/figw, 2.5/figh, 50.0/figw, 1-5.0/figh], projection=utm)
+ax2 = fig.add_axes([67.5/figw, 10.0/figh, 80.0/figw, 1-12.5/figh])
+ax1.set_rasterization_zorder(2.5)
+ax1.set_extent(reg, crs=utm)
+
+
+# Read GPX data
+# -------------
+
+# open GPX file as a dictionary
+locations = dict()
+dates = dict()
+with open('../data/locations.gpx', 'r') as gpx_file:
+    for wpt in gpxpy.parse(gpx_file).waypoints:
+        xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
+        locations[wpt.name] = xy
+        dates[wpt.name] = wpt.time
+
+# compute distances
+distances = dict()
+for y in years:
+    ux, uy = locations['B%2dBH2' % (y-2000)]
+    lx, ly = locations['B%2dBH3' % (y-2000)]
+    distances[y] = ((ux-lx)**2 + (uy-ly)**2)**0.5
+
+# get average dates
+meandates = dict()
+for y in years:
+    ud = dates['B%2dBH2' % (y-2000)]
+    ld = dates['B%2dBH3' % (y-2000)]
+    meandates[y] = ld+(ud-ld)/2
+
+# load sensor depths
+lz = ut.io.load_data('pressure', 'depth', 'lower').squeeze()
+uz = ut.io.load_data('pressure', 'depth', 'upper').squeeze()
+
+# compute area between boreholes
+area = distances[2014] * (uz+lz)/2
+
+# compute thinning assuming equal area
+thinning = dict()
+for y, d in distances.iteritems():
+    thinning[y] = (uz+lz) / 2 * (distances[2014]/d-1)
+
+
+# Map axes
+# --------
+
+ax = ax1
+
+# plot image data
+filename = '../data/external/S2A_20160808_175915_456_RGB.jpg'
+data, extent = ut.io.open_gtif(filename)
+data = np.moveaxis(data, 0, 2)
+ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
+
+# plot borehole locations
+for y, c in zip(years, colors):
+    kwa = dict(ax=ax, color=c, marker='o')
+    ut.pl.add_waypoint('B%2dBH2' % (y-2000), text=y, **kwa)
+    ut.pl.add_waypoint('B%2dBH3' % (y-2000), **kwa)
+
+# plot camp location
+kwa = dict(ax=ax, color='C3', marker='^')
+ut.pl.add_waypoint('Tent Swiss', text='Camp', **kwa)
+
+# add scale
+ax.plot([508.25e3, 509.25e3], [8620.25e3]*2, 'w|-')
+ax.text(508.75e3, 8620.4e3, '1km', color='w', ha='center', fontweight='bold')
+
+
+# Distance axes
+# -------------
+
+ax = ax2
+
+# plot equal areas
+for y, c in zip(years, colors):
+    d = distances[y]
+    t = thinning[y]
+    ax.fill_between([0.0, d], [lz+t, uz+t], [0.0]*2,
+                    edgecolor=c, facecolor='none', lw=1.0)
+    ax.text(d, uz+t, ' %d' % y, color=c, fontweight='bold')
+
+# add text
+ax.text(0.4, 0.55, 'assumed equal area', ha='center', va='center',
+        transform=ax.transAxes)
+ax.text(0.0, -5.0, 'lower', fontweight='bold', ha='center')
+ax.text(d, -5.0, 'upper', fontweight='bold', ha='center')
+
+# add flow direction arrow
+ax.text(0.9, 0.55, 'ice flow', ha='center', transform=ax.transAxes)
+ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
+            xycoords=ax.transAxes, textcoords=ax.transAxes,
+            arrowprops=dict(arrowstyle='->',  lw=1.0))
+
+# set axes properties
+ax.set_xlim(-15.0, 245.0)
+ax.set_ylim(265.0, -15.0)
+ax.set_xlabel('distance from lower borehole (m)')
+ax.set_ylabel('depth (m)')
+
+# save
+ut.pl.savefig(fig)

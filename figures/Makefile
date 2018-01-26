@@ -22,8 +22,8 @@ PY_FIGS = campaign_2016 summary \
           $(addprefix bowpal_, samplemap) \
           $(addprefix bowtem_, fft locmap profiles timeseries) \
           $(addprefix bowtid_, boreholes fft gmb highpass intervals specgrams \
-                               tempseries wlevseries)
-
+                               tempseries wlevseries) \
+          $(addprefix bowwat_, thinning)
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
 # all figures
