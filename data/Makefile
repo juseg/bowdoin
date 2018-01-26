@@ -46,10 +46,6 @@ $(GPS_FILES): preprocess-dgps.py
 	mkdir -p processed
 	python2 $<
 
-# additional dependency of tilt processing on pressure water levels
-preprocess-tiltunit.py: $(foreach BH, $(BOREHOLES), \
-                          processed/bowdoin-pressure-wlev-$(BH).csv)
-
 # additional dependency of temp processing on pressure depth
 preprocess-tiltunit.py: $(foreach BH, $(BOREHOLES), \
                           processed/bowdoin-pressure-depth-$(BH).csv)

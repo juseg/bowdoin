@@ -29,6 +29,26 @@ def get_data(bh, log):
     return df
 
 
+def extract_depth(wlev):
+    """Return pressure sensor depths."""
+
+    # observed water depths
+    if bh == 'lower':
+        observ_date = '2014-07-23 00:30:00'  # assumed
+        water_depth = 0.0
+    if bh == 'upper':
+        observ_date = '2014-07-17 18:07:00'  # assumed
+        water_depth = 46.0  # 46 m in pressure borehole, 48 m in tilt
+
+    # compute sensor depth
+    depth = wlev.loc[observ_date].mean() + water_depth
+
+    # return as a dataframe
+    depth = pd.Series(name=wlev.name, index=[observ_date], data=[depth])
+    depth.index = depth.index.rename('date')
+    return depth
+
+
 # for each borehole
 for bh, log in loggers.iteritems():
 
@@ -42,3 +62,7 @@ for bh, log in loggers.iteritems():
     # extract temperature
     temp = df['temp'].rename(bh[0].upper() + 'P')
     temp.to_csv('processed/bowdoin-pressure-temp-%s.csv' % bh, header=True)
+
+    # extract depths
+    depth = extract_depth(wlev)
+    depth.to_csv('processed/bowdoin-pressure-depth-%s.csv' % bh, header=True)

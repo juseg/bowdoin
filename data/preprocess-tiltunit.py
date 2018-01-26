@@ -108,21 +108,14 @@ def extract_wlev_depth(df):
 
     # extract water level above sensor unit (Pbar*1e5 = rhow*g*wlev)
     g = 9.80665     # gravity
-    tiltunit_wlev = df['p']*1e2/g
+    wlev = df['p']*1e2/g
 
     # compute tilt unit depth using water depth from all sensors
-    tiltunit_depth = tiltunit_wlev.loc[observ_date].squeeze() + water_depth
+    depth = wlev.loc[observ_date].squeeze() + water_depth
 
     # calibration interval
     #calint = {'upper': ['2014-07-18', '2014-07-24'],
     #          'lower': ['2014-07-29', '2014-08-04']}[bh]
-
-    # open preprocessed pressure sensor water level as a reference
-    pressure_wlev = pd.read_csv('processed/bowdoin-pressure-wlev-%s.csv' % bh,
-                                parse_dates=True, index_col='date').squeeze()
-
-    # compute independent pressure depth
-    pressure_depth = pressure_wlev.loc[observ_date].mean() + water_depth
 
     # the diff between bottom tiltunit and pressure sensor over calib interval
     #pressure_wlev_ref = pressure_wlev[calint[0]:calint[1]]
@@ -136,13 +129,9 @@ def extract_wlev_depth(df):
     #tiltunit_wlev += pressure_depth - tiltunit_depth
 
     # return calibrated water level and sensor depths as dataframes
-    tiltunit_depth = pd.DataFrame([tiltunit_depth])
-    pressure_depth = pd.DataFrame(columns=[bh[0].upper() + 'P'],
-                                  index=[observ_date],
-                                  data=[pressure_depth])
-    tiltunit_depth.index = tiltunit_depth.index.rename('date')
-    pressure_depth.index = pressure_depth.index.rename('date')
-    return tiltunit_wlev, tiltunit_depth, pressure_depth
+    depth = pd.DataFrame([depth])
+    depth.index = depth.index.rename('date')
+    return wlev, depth
 
 
 # for each borehole
@@ -152,10 +141,9 @@ for bh, log in loggers.iteritems():
     df = get_data(bh, log)
 
     # extract water level and sensor depth
-    tu_wlev, tu_depth, pr_depth = extract_wlev_depth(df)
+    tu_wlev, tu_depth = extract_wlev_depth(df)
     tu_wlev.to_csv('processed/bowdoin-tiltunit-wlev-%s.csv' % bh)
     tu_depth.to_csv('processed/bowdoin-tiltunit-depth-%s.csv' % bh)
-    pr_depth.to_csv('processed/bowdoin-pressure-depth-%s.csv' % bh)
 
     # extract temperatures
     temp = extract_temp(df)
