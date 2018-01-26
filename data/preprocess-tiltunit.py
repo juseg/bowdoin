@@ -98,11 +98,11 @@ def extract_wlev_depth(df):
 
     # observed water depths
     if bh == 'lower':
-        observ_date = '2014-07-22 23:40:00'
+        observ_date = '2014-07-23 00:30:00'  # assumed
         water_depth = 0.0
         chain_design = [0.0, 10.0, 20.0, 40.0, 50.0][2:]
     if bh == 'upper':
-        observ_date = '2014-07-17 16:15:00'  # assumed
+        observ_date = '2014-07-17 18:07:00'  # assumed
         water_depth = 48.0  # 46 m in pressure borehole, 48 m in tilt
         chain_design = [0.0, 7.0, 10.0, 15.0, 25.0, 35.0, 50.0][1:]
 
@@ -114,20 +114,23 @@ def extract_wlev_depth(df):
     tiltunit_depth = tiltunit_wlev.loc[observ_date].squeeze() + water_depth
 
     # calibration interval
-    calint = {'upper': ['2014-07-18', '2014-07-24'],
-              'lower': ['2014-07-29', '2014-08-04']}[bh]
+    #calint = {'upper': ['2014-07-18', '2014-07-24'],
+    #          'lower': ['2014-07-29', '2014-08-04']}[bh]
 
     # open preprocessed pressure sensor water level as a reference
     pressure_wlev = pd.read_csv('processed/bowdoin-pressure-wlev-%s.csv' % bh,
                                 parse_dates=True, index_col='date').squeeze()
 
+    # compute independent pressure depth
+    pressure_depth = pressure_wlev.loc[observ_date].mean() + water_depth
+
     # the diff between bottom tiltunit and pressure sensor over calib interval
-    pressure_wlev_ref = pressure_wlev[calint[0]:calint[1]]
-    tiltunit_wlev_bot = tiltunit_wlev.iloc[:,0].loc[pressure_wlev_ref.index]
-    diff = pressure_wlev_ref - tiltunit_wlev_bot
+    #pressure_wlev_ref = pressure_wlev[calint[0]:calint[1]]
+    #tiltunit_wlev_bot = tiltunit_wlev.iloc[:,0].loc[pressure_wlev_ref.index]
+    #diff = pressure_wlev_ref - tiltunit_wlev_bot
 
     # the mean difference gives the pressure sensor depth
-    pressure_depth = tiltunit_depth.iloc[0] + diff.mean()
+    #pressure_depth = tiltunit_depth.iloc[0] + diff.mean()
 
     # calibrate tilt unit water level
     #tiltunit_wlev += pressure_depth - tiltunit_depth
