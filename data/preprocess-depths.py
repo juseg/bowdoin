@@ -81,15 +81,16 @@ def sensor_depths(sensor='pressure'):
     lt = observ_dates[lower]
     uz = ulev.loc[ut:ut].mean() + water_depths[upper]
     lz = llev.loc[lt:lt].mean() + water_depths[lower]
+    ubase = uz.max()  # FIXME: this should consider other sensors too
+    lbase = lz.max()  # FIXME: this should consider other sensors too
 
     # compute time-dependent depths
     distances = borehole_distances(upper=upper, lower=lower)
-    dz = borehole_thinning(uz.max(), lz.max(), distances)
+    dz = borehole_thinning(ubase, lbase, distances)
 
     # apply thinning
-    # FIXME: thinning should be spread evenly, not all at the top
-    uz = dz.apply(lambda d: uz + d)
-    lz = dz.apply(lambda d: lz + d)
+    uz = dz.apply(lambda d: uz * (1+d/ubase))
+    lz = dz.apply(lambda d: lz * (1+d/lbase))
 
     # return depth data series
     return uz, lz
