@@ -63,8 +63,8 @@ def borehole_thinning(uz, lz, distances):
     return dz
 
 
-def sensor_depths(sensor='pressure'):
-    """Compute time-dependent sensor depths."""
+def sensor_depths_init(sensor='pressure'):
+    """Return initial sensor depths as data series."""
 
     # exact borehole location depends on sensor
     upper = sensor_holes[sensor]['upper']
@@ -81,6 +81,19 @@ def sensor_depths(sensor='pressure'):
     lt = observ_dates[lower]
     uz = ulev.loc[ut:ut].mean() + water_depths[upper]
     lz = llev.loc[lt:lt].mean() + water_depths[lower]
+
+    # retunr sensor depths
+    return uz, lz
+
+
+def sensor_depths_evol(uz, lz, sensor='pressure'):
+    """Return time-dependent sensor depths as data frames."""
+
+    # exact borehole location depends on sensor
+    upper = sensor_holes[sensor]['upper']
+    lower = sensor_holes[sensor]['lower']
+
+    # compute depth of lowest sensor
     ubase = uz.max()  # FIXME: this should consider other sensors too
     lbase = lz.max()  # FIXME: this should consider other sensors too
 
@@ -102,6 +115,7 @@ if __name__ == '__main__':
 
     # extract pressure and tiltunit sensor depths
     for sensor in ('pressure', 'tiltunit'):
-        uz, lz = sensor_depths(sensor=sensor)
+        uz, lz = sensor_depths_init(sensor=sensor)
+        uz, lz = sensor_depths_evol(uz, lz, sensor=sensor)
         uz.to_csv('processed/bowdoin-%s-depth-upper.csv' % sensor, header=True)
         lz.to_csv('processed/bowdoin-%s-depth-lower.csv' % sensor, header=True)
