@@ -6,6 +6,9 @@ import pandas as pd
 import cartopy.crs as ccrs
 
 
+# Global data
+# -----------
+
 # borehole properties
 sensor_holes = dict(pressure=dict(upper='BH2', lower='BH3'),
                     thstring=dict(upper='BH2', lower='BH3'),
@@ -18,6 +21,9 @@ water_depths = dict(BH1=48.0, BH2=46.0, BH3=0.0)
 # data logger properties
 pressure_loggers = dict(lower='drucksens073303', upper='drucksens094419')
 pressure_columns = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
+tiltunit_loggers = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')
+tiltunit_allinst = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
+tiltunit_outinst = ['ixr', 'iyr', 'p', 'tp', 't']
 thstring_loggers = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
 
 
@@ -192,6 +198,32 @@ def get_pressure_data(bh, log):
     return df
 
 
+def get_tiltunit_data(bh, log):
+    """Return tilt unit data in a data frame."""
+
+    # input file names
+    ifilename = 'original/inclino/%s_All.dat' % log
+
+    # open input file
+    idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
+                      dtype=str, parse_dates=True, na_values='NAN')
+
+    # rename index
+    idf.index = idf.index.rename('date')
+
+    # these columns will need to be splitted
+    rescols = [col for col in idf.columns if col.startswith('res')]
+
+    # ignore columns containing no data
+    rescols = [col for col in rescols if not idf[col].isnull().all()]
+
+    # split remaining columns into new dataframe
+    odf = pd.concat([splitstrings(bh, idf[col]) for col in rescols], axis=1)
+
+    # return filled dataframe
+    return odf
+
+
 def get_thstring_data(bh, log, manual=False):
     """Return thermistor string data in a data frame."""
 
@@ -221,6 +253,71 @@ def get_thstring_data(bh, log, manual=False):
 
     # return as dataframe
     return df
+
+
+# Tiltunit data extraction methods
+# --------------------------------
+
+def floatornan(x):
+    """Try to convert to float and return NaN if that fails."""
+    try:
+        return float(x)
+    except ValueError:
+        return np.nan
+
+
+def splitstrings(bh, ts):
+    """Split series of data strings into multi-column data frame."""
+
+    # split data strings into new multi-column dataframe and fill with NaN
+    df = ts.str.split(',', expand=True)
+    df.fillna(value=np.nan, inplace=True)
+
+    # rename columns
+    unitname = bh[0].upper() + 'I%02d' % int(ts.name[-2:-1])
+    df.columns = [tiltunit_allinst, [unitname]*len(tiltunit_allinst)]
+
+    # replace nan values by nan
+    df.replace('-99.199996', np.nan, inplace=True)
+
+    # convert to numeric
+    # splitted.convert_objects(convert_numeric=True)  # deprectiated
+    # splitted = pd.to_numeric(splitted, errors='coerce')  # does not work
+    df = df.applymap(floatornan)
+
+    # return splitted dataframe
+    return df
+
+
+def extract_tilt(df, log):
+    """Return tilt angles in a dataframe."""
+
+    # read calibration coefficients
+    coefs = pd.read_csv('original/inclino/%s_Coefs.dat' % log,
+                         index_col=0, comment='#')
+
+    # keep only units present in data
+    coefs = coefs.loc[df['ixr'].columns]
+
+    # process angles and compute tilt
+    tiltx = (df['ixr'] - coefs['bx'])/coefs['ax']
+    tilty = (df['iyr'] - coefs['by'])/coefs['ay']
+    # tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))*180/np.pi
+
+    # return tilt
+    return tiltx, tilty
+
+
+def extract_temp(df):
+    """Return temperature values in a dataframe."""
+    temp = df['t']*1e-3
+    return temp
+
+
+def extract_wlev(df):
+    """Return water level and unit depths."""
+    wlev = df['p']*1e2/9.80665
+    return wlev
 
 
 # Temperature calibration methods
@@ -281,6 +378,16 @@ if __name__ == '__main__':
         temp = df['temp'].rename(bh[0].upper() + 'P')
         temp.to_csv('processed/bowdoin-pressure-temp-%s.csv' % bh, header=True)
 
+    # preprocess tiltunit water level
+    for bh, log in tiltunit_loggers.iteritems():
+
+        # get all data
+        df = get_tiltunit_data(bh, log)
+
+        # extract water level and sensor depth
+        wlev = extract_wlev(df)
+        wlev.to_csv('processed/bowdoin-tiltunit-wlev-%s.csv' % bh)
+
     # first get initial sensor depths
     puz, plz = sensor_depths_init('pressure')
     uuz, ulz = sensor_depths_init('tiltunit')
@@ -304,6 +411,25 @@ if __name__ == '__main__':
     tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv', header=True)
     uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
     ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
+
+    # preprocess tiltunit temperatures and tilt
+    for bh, log in tiltunit_loggers.iteritems():
+
+        # get sensor depth
+        z = {'upper': uuz, 'lower': ulz}[bh]
+
+        # get all data # FIXME: reading data again
+        df = get_tiltunit_data(bh, log)
+
+        # extract temperatures
+        temp = extract_temp(df)
+        temp = cal_temperature(temp, z, bh)
+        temp.to_csv('processed/bowdoin-tiltunit-temp-%s.csv' % bh)
+
+        # extract tilt angles
+        tiltx, tilty = extract_tilt(df, log)
+        tiltx.to_csv('processed/bowdoin-tiltunit-tiltx-%s.csv' % bh)
+        tilty.to_csv('processed/bowdoin-tiltunit-tilty-%s.csv' % bh)
 
     # preprocess thermistor string data
     for bh, log in thstring_loggers.iteritems():
