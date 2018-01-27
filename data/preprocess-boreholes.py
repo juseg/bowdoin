@@ -6,6 +6,7 @@ import pandas as pd
 import cartopy.crs as ccrs
 
 
+# borehole properties
 sensor_holes = dict(pressure=dict(upper='BH2', lower='BH3'),
                     thstring=dict(upper='BH2', lower='BH3'),
                     tiltunit=dict(upper='BH1', lower='BH3'))
@@ -14,6 +15,13 @@ observ_dates = dict(BH1='2014-07-17 18:07:00',  # assumed
                     BH3='2014-07-23 00:30:00')  # assumed
 water_depths = dict(BH1=48.0, BH2=46.0, BH3=0.0)
 
+# data logger properties
+pressure_loggers = dict(lower='drucksens073303', upper='drucksens094419')
+pressure_columns = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
+
+
+# Borehole location methods
+# -------------------------
 
 def borehole_distances(upper='BH2', lower='BH3'):
     """
@@ -65,6 +73,9 @@ def borehole_thinning(uz, lz, distances):
     dz = (uz+lz) / 2 * (distances[0]/distances-1)  # < 0)
     return dz
 
+
+# Sensor depth methods
+# --------------------
 
 def sensor_depths_init(sensor):
     """Return initial sensor depths as data series."""
@@ -160,8 +171,45 @@ def thstring_depth_init(ubase, lbase):
     return uz, lz
 
 
+# Data reading methods
+# --------------------
+
+def get_pressure_data(bh, log):
+    """Return pressure sensor data in a data frame."""
+
+    # date parser
+    parser = lambda year, day, time: pd.datetime.strptime(
+        '%04d.%03d.%04d' % tuple(map(int, [year, day, time])), '%Y.%j.%H%M')
+
+    # read original file
+    df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % log,
+                     names=pressure_columns, index_col='date',
+                     na_values=[-99999], date_parser=parser,
+                     parse_dates={'date': ['year', 'day', 'time']})
+
+    # return dataframe
+    return df
+
+
+# Main program
+# ------------
+
 if __name__ == '__main__':
-    """Preprocess borehole sensor depths."""
+    """Preprocess borehole data."""
+
+    # preprocess pressure sensor data
+    for bh, log in pressure_loggers.iteritems():
+
+        # get all data
+        df = get_pressure_data(bh, log)
+
+        # extract water level
+        wlev = df['wlev'].rename(bh[0].upper() + 'P')
+        wlev.to_csv('processed/bowdoin-pressure-wlev-%s.csv' % bh, header=True)
+
+        # extract temperature
+        temp = df['temp'].rename(bh[0].upper() + 'P')
+        temp.to_csv('processed/bowdoin-pressure-temp-%s.csv' % bh, header=True)
 
     # first get initial sensor depths
     puz, plz = sensor_depths_init('pressure')
