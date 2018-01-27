@@ -84,18 +84,12 @@ def borehole_thinning(uz, lz, distances):
 # Sensor depth methods
 # --------------------
 
-def sensor_depths_init(sensor):
+def sensor_depths_init(sensor, ulev, llev):
     """Return initial sensor depths as data series."""
 
     # exact borehole location depends on sensor
     upper = sensor_holes[sensor]['upper']
     lower = sensor_holes[sensor]['lower']
-
-    # load water level data
-    ulev = pd.read_csv('processed/bowdoin-%s-wlev-upper.csv' % sensor,
-                        parse_dates=True, index_col='date')
-    llev = pd.read_csv('processed/bowdoin-%s-wlev-lower.csv' % sensor,
-                        parse_dates=True, index_col='date')
 
     # compute sensor depths
     ut = observ_dates[upper]
@@ -374,25 +368,23 @@ if __name__ == '__main__':
     mudf = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
     mldf = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
 
-    # extract water levels, needed by depth computations
+    # extract relevant variables
     puw = pudf['wlev'].rename('UP')
-    puw.to_csv('processed/bowdoin-pressure-wlev-upper.csv', header=True)
     plw = pldf['wlev'].rename('LP')
-    plw.to_csv('processed/bowdoin-pressure-wlev-lower.csv', header=True)
+    put = pudf['temp'].rename('UP')
+    plt = pldf['temp'].rename('LP')
     uuw = extract_wlev(uudf)
-    uuw.to_csv('processed/bowdoin-tiltunit-wlev-upper.csv')
     ulw = extract_wlev(uldf)
-    ulw.to_csv('processed/bowdoin-tiltunit-wlev-lower.csv')
+    uut = extract_temp(uudf)
+    ult = extract_temp(uldf)
+    uutx, uuty = extract_tilt(uudf, tiltunit_loggers['upper'])
+    ultx, ulty = extract_tilt(uldf, tiltunit_loggers['lower'])
 
-    # get initial pressure sensor and tilt unit depths
-    puz, plz = sensor_depths_init('pressure')
-    uuz, ulz = sensor_depths_init('tiltunit')
-
-    # assume borehole base at the deepest sensor
-    ubase = max(puz.max(), uuz.max())
-    lbase = max(plz.max(), ulz.max())
-
-    # get initial thermistor depths
+    # get initial sensor depths
+    puz, plz = sensor_depths_init('pressure', puw, plw)
+    uuz, ulz = sensor_depths_init('tiltunit', uuw, ulw)
+    ubase = max(puz.max(), uuz.max())  # assume base at deepest sensor
+    lbase = max(plz.max(), ulz.max())  # assume base at deepest sensor
     tuz, tlz = thstring_depth_init(ubase, lbase)
 
     # compute borehole thinning
@@ -400,36 +392,32 @@ if __name__ == '__main__':
     tuz, tlz = sensor_depths_evol('thstring', tuz, tlz, ubase, lbase)
     uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz, ubase, lbase)
 
+    # calibrate temperatures
+    uut = cal_temperature(uut, uuz, 'upper')
+    ult = cal_temperature(ult, ulz, 'lower')
+    tudf += melt_offset(tudf, tuz, 'upper')
+    tldf += melt_offset(tudf, tlz, 'lower')
+
     # export to csv
     puz.to_csv('processed/bowdoin-pressure-depth-upper.csv', header=True)
     plz.to_csv('processed/bowdoin-pressure-depth-lower.csv', header=True)
+    put.to_csv('processed/bowdoin-pressure-temp-upper.csv', header=True)
+    plt.to_csv('processed/bowdoin-pressure-temp-lower.csv', header=True)
+    puw.to_csv('processed/bowdoin-pressure-wlev-upper.csv', header=True)
+    plw.to_csv('processed/bowdoin-pressure-wlev-lower.csv', header=True)
     tuz.to_csv('processed/bowdoin-thstring-depth-upper.csv', header=True)
     tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv', header=True)
-    uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
-    ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
-
-    # extract temperatures, using depths
-    put = pudf['temp'].rename('UP')
-    put.to_csv('processed/bowdoin-pressure-temp-upper.csv', header=True)
-    plt = pldf['temp'].rename('LP')
-    plt.to_csv('processed/bowdoin-pressure-temp-lower.csv', header=True)
-    uut = extract_temp(uudf)
-    uut = cal_temperature(uut, uuz, 'upper')
-    uut.to_csv('processed/bowdoin-tiltunit-temp-upper.csv')
-    ult = extract_temp(uldf)
-    ult = cal_temperature(ult, ulz, 'lower')
-    ult.to_csv('processed/bowdoin-tiltunit-temp-lower.csv')
-    tudf += melt_offset(tudf, tuz, 'upper')
-    tudf.to_csv('processed/bowdoin-thstring-temp-upper.csv')
-    tldf += melt_offset(tudf, tlz, 'lower')
-    tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
     mudf.to_csv('processed/bowdoin-thstring-mantemp-upper.csv')
     mudf.to_csv('processed/bowdoin-thstring-mantemp-lower.csv')
-
-    # extract tilt angles
-    uutx, uuty = extract_tilt(uudf, tiltunit_loggers['upper'])
+    tudf.to_csv('processed/bowdoin-thstring-temp-upper.csv')
+    tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
+    uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
+    ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
+    uut.to_csv('processed/bowdoin-tiltunit-temp-upper.csv')
+    ult.to_csv('processed/bowdoin-tiltunit-temp-lower.csv')
     uutx.to_csv('processed/bowdoin-tiltunit-tiltx-upper.csv')
     uuty.to_csv('processed/bowdoin-tiltunit-tilty-upper.csv')
-    ultx, ulty = extract_tilt(uldf, tiltunit_loggers['lower'])
     ultx.to_csv('processed/bowdoin-tiltunit-tiltx-lower.csv')
     ulty.to_csv('processed/bowdoin-tiltunit-tilty-lower.csv')
+    uuw.to_csv('processed/bowdoin-tiltunit-wlev-upper.csv')
+    ulw.to_csv('processed/bowdoin-tiltunit-wlev-lower.csv')
