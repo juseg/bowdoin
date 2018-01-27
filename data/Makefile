@@ -52,9 +52,9 @@ $(GPS_FILES): preprocess-dgps.py
 	python2 $<
 
 # additional dependency of depth processing on water levels
-preprocess-depths.py: $(foreach BH, $(BOREHOLES), \
-                        processed/bowdoin-pressure-wlev-$(BH).csv \
-                        processed/bowdoin-tiltunit-wlev-$(BH).csv)
+preprocess-boreholes.py: $(foreach BH, $(BOREHOLES), \
+                           processed/bowdoin-pressure-wlev-$(BH).csv \
+                           processed/bowdoin-tiltunit-wlev-$(BH).csv)
 
 # additional dependency of temp processing on pressure depth
 preprocess-thstring.py: $(foreach BH, $(BOREHOLES), \
@@ -62,7 +62,7 @@ preprocess-thstring.py: $(foreach BH, $(BOREHOLES), \
 
 # separate rule for depth files
 # FIXME this causes multiple calls
-$(DEP_FILES): preprocess-depths.py util.py
+$(DEP_FILES): preprocess-boreholes.py util.py
 	mkdir -p processed
 	python2 $<
 
