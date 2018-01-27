@@ -18,6 +18,7 @@ water_depths = dict(BH1=48.0, BH2=46.0, BH3=0.0)
 # data logger properties
 pressure_loggers = dict(lower='drucksens073303', upper='drucksens094419')
 pressure_columns = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
+thstring_loggers = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
 
 
 # Borehole location methods
@@ -191,6 +192,75 @@ def get_pressure_data(bh, log):
     return df
 
 
+def get_thstring_data(bh, log, manual=False):
+    """Return thermistor string data in a data frame."""
+
+    # input file names
+    postfix = 'Manual' if manual else 'Therm'
+    cfilename = 'original/temperature/%s_Coefs.dat' % log
+    ifilename = 'original/temperature/%s_%s.dat' % (log, postfix)
+
+    # read rearranged calibration coefficients
+    # sensor order lower: BH2A[1-9] + BH2B[1-7],
+    #              upper: BH1A[1-9] + BH1B[1-4,7,5-6].
+    a1, a2, a3 = np.loadtxt(cfilename, unpack=True)
+
+    # read resistance data
+    skiprows = [0] if manual else [0, 2, 3]
+    df = pd.read_csv(ifilename, skiprows=skiprows, comment='#',
+                     na_values='NAN', index_col=0)
+    df = df[['Resist({:d})'.format(i+1) for i in range(16)]]
+
+    # compute temperature from resistance
+    df = np.log(df)
+    df = 1 / (a1 + a2*df + a3*df**3) - 273.15
+
+    # rename index and columns
+    df.index = df.index.rename('date')
+    df.columns = [bh[0].upper() + 'T%02d' % (i+1) for i in range(16)]
+
+    # return as dataframe
+    return df
+
+
+# Temperature calibration methods
+# -------------------------------
+
+def cal_temperature(temp, depth, borehole):
+    """
+    Recalibrate lower temperature to zero degrees.
+    """
+    return temp + melt_offset(temp, depth, borehole)
+
+
+def melt_offset(temp, depth, borehole):
+    """
+    Return offset between measured temp and melting point.
+    Unfortunately initial upper data were lost.
+    """
+
+    # check argument validity
+    assert borehole in ('lower', 'upper')
+
+    # compute offset to melting point
+    if borehole == 'lower':
+        if 'temp01' in depth:
+            depth['temp01'] = 243.849292443  # FIXME: move this to preproc
+        melt = melting_point(depth.iloc[0])  # FIXME: find nearest date
+        calt = temp['2014-07-23 11:20':'2014-07-23 15:00'].mean()
+        offset = (melt - calt).fillna(0.0)
+    else:
+        offset = 0.0
+
+    # return offset
+    return offset
+
+
+def melting_point(depth, g=9.80665, rhoi=910.0, beta=7.9e-8):
+    """Compute pressure melting point from depth (Luethi et al., 2002)"""
+    return -beta * rhoi * g * depth
+
+
 # Main program
 # ------------
 
@@ -234,3 +304,18 @@ if __name__ == '__main__':
     tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv', header=True)
     uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
     ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
+
+    # preprocess thermistor string data
+    for bh, log in thstring_loggers.iteritems():
+
+        # get sensor depth
+        z = {'upper': tuz, 'lower': tlz}[bh]
+
+        # preprocess data logger temperatures
+        df = get_thstring_data(bh, log)
+        df += melt_offset(df, z, bh)
+        df.to_csv('processed/bowdoin-thstring-temp-%s.csv' % bh)
+
+        # preprocess manual temperatures
+        df = get_thstring_data(bh, log, manual=True)
+        df.to_csv('processed/bowdoin-thstring-mantemp-%s.csv' % bh)

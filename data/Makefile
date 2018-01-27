@@ -33,7 +33,8 @@ SAT_FILES = satellite/bowdoin-landsat.csv \
             satellite/bowdoin-landsat-uv.csv
 
 # all files to process
-ALL_FILES = $(DEP_FILES) $(GPS_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES) $(SAT_FILES)
+BOR_FILES = $(DEP_FILES) $(INC_FILES) $(PRE_FILES) $(TEM_FILES)
+ALL_FILES = $(BOR_FILES) $(DEP_FILES) $(SAT_FILES)
 
 
 # Rules
@@ -51,30 +52,9 @@ $(GPS_FILES): preprocess-dgps.py
 	mkdir -p processed
 	python2 $<
 
-# additional dependency of depth processing on water levels
-preprocess-boreholes.py: $(foreach BH, $(BOREHOLES), \
-                           processed/bowdoin-pressure-wlev-$(BH).csv \
-                           processed/bowdoin-tiltunit-wlev-$(BH).csv)
-
-# additional dependency of temp processing on pressure depth
-preprocess-thstring.py: $(foreach BH, $(BOREHOLES), \
-                          processed/bowdoin-pressure-depth-$(BH).csv)
-
 # separate rule for depth files
 # FIXME this causes multiple calls
-$(DEP_FILES): preprocess-boreholes.py util.py
-	mkdir -p processed
-	python2 $<
-
-# general patterned rule to avoid multiple calls
-# FIXME this causes multiple calls
-$(foreach VAR, $(INC_VARS), \
-  $(foreach BH, $(BOREHOLES), \
-    processed/bowdoin-%-$(VAR)-$(BH).csv)): preprocess-%.py util.py
-	mkdir -p processed
-	python2 $<
-$(foreach BH, $(BOREHOLES), \
-  processed/bowdoin-thstring-depth-$(BH).csv): preprocess-thstring.py util.py
+$(BOR_FILES): preprocess-boreholes.py
 	mkdir -p processed
 	python2 $<
 
