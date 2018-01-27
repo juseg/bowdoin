@@ -63,7 +63,7 @@ def borehole_thinning(uz, lz, distances):
     return dz
 
 
-def sensor_depths_init(sensor='pressure'):
+def sensor_depths_init(sensor):
     """Return initial sensor depths as data series."""
 
     # exact borehole location depends on sensor
@@ -86,16 +86,12 @@ def sensor_depths_init(sensor='pressure'):
     return uz, lz
 
 
-def sensor_depths_evol(uz, lz, sensor='pressure'):
+def sensor_depths_evol(sensor, uz, lz, ubase, lbase):
     """Return time-dependent sensor depths as data frames."""
 
     # exact borehole location depends on sensor
     upper = sensor_holes[sensor]['upper']
     lower = sensor_holes[sensor]['lower']
-
-    # compute depth of lowest sensor
-    ubase = uz.max()  # FIXME: this should consider other sensors too
-    lbase = lz.max()  # FIXME: this should consider other sensors too
 
     # compute time-dependent depths
     distances = borehole_distances(upper=upper, lower=lower)
@@ -113,9 +109,20 @@ if __name__ == '__main__':
     """Preprocess borehole sensor depths."""
     # FIXME: include preprocessing of thermistor string depths.
 
-    # extract pressure and tiltunit sensor depths
-    for sensor in ('pressure', 'tiltunit'):
-        uz, lz = sensor_depths_init(sensor=sensor)
-        uz, lz = sensor_depths_evol(uz, lz, sensor=sensor)
-        uz.to_csv('processed/bowdoin-%s-depth-upper.csv' % sensor, header=True)
-        lz.to_csv('processed/bowdoin-%s-depth-lower.csv' % sensor, header=True)
+    # first get initial sensor depths
+    puz, plz = sensor_depths_init('pressure')
+    uuz, ulz = sensor_depths_init('tiltunit')
+
+    # assume borehole base at the deepest sensor
+    ubase = max(puz.max(), uuz.max())
+    lbase = max(plz.max(), ulz.max())
+
+    # compute borehole thinning
+    puz, plz = sensor_depths_evol('pressure', puz, plz, ubase, lbase)
+    uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz, ubase, lbase)
+
+    # export to csv
+    puz.to_csv('processed/bowdoin-pressure-depth-upper.csv', header=True)
+    plz.to_csv('processed/bowdoin-pressure-depth-lower.csv', header=True)
+    uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
+    ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
