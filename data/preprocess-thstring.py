@@ -81,7 +81,7 @@ def get_depth(bh):
     # 2014/15 was [...] -1.96 m a-1 at [...] BH1'' (Tsutaki et al., 2016).
     melt = 1.96
     filename = 'processed/bowdoin-pressure-depth-%s.csv' % bh
-    base = pd.read_csv(filename, parse_dates=True, index_col='date').squeeze()
+    base = pd.read_csv(filename, parse_dates=True, index_col='date', squeeze=True)[0]
     depth[0] = base - melt
 
     # return as a pandas data series

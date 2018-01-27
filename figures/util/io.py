@@ -95,14 +95,15 @@ def load_data(sensor, variable, borehole):
     elif borehole == 'both':
         dfu = ut.io.load_data(sensor, variable, 'upper')
         dfl = ut.io.load_data(sensor, variable, 'lower')
-        df = dfu.join(dfl)
+        df = dfu.append(dfl)
     return df
 
 def load_depth(sensor, borehole):
     """Return sensor depths in a data series."""
+    # FIXME: this only read initial depth at the moment
 
     # read data as a series
-    df = load_data(sensor, 'depth', borehole).mean()
+    df = load_data(sensor, 'depth', borehole).iloc[0]
     return df
 
 

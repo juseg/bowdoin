@@ -55,8 +55,8 @@ for y in years:
     meandates[y] = ld+(ud-ld)/2
 
 # load sensor depths
-lz = ut.io.load_data('pressure', 'depth', 'lower').squeeze()
-uz = ut.io.load_data('pressure', 'depth', 'upper').squeeze()
+lz = ut.io.load_data('pressure', 'depth', 'lower')['2014'].squeeze()
+uz = ut.io.load_data('pressure', 'depth', 'upper')['2014'].squeeze()
 
 # compute area between boreholes
 area = distances[2014] * (uz+lz)/2
