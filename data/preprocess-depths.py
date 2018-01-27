@@ -18,40 +18,41 @@ def borehole_distances(upper='BH2', lower='BH3'):
     Compute distances between boreholes
     """
 
-    # years with data
-    # FIXME: there must be a better way to do that
-    years = [2014, 2016, 2017]
-
     # projections used to compute distances
     ll = ccrs.PlateCarree()
     utm = ccrs.UTM(19)
 
+    # initialize empty data series
+    ux = pd.Series()
+    uy = pd.Series()
+    lx = pd.Series()
+    ly = pd.Series()
+
     # read GPX file
-    locations = dict()
-    dates = dict()
     with open('../data/locations.gpx', 'r') as gpx_file:
         for wpt in gpxpy.parse(gpx_file).waypoints:
-            if upper in wpt.name or lower in wpt.name:
+            if upper in wpt.name:
                 xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
-                locations[wpt.name] = xy
-                dates[wpt.name] = wpt.time
+                ux[wpt.time], uy[wpt.time] = xy
+            elif lower in wpt.name:
+                xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
+                lx[wpt.time], ly[wpt.time] = xy
+
+    # sort by date
+    for ts in ux, uy, lx, ly:
+        ts.sort_index(inplace=True)
+
+    # ensure series have same length
+    assert len(ux) == len(uy) == len(lx) == len(ly)
 
     # compute distances
-    distances = dict()
-    for y in years:
-        ux, uy = locations['B%2d%s' % (y-2000, upper)]
-        lx, ly = locations['B%2d%s' % (y-2000, lower)]
-        distances[y] = ((ux-lx)**2 + (uy-ly)**2)**0.5
+    distances = ((ux.values-lx.values)**2 + (uy.values-ly.values)**2)**0.5
 
     # get average dates
-    meandates = dict()
-    for y in years:
-        ud = dates['B%2d%s' % (y-2000, upper)]
-        ld = dates['B%2d%s' % (y-2000, lower)]
-        meandates[y] = ld+(ud-ld)/2
+    meandates = lx.index +(ux.index-lx.index)/2
 
     # return as a pandas series
-    ts = pd.Series(index=meandates.values(), data=distances.values())
+    ts = pd.Series(index=meandates, data=distances)
     ts = ts.sort_index()
     ts.index.name = 'date'
     return ts
