@@ -364,31 +364,27 @@ def melting_point(depth, g=9.80665, rhoi=910.0, beta=7.9e-8):
 if __name__ == '__main__':
     """Preprocess borehole data."""
 
-    # preprocess pressure sensor data
-    for bh, log in pressure_loggers.iteritems():
+    # read all data
+    pudf = get_pressure_data('upper', pressure_loggers['upper'])
+    pldf = get_pressure_data('lower', pressure_loggers['lower'])
+    uudf = get_tiltunit_data('upper', tiltunit_loggers['upper'])
+    uldf = get_tiltunit_data('lower', tiltunit_loggers['lower'])
+    tudf = get_thstring_data('upper', thstring_loggers['upper'])
+    tldf = get_thstring_data('lower', thstring_loggers['lower'])
+    mudf = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
+    mldf = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
 
-        # get all data
-        df = get_pressure_data(bh, log)
+    # extract water levels, needed by depth computations
+    puw = pudf['wlev'].rename('UP')
+    puw.to_csv('processed/bowdoin-pressure-wlev-upper.csv', header=True)
+    plw = pldf['wlev'].rename('LP')
+    plw.to_csv('processed/bowdoin-pressure-wlev-lower.csv', header=True)
+    uuw = extract_wlev(uudf)
+    uuw.to_csv('processed/bowdoin-tiltunit-wlev-upper.csv')
+    ulw = extract_wlev(uldf)
+    ulw.to_csv('processed/bowdoin-tiltunit-wlev-lower.csv')
 
-        # extract water level
-        wlev = df['wlev'].rename(bh[0].upper() + 'P')
-        wlev.to_csv('processed/bowdoin-pressure-wlev-%s.csv' % bh, header=True)
-
-        # extract temperature
-        temp = df['temp'].rename(bh[0].upper() + 'P')
-        temp.to_csv('processed/bowdoin-pressure-temp-%s.csv' % bh, header=True)
-
-    # preprocess tiltunit water level
-    for bh, log in tiltunit_loggers.iteritems():
-
-        # get all data
-        df = get_tiltunit_data(bh, log)
-
-        # extract water level and sensor depth
-        wlev = extract_wlev(df)
-        wlev.to_csv('processed/bowdoin-tiltunit-wlev-%s.csv' % bh)
-
-    # first get initial sensor depths
+    # get initial pressure sensor and tilt unit depths
     puz, plz = sensor_depths_init('pressure')
     uuz, ulz = sensor_depths_init('tiltunit')
 
@@ -412,36 +408,28 @@ if __name__ == '__main__':
     uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
     ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
 
-    # preprocess tiltunit temperatures and tilt
-    for bh, log in tiltunit_loggers.iteritems():
+    # extract temperatures, using depths
+    put = pudf['temp'].rename('UP')
+    put.to_csv('processed/bowdoin-pressure-temp-upper.csv', header=True)
+    plt = pldf['temp'].rename('LP')
+    plt.to_csv('processed/bowdoin-pressure-temp-lower.csv', header=True)
+    uut = extract_temp(uudf)
+    uut = cal_temperature(uut, uuz, 'upper')
+    uut.to_csv('processed/bowdoin-tiltunit-temp-upper.csv')
+    ult = extract_temp(uldf)
+    ult = cal_temperature(ult, ulz, 'lower')
+    ult.to_csv('processed/bowdoin-tiltunit-temp-lower.csv')
+    tudf += melt_offset(tudf, tuz, 'upper')
+    tudf.to_csv('processed/bowdoin-thstring-temp-upper.csv')
+    tldf += melt_offset(tudf, tlz, 'lower')
+    tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
+    mudf.to_csv('processed/bowdoin-thstring-mantemp-upper.csv')
+    mudf.to_csv('processed/bowdoin-thstring-mantemp-lower.csv')
 
-        # get sensor depth
-        z = {'upper': uuz, 'lower': ulz}[bh]
-
-        # get all data # FIXME: reading data again
-        df = get_tiltunit_data(bh, log)
-
-        # extract temperatures
-        temp = extract_temp(df)
-        temp = cal_temperature(temp, z, bh)
-        temp.to_csv('processed/bowdoin-tiltunit-temp-%s.csv' % bh)
-
-        # extract tilt angles
-        tiltx, tilty = extract_tilt(df, log)
-        tiltx.to_csv('processed/bowdoin-tiltunit-tiltx-%s.csv' % bh)
-        tilty.to_csv('processed/bowdoin-tiltunit-tilty-%s.csv' % bh)
-
-    # preprocess thermistor string data
-    for bh, log in thstring_loggers.iteritems():
-
-        # get sensor depth
-        z = {'upper': tuz, 'lower': tlz}[bh]
-
-        # preprocess data logger temperatures
-        df = get_thstring_data(bh, log)
-        df += melt_offset(df, z, bh)
-        df.to_csv('processed/bowdoin-thstring-temp-%s.csv' % bh)
-
-        # preprocess manual temperatures
-        df = get_thstring_data(bh, log, manual=True)
-        df.to_csv('processed/bowdoin-thstring-mantemp-%s.csv' % bh)
+    # extract tilt angles
+    uutx, uuty = extract_tilt(uudf, tiltunit_loggers['upper'])
+    uutx.to_csv('processed/bowdoin-tiltunit-tiltx-upper.csv')
+    uuty.to_csv('processed/bowdoin-tiltunit-tilty-upper.csv')
+    ultx, ulty = extract_tilt(uldf, tiltunit_loggers['lower'])
+    ultx.to_csv('processed/bowdoin-tiltunit-tiltx-lower.csv')
+    ulty.to_csv('processed/bowdoin-tiltunit-tilty-lower.csv')
