@@ -20,9 +20,9 @@ water_depths = dict(BH1=48.0, BH2=46.0, BH3=0.0)
 
 # data logger properties
 pressure_loggers = dict(lower='drucksens073303', upper='drucksens094419')
-pressure_columns = ['label', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
+pressure_columns = ['id', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
 tiltunit_loggers = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')
-tiltunit_allinst = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
+tiltunit_sensors = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
 tiltunit_outinst = ['ixr', 'iyr', 'p', 'tp', 't']
 thstring_loggers = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
 
@@ -197,25 +197,36 @@ def get_tiltunit_data(bh, log):
 
     # input file names
     ifilename = 'original/inclino/%s_All.dat' % log
+    cfilename = 'original/inclino/%s_Coefs.dat' % log
 
     # open input file
-    idf = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
-                      dtype=str, parse_dates=True, na_values='NAN')
+    df = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
+                     dtype=str, parse_dates=True, na_values='NAN')
 
     # rename index
-    idf.index = idf.index.rename('date')
+    df.index = df.index.rename('date')
 
-    # these columns will need to be splitted
-    rescols = [col for col in idf.columns if col.startswith('res')]
+    # find columns with logger properties and those data
+    propcols = [col for col in df.columns if not col.startswith('res')]
+    datacols = [col for col in df.columns if col.startswith('res')]
+    datacols = [col for col in datacols if df[col].notnull().any()]
 
-    # ignore columns containing no data
-    rescols = [col for col in rescols if not idf[col].isnull().all()]
+    # split data strings and re-merge into one dataframe
+    propdf = df[propcols]
+    propdf.columns = pd.MultiIndex.from_tuples([(c, '') for c in propcols])
+    datadf = pd.concat([splitstrings(bh, df[col]) for col in datacols], axis=1)
+    df = pd.concat([propdf, datadf], axis=1)
 
-    # split remaining columns into new dataframe
-    odf = pd.concat([splitstrings(bh, idf[col]) for col in rescols], axis=1)
+    # read calibration coefficients
+    coefs = pd.read_csv(cfilename, index_col=0, comment='#')
+    coefs = coefs.loc[df['ixr'].columns]
+
+    # calibrate tilt angles
+    df['ixr'] = (df['ixr'] - coefs['bx'])/coefs['ax']
+    df['iyr'] = (df['iyr'] - coefs['by'])/coefs['ay']
 
     # return filled dataframe
-    return odf
+    return df
 
 
 def get_thstring_data(bh, log, manual=False):
@@ -256,7 +267,7 @@ def floatornan(x):
     """Try to convert to float and return NaN if that fails."""
     try:
         return float(x)
-    except ValueError:
+    except (ValueError, TypeError):
         return np.nan
 
 
@@ -264,42 +275,17 @@ def splitstrings(bh, ts):
     """Split series of data strings into multi-column data frame."""
 
     # split data strings into new multi-column dataframe and fill with NaN
-    df = ts.str.split(',', expand=True)
-    df.fillna(value=np.nan, inplace=True)
+    df = ts.str.split(',', expand=True).applymap(floatornan)
+
+    # replace null values by nan
+    df = df.replace([-99.199996, 2499.0, 4999.0, 7499.0, 9999.0], np.nan)
 
     # rename columns
     unitname = bh[0].upper() + 'I%02d' % int(ts.name[-2:-1])
-    df.columns = [tiltunit_allinst, [unitname]*len(tiltunit_allinst)]
-
-    # replace nan values by nan
-    df.replace('-99.199996', np.nan, inplace=True)
-
-    # convert to numeric
-    # splitted.convert_objects(convert_numeric=True)  # deprectiated
-    # splitted = pd.to_numeric(splitted, errors='coerce')  # does not work
-    df = df.applymap(floatornan)
+    df.columns = [tiltunit_sensors, [unitname]*len(tiltunit_sensors)]
 
     # return splitted dataframe
     return df
-
-
-def extract_tilt(df, log):
-    """Return tilt angles in a dataframe."""
-
-    # read calibration coefficients
-    coefs = pd.read_csv('original/inclino/%s_Coefs.dat' % log,
-                         index_col=0, comment='#')
-
-    # keep only units present in data
-    coefs = coefs.loc[df['ixr'].columns]
-
-    # process angles and compute tilt
-    tiltx = (df['ixr'] - coefs['bx'])/coefs['ax']
-    tilty = (df['iyr'] - coefs['by'])/coefs['ay']
-    # tilt = np.arcsin(np.sqrt(np.sin(tiltx)**2+np.sin(tilty)**2))*180/np.pi
-
-    # return tilt
-    return tiltx, tilty
 
 
 def extract_temp(df):
@@ -368,6 +354,7 @@ if __name__ == '__main__':
     mudf = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
     mldf = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
 
+
     # extract relevant variables
     puw = pudf['wlev'].rename('UP')
     plw = pldf['wlev'].rename('LP')
@@ -377,8 +364,8 @@ if __name__ == '__main__':
     ulw = extract_wlev(uldf)
     uut = extract_temp(uudf)
     ult = extract_temp(uldf)
-    uutx, uuty = extract_tilt(uudf, tiltunit_loggers['upper'])
-    ultx, ulty = extract_tilt(uldf, tiltunit_loggers['lower'])
+    uutx, uuty = uudf['ixr'], uudf['iyr']
+    ultx, ulty = uldf['ixr'], uldf['iyr']
 
     # get initial sensor depths
     puz, plz = sensor_depths_init('pressure', puw, plw)
