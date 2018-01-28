@@ -230,6 +230,10 @@ def get_tiltunit_data(bh, log):
     df['ixr'] = (df['ixr'] - coefs['bx'])/coefs['ax']
     df['iyr'] = (df['iyr'] - coefs['by'])/coefs['ay']
 
+    # convert temperatures to degrees and pressures to meters of water
+    df['p'] *= 1e2/g
+    df['t'] /= 1e3
+
     # return filled dataframe
     return df
 
@@ -293,18 +297,6 @@ def splitstrings(bh, ts):
     return df
 
 
-def extract_temp(df):
-    """Return temperature values in a dataframe."""
-    temp = df['t']*1e-3
-    return temp
-
-
-def extract_wlev(df):
-    """Return water level and unit depths."""
-    wlev = df['p']*1e2/9.80665
-    return wlev
-
-
 # Temperature calibration methods
 # -------------------------------
 
@@ -365,10 +357,10 @@ if __name__ == '__main__':
     plw = pldf['wlev'].rename('LP')
     put = pudf['temp'].rename('UP')
     plt = pldf['temp'].rename('LP')
-    uuw = extract_wlev(uudf)
-    ulw = extract_wlev(uldf)
-    uut = extract_temp(uudf)
-    ult = extract_temp(uldf)
+    uuw = uudf['p']
+    ulw = uldf['p']
+    uut = uudf['t']
+    ult = uldf['t']
     uutx, uuty = uudf['ixr'], uudf['iyr']
     ultx, ulty = uldf['ixr'], uldf['iyr']
 
