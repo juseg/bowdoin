@@ -351,22 +351,15 @@ if __name__ == '__main__':
     mudf = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
     mldf = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
 
-
-    # extract relevant variables
+    # extract time series
     puw = pudf['wlev'].rename('UP')
     plw = pldf['wlev'].rename('LP')
     put = pudf['temp'].rename('UP')
     plt = pldf['temp'].rename('LP')
-    uuw = uudf['p']
-    ulw = uldf['p']
-    uut = uudf['t']
-    ult = uldf['t']
-    uutx, uuty = uudf['ixr'], uudf['iyr']
-    ultx, ulty = uldf['ixr'], uldf['iyr']
 
     # get initial sensor depths
     puz, plz = sensor_depths_init('pressure', puw, plw)
-    uuz, ulz = sensor_depths_init('tiltunit', uuw, ulw)
+    uuz, ulz = sensor_depths_init('tiltunit', uudf['p'], uldf['p'])
     ubase = max(puz.max(), uuz.max())  # assume base at deepest sensor
     lbase = max(plz.max(), ulz.max())  # assume base at deepest sensor
     tuz, tlz = thstring_depth_init(ubase, lbase)
@@ -377,12 +370,12 @@ if __name__ == '__main__':
     uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz, ubase, lbase)
 
     # calibrate temperatures
-    uut = cal_temperature(uut, uuz, 'upper')
-    ult = cal_temperature(ult, ulz, 'lower')
+    uudf['t'] = cal_temperature(uudf['t'], uuz, 'upper')
+    uldf['t'] = cal_temperature(uldf['t'], ulz, 'lower')
     tudf += melt_offset(tudf, tuz, 'upper')
     tldf += melt_offset(tudf, tlz, 'lower')
 
-    # export to csv
+    # export to csv, force header on time series
     puz.to_csv('processed/bowdoin-pressure-depth-upper.csv', header=True)
     plz.to_csv('processed/bowdoin-pressure-depth-lower.csv', header=True)
     put.to_csv('processed/bowdoin-pressure-temp-upper.csv', header=True)
@@ -397,11 +390,11 @@ if __name__ == '__main__':
     tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
     uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
     ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
-    uut.to_csv('processed/bowdoin-tiltunit-temp-upper.csv')
-    ult.to_csv('processed/bowdoin-tiltunit-temp-lower.csv')
-    uutx.to_csv('processed/bowdoin-tiltunit-tiltx-upper.csv')
-    uuty.to_csv('processed/bowdoin-tiltunit-tilty-upper.csv')
-    ultx.to_csv('processed/bowdoin-tiltunit-tiltx-lower.csv')
-    ulty.to_csv('processed/bowdoin-tiltunit-tilty-lower.csv')
-    uuw.to_csv('processed/bowdoin-tiltunit-wlev-upper.csv')
-    ulw.to_csv('processed/bowdoin-tiltunit-wlev-lower.csv')
+    uudf['t'].to_csv('processed/bowdoin-tiltunit-temp-upper.csv')
+    uldf['t'].to_csv('processed/bowdoin-tiltunit-temp-lower.csv')
+    uudf['ixr'].to_csv('processed/bowdoin-tiltunit-tiltx-upper.csv')
+    uudf['iyr'].to_csv('processed/bowdoin-tiltunit-tilty-upper.csv')
+    uldf['ixr'].to_csv('processed/bowdoin-tiltunit-tiltx-lower.csv')
+    uldf['iyr'].to_csv('processed/bowdoin-tiltunit-tilty-lower.csv')
+    uudf['p'].to_csv('processed/bowdoin-tiltunit-wlev-upper.csv')
+    uldf['p'].to_csv('processed/bowdoin-tiltunit-wlev-lower.csv')
