@@ -300,39 +300,15 @@ def splitstrings(bh, ts):
 # Temperature calibration methods
 # -------------------------------
 
-def cal_temperature(temp, depth, borehole):
+def cal_temperature(temp, depth, t0='2014-07-23 11:20', t1='2014-07-23 15:00'):
     """
-    Recalibrate lower temperature to zero degrees.
+    Recalibrate lower borehole temperature to melting point.
+    Unfortunately initial upper borehole data were lost.
     """
-    return temp + melt_offset(temp, depth, borehole)
-
-
-def melt_offset(temp, depth, borehole):
-    """
-    Return offset between measured temp and melting point.
-    Unfortunately initial upper data were lost.
-    """
-
-    # check argument validity
-    assert borehole in ('lower', 'upper')
-
-    # compute offset to melting point
-    if borehole == 'lower':
-        if 'temp01' in depth:
-            depth['temp01'] = 243.849292443  # FIXME: move this to preproc
-        melt = melting_point(depth.iloc[0])  # FIXME: find nearest date
-        calt = temp['2014-07-23 11:20':'2014-07-23 15:00'].mean()
-        offset = (melt - calt).fillna(0.0)
-    else:
-        offset = 0.0
-
-    # return offset
-    return offset
-
-
-def melting_point(depth, g=g, rhoi=rhoi, beta=beta):
-    """Compute pressure melting point from depth (Luethi et al., 2002)"""
-    return -beta * rhoi * g * depth
+    melting_point = -beta * rhoi * g * depth
+    initial_temp = temp[t0:t1].mean()
+    melt_offset = (melting_point - initial_temp).fillna(0.0)
+    return temp + melt_offset
 
 
 # Main program
@@ -364,16 +340,14 @@ if __name__ == '__main__':
     lbase = max(plz.max(), ulz.max())  # assume base at deepest sensor
     tuz, tlz = thstring_depth_init(ubase, lbase)
 
+    # calibrate temperatures using initial depths
+    uldf['t'] = cal_temperature(uldf['t'], ulz)
+    tldf = cal_temperature(tudf, tlz)
+
     # compute borehole thinning
     puz, plz = sensor_depths_evol('pressure', puz, plz, ubase, lbase)
     tuz, tlz = sensor_depths_evol('thstring', tuz, tlz, ubase, lbase)
     uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz, ubase, lbase)
-
-    # calibrate temperatures
-    uudf['t'] = cal_temperature(uudf['t'], uuz, 'upper')
-    uldf['t'] = cal_temperature(uldf['t'], ulz, 'lower')
-    tudf += melt_offset(tudf, tuz, 'upper')
-    tldf += melt_offset(tudf, tlz, 'lower')
 
     # export to csv, force header on time series
     puz.to_csv('processed/bowdoin-pressure-depth-upper.csv', header=True)
