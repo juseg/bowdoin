@@ -82,6 +82,7 @@ def borehole_distances(upper='BH2', lower='BH3'):
 
 def borehole_thinning(uz, lz, distances):
     """Estimate thinning based on distance between boreholes."""
+    # FIXME account for ice melt
     dz = (uz+lz) / 2 * (distances[0]/distances-1)  # < 0)
     return dz
 
@@ -342,12 +343,14 @@ if __name__ == '__main__':
 
     # calibrate temperatures using initial depths
     uldf['t'] = cal_temperature(uldf['t'], ulz)
-    tldf = cal_temperature(tudf, tlz)
+    tldf = cal_temperature(tldf, tlz)
 
     # compute borehole thinning
     puz, plz = sensor_depths_evol('pressure', puz, plz, ubase, lbase)
     tuz, tlz = sensor_depths_evol('thstring', tuz, tlz, ubase, lbase)
     uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz, ubase, lbase)
+    puz = puz.rename('UP')
+    plz = plz.rename('LP')
 
     # export to csv, force header on time series
     puz.to_csv('processed/bowdoin-pressure-depth-upper.csv', header=True)
@@ -359,7 +362,7 @@ if __name__ == '__main__':
     tuz.to_csv('processed/bowdoin-thstring-depth-upper.csv', header=True)
     tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv', header=True)
     mudf.to_csv('processed/bowdoin-thstring-mantemp-upper.csv')
-    mudf.to_csv('processed/bowdoin-thstring-mantemp-lower.csv')
+    mldf.to_csv('processed/bowdoin-thstring-mantemp-lower.csv')
     tudf.to_csv('processed/bowdoin-thstring-temp-upper.csv')
     tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
     uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)

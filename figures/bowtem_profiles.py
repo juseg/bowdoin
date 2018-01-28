@@ -13,7 +13,7 @@ dates = dict(upper=['2015-01-01', '2016-07-12'],
 styles = ['-', ':', ':']
 
 # markers per sensor type
-markers = dict(temp='o', unit='^')  #, pres='s')
+markers = dict(T='o', I='^')  #, pres='s')
 
 # initialize figure
 fig, ax = plt.subplots()
@@ -57,8 +57,8 @@ for i, bh in enumerate(ut.boreholes):
         ax.plot(temp, depth, c=ut.colors[bh], ls=ls, label=label)
         if date == dates[bh][0]:
             for sensor, marker in markers.iteritems():
-                cols = [s for s in temp.index if s.startswith(sensor)]
-                ax.plot(temp[cols], depth[cols], marker, c=ut.colors[bh])
+                cols = [s for s in temp.index if s[1] == sensor]
+                #ax.plot(temp[cols], depth[cols], marker=marker, c=ut.colors[bh])
 
     # add base line  # FIXME UI02 is lower than that
     #ax.plot([temp['temp01']-0.5, temp['temp01']+0.5],
