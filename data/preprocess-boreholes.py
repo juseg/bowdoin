@@ -26,6 +26,11 @@ tiltunit_sensors = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
 tiltunit_outinst = ['ixr', 'iyr', 'p', 'tp', 't']
 thstring_loggers = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
 
+# physical constants
+g = 9.80665  # gravitational acceleration in m s-2
+rhoi = 910.0  # ice density in kg m-3
+beta = 7.9e-8  # ice Clapeyron constant (Luethi et al., 2002)
+
 
 # Borehole location methods
 # -------------------------
@@ -333,7 +338,7 @@ def melt_offset(temp, depth, borehole):
     return offset
 
 
-def melting_point(depth, g=9.80665, rhoi=910.0, beta=7.9e-8):
+def melting_point(depth, g=g, rhoi=rhoi, beta=beta):
     """Compute pressure melting point from depth (Luethi et al., 2002)"""
     return -beta * rhoi * g * depth
 
