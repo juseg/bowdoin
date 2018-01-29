@@ -219,7 +219,8 @@ def plot_campaigns(ax, y=0.95, va='baseline'):
 # Map elements
 # ------------
 
-def shading(z, dx=None, dy=None, extent=None, azimuth=315.0, altitude=30.0):
+def shading(z, dx=None, dy=None, extent=None, azimuth=315.0, altitude=30.0,
+            transparent=False):
     """Compute shaded relief map."""
 
     # get horizontal resolution
@@ -237,7 +238,10 @@ def shading(z, dx=None, dy=None, extent=None, azimuth=315.0, altitude=30.0):
     xlight = np.cos(azimuth) * np.cos(altitude)
     ylight = np.sin(azimuth) * np.cos(altitude)
     zlight = np.sin(altitude)
-    # zlight = 0.0  # remove shades from horizontal surfaces
+
+    # for transparent shades set horizontal surfaces to zero
+    if transparent is True:
+        zlight = 0.0
 
     # compute hillshade (dot product of normal and light direction vectors)
     u, v = np.gradient(z, dx, dy)
@@ -294,12 +298,15 @@ def coords_from_extent(extent, cols, rows):
     return x, y
 
 
-def add_waypoint(name, ax=None, color=None, marker='o',
-                 text=None, textpos='ul', offset=10):
+def add_waypoint(name, ax=None, bbox=None, color=None, fontweight='bold',
+                 marker='o', text=None, textpos='ul', offset=10):
     """Plot and annotate waypoint from GPX file"""
 
     # get current axes if None given
     ax = ax or plt.gca()
+
+    # invisible bbox if None given
+    bbox = bbox or dict(pad=0, ec='none', fc='none')
 
     # open GPX file
     with open('../data/locations.gpx', 'r') as gpx_file:
@@ -316,16 +323,19 @@ def add_waypoint(name, ax=None, color=None, marker='o',
 
                 # add annotation
                 if text:
-                    isright = (textpos[1] == 'r')
-                    isup = (textpos[0] == 'u')
-                    xytext = ((2*isright-1)*offset, (2*isup-1)*offset)
-                    ax.annotate(text, xy=xy, xytext=xytext, color=color,
-                                ha=('left' if isright else 'right'),
-                                va=('bottom' if isup else 'top'),
-                                fontweight='bold', textcoords='offset points',
-                                bbox=dict(pad=0, ec='none', fc='none'),
+                    xloc = textpos[1]
+                    yloc = textpos[0]
+                    px = {'c': 0.5, 'l': 1, 'r': 0}[xloc]
+                    py = {'c': 0.5, 'l': 1, 'u': 0}[yloc]
+                    dx = {'c': 0, 'l': -1, 'r': 1}[xloc]*offset
+                    dy = {'c': 0, 'l': -1, 'u': 1}[yloc]*offset
+                    ha = {'c': 'center', 'l': 'right', 'r': 'left'}[xloc]
+                    va = {'c': 'center', 'l': 'top', 'u': 'bottom'}[yloc]
+                    ax.annotate(text, xy=xy, xytext=(dx, dy), color=color,
+                                textcoords='offset points', ha=ha, va=va,
+                                bbox=bbox, fontweight=fontweight,
                                 arrowprops=dict(arrowstyle='->', color=color,
-                                                relpos=(1-isright, 1-isup)))
+                                                relpos=(px, py)))
 
                 # break the for loop
                 break
