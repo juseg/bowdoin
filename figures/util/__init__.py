@@ -10,8 +10,10 @@ import io
 import pl
 
 # temporary fix for https://github.com/pydata/xarray/issues/1661
-from pandas.tseries import converter
-converter.register()
+import pandas as pd
+if pd.__version__.startswith('0.21'):
+    from pandas.tseries import converter
+    converter.register()
 
 # build color brewer Paired palette
 colorkeys = [tone+hue
