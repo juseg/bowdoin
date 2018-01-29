@@ -11,6 +11,7 @@ cd external
 #[ -f "$dest" ] || wget $orig
 
 # Greenland MEaSUREs 250m multi-year velocity mosaic
+# FIXME update to Greenland CCI
 orig=ftp://sidads.colorado.edu/DATASETS/nsidc0670_MEASURES_my_vel_mosaic_v1/\
 greenland_vel_mosaic250_v1.tif
 dest=$(basename $orig)
@@ -33,7 +34,7 @@ dest=$(basename $orig)
 # Global Sea Level Observing System (GLOSS) Pituffik tide data
 orig="http://ilikai.soest.hawaii.edu/woce/h808.dat"
 dest=$(basename $orig)
-[ -f "$dest" ] || wget $orig -o $dest
+[ -f "$dest" ] || wget $orig
 
 # Office desktop locations
 geodata="iceberg:/scratch_net/iceberg_second/juliens/geodata"
@@ -45,6 +46,7 @@ dest=$(basename $orig)
 [ -f "$dest" ] || scp $orig $dest
 
 # Yvo's DEM
+# FIXME update to Arctic DEM
 orig="iceberg:/usr/itetnas01/data-vaw-01/glazioarch/GlacioProject/bowdoin/\
 bowdoin_2015/GIS/Data/DSM/bowdoin_20100904_15m_20140929.tif"
 dest="$(basename $orig)"
