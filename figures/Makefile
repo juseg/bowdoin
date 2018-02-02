@@ -20,7 +20,7 @@ PY_FIGS = campaign_2016 summary \
             $(addprefix summer_, 2014 2015 2016) \
             $(addprefix ts_, angvel defvel detrended gpsvel satvel satvel_uv tilt)) \
           $(addprefix bowpal_, samplemap) \
-          $(addprefix bowtem_, fft locmap profiles timeseries) \
+          $(addprefix bowtem_, fft locmap pf_freezup profiles timeseries) \
           $(addprefix bowtid_, boreholes fft gmb highpass intervals previous \
                                specgrams tempseries wlevseries) \
           $(addprefix bowwat_, thinning wlevseries)
