@@ -33,12 +33,10 @@ ax1.set_extent(reg, crs=utm)
 
 # open GPX file as a dictionary
 locations = dict()
-dates = dict()
 with open('../data/locations.gpx', 'r') as gpx_file:
     for wpt in gpxpy.parse(gpx_file).waypoints:
         xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
         locations[wpt.name] = xy
-        dates[wpt.name] = wpt.time
 
 # compute distances
 distances = dict()
@@ -47,24 +45,9 @@ for y in years:
     lx, ly = locations['B%2dBH3' % (y-2000)]
     distances[y] = ((ux-lx)**2 + (uy-ly)**2)**0.5
 
-# get average dates
-meandates = dict()
-for y in years:
-    ud = dates['B%2dBH2' % (y-2000)]
-    ld = dates['B%2dBH3' % (y-2000)]
-    meandates[y] = ld+(ud-ld)/2
-
-# load sensor depths
-lz = ut.io.load_data('pressure', 'depth', 'lower')['2014'].squeeze()
-uz = ut.io.load_data('pressure', 'depth', 'upper')['2014'].squeeze()
-
-# compute area between boreholes
-area = distances[2014] * (uz+lz)/2
-
-# compute thinning assuming equal area
-thinning = dict()
-for y, d in distances.iteritems():
-    thinning[y] = (uz+lz) / 2 * (distances[2014]/d-1)
+# load time-dependent depths
+lz = ut.io.load_data('pressure', 'depth', 'lower')
+uz = ut.io.load_data('pressure', 'depth', 'upper')
 
 
 # Map axes
@@ -99,12 +82,11 @@ ax.text(508.75e3, 8620.4e3, '1km', color='w', ha='center', fontweight='bold')
 ax = ax2
 
 # plot equal areas
-for y, c in zip(years, colors):
+for date,  in zip(years, colors):
     d = distances[y]
-    t = thinning[y]
-    ax.fill_between([0.0, d], [lz+t, uz+t], [0.0]*2,
-                    edgecolor=c, facecolor='none', lw=1.0)
-    ax.text(d, uz+t, ' %d' % y, color=c, fontweight='bold')
+    ax.fill_between([0.0, d], [lz[str(y)].squeeze(), uz[str(y)].squeeze()],
+                    [0.0]*2, edgecolor=c, facecolor='none', lw=1.0)
+    ax.text(d, uz[str(y)].squeeze(), ' %d' % y, color=c, fontweight='bold')
 
 # add text
 ax.text(0.4, 0.55, 'assumed equal area', ha='center', va='center',
