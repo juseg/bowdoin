@@ -146,6 +146,24 @@ def thstring_depth_init(ubase, lbase):
     Additional information from Conny, incompatible with the above: at the
     lower borehole, the gap between the deepest sensor of the surface string
     and the shallowest sensor on the deeper string is 20 m.
+
+    Additional information from Martin, incompatible with the above: at the
+    upper borehole, the gap between the deepest sensor of the surface string
+    and the shallowest sensor on the deeper string is 10 m.
+
+    Results:
+    * Upper borehole:
+     - Using surfacing cable lenghts (resulting in 11.3 m string overlap):
+       up to 2 K away from tilt unit measurements, deep thermistors ~15 m too
+       high, realistic profile.
+     - Assuming 10 m between strings: within 1 K of tilt unit measurements,
+       deep thermistors ~5 m too low, realistic profile.
+    * Lower borehole:
+     - Using surfacing cable lenghts (resulting in 6.05 m string overlap):
+       incomatible with tilt unit measurements, deep thermistors ~60 m too
+       high, even incompatible with shallow thermistors.
+     - Assuming 20 m between strings: incompatible with tilt unit measurements,
+       deep thermistors ~35 m too high, funny peak in temperature profile.
     """
 
     # ``SMB was measured [...] on Bowdoin Glacier at [...] BH1 (71 m a.s.l.)
@@ -156,15 +174,16 @@ def thstring_depth_init(ubase, lbase):
     # upper borehole
     surf_string = [0.0 - 13.40 - 20.0*i for i in [-6, -5, -4, -3, 0, -2, -1]]
     deep_string = [275.0 - 19.70 - 20.0*i for i in range(9)]  # surface cable
-    deep_string = [ubase - melt] + [np.nan] * 8  # nans except for the base
+    deep_string = [surf_string[0] + 10.0 - 20.0*i for i in range(-8, 1)]  # Martin
+    #deep_string = [ubase - melt] + [np.nan] * 8  # nans except for the base
     uz = pd.Series(index=['UT%02d' % (i+1) for i in range(16)],
                    data=list(deep_string)+list(surf_string))
 
     # lower borehole
     surf_string = [-20.0 - 11.25 - 20.0*i for i in range(-6, 1)]
     deep_string = [250.0 - 7.30 - 20.0*i for i in range(9)]  # surface cable
-    deep_string = [surf_string[0] - 20.0*i for i in range(-8, 1)]  # Conny
-    deep_string = [lbase - melt] + [np.nan] * 8  # nans except for the base
+    deep_string = [surf_string[0] - 20.0*i for i in range(-9, 0)]  # Conny
+    #deep_string = [lbase - melt] + [np.nan] * 8  # nans except for the base
     lz = pd.Series(index=['LT%02d' % (i+1) for i in range(16)],
                    data=list(deep_string)+list(surf_string))
 
@@ -306,6 +325,7 @@ def cal_temperature(temp, depth, t0='2014-07-23 11:20', t1='2014-07-23 15:00'):
     Recalibrate lower borehole temperature to melting point.
     Unfortunately initial upper borehole data were lost.
     """
+    # FIXME: add upper sensors when possible, remove sensors above surface
     melting_point = -beta * rhoi * g * depth
     initial_temp = temp[t0:t1].mean()
     melt_offset = (melting_point - initial_temp).fillna(0.0)
