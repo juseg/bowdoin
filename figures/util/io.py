@@ -66,18 +66,6 @@ def load_all_depth(borehole):
     return df
 
 
-def load_all_temp(borehole, freq='1D'):
-    """Load all temperatures in a single dataset."""
-
-    # read temperature values
-    temp_temp = load_data('thstring', 'temp', borehole).resample(freq).mean()
-    tilt_temp = load_data('tiltunit', 'temp', borehole).resample(freq).mean()
-
-    # concatenate datasets
-    df = pd.concat((temp_temp, tilt_temp), axis=1)  # FIXME?
-    return df
-
-
 def load_data(sensor, variable, borehole):
     """Return sensor variable data in a dataframe."""
 
@@ -107,6 +95,40 @@ def load_depth(sensor, borehole):
     # read data as a series
     df = load_data(sensor, 'depth', borehole).iloc[0]
     return df
+
+
+def load_bowtem_data():
+    """Load all temperatures and depths in concatenated data frames."""
+
+    # read temperature values
+    pt = load_data('pressure', 'temp', 'both')
+    tt = load_data('thstring', 'temp', 'both')
+    ut = load_data('tiltunit', 'temp', 'both')
+
+    # read depth values
+    pz = load_data('pressure', 'depth', 'both')
+    tz = load_data('thstring', 'depth', 'both')
+    uz = load_data('tiltunit', 'depth', 'both')
+
+    # temporary fix: use GPS dates from temperature borehole
+    # FIXME: remove this after switching to vertical GPS data
+    uz.index = tz.index
+
+    # ignore lower borehole deep thermistors
+    tz[['LT%02d' % i for i in range(1, 10)]] = np.nan
+
+    # concatenate
+    t = pd.concat([pt, tt, ut], axis=1)
+    z = pd.concat([pz, tz, uz], axis=1)
+
+    # order by initial depth
+    z0 = z.iloc[0]
+    cols = z0[z0>0.0].dropna().sort_values().index.values
+    z = z[cols]
+    t = t[cols]
+
+    # return temperature and depth
+    return t, z
 
 
 def load_bowtid_depth():
