@@ -20,11 +20,8 @@ external: retrieve-external.sh
 	bash $<
 
 # gps data is a special case
-# FIXME: merge these two scripts
-processed: preprocess-boreholes.py preprocess-dgps.py
-	mkdir -p processed
-	python2 preprocess-boreholes.py
-	python2 preprocess-dgps.py
+processed: preprocess-boreholes.py
+	python2 $<
 
 # process landsat data from Daiki
 # FIXME: use similar paradigm as for other projects
