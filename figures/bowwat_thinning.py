@@ -82,7 +82,7 @@ ax.text(508.75e3, 8620.4e3, '1km', color='w', ha='center', fontweight='bold')
 ax = ax2
 
 # plot equal areas
-for date,  in zip(years, colors):
+for date, c in zip(years, colors):
     d = distances[y]
     ax.fill_between([0.0, d], [lz[str(y)].squeeze(), uz[str(y)].squeeze()],
                     [0.0]*2, edgecolor=c, facecolor='none', lw=1.0)

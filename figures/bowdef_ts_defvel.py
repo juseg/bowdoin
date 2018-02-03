@@ -19,11 +19,13 @@ for i, bh in enumerate(ut.boreholes):
     depth = ut.io.load_depth('tiltunit', bh).squeeze()
     depth_base = ut.io.load_depth('pressure', bh).squeeze()
 
-    # ignore two lowest units on upper borehole
+    # ignore broken units
     if bh == 'upper':
-        broken = ['UI02', 'UI03']
-        depth.drop(broken, inplace=True)
-        exz.drop(broken, axis='columns', inplace=True)
+        broken = ['UI01', 'UI02', 'UI03']
+    elif bh == 'lower':
+        broken = ['LI01', 'LI02']
+    depth.drop(broken, inplace=True)
+    exz.drop(broken, axis='columns', inplace=True)
 
     # fit to a Glen's law
     n, A = ut.al.glenfit(depth, exz.T)
