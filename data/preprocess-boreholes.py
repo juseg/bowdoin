@@ -18,6 +18,7 @@ observ_dates = dict(BH1='2014-07-17 18:07:00',  # assumed
                     BH2='2014-07-17 18:07:00',  # assumed
                     BH3='2014-07-23 00:30:00')  # assumed
 water_depths = dict(BH1=48.0, BH2=46.0, BH3=0.0)
+basal_depths = dict(BH1=272.0, BH2=262.0, BH3=252.0)
 
 # data logger properties
 dgps_columns = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
@@ -106,16 +107,18 @@ def sensor_depths_init(sensor, ulev, llev):
     uz = ulev.loc[ut:ut].mean() + water_depths[upper]
     lz = llev.loc[lt:lt].mean() + water_depths[lower]
 
-    # retunr sensor depths
+    # return sensor depths
     return uz, lz
 
 
-def sensor_depths_evol(sensor, uz, lz, ubase, lbase):
+def sensor_depths_evol(sensor, uz, lz):
     """Return time-dependent sensor depths as data frames."""
 
     # exact borehole location depends on sensor
     upper = sensor_holes[sensor]['upper']
     lower = sensor_holes[sensor]['lower']
+    ubase = basal_depths[upper]
+    lbase = basal_depths[lower]
 
     # compute time-dependent depths
     distances = borehole_distances(upper=upper, lower=lower)
@@ -129,7 +132,7 @@ def sensor_depths_evol(sensor, uz, lz, ubase, lbase):
     return uz, lz
 
 
-def thstring_depth_init(ubase, lbase):
+def thstring_depth_init():
     """
     Return initial temperature sensor depths as data series.
 
@@ -173,6 +176,10 @@ def thstring_depth_init(ubase, lbase):
     # from 19 July 2014 to 16 July 2015 [...] SMB on Bowdoin Glacier for
     # 2014/15 was [...] -1.96 m a-1 at [...] BH1'' (Tsutaki et al., 2016).
     melt = 1.96
+
+    # borehole bases
+    ubase = basal_depths[sensor_holes['thstring']['upper']]
+    lbase = basal_depths[sensor_holes['thstring']['lower']]
 
     # upper borehole
     surf_string = [0.0 - 13.40 - 20.0*i for i in [-6, -5, -4, -3, 0, -2, -1]]
@@ -421,18 +428,16 @@ if __name__ == '__main__':
     # get initial sensor depths
     puz, plz = sensor_depths_init('pressure', puw, plw)
     uuz, ulz = sensor_depths_init('tiltunit', uudf['p'], uldf['p'])
-    ubase = max(puz.max(), uuz.max())  # assume base at deepest sensor
-    lbase = max(plz.max(), ulz.max())  # assume base at deepest sensor
-    tuz, tlz = thstring_depth_init(ubase, lbase)
+    tuz, tlz = thstring_depth_init()
 
     # calibrate temperatures using initial depths
     uldf['t'] = cal_temperature(uldf['t'], ulz)
     tldf = cal_temperature(tldf, tlz)
 
     # compute borehole thinning
-    puz, plz = sensor_depths_evol('pressure', puz, plz, ubase, lbase)
-    tuz, tlz = sensor_depths_evol('thstring', tuz, tlz, ubase, lbase)
-    uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz, ubase, lbase)
+    puz, plz = sensor_depths_evol('pressure', puz, plz)
+    tuz, tlz = sensor_depths_evol('thstring', tuz, tlz)
+    uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz)
     puz = puz.rename('UP')
     plz = plz.rename('LP')
 
