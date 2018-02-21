@@ -94,6 +94,34 @@ def borehole_thinning(uz, lz, distances):
 # Sensor depth methods
 # --------------------
 
+def borehole_base_evol(sensor):
+    """Return time-dependent borehole base for sensor as data series."""
+
+    # exact borehole location depends on sensor
+    upper = sensor_holes[sensor]['upper']
+    lower = sensor_holes[sensor]['lower']
+
+    # get initial borehole base
+    ubase = basal_depths[upper]
+    lbase = basal_depths[lower]
+
+    # compute time-dependent depths
+    distances = borehole_distances(upper=upper, lower=lower)
+    dz = borehole_thinning(ubase, lbase, distances)
+
+    # apply thinning
+    ubase = dz + ubase
+    lbase = dz + lbase
+
+    # rename data series
+    stype = dict(pressure='P', thstring='T', tiltunit='I')[sensor]
+    ubase = ubase.rename(stype+'UB')
+    lbase = lbase.rename(stype+'LB')
+
+    # return depth data series
+    return ubase, lbase
+
+
 def sensor_depths_init(sensor, ulev, llev):
     """Return initial sensor depths as data series."""
 
@@ -126,6 +154,8 @@ def sensor_depths_evol(sensor, uz, lz):
     # exact borehole location depends on sensor
     upper = sensor_holes[sensor]['upper']
     lower = sensor_holes[sensor]['lower']
+
+    # get initial borebole depths
     ubase = basal_depths[upper]
     lbase = basal_depths[lower]
 
@@ -443,24 +473,35 @@ if __name__ == '__main__':
     uldf['t'] = cal_temperature(uldf['t'], ulz)
     tldf = cal_temperature(tldf, tlz)
 
-    # compute borehole thinning
+    # compute borehole base evolution
+    pub, plb = borehole_base_evol('pressure')
+    tub, tlb = borehole_base_evol('thstring')
+    uub, ulb = borehole_base_evol('tiltunit')
+
+    # compute sensor depths evolution
     puz, plz = sensor_depths_evol('pressure', puz, plz)
     tuz, tlz = sensor_depths_evol('thstring', tuz, tlz)
     uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz)
 
     # export to csv, force header on time series
+    pub.to_csv('processed/bowdoin-pressure-base-upper.csv', header=True)
+    plb.to_csv('processed/bowdoin-pressure-base-lower.csv', header=True)
     puz.to_csv('processed/bowdoin-pressure-depth-upper.csv')
     plz.to_csv('processed/bowdoin-pressure-depth-lower.csv')
     put.to_csv('processed/bowdoin-pressure-temp-upper.csv', header=True)
     plt.to_csv('processed/bowdoin-pressure-temp-lower.csv', header=True)
     puw.to_csv('processed/bowdoin-pressure-wlev-upper.csv', header=True)
     plw.to_csv('processed/bowdoin-pressure-wlev-lower.csv', header=True)
+    tub.to_csv('processed/bowdoin-thstring-base-upper.csv', header=True)
+    tlb.to_csv('processed/bowdoin-thstring-base-lower.csv', header=True)
     tuz.to_csv('processed/bowdoin-thstring-depth-upper.csv')
     tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv')
     mudf.to_csv('processed/bowdoin-thstring-mantemp-upper.csv')
     mldf.to_csv('processed/bowdoin-thstring-mantemp-lower.csv')
     tudf.to_csv('processed/bowdoin-thstring-temp-upper.csv')
     tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
+    uub.to_csv('processed/bowdoin-tiltunit-base-upper.csv', header=True)
+    ulb.to_csv('processed/bowdoin-tiltunit-base-lower.csv', header=True)
     uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv')
     ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv')
     uudf['t'].to_csv('processed/bowdoin-tiltunit-temp-upper.csv')

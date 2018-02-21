@@ -71,7 +71,7 @@ def load_data(sensor, variable, borehole):
 
     # check argument validity
     assert sensor in ('dgps', 'pressure', 'thstring', 'tiltunit')
-    assert variable in ('depth', 'mantemp', 'temp', 'tiltx', 'tilty',
+    assert variable in ('base', 'depth', 'mantemp', 'temp', 'tiltx', 'tilty',
                         'wlev', 'velocity')
     assert borehole in ('both', 'lower', 'upper')
 
@@ -87,6 +87,7 @@ def load_data(sensor, variable, borehole):
         dfl = dfl.groupby(level=0).mean()
         df = pd.concat([dfu, dfl], axis=1)
     return df
+
 
 def load_depth(sensor, borehole):
     """Return sensor depths in a data series."""
