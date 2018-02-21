@@ -45,7 +45,9 @@ for y in years:
     lx, ly = locations['B%2dBH3' % (y-2000)]
     distances[y] = ((ux-lx)**2 + (uy-ly)**2)**0.5
 
-# load time-dependent depths
+# load time-dependent base and sensor depths
+lb = ut.io.load_data('pressure', 'base', 'lower')
+ub = ut.io.load_data('pressure', 'base', 'upper')
 lz = ut.io.load_data('pressure', 'depth', 'lower')
 uz = ut.io.load_data('pressure', 'depth', 'upper')
 
@@ -82,11 +84,12 @@ ax.text(508.75e3, 8620.4e3, '1km', color='w', ha='center', fontweight='bold')
 ax = ax2
 
 # plot equal areas
-for date, c in zip(years, colors):
+for y, c in zip(years, colors):
     d = distances[y]
-    ax.fill_between([0.0, d], [lz[str(y)].squeeze(), uz[str(y)].squeeze()],
+    ax.plot([0.0, d], [lz[str(y)].squeeze(), uz[str(y)].squeeze()], 'k+')
+    ax.fill_between([0.0, d], [lb[str(y)].squeeze(), ub[str(y)].squeeze()],
                     [0.0]*2, edgecolor=c, facecolor='none', lw=1.0)
-    ax.text(d, uz[str(y)].squeeze(), ' %d' % y, color=c, fontweight='bold')
+    ax.text(d, ub[str(y)].squeeze(), '  %d' % y, color=c, fontweight='bold')
 
 # add text
 ax.text(0.4, 0.55, 'assumed equal area', ha='center', va='center',
@@ -102,7 +105,7 @@ ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
 
 # set axes properties
 ax.set_xlim(-15.0, 245.0)
-ax.set_ylim(265.0, -15.0)
+ax.set_ylim(270.0, -20.0)
 ax.set_xlabel('distance from lower borehole (m)')
 ax.set_ylabel('depth (m)')
 
