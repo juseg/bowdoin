@@ -101,11 +101,20 @@ def sensor_depths_init(sensor, ulev, llev):
     upper = sensor_holes[sensor]['upper']
     lower = sensor_holes[sensor]['lower']
 
-    # compute sensor depths
+    # compute sensor depths (groupy averages duplicate)
     ut = observ_dates[upper]
     lt = observ_dates[lower]
-    uz = ulev.loc[ut:ut].mean() + water_depths[upper]
-    lz = llev.loc[lt:lt].mean() + water_depths[lower]
+    uz = ulev.loc[ut:ut].groupby(level=0).mean() + water_depths[upper]
+    lz = llev.loc[lt:lt].groupby(level=0).mean() + water_depths[lower]
+
+    # convert series to horizontal dataframes
+    if len(uz.shape) == 1:
+        uz = uz.to_frame()
+        lz = lz.to_frame()
+
+    # squeeze using columns as new index
+    uz = uz.squeeze(axis=0)
+    lz = lz.squeeze(axis=0)
 
     # return sensor depths
     return uz, lz
@@ -438,24 +447,22 @@ if __name__ == '__main__':
     puz, plz = sensor_depths_evol('pressure', puz, plz)
     tuz, tlz = sensor_depths_evol('thstring', tuz, tlz)
     uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz)
-    puz = puz.rename('UP')
-    plz = plz.rename('LP')
 
     # export to csv, force header on time series
-    puz.to_csv('processed/bowdoin-pressure-depth-upper.csv', header=True)
-    plz.to_csv('processed/bowdoin-pressure-depth-lower.csv', header=True)
+    puz.to_csv('processed/bowdoin-pressure-depth-upper.csv')
+    plz.to_csv('processed/bowdoin-pressure-depth-lower.csv')
     put.to_csv('processed/bowdoin-pressure-temp-upper.csv', header=True)
     plt.to_csv('processed/bowdoin-pressure-temp-lower.csv', header=True)
     puw.to_csv('processed/bowdoin-pressure-wlev-upper.csv', header=True)
     plw.to_csv('processed/bowdoin-pressure-wlev-lower.csv', header=True)
-    tuz.to_csv('processed/bowdoin-thstring-depth-upper.csv', header=True)
-    tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv', header=True)
+    tuz.to_csv('processed/bowdoin-thstring-depth-upper.csv')
+    tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv')
     mudf.to_csv('processed/bowdoin-thstring-mantemp-upper.csv')
     mldf.to_csv('processed/bowdoin-thstring-mantemp-lower.csv')
     tudf.to_csv('processed/bowdoin-thstring-temp-upper.csv')
     tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
-    uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv', header=True)
-    ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv', header=True)
+    uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv')
+    ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv')
     uudf['t'].to_csv('processed/bowdoin-tiltunit-temp-upper.csv')
     uldf['t'].to_csv('processed/bowdoin-tiltunit-temp-lower.csv')
     uudf['ixr'].to_csv('processed/bowdoin-tiltunit-tiltx-upper.csv')
