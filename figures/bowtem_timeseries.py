@@ -1,55 +1,26 @@
 #!/usr/bin/env python2
 # coding: utf-8
 
-import matplotlib.pyplot as plt
 import util as ut
+import pandas as pd
 
-
-# plot only if data between these dates
-start = '2015-01-01'
-end = '2016-07-01'
 
 # initialize figure
-fig, grid = plt.subplots(2, 1, sharex=True)
+fig, ax = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=1,
+                            left=10.0, right=2.5, bottom=10.0, top=2.5)
 
-# for each borehole
-for i, bh in enumerate(ut.boreholes):
-    ax = grid[i]
-    c = ut.colors[bh]
+# loop on boreholes
+for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
 
-    # read tilt unit temperature and depth
-    temp = ut.io.load_data('tiltunit', 'temp', bh)
-    depth = ut.io.load_depth('tiltunit', bh)
-    depth_pres = ut.io.load_depth('pressure', bh)
-    depth['temp01'] = depth_pres
+    # load data
+    t, z, b = ut.io.load_bowtem_data(bh)
 
-    # plot tilt unit temperature
-    temp.plot(ax=ax, c='0.75', legend=False)
+    # plot
+    t.resample('1D').mean().plot(ax=ax, c=c, legend=False)
 
-    # read thermistor string temperature and depth
-    temp = ut.io.load_data('thstring', 'temp', bh)  #.resample('1D').mean()
-    depth = ut.io.load_depth('thstring', bh)
-    depth_pres = ut.io.load_depth('pressure', bh)
-
-    # order by depth, remove nulls and sensors above ground
-    subglac = depth > 0.0
-    notnull = depth.notnull() & temp[start:end].notnull().any()
-    depth = depth[notnull&subglac].sort_values()
-    temp = temp[depth.index.values]
-    temp.plot(ax=ax, c=c, legend=False)
-
-    # read manual temperature
-    temp = ut.io.load_data('thstring', 'mantemp', bh)
-
-    # order by depth, remove nulls and sensors above ground
-    temp = temp[depth.index.values]
-
-    # plot manual temperature
-    temp.plot(ax=ax, c=c, ls='', marker='o', legend=False)
-
-    # set label
-    ax.set_ylabel(bh)
-    ax.set_xlim('2014-07-01', '2017-08-01')
+# set axes properties
+ax.set_ylabel(u'temperature (°C)')
+ax.set_ylim(-15.0, 1.0)
 
 # save
 ut.pl.savefig(fig)
