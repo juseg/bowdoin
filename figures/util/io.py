@@ -118,7 +118,7 @@ def load_bowtem_data(borehole):
     # ignore lower borehole deep thermistors
     # FIXME: fit to freezing times or ignore deep thermistors
     if borehole == 'bh3':
-        z[['LT%02d' % i for i in range(1, 10)]] += 62.5
+        z[['LT%02d' % i for i in range(1, 10)]] += 37.5
 
     # order by initial depth
     cols = z[z>0.0].dropna().sort_values().index.values
