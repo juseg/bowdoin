@@ -27,3 +27,13 @@ boreholes = ['upper', 'lower']
 colors = {'lower': palette['darkblue'],
           'upper': palette['darkred'],
           'dgps': palette['darkgreen']}
+
+
+# Bowdoin temperature parameters
+# ------------------------------
+
+bowtem_bhdates = '20140716', '20140717', '20140722'
+bowtem_bhnames = 'bh1', 'bh2', 'bh3'
+bowtem_colours = 'C0', 'C1' ,'C2'
+bowtem_sensors = 'I', 'T', 'P'
+bowtem_markers = '^', 'o', 's'
