@@ -97,38 +97,39 @@ def load_depth(sensor, borehole):
     return df
 
 
-def load_bowtem_data():
-    """Load all temperatures and depths in concatenated data frames."""
+def load_bowtem_data(borehole):
+    """Load temperature and depths in concatenated data frames per borehole."""
 
-    # read temperature values
-    pt = load_data('pressure', 'temp', 'both')
-    tt = load_data('thstring', 'temp', 'both')
-    ut = load_data('tiltunit', 'temp', 'both')
+    # sensore and borehole site
+    bh = dict(bh1='upper', bh2='upper', bh3='lower')[borehole]
+    sensors = dict(bh1=['tiltunit'], bh2=['pressure', 'thstring'],
+                   bh3=['pressure', 'tiltunit', 'thstring'])[borehole]
 
-    # read depth values
-    pz = load_data('pressure', 'depth', 'both')
-    tz = load_data('thstring', 'depth', 'both')
-    uz = load_data('tiltunit', 'depth', 'both')
+    # read data
+    # FIXME: depth evolution from GPS and radar
+    t = pd.concat([load_data(s, 'temp', bh) for s in sensors], axis=1)
+    z = pd.concat([load_data(s, 'depth', bh) for s in sensors], axis=1).iloc[0]
+    b = pd.concat([load_data(s, 'base', bh) for s in sensors], axis=1).iloc[0]
 
-    # temporary fix: use GPS dates from temperature borehole
-    # FIXME: remove this after switching to vertical GPS data
-    uz.index = tz.index
+    # make sure all sensors have same depths
+    assert b.min() == b.max()
+    b = b[0]
 
     # ignore lower borehole deep thermistors
-    tz[['LT%02d' % i for i in range(1, 10)]] = np.nan
-
-    # concatenate
-    t = pd.concat([pt, tt, ut], axis=1)
-    z = pd.concat([pz, tz, uz], axis=1)
+    # FIXME: fit to freezing times or ignore deep thermistors
+    if borehole == 'bh3':
+        z[['LT%02d' % i for i in range(1, 10)]] += 62.5
 
     # order by initial depth
-    z0 = z.iloc[0]
-    cols = z0[z0>0.0].dropna().sort_values().index.values
+    cols = z[z>0.0].dropna().sort_values().index.values
     z = z[cols]
     t = t[cols]
 
+    # sensors can't be deeper than base
+    z[z>b] = b
+
     # return temperature and depth
-    return t, z
+    return t, z, b
 
 
 def load_bowtid_depth():
