@@ -80,11 +80,10 @@ def load_data(sensor, variable, borehole):
         filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
                     % (sensor, variable, borehole))
         df = pd.read_csv(filename, parse_dates=True, index_col='date')
+        df = df.groupby(level=0).mean()
     elif borehole == 'both':
         dfu = ut.io.load_data(sensor, variable, 'upper')
         dfl = ut.io.load_data(sensor, variable, 'lower')
-        dfu = dfu.groupby(level=0).mean()
-        dfl = dfl.groupby(level=0).mean()
         df = pd.concat([dfu, dfl], axis=1)
     return df
 
