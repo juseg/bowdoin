@@ -19,12 +19,12 @@ for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
     # load data
     t, z, b = ut.io.load_bowtem_data(bh)
     t = t['2014-07':'2016-12']
-    t = t.resample('2D').mean()
+    t = t.resample('1D').mean()
 
     # extract days to freezing
-    #d0 = t['2014-07'].notnull().idxmax()  # start of record
     d0 = pd.to_datetime(ut.bowtem_bhdates[int(bh[-1])-1])  # drilling dates
-    df = t.diff().idxmin()  # date of freezing
+    d1 = t['2014-07'].notnull().idxmax()  # start of record
+    df = t[d0+pd.to_timedelta('1D'):].diff().idxmin()  # date of freezing
     df[df == t.index[1]] = np.nan
     df = (df-d0).dt.total_seconds()/(24*3600)  # days to freezing
 
@@ -35,11 +35,13 @@ for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
     for s, m in zip(ut.bowtem_sensors, ut.bowtem_markers):
         cols = (df.notnull() * df.index.str[1] == s)
         if cols.sum() > 0:
-            ax[0].plot(df[cols], t.loc[d, cols].mean().T, c=c, marker=m, ls='')
+            ax[0].plot(df[cols], t.loc[d, cols].T, c=c, marker=m, ls='',
+                       label=bh.upper()+s)
             ax[1].plot(df[cols], z[cols], c=c, marker=m, ls='')
     ax[1].axhline(b, c=c, lw=0.5)
 
 # set axes properties
+ax[0].legend()
 ax[0].set_xscale('log')
 ax[0].set_xlabel('days to freezing')
 ax[0].set_ylabel(u'temperature (°C)')
