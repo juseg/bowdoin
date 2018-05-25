@@ -45,4 +45,4 @@ $(PY_FIGS): %.pdf : %.py matplotlibrc util
 # clean up
 .PHONY: clean
 clean:
-	rm $(ALL_FIGS)
+	rm -f $(ALL_FIGS)

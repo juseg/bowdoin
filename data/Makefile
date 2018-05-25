@@ -29,6 +29,7 @@ satellite/bowdoin-%.csv: preprocess-%.py
 	python2 $<
 
 # clean up
+# FIXME: use similar paradigm as for other projects
 .PHONY: clean
 clean:
-	rm -rf external processed $(SAT_FILES)
+	rm -rf external processed satellite/bowdoin-landsat satellite/bowdoin-landsat-uv $(SAT_FILES)
