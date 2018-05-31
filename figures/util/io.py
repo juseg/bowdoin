@@ -141,7 +141,8 @@ def load_bowtid_depth():
 
 
 def load_bowtid_data(var):
-    df = ut.io.load_data('tiltunit', var, 'both')['20140701':]
+    df = ut.io.load_data('tiltunit', var, 'both')
+    df = df['20140701':]*9.80665  # kPa
     df = df.sort_index(axis=1, ascending=False)
     df.columns = [c[0::3] for c in df.columns]
     df = df.drop(['L1', 'L2', 'U1'], axis=1)
