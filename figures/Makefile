@@ -21,8 +21,8 @@ PY_FIGS = campaign_2016 summary \
             $(addprefix ts_, angvel defvel detrended gpsvel satvel satvel_uv tilt)) \
           $(addprefix bowpal_, samplemap) \
           $(addprefix bowtem_, boreholes closure profiles timeseries) \
-          $(addprefix bowtid_, boreholes correlate fft gmb highpass intervals \
-                               lombscargle \
+          $(addprefix bowtid_, boreholes correlate diffseries fft gmb \
+                               highpass intervals lombscargle \
                                previous specgrams tempseries wlevseries) \
           $(addprefix bowwat_, thinning wlevseries)
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
