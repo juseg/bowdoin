@@ -133,14 +133,15 @@ def load_bowtem_data(borehole):
 
 
 def load_bowtid_depth():
-    ts = ut.io.load_depth('tiltunit', 'both').sort_index(ascending=False)
+    ts = ut.io.load_depth('tiltunit', 'both')
+    ts = ts.sort_index(ascending=False)
     ts.index = [c[0::3] for c in ts.index]
     ts = ts.drop(['L1', 'L2', 'U1'])
     return ts
 
 
 def load_bowtid_data(var):
-    df = ut.io.load_data('tiltunit', var, 'both')
+    df = ut.io.load_data('tiltunit', var, 'both')['20140701':]
     df = df.sort_index(axis=1, ascending=False)
     df.columns = [c[0::3] for c in df.columns]
     df = df.drop(['L1', 'L2', 'U1'], axis=1)
