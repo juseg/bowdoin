@@ -10,14 +10,8 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=3, ncols=3,
                               sharex=True, sharey=True, hspace=2.5, wspace=2.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
-# somehow the periodograms show nothing without filtering
-# FIXME: filter irregular signal to avoid resampling
-n = 2  # filter order
-w = 2.0/6/24  # cutoff frequency
-b, a = sg.butter(n, w, 'high')
-
 # for each tilt unit
-p = ut.io.load_bowtid_data('wlev')['2015-04':'2015-09'].resample('10T').mean()
+p = ut.io.load_bowtid_data('wlev')['2014-11':].diff()[1:]
 for i, u in enumerate(p):
     ax = grid.flat[i]
     c = 'C%d' % i
@@ -33,7 +27,6 @@ for i, u in enumerate(p):
 
     # else compute fft
     else:
-        ts[:] = sg.filtfilt(b, a, ts)
         x = (ts.index - ts.index[0]).total_seconds()/3600/24
         y = ts.values
         periods = np.logspace(-0.5, 0.5, 1001)
