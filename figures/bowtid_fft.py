@@ -10,13 +10,13 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=3, ncols=3,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # for each tilt unit
-p = ut.io.load_bowtid_data('wlev')
+p = ut.io.load_bowtid_data('wlev')['2014-11':]
 for i, u in enumerate(p):
     ax = grid.flat[i]
     c = 'C%d' % i
 
     # crop and resample
-    ts = p[u]['2015-04':'2015-09'].interpolate()  # 6Mx10T, 2 peaks at 12h
+    ts = p[u].dropna().resample('1H').mean().interpolate().diff()[1:]/3.6
 
     # only nulls, add text
     if ts.notnull().sum() == 0:
@@ -26,7 +26,7 @@ for i, u in enumerate(p):
 
     # else compute fft
     else:
-        freq = np.fft.rfftfreq(ts.shape[-1], 1/24.0/6.0)
+        freq = np.fft.rfftfreq(ts.shape[-1], 1/24.0)
         rfft = np.fft.rfft(ts.values)
         ampl = np.abs(rfft)
         spow = ampl**2
@@ -44,17 +44,16 @@ for i, u in enumerate(p):
     # add corner tag
     ax.text(0.9, 0.1, u, color=c, transform=ax.transAxes)
 
-## zoom in around 12--24h
-#ax.set_xlim(0.35, 1.35)
-#ax.set_ylim(10**0.5, 10**7.5)
-
-## zoom in around 12h
-#ax.set_xlim(0.45, 0.6)
-#ax.set_ylim(10**0.5, 10**7.5)
-
 # set axes properties
-grid[2, 1].set_xlabel('period (days)')
-grid[1, 0].set_ylabel(r'spectral power (m$^2$)', labelpad=0)
+grid[2, 1].set_xlabel('period (day)')
+grid[1, 0].set_ylabel(r'spectral power ($Pa^2 s^{-2}$)', labelpad=0)
+
+## save different zooms
+#ut.pl.savefig(fig, suffix='_z0')
+#ax.set_xlim(0.45, 0.6)  # around 12h
+#ut.pl.savefig(fig, suffix='_z1')
+#ax.set_xlim(0.35, 1.35)  # around 12--24h
+#ut.pl.savefig(fig, suffix='_z2')
 
 # save
 ut.pl.savefig(fig)
