@@ -26,7 +26,7 @@ for i, u in enumerate(p):
 
     # else compute fft
     else:
-        freq = np.fft.rfftfreq(ts.shape[-1], 1/24.0)
+        freq = np.fft.rfftfreq(ts.shape[-1], 1.0)
         rfft = np.fft.rfft(ts.values)
         ampl = np.abs(rfft)
         spow = ampl**2
@@ -38,22 +38,25 @@ for i, u in enumerate(p):
         ax.set_yscale('log')
 
         # add vertical lines
-        for x in [0.5, 0.5*30/29, 1.0, 14.0]:  # FIXME
+        for x in [12.0, 12.0*30/29, 24.0, 24.0*14]:
             ax.axvline(x, c='0.75', lw=0.1, zorder=1)
 
     # add corner tag
     ax.text(0.9, 0.1, u, color=c, transform=ax.transAxes)
 
 # set axes properties
-grid[2, 1].set_xlabel('period (day)')
+grid[2, 1].set_xlabel('period (h)')
 grid[1, 0].set_ylabel(r'spectral power ($Pa^2 s^{-2}$)', labelpad=0)
-
-## save different zooms
-#ut.pl.savefig(fig, suffix='_z0')
-#ax.set_xlim(0.45, 0.6)  # around 12h
-#ut.pl.savefig(fig, suffix='_z1')
-#ax.set_xlim(0.35, 1.35)  # around 12--24h
-#ut.pl.savefig(fig, suffix='_z2')
 
 # save
 ut.pl.savefig(fig)
+
+## save different zooms
+#ut.pl.savefig(fig, suffix='_z0')
+#ax.set_xscale('linear')
+#ax.set_xticks([12.0, 24.0])
+#ax.set_xlim(6.0, 30.0)
+#ut.pl.savefig(fig, suffix='_z1')
+#ax.set_xticks([12.0, 12.0*30/29])
+#ax.set_xlim(11.5, 13.0)
+#ut.pl.savefig(fig, suffix='_z2')

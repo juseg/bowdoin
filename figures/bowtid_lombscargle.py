@@ -27,27 +27,27 @@ for i, u in enumerate(p):
 
     # else compute fft
     else:
-        x = (ts.index - ts.index[0]).total_seconds()/3600/24
+        x = (ts.index - ts.index[0]).total_seconds()/3600
         y = ts.values
-        periods = np.logspace(-0.5, 0.5, 1001)
+        periods = np.linspace(6.0, 30.0, 1001)
         frequencies = 1.0 / periods
         angfreqs = 2 * np.pi * frequencies
         pgram = sg.lombscargle(x, y, angfreqs, normalize=False)
 
         # and plot
         ax.plot(periods, pgram, c=c)  # freq[0]=0.0
-        ax.set_xscale('log')
+        ax.set_xticks([12.0, 24.0])
         ax.set_yscale('log')
 
         # add vertical lines
-        for x in [0.5, 0.5*30/29, 1.0]:
+        for x in [12.0, 12.0*30/29, 24.0]:
             ax.axvline(x, c='0.75', lw=0.1, zorder=1)
 
     # add corner tag
     ax.text(0.9, 0.1, u, color=c, transform=ax.transAxes)
 
 # set axes properties
-grid[2, 1].set_xlabel('period (day)')
+grid[2, 1].set_xlabel('period (h)')
 grid[1, 0].set_ylabel(r'spectral power ($Pa^2 s^{-2}$)', labelpad=0)
 
 # save
