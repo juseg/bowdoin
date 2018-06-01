@@ -17,13 +17,13 @@ cax = fig.add_axes([1-12.5/figw, 10.0/figh, 2.5/figw, 1-12.5/figh])
 
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')
-norm = mcolors.LogNorm(1e-6, 1e2)
+norm = mcolors.LogNorm(1e-6, 1e0)
 for i, u in enumerate(p):
     ax = grid.flat[i]
     c = 'C%d' % i
 
     # crop, resample, and interpolate
-    ts = p[u].dropna().resample('1H').mean().interpolate()
+    ts = p[u].dropna().resample('1H').mean().interpolate().diff()[1:]/3.6
     ts.plot(ax=ax, visible=False)  # prepare axes in pandas format
 
     # calculate sample frequency
@@ -38,8 +38,8 @@ for i, u in enumerate(p):
     t = (pd.date_range(ts.index[0], freq=freq, periods=periods) +
          pd.to_timedelta(freq)/2.0)
 
-    # log-scale amplitude values
-    gain = 10.0*np.log10(spec)
+    ## log-scale amplitude values
+    #gain = 10.0*np.log10(spec)
 
     # plot amplitudes
     im = ax.pcolormesh(t.to_pydatetime(), f, spec, cmap='Greys', norm=norm)
@@ -55,7 +55,7 @@ for i, u in enumerate(p):
 
 # add colorbar
 cb = fig.colorbar(im, cax=cax, extend='both')
-cb.set_label(r'power spectral density (m${^2}$ day)', labelpad=0)
+cb.set_label(r'power spectral density ($Pa{^2} s^{-2}$ day)', labelpad=0)
 
 # set axes properties
 grid[4].set_ylabel('frequency (day$^{-1})$')

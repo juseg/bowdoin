@@ -48,7 +48,7 @@ for i, u in enumerate(p):
 
 # set axes properties
 grid[2, 1].set_xlabel('period (day)')
-grid[1, 0].set_ylabel(r'spectral power (m$^2$)', labelpad=0)
+grid[1, 0].set_ylabel(r'spectral power ($Pa^2 s^{-2}$)', labelpad=0)
 
 # save
 ut.pl.savefig(fig)
