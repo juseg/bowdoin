@@ -5,7 +5,7 @@ import util as ut
 import numpy as np
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=3, ncols=3,
+fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=3, ncols=4,
                               sharex=True, sharey=True, hspace=2.5, wspace=2.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
@@ -16,7 +16,7 @@ df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')['2014-07':]
 for i, u in enumerate(p):
-    ax = grid.flat[i]
+    ax = grid.T.flat[i]
     c = 'C%d' % i
 
     # crop and resample
@@ -46,11 +46,28 @@ for i, u in enumerate(p):
             ax.axvline(x, c='0.75', lw=0.1, zorder=1)
 
     # add corner tag
-    ax.text(0.9, 0.1, u, color=c, transform=ax.transAxes)
+    ax.text(0.95, 0.1, u, color=c, ha='right', transform=ax.transAxes)
+
+# plot tide data
+tide = ut.io.load_tide_data()['20140715':'20170715'].diff()[1:]
+freq = np.fft.rfftfreq(tide.shape[-1], 1.0)
+rfft = np.fft.rfft(tide.values)
+ampl = np.abs(rfft)
+spow = ampl**2
+gain = 10.0*np.log10(spow)
+for x in [12.0, 12.0*30/29, 24.0, 24.0*14]:
+    ax.axvline(x, c='0.75', lw=0.1, zorder=1)
+grid[1, 3].plot(1/freq[1:], spow[1:], c='k')  # freq[0]=0.0
+grid[1, 3].text(0.95, 0.1, 'Tide', color='k', ha='right',
+                transform=grid[1, 3].transAxes)
 
 # set axes properties
 grid[2, 1].set_xlabel('period (h)')
 grid[1, 0].set_ylabel(r'spectral power ($Pa^2 s^{-2}$)', labelpad=0)
+
+# remove unused axes
+grid[0, 3].set_visible(False)
+grid[2, 3].set_visible(False)
 
 # save
 ut.pl.savefig(fig)
