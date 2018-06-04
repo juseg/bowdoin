@@ -13,7 +13,13 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
 # plot tilt unit water level
 p = ut.io.load_bowtid_data('wlev').resample('1H').mean()/1e3
 for ax in grid:
-    p.plot(ax=ax, legend=False)
+    p.plot(ax=ax, legend=False, x_compat=True)
+
+# plot freezing dates
+t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()
+df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
+for ax in grid:
+    ax.plot(df, [p.loc[df[k], k] for k in df.index], 'k+')
 
 # add label
 grid[0].set_ylabel('pressure (MPa)')
