@@ -9,14 +9,18 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=3, ncols=3,
                               sharex=True, sharey=True, hspace=2.5, wspace=2.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
+# get freezing dates
+t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()
+df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
+
 # for each tilt unit
-p = ut.io.load_bowtid_data('wlev')['2014-11':]
+p = ut.io.load_bowtid_data('wlev')['2014-07':]
 for i, u in enumerate(p):
     ax = grid.flat[i]
     c = 'C%d' % i
 
     # crop and resample
-    ts = p[u].dropna().resample('1H').mean().interpolate().diff()[1:]/3.6
+    ts = p[u][df[u]:].dropna().resample('1H').mean().interpolate().diff()[1:]/3.6
 
     # only nulls, add text
     if ts.notnull().sum() == 0:
