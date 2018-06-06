@@ -3,7 +3,6 @@
 
 import util as ut
 import numpy as np
-import scipy.signal as sg
 import matplotlib.pyplot as plt
 
 # initialize figure
@@ -11,24 +10,16 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=3,
                               sharex=False, sharey=False, wspace=12.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
-# prepare filter
-n = 2  # filter order
-w = 2.0/6/24  # cutoff frequency
-b, a = sg.butter(n, w, 'high')
-
 # for each tilt unit
 z = ut.io.load_bowtid_data('depth').iloc[0]
 p = ut.io.load_bowtid_data('wlev')['20140827':'20141019']  # all sensors
 #p = ut.io.load_bowtid_data('wlev')['20140901':'20150330']  # clean signal
 #p = ut.io.load_bowtid_data('wlev')['20150401':'20150930']  # high frequency
-p = p.resample('10T').mean().interpolate()
+p = p.resample('10T').mean().interpolate().diff()[1:]/3.6  # Pa s-1
 for i, u in enumerate(p):
     c = 'C%d' % i
     offset = 9-i
-
-    # apply filter in both directions
     ts = p[u]
-    ts[:] = sg.filtfilt(b, a, ts)
 
     # plot filtered water level
     ax = grid[0]
@@ -57,7 +48,7 @@ for i, u in enumerate(p):
 
 # set axes properties
 grid[0].set_ylim(-1.0, 10.0)
-grid[0].set_ylabel('pressure head (m w.e.)')
+grid[0].set_ylabel('pressure change ($Pa\,s^{-1}$)')
 grid[0].legend(ncol=2, loc='lower right')
 grid[1].axvline(0.0, ls=':')
 grid[1].set_xlim(-12.0, 12.0)
