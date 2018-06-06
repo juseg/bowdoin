@@ -16,6 +16,10 @@ p = p.diff()[1:]/3.6 + 9 - range(p.shape[1])  # Pa s-1
 for ax in grid:
     p.plot(ax=ax, legend=False)
 
+# plot tide data
+z = ut.io.load_tide_data()['20140715':'20170715'].diff()[1:]
+z.plot(ax=grid[1], c='k', label='Tide')
+
 # set axes properties
 grid[0].set_ylim(-1.0, 10.0)
 grid[0].set_ylabel('pressure change ($Pa\,s^{-1}$)')
