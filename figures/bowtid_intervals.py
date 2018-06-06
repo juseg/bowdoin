@@ -16,7 +16,7 @@ for i, u in enumerate(p):
 
     # extract time steps
     ts = p[u].dropna()
-    ts[1:] = (ts.index[1:]-ts.index[:-1]).total_seconds()/3600.0
+    ts = ts.index.to_series().diff().dt.total_seconds()/3600.0
     ts = ts[1:].resample('1H').mean()  # resample to get a nice date axis
 
     # plot
