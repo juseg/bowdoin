@@ -45,7 +45,7 @@ def load_tide_data():
 
     # stack and reindex
     df = df.stack()
-    df.index = df.index.map(lambda x: x[0] + pd.to_timedelta(x[1], unit='H'))
+    df.index = df.index.map(lambda x: x[0] + pd.to_timedelta(x[1]-1, unit='H'))
 
     # convert to meter and remove mean
     df = (df-df.mean())/1e3
