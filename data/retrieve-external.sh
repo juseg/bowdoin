@@ -36,6 +36,20 @@ orig="http://ilikai.soest.hawaii.edu/woce/h808.dat"
 dest=$(basename $orig)
 [ -f "$dest" ] || wget $orig
 
+# Intergovernmental Oceanographic Commission (IOC) Pituffik tide data
+for date in 2014{07..12} 20{15..16}{01..12} 2017{01..07}
+do
+    next="${date:0:4}-$(printf "%02d" $((10#${date:4:2}%12+01)))-01"
+    root="http://www.ioc-sealevelmonitoring.org/bgraph.php"
+    args="code=thul&output=tab&period=30&endtime=$next"
+    orig="$root?$args"
+    dest="tide-thul-$date.csv"
+    [ -f "$dest" ] || wget $orig -O - | sed -e "s:</th>:\n:g" \
+                                            -e "s:</td></tr>:\n:g" \
+                                            -e "s:</td>:,:g" \
+                                            -e "s:<[^>]*>::g" > $dest
+done
+
 # Office desktop locations
 geodata="iceberg:/scratch_net/iceberg_second/juliens/geodata"
 s2adata="$geodata/satellite/sentinel-2a"
