@@ -22,14 +22,14 @@ ax = grid[0]
 thul.plot(ax=ax, label='Pituffik tide')
 bowd.plot(ax=ax, label='Bowdoin tide')
 ax.set_xlabel('Date', labelpad=-8.0)
-ax.set_ylabel('Tide', labelpad=0.0)
+ax.set_ylabel('Tide (kPa)', labelpad=0.0)
 ax.legend()
 
 # plot scatter plot
 ax = grid[1]
 ax.scatter(thul, bowd, marker='+', alpha=0.25)
-ax.set_xlabel('Pituffik tide')
-ax.set_ylabel('Bowdoin tide', labelpad=0.0)
+ax.set_xlabel('Pituffik tide (kPa)')
+ax.set_ylabel('Bowdoin tide (kPa)', labelpad=0.0)
 
 # save
 ut.pl.savefig(fig)

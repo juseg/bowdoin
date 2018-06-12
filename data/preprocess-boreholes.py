@@ -33,7 +33,6 @@ thstring_loggers = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
 # physical constants
 g = 9.80665  # gravitational acceleration in m s-2
 rhoi = 910.0  # ice density in kg m-3
-rhos = 1029.0  # sea water density in kg m-3
 beta = 7.9e-8  # ice Clapeyron constant (Luethi et al., 2002)
 
 
@@ -302,7 +301,7 @@ def get_dgps_data(method='backward'):
 
 
 def get_tide_data(order=2, cutoff=1/300.0):
-    """Return Masahiro unfiltered sea level in a data series."""
+    """Return Masahiro unfiltered tidal pressure in a data series."""
 
     # load data from two pressure sensors
     parser = lambda s: pd.datetime.strptime(s, '%y/%m/%d %H:%M:%S')
@@ -314,15 +313,17 @@ def get_tide_data(order=2, cutoff=1/300.0):
     ts2 = pd.concat([pd.read_csv(f, **props) for f in ls2])
 
     # correct shifts of ts2 on a daily basis
+    # FIXME it looks like ts1 has internal shifts
     ts2 += (ts1-ts2).resample('1D').mean().reindex_like(ts2, method='pad')
 
-    # merge series with priority on values from ts1
+    # merge series with priority on values from ts1 and substract mean
     ts = pd.concat([ts1, ts2]).groupby(level=0).first()
+    ts -= ts.mean()
 
-    # convert pressure to sea level
-    ts = 1e3*(ts-ts.mean())/(rhos*g)
+    # rename index
+    ts.index = ts.index.rename('date')
 
-    # return sea level as a data series
+    # return pressure data series
     return ts
 
 
@@ -476,7 +477,7 @@ if __name__ == '__main__':
     # preprocess independent data
     vdf = get_dgps_data()
     vdf.to_csv('processed/bowdoin-dgps-velocity-upper.csv')
-    tts = get_tide_data()
+    tts = get_tide_data().rename('Tide')
     tts.to_csv('processed/bowdoin-tide.csv', header=True)
 
     # read all data

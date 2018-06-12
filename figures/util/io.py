@@ -10,6 +10,10 @@ import pandas as pd
 from osgeo import gdal
 
 
+# physical constants
+g = 9.80665  # gravitational acceleration in m s-2
+rhos = 1029.0  # sea water density in kg m-3
+
 def load_temp(site='B'):
     """Return 2014--2016 weather station air temperature in a data series."""
 
@@ -144,7 +148,9 @@ def load_bowtid_depth():
 
 def load_bowtid_data(var):
     df = ut.io.load_data('tiltunit', var, 'both')
-    df = df['20140701':]*9.80665  # kPa
+    #FIXME remove water level conversion in preprocessing
+    if var == 'wlev':
+        df = g*df['20140701':]  # kPa
     df = df.sort_index(axis=1, ascending=False)
     df.columns = [c[0::3] for c in df.columns]
     df = df.drop(['L1', 'L2', 'U1'], axis=1)
@@ -218,6 +224,8 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
 
 def load_tide_bowd(order=2, cutoff=1/3600.0):
     """Return Masahiro filtered sea level in a data series."""
+
+    # open postprocessed data series
     ts = pd.read_csv('../data/processed/bowdoin-tide.csv', index_col=0,
                      parse_dates=True, squeeze=True)
 
@@ -226,7 +234,7 @@ def load_tide_bowd(order=2, cutoff=1/3600.0):
     b, a = sg.butter(order, 2*cutoff, 'low')  # order, cutoff freq
     ts[:] = sg.filtfilt(b, a, ts)
 
-    # return sea level as a data series
+    # return pressure data series
     return ts
 
 
@@ -236,6 +244,11 @@ def load_tide_thul(start='2014-07', end='2017-08'):
     files = dates.strftime('../data/external/tide-thul-%Y%m.csv')
     csvkw = dict(index_col=0, parse_dates=True, header=1, squeeze=True)
     ts = pd.concat([pd.read_csv(f, **csvkw) for f in files])
+
+    # convert tide (m) to pressure (kPa)
+    ts = 1e-3*rhos*g*(ts-ts.mean())
+
+    # return pressure data series
     return ts
 
 
