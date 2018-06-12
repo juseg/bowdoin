@@ -222,6 +222,15 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
 # Methods to load external data
 # -----------------------------
 
+def has_two_lines(fname):
+    """Check if given file has more than one line."""
+    with open(fname) as f:
+        l1 = f.readline()
+        l2 = f.readline()
+    result = l2 != ''
+    return result
+
+
 def load_tide_bowd(order=2, cutoff=1/3600.0):
     """Return Masahiro filtered sea level in a data series."""
 
@@ -240,8 +249,13 @@ def load_tide_bowd(order=2, cutoff=1/3600.0):
 
 def load_tide_thul(start='2014-07', end='2017-08'):
     """Load UNESCO IOC 5-min Pituffik tide data."""
+
+    # find non-tempy data files
     dates = pd.date_range(start=start, end=end, freq='M')
     files = dates.strftime('../data/external/tide-thul-%Y%m.csv')
+    files = [f for f in files if has_two_lines(f)]
+
+    # open in a data series
     csvkw = dict(index_col=0, parse_dates=True, header=1, squeeze=True)
     ts = pd.concat([pd.read_csv(f, **csvkw) for f in files])
 
