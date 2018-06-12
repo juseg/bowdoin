@@ -5,11 +5,10 @@
 
 import util as ut
 import numpy as np
+import scipy.signal as sg
 import pandas as pd
 from osgeo import gdal
 
-
-# functions to load borehole data
 
 def load_temp(site='B'):
     """Return 2014--2016 weather station air temperature in a data series."""
@@ -51,6 +50,9 @@ def load_tide_data():
     df = (df-df.mean())/1e3
     return df
 
+
+# Methods to load borehole data
+# -----------------------------
 
 def load_all_depth(borehole):
     """Load all sensor depths in a single dataset."""
@@ -211,7 +213,34 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
     return exz
 
 
-# functions to open geographic data
+# Methods to load external data
+# -----------------------------
+
+def load_tide_bowd(order=2, cutoff=1/3600.0):
+    """Return Masahiro filtered sea level in a data series."""
+    ts = pd.read_csv('../data/processed/bowdoin-tide.csv', index_col=0,
+                     parse_dates=True, squeeze=True)
+
+    # apply two-way lowpass filter
+    ts = ts.asfreq('2s').interpolate()
+    b, a = sg.butter(order, 2*cutoff, 'low')  # order, cutoff freq
+    ts[:] = sg.filtfilt(b, a, ts)
+
+    # return sea level as a data series
+    return ts
+
+
+def load_tide_thul(start='2014-07', end='2017-08'):
+    """Load UNESCO IOC 5-min Pituffik tide data."""
+    dates = pd.date_range(start=start, end=end, freq='M')
+    files = dates.strftime('../data/external/tide-thul-%Y%m.csv')
+    csvkw = dict(index_col=0, parse_dates=True, header=1, squeeze=True)
+    ts = pd.concat([pd.read_csv(f, **csvkw) for f in files])
+    return ts
+
+
+# Methods to open geographic data
+# -------------------------------
 
 def open_gtif(filename, extent=None):
     """Open GeoTIFF and return data and extent."""
