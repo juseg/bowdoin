@@ -17,7 +17,7 @@ for ax in grid:
     p.plot(ax=ax, legend=False)
 
 # plot tide data
-z = ut.io.load_tide_data()['20140715':'20170715'].diff()[1:]
+z = ut.io.load_tide_thul().resample('1H').mean().diff()[1:]/3.6  # Pa s-1
 z.plot(ax=grid[1], c='k', label='Tide')
 
 # set axes properties

@@ -49,7 +49,7 @@ for i, u in enumerate(p):
     ax.text(0.95, 0.1, u, color=c, ha='right', transform=ax.transAxes)
 
 # plot tide data
-tide = ut.io.load_tide_data()['20140715':'20170715'].diff()[1:]
+tide = ut.io.ut.io.load_tide_thul().resample('1H').mean().interpolate().diff()[1:]/3.6
 freq = np.fft.rfftfreq(tide.shape[-1], 1.0)
 rfft = np.fft.rfft(tide.values)
 ampl = np.abs(rfft)

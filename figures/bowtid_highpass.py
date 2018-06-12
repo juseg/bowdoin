@@ -14,7 +14,7 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
 # prepare filter
 n = 2  # filter order
 w = 2/24.  # cutoff frequency
-b, a = signal.butter(n, w, 'high') 
+b, a = signal.butter(n, w, 'high')
 
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')
@@ -32,7 +32,7 @@ for i, u in enumerate(p):
         ts.plot(ax=ax)
 
 # plot tide data
-z = ut.io.load_tide_data()['20140715':'20170715']
+z = ut.io.load_tide_thul().resample('1H').mean().diff()[1:]/3.6  # Pa s-1
 z.plot(ax=grid[1], c='k', label='Tide')
 
 # set axes properties
