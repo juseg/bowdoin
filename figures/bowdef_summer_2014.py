@@ -13,7 +13,7 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 
 # plot ice cap air temp
 c = '0.25'
-ts = ut.io.load_temp()[start:end].resample('3H').mean()
+ts = ut.io.load_temp_sigma()[start:end].resample('3H').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and legend

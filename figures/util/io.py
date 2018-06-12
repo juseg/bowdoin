@@ -14,47 +14,6 @@ from osgeo import gdal
 g = 9.80665  # gravitational acceleration in m s-2
 rhos = 1029.0  # sea water density in kg m-3
 
-def load_temp(site='B'):
-    """Return 2014--2016 weather station air temperature in a data series."""
-
-    # read data
-    prefix = '../data/weather/SIGMA_AWS_Site%s_' % site
-    filelist = [prefix+s for s in ['2014_level0_final.csv',
-                                   '2015_level0_final.csv',
-                                   '2016_level0_161121.csv']]
-    datalist = [pd.read_csv(filename, parse_dates=True, index_col='Date',
-                            dayfirst=True, na_values=(-50, -9999))
-                            ['Temperature_1[degC]']
-                for filename in filelist]
-    ts = pd.concat(datalist)  # FIXME?
-    return ts
-
-
-def load_tide_data():
-    """Load GLOSS Pituffik tide gauge data."""
-
-    # date parser
-    def parser(index):
-        date_str = index[11:-1].replace(' ', '0')
-        hour_str = {'1': '00', '2': '12'}[index[-1]]
-        return pd.datetime.strptime(date_str+hour_str, '%Y%m%d%H')
-
-    # read data
-    skiprows = [0, 245, 976, 1709, 2440, 3171, 3902,
-                4635, 5366, 6097, 6828, 7561]
-    df = pd.read_fwf('../data/external/h808.dat', skiprows=skiprows,
-                     index_col=0, parse_dates=True, date_parser=parser,
-                     header=None, delimiter=' ', dtype=None, na_values='9999')
-
-    # stack and reindex
-    df = df.stack()
-    df.index = df.index.map(lambda x: x[0] + pd.to_timedelta(x[1]-1, unit='H'))
-
-    # convert to meter and remove mean
-    df = (df-df.mean())/1e3
-    return df
-
-
 # Methods to load borehole data
 # -----------------------------
 
@@ -231,6 +190,23 @@ def has_two_lines(fname):
     return result
 
 
+def load_temp_sigma(site='B'):
+    """Return 2014--2016 weather station air temperature in a data series."""
+
+    # list file names
+    files = ['../data/weather/SIGMA_AWS_Site%s_' % site + s for s in
+             ['2014_level0_final.csv', '2015_level0_final.csv',
+              '2016_level0_161121.csv']]
+
+    # open in a data series
+    csvkw = dict(index_col=0, parse_dates=True, dayfirst=True, squeeze=True,
+                 na_values=(-50, -9999), usecols=['Date', 'Temperature_1[degC]'])
+    ts = pd.concat([pd.read_csv(f, **csvkw) for f in files])
+
+    # return temperature data series
+    return ts
+
+
 def load_tide_bowd(order=2, cutoff=1/3600.0):
     """Return Masahiro filtered sea level in a data series."""
 
@@ -264,6 +240,31 @@ def load_tide_thul(start='2014-07', end='2017-08'):
 
     # return pressure data series
     return ts
+
+
+def load_tide_hour():
+    """Load GLOSS hourly Pituffik tide data."""
+
+    # date parser
+    def parser(index):
+        date_str = index[11:-1].replace(' ', '0')
+        hour_str = {'1': '00', '2': '12'}[index[-1]]
+        return pd.datetime.strptime(date_str+hour_str, '%Y%m%d%H')
+
+    # read data
+    skiprows = [0, 245, 976, 1709, 2440, 3171, 3902,
+                4635, 5366, 6097, 6828, 7561]
+    df = pd.read_fwf('../data/external/h808.dat', skiprows=skiprows,
+                     index_col=0, parse_dates=True, date_parser=parser,
+                     header=None, delimiter=' ', dtype=None, na_values='9999')
+
+    # stack and reindex
+    df = df.stack()
+    df.index = df.index.map(lambda x: x[0] + pd.to_timedelta(x[1]-1, unit='H'))
+
+    # convert to meter and remove mean
+    df = (df-df.mean())/1e3
+    return df
 
 
 # Methods to open geographic data
