@@ -33,6 +33,7 @@ thstring_loggers = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
 # physical constants
 g = 9.80665  # gravitational acceleration in m s-2
 rhoi = 910.0  # ice density in kg m-3
+rhos = 1029.0  # sea water density in kg m-3
 beta = 7.9e-8  # ice Clapeyron constant (Luethi et al., 2002)
 
 
@@ -246,8 +247,8 @@ def thstring_depth_init():
     return uz, lz
 
 
-# Data reading methods
-# --------------------
+# Independent data reading methods
+# --------------------------------
 
 def get_dgps_data(method='backward'):
     """Return lon/lat gps positions in a data frame."""
@@ -299,6 +300,34 @@ def get_dgps_data(method='backward'):
     # return complete dataframe
     return df
 
+
+def get_tide_data(order=2, cutoff=1/300.0):
+    """Return Masahiro unfiltered sea level in a data series."""
+
+    # load data from two pressure sensors
+    parser = lambda s: pd.datetime.strptime(s, '%y/%m/%d %H:%M:%S')
+    files = os.listdir('original/tide')
+    props = dict(index_col=0, parse_dates=True, date_parser=parser, squeeze=True)
+    ls1 = ['original/tide/'+f for f in files if f.endswith('_4m.csv')]
+    ls2 = ['original/tide/'+f for f in files if f.endswith('_76m.csv')]
+    ts1 = pd.concat([pd.read_csv(f, **props) for f in ls1])
+    ts2 = pd.concat([pd.read_csv(f, **props) for f in ls2])
+
+    # correct shifts of ts2 on a daily basis
+    ts2 += (ts1-ts2).resample('1D').mean().reindex_like(ts2, method='pad')
+
+    # merge series with priority on values from ts1
+    ts = pd.concat([ts1, ts2]).groupby(level=0).first()
+
+    # convert pressure to sea level
+    ts = 1e3*(ts-ts.mean())/(rhos*g)
+
+    # return sea level as a data series
+    return ts
+
+
+# Borehole data reading methods
+# -----------------------------
 
 def get_pressure_data(bh, log):
     """Return pressure sensor data in a data frame."""
@@ -444,9 +473,11 @@ if __name__ == '__main__':
     else:
         os.mkdir('processed')
 
-    # preprocess gps data
+    # preprocess independent data
     vdf = get_dgps_data()
     vdf.to_csv('processed/bowdoin-dgps-velocity-upper.csv')
+    tts = get_tide_data()
+    tts.to_csv('processed/bowdoin-tide.csv', header=True)
 
     # read all data
     pudf = get_pressure_data('upper', pressure_loggers['upper'])
