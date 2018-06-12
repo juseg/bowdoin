@@ -52,6 +52,16 @@ do
                                             -e "s:<[^>]*>::g" > $dest
 done
 
+# SIGMA-B automatic weather station data
+for year in 20{14..17}
+do
+    serv="https://mri-2.mri-jma.go.jp/owncloud/index.php"
+    root="$serv/s/60a7ce6376755287e4ec6a7eb4d5a839/download?path=%2F&files="
+    dest="SIGMA_AWS_SiteB_${year}_level0_final.xls"
+    orig="$root$dest"
+    [ -f "$dest" ] || wget $orig -O $dest
+done
+
 # Office desktop locations
 geodata="iceberg:/scratch_net/iceberg_second/juliens/geodata"
 s2adata="$geodata/satellite/sentinel-2a"

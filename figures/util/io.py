@@ -194,14 +194,14 @@ def load_temp_sigma(site='B'):
     """Return 2014--2016 weather station air temperature in a data series."""
 
     # list file names
-    files = ['../data/weather/SIGMA_AWS_Site%s_' % site + s for s in
-             ['2014_level0_final.csv', '2015_level0_final.csv',
-              '2016_level0_161121.csv']]
+    years = [2014, 2015, 2016, 2017]
+    fname = '../data/external/SIGMA_AWS_SiteB_%4d_level0_final.xls'
+    files = [fname % y for y in years]
 
     # open in a data series
-    csvkw = dict(index_col=0, parse_dates=True, dayfirst=True, squeeze=True,
-                 na_values=(-50, -9999), usecols=['Date', 'Temperature_1[degC]'])
-    ts = pd.concat([pd.read_csv(f, **csvkw) for f in files])
+    csvkw = dict(index_col=0, usecols=[0, 3],
+                 na_values=(-50, -9999), squeeze=True)
+    ts = pd.concat([pd.read_excel(f, **csvkw) for f in files])
 
     # return temperature data series
     return ts
