@@ -39,9 +39,11 @@ dest=$(basename $orig)
 # Intergovernmental Oceanographic Commission (IOC) Pituffik tide data
 for date in 2014{07..12} 20{15..16}{01..12} 2017{01..07}
 do
-    next="${date:0:4}-$(printf "%02d" $((10#${date:4:2}%12+01)))-01"
+    nexy="$((${date:0:4}+10#${date:4:2}/12))"  # year of next month
+    nexm="$(printf "%02d" $((10#${date:4:2}%12+01)))"  # next month
+    echo $nexy, $nexm
     root="http://www.ioc-sealevelmonitoring.org/bgraph.php"
-    args="code=thul&output=tab&period=30&endtime=$next"
+    args="code=thul&output=tab&period=30&endtime=$nexy-$nexm-01"
     orig="$root?$args"
     dest="tide-thul-$date.csv"
     [ -f "$dest" ] || wget $orig -O - | sed -e "s:</th>:\n:g" \
