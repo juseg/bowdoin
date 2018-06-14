@@ -15,15 +15,19 @@ fig, grid = ut.pl.subplots_mm(figsize=(figw, figh), nrows=9, ncols=1,
                               left=10.0, right=15.0, bottom=10.0, top=2.5)
 cax = fig.add_axes([1-12.5/figw, 10.0/figh, 2.5/figw, 1-12.5/figh])
 
+# get freezing dates
+t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()
+df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
+
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')
-norm = mcolors.LogNorm(1e-1, 1e5)
+norm = mcolors.LogNorm(1e-6, 1e0)
 for i, u in enumerate(p):
     ax = grid.flat[i]
     c = 'C%d' % i
 
     # crop, resample, and interpolate
-    ts = p[u].dropna().resample('1H').mean().interpolate().diff()[1:]/3.6
+    ts = p[u][df[u]:].dropna().resample('1H').mean().interpolate().diff()[1:]/3.6
     ts.plot(ax=ax, visible=False)  # prepare axes in pandas format
 
     # calculate sample frequency
@@ -31,19 +35,19 @@ for i, u in enumerate(p):
     fs = 1 / dt
 
     # compute spectrogram and corresponding time coordinate
-    nfft = 16*24
-    f, t, spec = sg.spectrogram(ts, nperseg=nfft, fs=fs, noverlap=0)
+    nfft = 8*24
+    f, t, spec = sg.spectrogram(ts, nperseg=nfft, fs=fs, noverlap=0,
+                                scaling='spectrum')
     freq = '%dH' % (nfft/fs)
     periods = spec.shape[1]
     t = (pd.date_range(ts.index[0], freq=freq, periods=periods) +
-         pd.to_timedelta(freq)/2.0)
+         pd.to_timedelta(freq)/2.0).to_pydatetime()
 
     ## log-scale amplitude values
     #gain = 10.0*np.log10(spec)
 
     # plot amplitudes
-    im = ax.pcolormesh(t.to_pydatetime(), 1/f[1:], spec[1:]*3600.0,
-                       cmap='Greys', norm=norm)
+    im = ax.pcolormesh(t, 1/f[1:], spec[1:], cmap='Greys', norm=norm)
 
     # add corner tag
     ax.text(0.95, 0.2, u, color=c, transform=ax.transAxes,
@@ -57,7 +61,7 @@ for i, u in enumerate(p):
 
 # add colorbar
 cb = fig.colorbar(im, cax=cax, extend='both')
-cb.set_label(r'power spectral density ($Pa{^2} s^{-1}$)', labelpad=0)
+cb.set_label(r'pressure change power spectrum ($Pa^2\,s^{-2}$)', labelpad=0)
 
 # set axes properties
 grid[4].set_ylabel('period (h)')
