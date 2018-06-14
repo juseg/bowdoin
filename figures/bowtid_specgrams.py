@@ -10,8 +10,8 @@ import matplotlib.colors as mcolors
 
 # initialize figure
 figw, figh = 150.0, 75.0
-fig, grid = ut.pl.subplots_mm(figsize=(figw, figh), nrows=9, ncols=1,
-                              sharex=True, sharey=False, hspace=2.5,
+fig, grid = ut.pl.subplots_mm(figsize=(figw, figh), nrows=10, ncols=1,
+                              sharex=True, sharey=True, hspace=2.5,
                               left=10.0, right=15.0, bottom=10.0, top=2.5)
 cax = fig.add_axes([1-12.5/figw, 10.0/figh, 2.5/figw, 1-12.5/figh])
 
@@ -58,6 +58,17 @@ for i, u in enumerate(p):
     #ax.set_yscale('log')
     ax.set_ylim(6.0, 30.0)
     ax.set_yticks([12.0, 24.0])
+
+# plot tide data
+ax = grid.flat[-1]
+ts = ut.io.ut.io.load_tide_thul().resample('1H').mean().interpolate().diff()[1:]/3.6
+ts.plot(ax=ax, visible=False)  # prepare axes in pandas format
+f, t, spec = sg.spectrogram(ts, nperseg=nfft, fs=fs, noverlap=0, scaling='spectrum')
+t = (pd.date_range(ts.index[0], freq=freq, periods=spec.shape[1]) +
+     pd.to_timedelta(freq)/2.0).to_pydatetime()
+im = ax.pcolormesh(t, 1/f[1:], spec[1:], cmap='Greys', norm=norm)
+ax.text(0.95, 0.2, 'Tide', color='k', transform=ax.transAxes,
+        bbox=dict(ec='none', fc='w', alpha=0.75, pad=1))
 
 # add colorbar
 cb = fig.colorbar(im, cax=cax, extend='both')
