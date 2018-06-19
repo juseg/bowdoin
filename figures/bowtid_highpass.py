@@ -11,10 +11,8 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
                               sharex=False, sharey=True, wspace=2.5,
                               left=10.0, right=2.5, bottom=10.0, top=2.5)
 
-# prepare filter
-n = 2  # filter order
-w = 2/24.  # cutoff frequency
-b, a = signal.butter(n, w, 'high')
+# prepare filter (order, cutoff)
+b, a = signal.butter(2, 3/24.0, 'high')
 
 # for each tilt unit
 p = ut.io.load_bowtid_data('wlev')
@@ -22,23 +20,24 @@ for i, u in enumerate(p):
     c = 'C%d' % i
 
     # crop, resample, and interpolate
-    ts = p[u].dropna().resample('1H').mean().interpolate()
+    ts = p[u].dropna().resample('1H').mean().interpolate()  # kPa
 
     # apply filter in both directions
-    ts[:] = signal.filtfilt(b, a, ts) + 9 - i
+    ts[:] = signal.filtfilt(b, a, ts) + 5.0*(8-i)
 
     # plot
     for ax in grid:
         ts.plot(ax=ax)
 
 # plot tide data
-z = ut.io.load_tide_thul().resample('1H').mean().diff()[1:]/3.6  # Pa s-1
-z.plot(ax=grid[1], c='k', label='Tide')
+z = ut.io.load_tide_thul().resample('1H').mean() - 20.0  # kPa
+for ax in grid:
+    z.plot(ax=ax, c='k', label='Tide')
 
 # set axes properties
-grid[0].set_ylim(-1.0, 10.0)
-grid[0].set_ylabel('pressure head (m w.e.)')
-grid[0].legend(ncol=2, loc='lower right')
+grid[0].set_ylim(-35.0, 45.0)
+grid[0].set_ylabel('pressure anomaly (kPa)')
+grid[0].legend(ncol=2, loc='center right') #, bbox_to_anchor=(1.0, 0.15))
 
 # zooming windows
 zooms = dict(
