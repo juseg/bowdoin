@@ -5,6 +5,25 @@ mkdir -p external
 touch external
 cd external
 
+# Arctic DEM crop on Bowdoin
+# (for UTM 19 use -t_srs EPSG:32619 -te 500000 8615000 520000 8630000)
+# (two more strips contain data over Bowdoin:
+#  * SETSM_WV02_20120512_103001001932B700_1030010018CB9600_seg1_2m_v2.0, and
+#  * SETSM_WV02_20140906_103001003766BC00_1030010036B2F000_seg4_2m_v2.0)
+root=http://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/geocell/v2.0/n77w069/
+for strp in SETSM_WV01_20120730_102001001C3CA200_102001001C997D00_seg3_2m_v2.0 \
+            SETSM_WV02_20130404_1030010020AC5E00_1030010021347000_seg1_2m_v2.0 \
+            SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg2_2m_v2.0
+do
+    if [ ! -f "${strp}.tif" ]
+    then
+        wget -nc $root/$strp.tar
+        tar -kxf $strp.tar
+        gdalwarp -r cubic -te -540000 -1230000 -530000 -1220000 \
+            ${strp}_dem.tif ${strp}.tif
+    fi
+done
+
 ## Greenland MEaSUREs Ice Mapping Project (GIMP) dem
 #orig=ftp://sidads.colorado.edu/pub/DATASETS/nsidc0645_MEASURES_gimp_dem_v1/30/gimpdem0_4.tif
 #dest=$(basename $orig)
@@ -41,7 +60,6 @@ for date in 2014{07..12} 20{15..16}{01..12} 2017{01..07}
 do
     nexy="$((${date:0:4}+10#${date:4:2}/12))"  # year of next month
     nexm="$(printf "%02d" $((10#${date:4:2}%12+01)))"  # next month
-    echo $nexy, $nexm
     root="http://www.ioc-sealevelmonitoring.org/bgraph.php"
     args="code=thul&output=tab&period=30&endtime=$nexy-$nexm-01"
     orig="$root?$args"
