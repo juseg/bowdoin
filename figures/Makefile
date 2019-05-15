@@ -12,7 +12,8 @@ EXT = pdf
 PY = python
 
 # all python figures
-PY_FIGS = $(addprefix bowtem_, boreholes closure demseries profiles timeseries)
+PY_FIGS = $(addprefix bowtem_, arcticdem boreholes closure demseries \
+			       profiles timeseries)
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
 # all figures
