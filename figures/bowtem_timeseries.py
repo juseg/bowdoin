@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import util as ut
+import numpy as np
 import pandas as pd
 
 
@@ -13,9 +14,17 @@ for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
 
     # load data
     t, z, b = ut.io.load_bowtem_data(bh)
+    t = t['2014-07':].resample('1D').mean()
+
+    # extract days to freezing
+    d0 = pd.to_datetime(ut.bowtem_bhdates[int(bh[-1])-1])  # drilling dates
+    d1 = t['2014-07'].notnull().idxmax()  # start of record
+    df = t[d0+pd.to_timedelta('1D'):].diff().idxmin()  # date of freezing
+    df[df == t.index[1]] = np.nan
 
     # plot
-    t.resample('1D').mean().plot(ax=ax, c=c, legend=False)
+    t.resample('1D').mean().plot(ax=ax, c=c, legend=False, x_compat=True)
+    ax.plot(df, [t.loc[df[k], k] for k in t], 'k+')
 
 # set axes properties
 ax.set_ylabel(u'temperature (°C)')
