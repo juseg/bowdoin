@@ -1,13 +1,12 @@
-#!/usr/bin/env python2
-# coding: utf-8
+#!/usr/bin/env python
 
 """Utils and parameters for this project."""
 
 import matplotlib.pyplot as plt
 
-import al
-import io
-import pl
+import util.al  # data analysis
+import util.io  # input and output
+import util.pl  # plotting tools
 
 # temporary fix for https://github.com/pydata/xarray/issues/1661
 import pandas as pd

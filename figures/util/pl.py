@@ -12,7 +12,7 @@ import cartopy.crs as ccrs
 import gpxpy
 
 import util as ut
-import al
+import util.al as al
 
 from matplotlib.transforms import ScaledTranslation
 
