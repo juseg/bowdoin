@@ -23,9 +23,6 @@
 \author[1]{Julien Seguinot
            \thanks{Correspondence to seguinot@vaw.baug.ethz.ch}}
 \author[1]{Martin Funk}
-\author[1]{Guillaume Jouvet}
-\author[1]{Claudia Ryser}
-\author[1]{Andreas Bauder}
 \author[2]{Shin Sugiyama}
 
 \affil[1]{Laboratory of Hydraulics, Hydrology and Glaciology,
@@ -87,22 +84,29 @@
 % ----------------------------------------------------------------------
 
 \subsection{Drilling sites}
-    Fig.~\ref{fig:locmap} -- Location map.
+    Fig.~\ref{fig:boreholes}a -- Location map.
 
 \subsection{Instrumentation}
+    Fig.~\ref{fig:boreholes}b -- Borehole sensors map.
 
+\subsection{Temperature calibration}
+
+\subsection{Depth correction}
+    Fig.~\ref{fig:closure}a -- Closure time and temperature.\\
+    Fig.~\ref{fig:closure}b -- Closure time and depth.
 
 % ----------------------------------------------------------------------
 \section{Results}
 % ----------------------------------------------------------------------
 
-\subsection{Borehole closure}
+\subsection{Temperature time series}
     Fig.~\ref{fig:timeseries} -- Temperature time series.
 
 \subsection{Temperature profiles}
-    Fig.~\ref{fig:profiles} -- Temperature profiles.
+    Fig.~\ref{fig:profiles}a -- Temperature profiles.
 
 \subsection{Englacial warming}
+    Fig.~\ref{fig:profiles}b -- Warming profiles.
 
 
 % ----------------------------------------------------------------------
@@ -110,6 +114,8 @@
 % ----------------------------------------------------------------------
 
 \subsection{Deep crevassing}
+    Fig.~\ref{fig:arcticdem} -- Topography around boreholes.
+
 \subsection{Tidal effects}
 
 % ----------------------------------------------------------------------
@@ -123,29 +129,44 @@
 % ----------------------------------------------------------------------
 
     \begin{figure}
-      \centerline{\includegraphics{bowtem_locmap}}
-      \caption{Location map.
-               \todo{Add an inset with Greenland.}}
-      \label{fig:locmap}
+      \centerline{\includegraphics{bowtem_boreholes}}
+      \caption{\textbf{(a)} Bowdoin borehole locations from drilling in July
+               2014 to dismantling in July 2017 and background satellite
+               image from 8 Aug. 2016, 17:59:15 UTC. Contains modified
+               Copernicus Sentinel data, processed with Sentinelflow.
+               \textbf{(b)} Initial ice thickness and sensor depths.
+               Inclinometers and piezometers are also equipped with
+               thermistors.}
+      \label{fig:boreholes}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowtem_closure}}
+      \caption{\textbf{(a) Measured average temperature on }.\textbf{(b)}.
+               \todo{Mask BH2 missing data, fit BH1 depths.}}
+      \label{fig:closure}
     \end{figure}
 
     \begin{figure}
       \centerline{\includegraphics{bowtem_timeseries}}
-      \caption{Temperature time series.
-               \todo{Increase figure size. Split x-axis to evidence phases
-                     before and after refreezing of the boreholes.}}
+      \caption{\textbf{(a)}.\textbf{(b)}.
+               \todo{Add campaigns and profile dates, mask low values.}}
       \label{fig:timeseries}
     \end{figure}
 
     \begin{figure}
       \centerline{\includegraphics{bowtem_profiles}}
-      \caption{Temperature profiles.
-               \todo{Increase figure size. Add right panel with observed
-                     temperature change between 2014 and 2016 and theoretical
-                     diffusive temperature flux.}}
+      \caption{\textbf{(a)}.\textbf{(b)}.
+               \todo{Compute theoretical temperature diffusion.}}
       \label{fig:profiles}
     \end{figure}
 
+    \begin{figure}
+      \centerline{\includegraphics{bowtem_arcticdem}}
+      \caption{\textbf{(a)}.\textbf{(b)}.
+               \todo{Maybe enlarge the plotting domain.}}
+      \label{fig:arcticdem}
+    \end{figure}
 
 % ======================================================================
 \end{document}
