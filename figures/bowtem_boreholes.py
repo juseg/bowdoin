@@ -16,10 +16,14 @@ reg = 507.5e3, 512.5e3, 8620e3, 8627e3  # 5.0x7.0 km full glacier tongue
 reg = 507.6e3, 512.4e3, 8620.7e3, 8626.3e3  # 4.8x5.6 km full glacier tongue
 
 # initialize figure
-figw, figh = 150.0, 75.0
+figw, figh = 150.0, 75.0  # FIXME implement add_axes_mm / add_subplot_mm
 fig = plt.figure(figsize=(figw/25.4, figh/25.4))
 ax1 = fig.add_axes([2.5/figw, 2.5/figh, 60.0/figw, 1-5.0/figh], projection=utm)
 ax2 = fig.add_axes([75.0/figw, 10.0/figh, 72.5/figw, 1-12.5/figh])
+
+# add subfigure labels
+ut.pl.add_subfig_label(ax=ax1, text='(a)', ha='right')
+ut.pl.add_subfig_label(ax=ax2, text='(b)')
 
 
 # Map axes

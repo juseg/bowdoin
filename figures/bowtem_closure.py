@@ -13,6 +13,10 @@ fig, ax = apl.subplots_mm(figsize=(150, 75), ncols=2, sharex=True,
                           gridspec_kw=dict(left=10, right=2.5, wspace=10,
                                            bottom=10, top=2.5))
 
+# add subfigure labels
+ut.pl.add_subfig_label(ax=ax[0], text='(a)')
+ut.pl.add_subfig_label(ax=ax[1], text='(b)')
+
 # loop on boreholes
 for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
 

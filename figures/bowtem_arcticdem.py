@@ -32,6 +32,10 @@ fig = plt.figure(figsize=(figw/25.4, figh/25.4))
 ax1 = fig.add_axes([2.5/figw, 2.5/figh, 60.0/figw, 1-5.0/figh], projection=utm)
 ax2 = fig.add_axes([75.0/figw, 10.0/figh, 72.5/figw, 1-12.5/figh])
 
+# add subfigure labels
+ut.pl.add_subfig_label(ax=ax1, text='(a)')
+ut.pl.add_subfig_label(ax=ax2, text='(b)')
+
 
 # Map axes
 # --------
