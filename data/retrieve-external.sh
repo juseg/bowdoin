@@ -5,22 +5,45 @@ mkdir -p external
 touch external
 cd external
 
-# Arctic DEM crop on Bowdoin
+
+# Bowdoin temperature paper data
+# ------------------------------
+
+# Arctic v3.0 DEM crop on Bowdoin
+# (strips manually selected through index shapefile available online)
 # (for UTM 19 use -t_srs EPSG:32619 -te 500000 8615000 520000 8630000)
 # (two more strips contain data over Bowdoin:
 #  * SETSM_WV02_20120512_103001001932B700_1030010018CB9600_seg1_2m_v2.0, and
 #  * SETSM_WV02_20140906_103001003766BC00_1030010036B2F000_seg4_2m_v2.0)
-root=http://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/geocell/v2.0/n77w069/
-for strp in SETSM_WV01_20120730_102001001C3CA200_102001001C997D00_seg3_2m_v2.0 \
-            SETSM_WV02_20130404_1030010020AC5E00_1030010021347000_seg1_2m_v2.0 \
-            SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg2_2m_v2.0
+# (old v2.0 strips:
+#  * SETSM_WV01_20120730_102001001C3CA200_102001001C997D00_seg3_2m_v3.0,
+#  * SETSM_WV02_20130404_1030010020AC5E00_1030010021347000_seg1_2m_v3.0,
+#  * SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg2_2m_v3.0)
+root="http://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/geocell/v3.0/2m/n77w069"
+for strp in SETSM_W1W1_20150427_102001003C04A300_102001003ECD7100_seg1_2m_v3.0 \
+            SETSM_W1W2_20140905_10200100318E9F00_1030010037BBC200_seg3_2m_v3.0 \
+            SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0 \
+            SETSM_W1W2_20150425_102001003DA28D00_10300100419E5700_seg4_2m_v3.0 \
+            SETSM_WV01_20120730_102001001C3CA200_102001001C997D00_seg2_2m_v3.0 \
+            SETSM_W2W2_20150530_10300100421BB000_103001004254F700_seg1_2m_v3.0 \
+            SETSM_W2W2_20150530_10300100421BB000_103001004254F700_seg2_2m_v3.0 \
+            SETSM_W2W2_20150530_10300100421BB000_103001004254F700_seg3_2m_v3.0 \
+            SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m_v3.0 \
+            SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0 \
+            SETSM_WV02_20120512_103001001932B700_1030010018CB9600_seg6_2m_v3.0 \
+            SETSM_WV02_20130404_1030010020AC5E00_1030010021347000_seg1_2m_v3.0 \
+            SETSM_WV02_20140906_103001003766BC00_1030010036B2F000_seg1_2m_v3.0 \
+            SETSM_WV02_20150419_10300100403C2300_1030010041149700_seg1_2m_v3.0 \
+            SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0 \
+            SETSM_WV02_20160504_10300100557E8400_1030010055147100_seg1_2m_v3.0
 do
     if [ ! -f "${strp}.tif" ]
     then
-        wget -nc $root/$strp.tar
-        tar -kxf $strp.tar
+        wget -nc $root/$strp.tar.gz
+        tar -kxf $strp.tar.gz ${strp}_dem.tif
         gdalwarp -r cubic -te -540000 -1230000 -530000 -1220000 \
             ${strp}_dem.tif ${strp}.tif
+        rm $strp.tar.gz ${strp}_dem.tif
     fi
 done
 
