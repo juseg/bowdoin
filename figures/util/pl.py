@@ -330,6 +330,16 @@ def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
     ax.scatter(xlist, ylist, alpha=alpha, **kwargs)
 
 
+def add_scale(ax=None, length=1000, pad=None, label=None, color='k'):
+    """Add map scale."""
+    ax = ax or plt.gca()
+    pad = pad or 0.25*length
+    w, e, s, n = ax.get_extent()
+    ax.plot([e-pad-length, e-pad], [s+pad]*2, color=color, marker='|')
+    ax.text(e-pad-0.5*length, s+pad, label+'\n', color=color,
+            fontweight='bold', ha='center', va='center')
+
+
 # Saving figures
 def savefig(fig=None, suffix=''):
     """Save figure to script filename."""

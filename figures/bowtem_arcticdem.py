@@ -114,10 +114,7 @@ for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
     xy[bh] = xy0+dxy
 
 # add scale
-w, e, s, n = ax.get_extent()
-bar, pad = 100.0, 25.0
-ax.plot([e-pad-bar, e-pad], [s+pad]*2, 'k|-')
-ax.text(e-pad-0.5*bar, s+1.2*pad, '100m', ha='center', fontweight='bold')
+ut.pl.add_scale(ax=ax, length=100, label='100 m', color='k')
 
 
 # Distance axes

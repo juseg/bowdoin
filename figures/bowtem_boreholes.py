@@ -48,12 +48,11 @@ for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
                            marker='o', textpos=('lr' if bh == 'bh1' else 'ul'))
 
 # plot camp location
-ut.pl.add_waypoint('Tent Swiss', text='Camp', ax=ax, color='C3',
-                    marker='^', textpos='lc')
+ut.pl.add_waypoint('Tent Swiss', ax=ax, color='w', marker='^',
+                   text='Camp', textpos='lc')
 
 # add scale
-ax.plot([508.25e3, 509.25e3], [8620.25e3]*2, 'w|-')
-ax.text(508.75e3, 8620.4e3, '1km', color='w', ha='center', fontweight='bold')
+ut.pl.add_scale(ax=ax, length=1000, label='1km', color='w')
 
 
 # Distance axes
