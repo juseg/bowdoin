@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import absplots as apl
 import util as ut
 
 
@@ -10,9 +11,9 @@ dates = dict(
     bh3=['2015-01-01', '2015-04-01', '2015-07-12', '2015-11-12', '2016-06-19'])
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=1,
-                            sharex=False, sharey=True, wspace=2.5,
-                            left=10.0, right=2.5, bottom=10.0, top=2.5)
+fig, ax = apl.subplots_mm(figsize=(150, 75),
+                          gridspec_kw=dict(left=10, right=2.5,
+                                           bottom=10, top=2.5))
 
 # loop on boreholes
 for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):

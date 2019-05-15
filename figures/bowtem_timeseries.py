@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 
-import util as ut
 import numpy as np
 import pandas as pd
+import absplots as apl
+import util as ut
 
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=1,
-                            left=10.0, right=2.5, bottom=10.0, top=2.5)
+fig, ax = apl.subplots_mm(figsize=(150, 75),
+                          gridspec_kw=dict(left=10, right=2.5,
+                                           bottom=10, top=2.5))
 
 # loop on boreholes
 for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):

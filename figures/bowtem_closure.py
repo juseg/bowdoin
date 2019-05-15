@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 
-import util as ut
 import numpy as np
 import pandas as pd
+import absplots as apl
+import util as ut
 
 # date for temperature profile
 d = '2014-09-02'
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
-                            sharex=True, sharey=False, wspace=10.0,
-                            left=10.0, right=2.5, bottom=10.0, top=2.5)
+fig, ax = apl.subplots_mm(figsize=(150, 75), ncols=2, sharex=True,
+                          gridspec_kw=dict(left=10, right=2.5, wspace=10,
+                                           bottom=10, top=2.5))
 
 # loop on boreholes
 for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
