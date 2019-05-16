@@ -75,7 +75,7 @@ def borehole_distances(upper='BH2', lower='BH3'):
     distances = ((ux.values-lx.values)**2 + (uy.values-ly.values)**2)**0.5
 
     # get average dates
-    meandates = lx.index +(ux.index-lx.index)/2
+    meandates = lx.index + (ux.index-lx.index)/2
 
     # return as a pandas series
     ts = pd.Series(index=meandates, data=distances)
@@ -217,14 +217,14 @@ def thstring_depth_init():
     melt = 1.96
 
     # borehole bases
-    ubase = basal_depths[sensor_holes['thstring']['upper']]
-    lbase = basal_depths[sensor_holes['thstring']['lower']]
+    # ubase = basal_depths[sensor_holes['thstring']['upper']]
+    # lbase = basal_depths[sensor_holes['thstring']['lower']]
 
     # upper borehole
     surf_string = [0.0 - 13.40 - 20.0*i for i in [-6, -5, -4, -3, 0, -2, -1]]
     deep_string = [275.0 - 19.70 - 20.0*i for i in range(9)]  # surface cable
-    deep_string = [surf_string[0] + 10.0 - 20.0*i for i in range(-8, 1)]  # Martin
-    #deep_string = [ubase - melt] + [np.nan] * 8  # nans except for the base
+    deep_string = [surf_string[0] + 10 - 20*i for i in range(-8, 1)]  # Martin
+    # deep_string = [ubase - melt] + [np.nan] * 8  # nans except for the base
     uz = pd.Series(index=['UT%02d' % (i+1) for i in range(16)],
                    data=list(deep_string)+list(surf_string))
 
@@ -232,7 +232,7 @@ def thstring_depth_init():
     surf_string = [-20.0 - 11.25 - 20.0*i for i in range(-6, 1)]
     deep_string = [250.0 - 7.30 - 20.0*i for i in range(9)]  # surface cable
     deep_string = [surf_string[0] - 20.0*i for i in range(-9, 0)]  # Conny
-    #deep_string = [lbase - melt] + [np.nan] * 8  # nans except for the base
+    # deep_string = [lbase - melt] + [np.nan] * 8  # nans except for the base
     lz = pd.Series(index=['LT%02d' % (i+1) for i in range(16)],
                    data=list(deep_string)+list(surf_string))
 
@@ -256,15 +256,15 @@ def get_dgps_data(method='backward'):
     assert method in ('backward', 'forward', 'central')
 
     # append dataframes corresponding to each year
-    dflist = []
-    df = pd.concat([pd.read_fwf('original/gps/B14BH1/B14BH1_%d_15min.dat' % year,
-                                names=dgps_columns, index_col=0,
-                                usecols=['daydate', 'time', 'lon', 'lat', 'z'],
-                                parse_dates={'date': ['daydate', 'time']})
-                    for year in [2014, 2015, 2016, 2017]])
+    df = pd.concat([
+        pd.read_fwf('original/gps/B14BH1/B14BH1_%d_15min.dat' % year,
+                    names=dgps_columns, index_col=0,
+                    usecols=['daydate', 'time', 'lon', 'lat', 'z'],
+                    parse_dates={'date': ['daydate', 'time']})
+        for year in [2014, 2015, 2016, 2017]])
 
     # find samples not taken at multiples of 15 min (900 sec) and remove them
-    # it seems that these (18) values were recorded directly after each data gap
+    # it seems these (18) values were recorded directly after each data gap
     inpace = (60*df.index.minute + df.index.second) % 900 == 0
     assert (not inpace.sum() < 20)  # make sure we remove less than 20 values
     df = df[inpace]
@@ -273,8 +273,8 @@ def get_dgps_data(method='backward'):
     ll = ccrs.PlateCarree()
     proj = ccrs.UTM(19)
     points = proj.transform_points(ll, df['lon'].values, df['lat'].values)
-    df['x'] = points[:,0]
-    df['y'] = points[:,1]
+    df['x'] = points[:, 0]
+    df['y'] = points[:, 1]
 
     # resample with 15 minute frequency and fill with NaN
     df = df.resample('15T').mean()
@@ -304,13 +304,13 @@ def get_tide_data(order=2, cutoff=1/300.0):
     """Return Masahiro unfiltered tidal pressure in a data series."""
 
     # load data from two pressure sensors
-    parser = lambda s: pd.datetime.strptime(s, '%y/%m/%d %H:%M:%S')
+    def parser(s): return pd.datetime.strptime(s, '%y/%m/%d %H:%M:%S')
     files = os.listdir('original/tide')
-    props = dict(index_col=0, parse_dates=True, date_parser=parser, squeeze=True)
+    props = dict(index_col=0, parse_dates=True, date_parser=parser)
     ls1 = ['original/tide/'+f for f in files if f.endswith('_4m.csv')]
     ls2 = ['original/tide/'+f for f in files if f.endswith('_76m.csv')]
-    ts1 = pd.concat([pd.read_csv(f, **props) for f in ls1])
-    ts2 = pd.concat([pd.read_csv(f, **props) for f in ls2])
+    ts1 = pd.concat([pd.read_csv(f, **props, squeeze=True) for f in ls1])
+    ts2 = pd.concat([pd.read_csv(f, **props, squeeze=True) for f in ls2])
 
     # correct shifts of ts2 on a daily basis
     # FIXME it looks like ts1 has internal shifts
@@ -334,8 +334,9 @@ def get_pressure_data(bh, log):
     """Return pressure sensor data in a data frame."""
 
     # date parser
-    parser = lambda year, day, time: pd.datetime.strptime(
-        '%04d.%03d.%04d' % tuple(map(int, [year, day, time])), '%Y.%j.%H%M')
+    def parser(year, day, time):
+        datestring = year + day.zfill(3) + time.zfill(4)
+        return pd.datetime.strptime(datestring, '%Y%j%H%M')
 
     # read original file
     df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % log,
