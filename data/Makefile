@@ -19,14 +19,14 @@ all: external processed $(SAT_FILES)
 external: retrieve-external.sh
 	bash $<
 
-# gps data is a special case
+# preprocess borehole data
 processed: preprocess-boreholes.py
-	python2 $<
+	python $<
 
 # process landsat data from Daiki
 # FIXME: use similar paradigm as for other projects
 satellite/bowdoin-%.csv: preprocess-%.py
-	python2 $<
+	python $<
 
 # clean up
 # FIXME: use similar paradigm as for other projects
