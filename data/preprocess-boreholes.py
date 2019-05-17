@@ -466,7 +466,7 @@ def cal_temperature(temp, depth, t0='2014-07-23 11:20', t1='2014-07-23 15:00'):
 # Main program
 # ------------
 
-if __name__ == '__main__':
+def main():
     """Preprocess borehole data."""
 
     # make directory or update modification date
@@ -481,13 +481,13 @@ if __name__ == '__main__':
     tts = get_tide_data().rename('Tide')
     tts.to_csv('processed/bowdoin-tide.csv', header=True)
 
-    # read all data
-    pudf = get_pressure_data('upper', pressure_loggers['upper'])
-    pldf = get_pressure_data('lower', pressure_loggers['lower'])
-    uudf = get_tiltunit_data('upper', tiltunit_loggers['upper'])
-    uldf = get_tiltunit_data('lower', tiltunit_loggers['lower'])
-    tudf = get_thstring_data('upper', thstring_loggers['upper'])
-    tldf = get_thstring_data('lower', thstring_loggers['lower'])
+    # read all data except pre-field
+    pudf = get_pressure_data('upper', pressure_loggers['upper'])['2014-07':]
+    pldf = get_pressure_data('lower', pressure_loggers['lower'])['2014-07':]
+    uudf = get_tiltunit_data('upper', tiltunit_loggers['upper'])['2014-07':]
+    uldf = get_tiltunit_data('lower', tiltunit_loggers['lower'])['2014-07':]
+    tudf = get_thstring_data('upper', thstring_loggers['upper'])['2014-07':]
+    tldf = get_thstring_data('lower', thstring_loggers['lower'])['2014-07':]
     mudf = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
     mldf = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
 
@@ -545,3 +545,7 @@ if __name__ == '__main__':
     uldf['iyr'].to_csv('processed/bowdoin-tiltunit-tilty-lower.csv')
     uudf['p'].to_csv('processed/bowdoin-tiltunit-wlev-upper.csv')
     uldf['p'].to_csv('processed/bowdoin-tiltunit-wlev-lower.csv')
+
+
+if __name__ == '__main__':
+    main()
