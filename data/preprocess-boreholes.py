@@ -23,12 +23,12 @@ basal_depths = dict(BH1=272.0, BH2=262.0, BH3=252.0)
 # data logger properties
 dgps_columns = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
                 'sdn', 'sde', 'sdu', 'sdne', 'sdeu', 'sdun', 'age', 'ratio']
-pressure_loggers = dict(lower='drucksens073303', upper='drucksens094419')
+inc_loggers = dict(BH1='BOWDOIN-2', BH3='BOWDOIN-1')
+pzm_loggers = dict(BH2='drucksens094419', BH3='drucksens073303')
+thr_loggers = dict(BH2='Th-Bowdoin-2',  BH3='Th-Bowdoin-1')
 pressure_columns = ['id', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
-tiltunit_loggers = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')
 tiltunit_sensors = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
 tiltunit_outinst = ['ixr', 'iyr', 'p', 'tp', 't']
-thstring_loggers = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
 
 # physical constants
 g = 9.80665  # gravitational acceleration in m s-2
@@ -486,14 +486,14 @@ def main():
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
     # read all data except pre-field
-    bh1_inc = get_tiltunit_data('upper', tiltunit_loggers['upper'])['2014-07':]
-    bh3_inc = get_tiltunit_data('lower', tiltunit_loggers['lower'])['2014-07':]
-    bh2_pzm = get_pressure_data('upper', pressure_loggers['upper'])['2014-07':]
-    bh3_pzm = get_pressure_data('lower', pressure_loggers['lower'])['2014-07':]
-    bh2_thr_temp = get_thstring_data('upper', thstring_loggers['upper'])['2014-07':]
-    bh3_thr_temp = get_thstring_data('lower', thstring_loggers['lower'])['2014-07':]
-    bh2_thr_manu = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
-    bh3_thr_manu = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
+    bh1_inc = get_tiltunit_data('upper', inc_loggers['BH1'])['2014-07':]
+    bh3_inc = get_tiltunit_data('lower', inc_loggers['BH3'])['2014-07':]
+    bh2_pzm = get_pressure_data('upper', pzm_loggers['BH2'])['2014-07':]
+    bh3_pzm = get_pressure_data('lower', pzm_loggers['BH3'])['2014-07':]
+    bh2_thr_temp = get_thstring_data('upper', thr_loggers['BH2'])['2014-07':]
+    bh3_thr_temp = get_thstring_data('lower', thr_loggers['BH3'])['2014-07':]
+    bh2_thr_manu = get_thstring_data('upper', thr_loggers['BH2'], manual=True)
+    bh3_thr_manu = get_thstring_data('lower', thr_loggers['BH3'], manual=True)
 
     # extract time series
     bh2_pzm_wlev = bh2_pzm['wlev'].rename('UP')
