@@ -480,75 +480,78 @@ def main():
         os.mkdir('processed')
 
     # preprocess independent data
-    vdf = get_dgps_data()
-    vdf.to_csv('processed/bowdoin-dgps-velocity-upper.csv')
+    bh1_gps = get_dgps_data()
+    bh1_gps.to_csv('processed/bowdoin.bh1.gps.csv')
     tts = get_tide_data().rename('Tide')
-    tts.to_csv('processed/bowdoin-tide.csv', header=True)
+    tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
     # read all data except pre-field
-    pudf = get_pressure_data('upper', pressure_loggers['upper'])['2014-07':]
-    pldf = get_pressure_data('lower', pressure_loggers['lower'])['2014-07':]
-    uudf = get_tiltunit_data('upper', tiltunit_loggers['upper'])['2014-07':]
-    uldf = get_tiltunit_data('lower', tiltunit_loggers['lower'])['2014-07':]
-    tudf = get_thstring_data('upper', thstring_loggers['upper'])['2014-07':]
-    tldf = get_thstring_data('lower', thstring_loggers['lower'])['2014-07':]
-    mudf = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
-    mldf = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
+    bh1_inc = get_tiltunit_data('upper', tiltunit_loggers['upper'])['2014-07':]
+    bh3_inc = get_tiltunit_data('lower', tiltunit_loggers['lower'])['2014-07':]
+    bh2_pzm = get_pressure_data('upper', pressure_loggers['upper'])['2014-07':]
+    bh3_pzm = get_pressure_data('lower', pressure_loggers['lower'])['2014-07':]
+    bh2_thr_temp = get_thstring_data('upper', thstring_loggers['upper'])['2014-07':]
+    bh3_thr_temp = get_thstring_data('lower', thstring_loggers['lower'])['2014-07':]
+    bh2_thr_manu = get_thstring_data('upper', thstring_loggers['upper'], manual=True)
+    bh3_thr_manu = get_thstring_data('lower', thstring_loggers['lower'], manual=True)
 
     # extract time series
-    puw = pudf['wlev'].rename('UP')
-    plw = pldf['wlev'].rename('LP')
-    put = pudf['temp'].rename('UP')
-    plt = pldf['temp'].rename('LP')
+    bh2_pzm_wlev = bh2_pzm['wlev'].rename('UP')
+    bh2_pzm_temp = bh2_pzm['temp'].rename('UP')
+    bh3_pzm_wlev = bh3_pzm['wlev'].rename('LP')
+    bh3_pzm_temp = bh3_pzm['temp'].rename('LP')
 
     # get initial sensor depths
-    puz, plz = sensor_depths_init('pressure', puw, plw)
-    uuz, ulz = sensor_depths_init('tiltunit', uudf['p'], uldf['p'])
-    tuz, tlz = thstring_depth_init()
+    # FIXME: base depths should be independent of instrument type
+    bh1_inc_dept, bh3_inc_dept = sensor_depths_init('tiltunit', bh1_inc['p'], bh3_inc['p'])
+    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_init('pressure', bh2_pzm_wlev, bh3_pzm_wlev)
+    bh2_thr_dept, bh3_thr_dept = thstring_depth_init()
 
     # calibrate temperatures using initial depths
-    uldf['t'] = cal_temperature(uldf['t'], ulz)
-    tldf = cal_temperature(tldf, tlz)
+    bh3_inc['t'] = cal_temperature(bh3_inc['t'], bh3_inc_dept)
+    bh3_thr_temp = cal_temperature(bh3_thr_temp, bh3_thr_dept)
 
     # compute borehole base evolution
-    pub, plb = borehole_base_evol('pressure')
-    tub, tlb = borehole_base_evol('thstring')
-    uub, ulb = borehole_base_evol('tiltunit')
+    # FIXME: base depths should be independent of instrument type
+    bh1_inc_base, bh3_inc_base = borehole_base_evol('tiltunit')
+    bh2_pzm_base, bh3_pzm_base = borehole_base_evol('pressure')
+    bh2_thr_base, bh3_thr_base = borehole_base_evol('thstring')
 
     # compute sensor depths evolution
-    puz, plz = sensor_depths_evol('pressure', puz, plz)
-    tuz, tlz = sensor_depths_evol('thstring', tuz, tlz)
-    uuz, ulz = sensor_depths_evol('tiltunit', uuz, ulz)
+    bh1_inc_dept, bh3_inc_dept = sensor_depths_evol('tiltunit', bh1_inc_dept, bh3_inc_dept)
+    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_evol('pressure', bh2_pzm_dept, bh3_pzm_dept)
+    bh2_thr_dept, bh3_thr_dept = sensor_depths_evol('thstring', bh2_thr_dept, bh3_thr_dept)
 
     # export to csv, force header on time series
-    pub.to_csv('processed/bowdoin-pressure-base-upper.csv', header=True)
-    plb.to_csv('processed/bowdoin-pressure-base-lower.csv', header=True)
-    puz.to_csv('processed/bowdoin-pressure-depth-upper.csv')
-    plz.to_csv('processed/bowdoin-pressure-depth-lower.csv')
-    put.to_csv('processed/bowdoin-pressure-temp-upper.csv', header=True)
-    plt.to_csv('processed/bowdoin-pressure-temp-lower.csv', header=True)
-    puw.to_csv('processed/bowdoin-pressure-wlev-upper.csv', header=True)
-    plw.to_csv('processed/bowdoin-pressure-wlev-lower.csv', header=True)
-    tub.to_csv('processed/bowdoin-thstring-base-upper.csv', header=True)
-    tlb.to_csv('processed/bowdoin-thstring-base-lower.csv', header=True)
-    tuz.to_csv('processed/bowdoin-thstring-depth-upper.csv')
-    tlz.to_csv('processed/bowdoin-thstring-depth-lower.csv')
-    mudf.to_csv('processed/bowdoin-thstring-mantemp-upper.csv')
-    mldf.to_csv('processed/bowdoin-thstring-mantemp-lower.csv')
-    tudf.to_csv('processed/bowdoin-thstring-temp-upper.csv')
-    tldf.to_csv('processed/bowdoin-thstring-temp-lower.csv')
-    uub.to_csv('processed/bowdoin-tiltunit-base-upper.csv', header=True)
-    ulb.to_csv('processed/bowdoin-tiltunit-base-lower.csv', header=True)
-    uuz.to_csv('processed/bowdoin-tiltunit-depth-upper.csv')
-    ulz.to_csv('processed/bowdoin-tiltunit-depth-lower.csv')
-    uudf['t'].to_csv('processed/bowdoin-tiltunit-temp-upper.csv')
-    uldf['t'].to_csv('processed/bowdoin-tiltunit-temp-lower.csv')
-    uudf['ixr'].to_csv('processed/bowdoin-tiltunit-tiltx-upper.csv')
-    uudf['iyr'].to_csv('processed/bowdoin-tiltunit-tilty-upper.csv')
-    uldf['ixr'].to_csv('processed/bowdoin-tiltunit-tiltx-lower.csv')
-    uldf['iyr'].to_csv('processed/bowdoin-tiltunit-tilty-lower.csv')
-    uudf['p'].to_csv('processed/bowdoin-tiltunit-wlev-upper.csv')
-    uldf['p'].to_csv('processed/bowdoin-tiltunit-wlev-lower.csv')
+    # FIXME: base depths should be independent of instrument type
+    bh1_inc_base.to_csv('processed/bowdoin.bh1.inc.base.csv', header=True)
+    bh3_inc_base.to_csv('processed/bowdoin.bh3.inc.base.csv', header=True)
+    bh1_inc_dept.to_csv('processed/bowdoin.bh1.inc.dept.csv')
+    bh3_inc_dept.to_csv('processed/bowdoin.bh3.inc.dept.csv')
+    bh1_inc['t'].to_csv('processed/bowdoin.bh1.inc.temp.csv')
+    bh3_inc['t'].to_csv('processed/bowdoin.bh3.inc.temp.csv')
+    bh1_inc['ixr'].to_csv('processed/bowdoin.bh1.inc.tilx.csv')
+    bh1_inc['iyr'].to_csv('processed/bowdoin.bh1.inc.tily.csv')
+    bh3_inc['ixr'].to_csv('processed/bowdoin.bh3.inc.tilx.csv')
+    bh3_inc['iyr'].to_csv('processed/bowdoin.bh3.inc.tily.csv')
+    bh1_inc['p'].to_csv('processed/bowdoin.bh1.inc.wlev.csv')
+    bh3_inc['p'].to_csv('processed/bowdoin.bh3.inc.wlev.csv')
+    bh2_pzm_base.to_csv('processed/bowdoin.bh2.pzm.base.csv', header=True)
+    bh3_pzm_base.to_csv('processed/bowdoin.bh3.pzm.base.csv', header=True)
+    bh2_pzm_dept.to_csv('processed/bowdoin.bh2.pzm.dept.csv')
+    bh3_pzm_dept.to_csv('processed/bowdoin.bh3.pzm.dept.csv')
+    bh2_pzm_temp.to_csv('processed/bowdoin.bh2.pzm.temp.csv', header=True)
+    bh3_pzm_temp.to_csv('processed/bowdoin.bh3.pzm.temp.csv', header=True)
+    bh2_pzm_wlev.to_csv('processed/bowdoin.bh2.pzm.wlev.csv', header=True)
+    bh3_pzm_wlev.to_csv('processed/bowdoin.bh3.pzm.wlev.csv', header=True)
+    bh2_thr_base.to_csv('processed/bowdoin.bh2.thr.base.csv', header=True)
+    bh3_thr_base.to_csv('processed/bowdoin.bh3.thr.base.csv', header=True)
+    bh2_thr_dept.to_csv('processed/bowdoin.bh2.thr.dept.csv')
+    bh3_thr_dept.to_csv('processed/bowdoin.bh3.thr.dept.csv')
+    bh2_thr_manu.to_csv('processed/bowdoin.bh2.thr.manu.csv')
+    bh3_thr_manu.to_csv('processed/bowdoin.bh3.thr.manu.csv')
+    bh2_thr_temp.to_csv('processed/bowdoin.bh2.thr.temp.csv')
+    bh3_thr_temp.to_csv('processed/bowdoin.bh3.thr.temp.csv')
 
 
 if __name__ == '__main__':
