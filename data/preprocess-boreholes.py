@@ -344,6 +344,10 @@ def get_pressure_data(bh, log):
                      na_values=[-99999], date_parser=parser,
                      parse_dates={'date': ['year', 'day', 'time']})
 
+    # the lower sensor recorded crap after Feb. 3, 2017
+    if bh == 'lower':
+        df = df[:'20170203 1500']
+
     # return dataframe
     return df
 
