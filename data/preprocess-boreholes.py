@@ -16,17 +16,17 @@ import cartopy.crs as ccrs
 sensor_holes = dict(pressure=dict(upper='BH2', lower='BH3'),
                     thstring=dict(upper='BH2', lower='BH3'),
                     tiltunit=dict(upper='BH1', lower='BH3'))
-observ_dates = dict(BH1='2014-07-17 18:07:00',  # assumed
-                    BH2='2014-07-17 18:07:00',  # assumed
-                    BH3='2014-07-23 00:30:00')  # assumed
-water_depths = dict(BH1=48.0, BH2=46.0, BH3=0.0)
-basal_depths = dict(BH1=272.0, BH2=262.0, BH3=252.0)
+observ_dates = dict(bh1='2014-07-17 18:07:00',  # assumed
+                    bh2='2014-07-17 18:07:00',  # assumed
+                    bh3='2014-07-23 00:30:00')  # assumed
+water_depths = dict(bh1=48.0, bh2=46.0, bh3=0.0)
+INITIAL_DEPTHS = dict(bh1=272.0, bh2=262.0, bh3=252.0)
 
 
 # Borehole location methods
 # -------------------------
 
-def borehole_distances(upper='BH2', lower='BH3'):
+def borehole_distances(upper='bh1', lower='bh3'):
     """
     Compute distances between boreholes
     """
@@ -44,10 +44,10 @@ def borehole_distances(upper='BH2', lower='BH3'):
     # read GPX file
     with open('../data/locations.gpx', 'r') as gpx_file:
         for wpt in gpxpy.parse(gpx_file).waypoints:
-            if upper in wpt.name:
+            if upper.upper() in wpt.name:
                 xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
                 ux[wpt.time], uy[wpt.time] = xy
-            elif lower in wpt.name:
+            elif lower.upper() in wpt.name:
                 xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
                 lx[wpt.time], ly[wpt.time] = xy
 
@@ -73,54 +73,49 @@ def borehole_distances(upper='BH2', lower='BH3'):
 
 def borehole_thinning(uz, lz, distances):
     """Estimate thinning based on distance between boreholes."""
-    # FIXME account for ice melt
-    dz = (uz+lz) / 2 * (distances[0]/distances-1)  # < 0)
+    # FIXME: In practice this area conservation approach is not working.
+    # FIXME: Besides one should include ice melt in the computation.
+    dz = (uz+lz) / 2 * (distances[0]/distances-1)
     return dz
 
 
-# Sensor depth methods
-# --------------------
-
-def borehole_base_evol(sensor):
-    """Return time-dependent borehole base for sensor as data series."""
-
-    # exact borehole location depends on sensor
-    upper = sensor_holes[sensor]['upper']
-    lower = sensor_holes[sensor]['lower']
+def borehole_base_evol(upper='bh1', lower='bh3'):
+    """
+    Compute the time evolution of the depths of two boreholes based on the
+    evolution of the distance between the two boreholes and assuming
+    conservation of the area of the long-section between them.
+    """
+    # FIXME: In practice this area conservation approach is not working.
+    # FIXME: Instead it should be possible to use ice-penetrating RADAR data.
 
     # get initial borehole base
-    ubase = basal_depths[upper]
-    lbase = basal_depths[lower]
+    ubase = INITIAL_DEPTHS[upper]
+    lbase = INITIAL_DEPTHS[lower]
 
     # compute time-dependent depths
     distances = borehole_distances(upper=upper, lower=lower)
-    dz = borehole_thinning(ubase, lbase, distances)
+    thinning = borehole_thinning(ubase, lbase, distances)
 
-    # apply thinning
-    ubase = dz + ubase
-    lbase = dz + lbase
-
-    # rename data series
-    stype = dict(pressure='P', thstring='T', tiltunit='I')[sensor]
-    ubase = ubase.rename(stype+'UB')
-    lbase = lbase.rename(stype+'LB')
+    # apply thinning and rename data series
+    ubase = (thinning+ubase).rename(upper.upper()+'B')
+    lbase = (thinning+lbase).rename(lower.upper()+'B')
 
     # return depth data series
     return ubase, lbase
 
 
-def sensor_depths_init(sensor, ulev, llev):
-    """Return initial sensor depths as data series."""
+# Sensor depth methods
+# --------------------
 
-    # exact borehole location depends on sensor
-    upper = sensor_holes[sensor]['upper']
-    lower = sensor_holes[sensor]['lower']
+def sensor_depths_init(upper_wlev, lower_wlev, upper='bh1', lower='bh3'):
+    """Return initial sensor depths as data series."""
+    # FIXME: This could be called for one borehole at a time.
 
     # compute sensor depths (groupy averages duplicate)
     ut = observ_dates[upper]
     lt = observ_dates[lower]
-    uz = ulev.loc[ut:ut].groupby(level=0).mean() + water_depths[upper]
-    lz = llev.loc[lt:lt].groupby(level=0).mean() + water_depths[lower]
+    uz = upper_wlev.loc[ut:ut].groupby(level=0).mean() + water_depths[upper]
+    lz = lower_wlev.loc[lt:lt].groupby(level=0).mean() + water_depths[lower]
 
     # convert series to horizontal dataframes
     if len(uz.shape) == 1:
@@ -135,27 +130,23 @@ def sensor_depths_init(sensor, ulev, llev):
     return uz, lz
 
 
-def sensor_depths_evol(sensor, uz, lz):
+def sensor_depths_evol(upper_dept, lower_dept, upper='bh1', lower='bh3'):
     """Return time-dependent sensor depths as data frames."""
 
-    # exact borehole location depends on sensor
-    upper = sensor_holes[sensor]['upper']
-    lower = sensor_holes[sensor]['lower']
-
     # get initial borebole depths
-    ubase = basal_depths[upper]
-    lbase = basal_depths[lower]
+    ubase = INITIAL_DEPTHS[upper]
+    lbase = INITIAL_DEPTHS[lower]
 
     # compute time-dependent depths
     distances = borehole_distances(upper=upper, lower=lower)
-    dz = borehole_thinning(ubase, lbase, distances)
+    thinning = borehole_thinning(ubase, lbase, distances)
 
     # apply thinning
-    uz = dz.apply(lambda d: uz * (1+d/ubase))
-    lz = dz.apply(lambda d: lz * (1+d/lbase))
+    upper_dept = thinning.apply(lambda d: upper_dept * (1+d/ubase))
+    lower_dept = thinning.apply(lambda d: lower_dept * (1+d/lbase))
 
     # return depth data series
-    return uz, lz
+    return upper_dept, lower_dept
 
 
 def thstring_depth_init():
@@ -204,8 +195,8 @@ def thstring_depth_init():
     melt = 1.96
 
     # borehole bases
-    # ubase = basal_depths[sensor_holes['thstring']['upper']]
-    # lbase = basal_depths[sensor_holes['thstring']['lower']]
+    # ubase = INITIAL_DEPTHS[sensor_holes['thstring']['upper']]
+    # lbase = INITIAL_DEPTHS[sensor_holes['thstring']['lower']]
 
     # upper borehole
     surf_string = [0.0 - 13.40 - 20.0*i for i in [-6, -5, -4, -3, 0, -2, -1]]
@@ -518,8 +509,8 @@ def main():
 
     # get initial sensor depths
     # FIXME: base depths should be independent of instrument type
-    bh1_inc_dept, bh3_inc_dept = sensor_depths_init('tiltunit', bh1_inc.wlev, bh3_inc.wlev)
-    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_init('pressure', bh2_pzm_wlev, bh3_pzm_wlev)
+    bh1_inc_dept, bh3_inc_dept = sensor_depths_init(bh1_inc.wlev, bh3_inc.wlev, upper='bh1', lower='bh3')
+    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_init(bh2_pzm_wlev, bh3_pzm_wlev, upper='bh2', lower='bh3')
     bh2_thr_dept, bh3_thr_dept = thstring_depth_init()
 
     # calibrate temperatures using initial depths
@@ -528,14 +519,14 @@ def main():
 
     # compute borehole base evolution
     # FIXME: base depths should be independent of instrument type
-    bh1_inc_base, bh3_inc_base = borehole_base_evol('tiltunit')
-    bh2_pzm_base, bh3_pzm_base = borehole_base_evol('pressure')
-    bh2_thr_base, bh3_thr_base = borehole_base_evol('thstring')
+    bh1_inc_base, bh3_inc_base = borehole_base_evol(upper='bh1', lower='bh3')
+    bh2_pzm_base, bh3_pzm_base = borehole_base_evol(upper='bh2', lower='bh3')
+    bh2_thr_base, bh3_thr_base = borehole_base_evol(upper='bh2', lower='bh3')
 
     # compute sensor depths evolution
-    bh1_inc_dept, bh3_inc_dept = sensor_depths_evol('tiltunit', bh1_inc_dept, bh3_inc_dept)
-    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_evol('pressure', bh2_pzm_dept, bh3_pzm_dept)
-    bh2_thr_dept, bh3_thr_dept = sensor_depths_evol('thstring', bh2_thr_dept, bh3_thr_dept)
+    bh1_inc_dept, bh3_inc_dept = sensor_depths_evol(bh1_inc_dept, bh3_inc_dept, upper='bh1', lower='bh3')
+    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_evol(bh2_pzm_dept, bh3_pzm_dept, upper='bh2', lower='bh3')
+    bh2_thr_dept, bh3_thr_dept = sensor_depths_evol(bh2_thr_dept, bh3_thr_dept, upper='bh2', lower='bh3')
 
     # export to csv, force header on time series
     # FIXME: base depths should be independent of instrument type
