@@ -25,7 +25,6 @@ basal_depths = dict(BH1=272.0, BH2=262.0, BH3=252.0)
 # data logger properties
 dgps_columns = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
                 'sdn', 'sde', 'sdu', 'sdne', 'sdeu', 'sdun', 'age', 'ratio']
-thr_loggers = dict(BH2='Th-Bowdoin-2',  BH3='Th-Bowdoin-1')
 
 # physical constants
 g = 9.80665  # gravitational acceleration in m s-2
@@ -422,13 +421,16 @@ def read_piezometer_data(site):
     return df
 
 
-def get_thstring_data(bh, log, manual=False):
-    """Return thermistor string data in a data frame."""
+def read_thermistor_data(site, manual=False):
+    """Return upper (BH2) or lower (BH3) thermistor data in a data frame."""
+
+    # data logger name
+    logger = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')[site]
 
     # input file names
     postfix = 'Manual' if manual else 'Therm'
-    cfilename = 'original/temperature/%s_Coefs.dat' % log
-    ifilename = 'original/temperature/%s_%s.dat' % (log, postfix)
+    cfilename = 'original/temperature/%s_Coefs.dat' % logger
+    ifilename = 'original/temperature/%s_%s.dat' % (logger, postfix)
 
     # read rearranged calibration coefficients
     # sensor order lower: BH2A[1-9] + BH2B[1-7],
@@ -447,7 +449,7 @@ def get_thstring_data(bh, log, manual=False):
 
     # rename index and columns
     df.index = df.index.rename('date')
-    df.columns = [bh[0].upper() + 'T%02d' % (i+1) for i in range(16)]
+    df.columns = [site[0].upper() + 'T%02d' % (i+1) for i in range(16)]
 
     # return as dataframe
     return df
@@ -491,10 +493,10 @@ def main():
     bh3_inc = read_inclinometer_data('lower')['2014-07':]
     bh2_pzm = read_piezometer_data('upper')['2014-07':]
     bh3_pzm = read_piezometer_data('lower')['2014-07':]
-    bh2_thr_temp = get_thstring_data('upper', thr_loggers['BH2'])['2014-07':]
-    bh3_thr_temp = get_thstring_data('lower', thr_loggers['BH3'])['2014-07':]
-    bh2_thr_manu = get_thstring_data('upper', thr_loggers['BH2'], manual=True)
-    bh3_thr_manu = get_thstring_data('lower', thr_loggers['BH3'], manual=True)
+    bh2_thr_temp = read_thermistor_data('upper')['2014-07':]
+    bh3_thr_temp = read_thermistor_data('lower')['2014-07':]
+    bh2_thr_manu = read_thermistor_data('upper', manual=True)
+    bh3_thr_manu = read_thermistor_data('lower', manual=True)
 
     # extract time series
     bh2_pzm_wlev = bh2_pzm['wlev'].rename('UP')
