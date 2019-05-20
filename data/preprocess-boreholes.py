@@ -22,15 +22,6 @@ observ_dates = dict(BH1='2014-07-17 18:07:00',  # assumed
 water_depths = dict(BH1=48.0, BH2=46.0, BH3=0.0)
 basal_depths = dict(BH1=272.0, BH2=262.0, BH3=252.0)
 
-# data logger properties
-dgps_columns = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
-                'sdn', 'sde', 'sdu', 'sdne', 'sdeu', 'sdun', 'age', 'ratio']
-
-# physical constants
-g = 9.80665  # gravitational acceleration in m s-2
-rhoi = 910.0  # ice density in kg m-3
-beta = 7.9e-8  # ice Clapeyron constant (Luethi et al., 2002)
-
 
 # Borehole location methods
 # -------------------------
@@ -245,16 +236,18 @@ def thstring_depth_init():
 # Independent data reading methods
 # --------------------------------
 
-def get_dgps_data(method='backward'):
+def read_gps_data(method='backward'):
     """Return lon/lat gps positions in a data frame."""
 
     # check argument validity
     assert method in ('backward', 'forward', 'central')
 
     # append dataframes corresponding to each year
+    names = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
+             'sdn', 'sde', 'sdu', 'sdne', 'sdeu', 'sdun', 'age', 'ratio']
     df = pd.concat([
         pd.read_fwf('original/gps/B14BH1/B14BH1_%d_15min.dat' % year,
-                    names=dgps_columns, index_col=0,
+                    names=names, index_col=0,
                     usecols=['daydate', 'time', 'lon', 'lat', 'z'],
                     parse_dates={'date': ['daydate', 'time']})
         for year in [2014, 2015, 2016, 2017]])
@@ -296,7 +289,7 @@ def get_dgps_data(method='backward'):
     return df
 
 
-def get_tide_data(order=2, cutoff=1/300.0):
+def read_tide_data(order=2, cutoff=1/300.0):
     """Return Masahiro unfiltered tidal pressure in a data series."""
 
     # load data from two pressure sensors
@@ -326,7 +319,7 @@ def get_tide_data(order=2, cutoff=1/300.0):
 # Borehole data reading methods
 # -----------------------------
 
-def read_inclinometer_data(site):
+def read_inclinometer_data(site, gravity=9.80665):
     """Return upper (BH1) or lower (BH3) inclinometer data in a data frame."""
 
     # input logger name
@@ -388,7 +381,7 @@ def read_inclinometer_data(site):
     df['tily'] = (df['tily'] - coefs['by'])/coefs['ay']
 
     # convert pressure to meters of water and temperature to degrees
-    df['wlev'] *= 1e2/g
+    df['wlev'] *= 1e2/gravity
     df['temp'] /= 1e3
 
     # return filled dataframe
@@ -458,14 +451,33 @@ def read_thermistor_data(site, manual=False):
 # Temperature calibration methods
 # -------------------------------
 
-def cal_temperature(temp, depth, t0='2014-07-23 11:20', t1='2014-07-23 15:00'):
+def recalibrate_temperature(temp, depth, beta=7.9e-8, gravity=9.80665,
+                            rho_i=910.0, start='2014-07-23 11:20',
+                            end='2014-07-23 15:00'):
     """
-    Recalibrate lower borehole temperature to melting point.
-    Unfortunately initial upper borehole data were lost.
+    Recalibrate the lower (BH3) borehole temperature assuming all temperatures
+    were at the melting point for a given time interval following the drilling.
+    Unfortunately the initial upper (BH2) thermistor data were lost such that
+    sensors are already undergoing freezup when the record starts.
+
+    Parameters
+    ----------
+    beta : scalar
+        Clapeyron constant for ice (default: Luethi et al., 2002)
+    gravity : scalar
+        Standard gravity in m s-2
+    rho_i : scalar
+        Ice density in kg m-3
+    start : datetime-like
+        Start of the calibration interval
+    end: datetime-like
+        End of the calibration interval
     """
-    # FIXME: add upper sensors when possible, remove sensors above surface
-    melting_point = -beta * rhoi * g * depth
-    initial_temp = temp[t0:t1].mean()
+
+    # FIXME: implement recalibration for upper borehole sensors for which data
+    # is available. Remove sensors located above the surface.
+    melting_point = -beta * rho_i * gravity * depth
+    initial_temp = temp[start:end].mean()
     melt_offset = (melting_point - initial_temp).fillna(0.0)
     return temp + melt_offset
 
@@ -483,9 +495,9 @@ def main():
         os.mkdir('processed')
 
     # preprocess independent data
-    bh1_gps = get_dgps_data()
+    bh1_gps = read_gps_data()
     bh1_gps.to_csv('processed/bowdoin.bh1.gps.csv')
-    tts = get_tide_data().rename('Tide')
+    tts = read_tide_data().rename('Tide')
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
     # read all data except pre-field
@@ -511,8 +523,8 @@ def main():
     bh2_thr_dept, bh3_thr_dept = thstring_depth_init()
 
     # calibrate temperatures using initial depths
-    bh3_inc.temp = cal_temperature(bh3_inc.temp, bh3_inc_dept)
-    bh3_thr_temp = cal_temperature(bh3_thr_temp, bh3_thr_dept)
+    bh3_inc.temp = recalibrate_temperature(bh3_inc.temp, bh3_inc_dept)
+    bh3_thr_temp = recalibrate_temperature(bh3_thr_temp, bh3_thr_dept)
 
     # compute borehole base evolution
     # FIXME: base depths should be independent of instrument type
