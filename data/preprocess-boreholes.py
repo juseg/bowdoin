@@ -33,47 +33,55 @@ INITIAL_WATER_TIMING = dict(bh1='2014-07-17 18:07:00',  # assumed
 
 def borehole_distances(upper='bh1', lower='bh3'):
     """
-    Compute distances between boreholes
+    Compute the time evolution of the distance between two boreholes.
+
+    Parameters
+    ----------
+    upper: string
+        The name of the upper borehole.
+    lower: string
+        The name of the lower borehole.
     """
+    # FIXME: Borehole distances will become unnecessary when using RADAR data.
 
     # projections used to compute distances
-    ll = ccrs.PlateCarree()
+    lonlat = ccrs.PlateCarree()
     utm = ccrs.UTM(19)
 
     # initialize empty data series
-    ux = pd.Series()
-    uy = pd.Series()
-    lx = pd.Series()
-    ly = pd.Series()
+    upper_x = pd.Series()
+    upper_y = pd.Series()
+    lower_x = pd.Series()
+    lower_y = pd.Series()
 
     # read GPX file
     with open('../data/locations.gpx', 'r') as gpx_file:
         for wpt in gpxpy.parse(gpx_file).waypoints:
             if upper.upper() in wpt.name:
-                xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
-                ux[wpt.time], uy[wpt.time] = xy
+                upper_x[wpt.time], upper_y[wpt.time] = \
+                    utm.transform_point(wpt.longitude, wpt.latitude, lonlat)
             elif lower.upper() in wpt.name:
-                xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
-                lx[wpt.time], ly[wpt.time] = xy
+                lower_x[wpt.time], lower_y[wpt.time] = \
+                    utm.transform_point(wpt.longitude, wpt.latitude, lonlat)
 
     # sort by date
-    for ts in ux, uy, lx, ly:
-        ts.sort_index(inplace=True)
+    for series in upper_x, upper_y, lower_x, lower_y:
+        series.sort_index(inplace=True)
 
     # ensure series have same length
-    assert len(ux) == len(uy) == len(lx) == len(ly)
+    assert len(upper_x) == len(upper_y) == len(lower_x) == len(lower_y)
 
     # compute distances
-    distances = ((ux.values-lx.values)**2 + (uy.values-ly.values)**2)**0.5
+    distances = ((upper_x.values-lower_x.values)**2 +
+                 (upper_y.values-lower_y.values)**2)**0.5
 
     # get average dates
-    meandates = lx.index + (ux.index-lx.index)/2
+    avg_dates = lower_x.index + (upper_x.index-lower_x.index)/2
 
     # return as a pandas series
-    ts = pd.Series(index=meandates, data=distances)
-    ts = ts.sort_index()
-    ts.index.name = 'date'
-    return ts
+    distances = pd.Series(index=avg_dates, data=distances).sort_index()
+    distances.index.name = 'date'
+    return distances
 
 
 def borehole_thinning(uz, lz, distances):
