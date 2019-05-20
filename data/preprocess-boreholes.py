@@ -16,6 +16,11 @@ import cartopy.crs as ccrs
 DRILLING_DATES = None  # FIXME
 INITIAL_DEPTHS = dict(bh1=272.0, bh2=262.0, bh3=252.0)
 
+# data logger names
+INCLINOMETER_LOGGERS = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')
+PIEZOMETER_LOGGERS = dict(lower='drucksens073303', upper='drucksens094419')
+THERMISTOR_LOGGERS = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')
+
 # observations of initial borehole water depths
 INITIAL_WATER_DEPTHS = dict(bh1=48.0, bh2=46.0, bh3=0.0)
 INITIAL_WATER_TIMING = dict(bh1='2014-07-17 18:07:00',  # assumed
@@ -339,9 +344,6 @@ def read_tide_data(order=2, cutoff=1/300.0):
 def read_inclinometer_data(site, gravity=9.80665):
     """Return upper (BH1) or lower (BH3) inclinometer data in a data frame."""
 
-    # input logger name
-    logger = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')[site]
-
     def floatornan(x):
         """Try to convert to float and return NaN if that fails."""
         try:
@@ -368,6 +370,7 @@ def read_inclinometer_data(site, gravity=9.80665):
         return df
 
     # input file names
+    logger = INCLINOMETER_LOGGERS[site]
     ifilename = 'original/inclino/' + logger + '_All.dat'
     cfilename = 'original/inclino/' + logger + '_Coefs.dat'
 
@@ -409,15 +412,13 @@ def read_inclinometer_data(site, gravity=9.80665):
 def read_piezometer_data(site):
     """Return upper (BH2) or lower (BH3) piezometer data in a data frame."""
 
-    # data logger name
-    logger = dict(upper='drucksens094419', lower='drucksens073303')[site]
-
     # date parser
     def parser(year, day, time):
         datestring = year + day.zfill(3) + time.zfill(4)
         return pd.datetime.strptime(datestring, '%Y%j%H%M')
 
     # read original file
+    logger = PIEZOMETER_LOGGERS[site]
     names = ['id', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
     df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % logger,
                      names=names, index_col='date',
@@ -435,10 +436,8 @@ def read_piezometer_data(site):
 def read_thermistor_data(site, manual=False):
     """Return upper (BH2) or lower (BH3) thermistor data in a data frame."""
 
-    # data logger name
-    logger = dict(lower='Th-Bowdoin-1', upper='Th-Bowdoin-2')[site]
-
     # input file names
+    logger = THERMISTOR_LOGGERS[site]
     postfix = 'Manual' if manual else 'Therm'
     cfilename = 'original/temperature/%s_Coefs.dat' % logger
     ifilename = 'original/temperature/%s_%s.dat' % (logger, postfix)
