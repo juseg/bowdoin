@@ -25,9 +25,7 @@ basal_depths = dict(BH1=272.0, BH2=262.0, BH3=252.0)
 # data logger properties
 dgps_columns = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
                 'sdn', 'sde', 'sdu', 'sdne', 'sdeu', 'sdun', 'age', 'ratio']
-pzm_loggers = dict(BH2='drucksens094419', BH3='drucksens073303')
 thr_loggers = dict(BH2='Th-Bowdoin-2',  BH3='Th-Bowdoin-1')
-pressure_columns = ['id', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
 
 # physical constants
 g = 9.80665  # gravitational acceleration in m s-2
@@ -330,7 +328,7 @@ def get_tide_data(order=2, cutoff=1/300.0):
 # -----------------------------
 
 def read_inclinometer_data(site):
-    """Return BH1 (upper) or BH3 (lower) inclinometer data in a data frame."""
+    """Return upper (BH1) or lower (BH3) inclinometer data in a data frame."""
 
     # input logger name
     logger = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')[site]
@@ -398,8 +396,11 @@ def read_inclinometer_data(site):
     return df
 
 
-def get_pressure_data(bh, log):
-    """Return pressure sensor data in a data frame."""
+def read_piezometer_data(site):
+    """Return upper (BH2) or lower (BH3) piezometer data in a data frame."""
+
+    # data logger name
+    logger = dict(upper='drucksens094419', lower='drucksens073303')[site]
 
     # date parser
     def parser(year, day, time):
@@ -407,13 +408,14 @@ def get_pressure_data(bh, log):
         return pd.datetime.strptime(datestring, '%Y%j%H%M')
 
     # read original file
-    df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % log,
-                     names=pressure_columns, index_col='date',
+    names = ['id', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
+    df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % logger,
+                     names=names, index_col='date',
                      na_values=[-99999], date_parser=parser,
                      parse_dates={'date': ['year', 'day', 'time']})
 
     # the lower sensor recorded crap after Feb. 3, 2017
-    if bh == 'lower':
+    if site == 'lower':
         df = df[:'20170203 1500']
 
     # return dataframe
@@ -487,8 +489,8 @@ def main():
     # read all data except pre-field
     bh1_inc = read_inclinometer_data('upper')['2014-07':]
     bh3_inc = read_inclinometer_data('lower')['2014-07':]
-    bh2_pzm = get_pressure_data('upper', pzm_loggers['BH2'])['2014-07':]
-    bh3_pzm = get_pressure_data('lower', pzm_loggers['BH3'])['2014-07':]
+    bh2_pzm = read_piezometer_data('upper')['2014-07':]
+    bh3_pzm = read_piezometer_data('lower')['2014-07':]
     bh2_thr_temp = get_thstring_data('upper', thr_loggers['BH2'])['2014-07':]
     bh3_thr_temp = get_thstring_data('lower', thr_loggers['BH3'])['2014-07':]
     bh2_thr_manu = get_thstring_data('upper', thr_loggers['BH2'], manual=True)
