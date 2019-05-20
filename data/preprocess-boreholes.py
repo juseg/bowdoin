@@ -386,7 +386,8 @@ def read_inclinometer_data(site, gravity=9.80665):
     # split data strings and re-merge into one dataframe
     propdf = df[propcols]
     propdf.columns = pd.MultiIndex.from_tuples([(c, '') for c in propcols])
-    datadf = pd.concat([splitstrings(site, df[col]) for col in datacols], axis=1)
+    datadf = pd.concat([splitstrings(site, df[col]) for col in datacols],
+                       axis=1)
     df = pd.concat([propdf, datadf], axis=1)
 
     # read calibration coefficients
@@ -551,9 +552,12 @@ def main():
     bh2_thr_base, bh3_thr_base = borehole_base_evol(upper='bh2', lower='bh3')
 
     # compute sensor depths evolution
-    bh1_inc_dept, bh3_inc_dept = sensor_depths_evol(bh1_inc_dept, bh3_inc_dept, upper='bh1', lower='bh3')
-    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_evol(bh2_pzm_dept, bh3_pzm_dept, upper='bh2', lower='bh3')
-    bh2_thr_dept, bh3_thr_dept = sensor_depths_evol(bh2_thr_dept, bh3_thr_dept, upper='bh2', lower='bh3')
+    bh1_inc_dept, bh3_inc_dept = sensor_depths_evol(
+        bh1_inc_dept, bh3_inc_dept, upper='bh1', lower='bh3')
+    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_evol(
+        bh2_pzm_dept, bh3_pzm_dept, upper='bh2', lower='bh3')
+    bh2_thr_dept, bh3_thr_dept = sensor_depths_evol(
+        bh2_thr_dept, bh3_thr_dept, upper='bh2', lower='bh3')
 
     # export to csv, force header on time series
     # FIXME: base depths should be independent of instrument type
