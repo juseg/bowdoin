@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+"""Preprocess Bowdoin 2014 to 2017 borehole data."""
+
 import os
 import gpxpy
 import numpy as np
@@ -23,12 +25,9 @@ basal_depths = dict(BH1=272.0, BH2=262.0, BH3=252.0)
 # data logger properties
 dgps_columns = ['daydate', 'time', 'lat', 'lon', 'z', 'Q', 'ns',
                 'sdn', 'sde', 'sdu', 'sdne', 'sdeu', 'sdun', 'age', 'ratio']
-inc_loggers = dict(BH1='BOWDOIN-2', BH3='BOWDOIN-1')
 pzm_loggers = dict(BH2='drucksens094419', BH3='drucksens073303')
 thr_loggers = dict(BH2='Th-Bowdoin-2',  BH3='Th-Bowdoin-1')
 pressure_columns = ['id', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
-tiltunit_sensors = ['id', 'ixr', 'iyr', 'mx', 'my', 'mz', 'p', 'tp', 't']
-tiltunit_outinst = ['ixr', 'iyr', 'p', 'tp', 't']
 
 # physical constants
 g = 9.80665  # gravitational acceleration in m s-2
@@ -330,6 +329,75 @@ def get_tide_data(order=2, cutoff=1/300.0):
 # Borehole data reading methods
 # -----------------------------
 
+def read_inclinometer_data(site):
+    """Return BH1 (upper) or BH3 (lower) inclinometer data in a data frame."""
+
+    # input logger name
+    logger = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')[site]
+
+    def floatornan(x):
+        """Try to convert to float and return NaN if that fails."""
+        try:
+            return float(x)
+        except (ValueError, TypeError):
+            return np.nan
+
+    def splitstrings(site, ts):
+        """Split series of data strings into multi-column data frame."""
+
+        # split data strings into new multi-column dataframe and fill with NaN
+        df = ts.str.split(',', expand=True).applymap(floatornan)
+
+        # replace null values by nan
+        df = df.replace([-99.199996, 2499.0, 4999.0, 7499.0, 9999.0], np.nan)
+
+        # rename columns
+        sensors = ['id', 'tilx', 'tily', 'magx', 'magy', 'magz',
+                   'wlev', 'tpre', 'temp']
+        unitname = site[0].upper() + 'I' + ts.name[-2:-1].zfill(2)
+        df.columns = [sensors, [unitname]*len(sensors)]
+
+        # return split dataframe
+        return df
+
+    # input file names
+    ifilename = 'original/inclino/' + logger + '_All.dat'
+    cfilename = 'original/inclino/' + logger + '_Coefs.dat'
+
+    # open input file
+    df = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
+                     dtype=str, parse_dates=True, na_values='NAN')
+
+    # rename index
+    df.index = df.index.rename('date')
+
+    # find columns with logger properties and those data
+    propcols = [col for col in df.columns if not col.startswith('res')]
+    datacols = [col for col in df.columns if col.startswith('res')]
+    datacols = [col for col in datacols if df[col].notnull().any()]
+
+    # split data strings and re-merge into one dataframe
+    propdf = df[propcols]
+    propdf.columns = pd.MultiIndex.from_tuples([(c, '') for c in propcols])
+    datadf = pd.concat([splitstrings(site, df[col]) for col in datacols], axis=1)
+    df = pd.concat([propdf, datadf], axis=1)
+
+    # read calibration coefficients
+    coefs = pd.read_csv(cfilename, index_col=0, comment='#')
+    coefs = coefs.loc[df['tilx'].columns]
+
+    # calibrate tilt angles
+    df['tilx'] = (df['tilx'] - coefs['bx'])/coefs['ax']
+    df['tily'] = (df['tily'] - coefs['by'])/coefs['ay']
+
+    # convert pressure to meters of water and temperature to degrees
+    df['wlev'] *= 1e2/g
+    df['temp'] /= 1e3
+
+    # return filled dataframe
+    return df
+
+
 def get_pressure_data(bh, log):
     """Return pressure sensor data in a data frame."""
 
@@ -349,47 +417,6 @@ def get_pressure_data(bh, log):
         df = df[:'20170203 1500']
 
     # return dataframe
-    return df
-
-
-def get_tiltunit_data(bh, log):
-    """Return tilt unit data in a data frame."""
-
-    # input file names
-    ifilename = 'original/inclino/%s_All.dat' % log
-    cfilename = 'original/inclino/%s_Coefs.dat' % log
-
-    # open input file
-    df = pd.read_csv(ifilename, skiprows=[0, 2, 3], index_col=0,
-                     dtype=str, parse_dates=True, na_values='NAN')
-
-    # rename index
-    df.index = df.index.rename('date')
-
-    # find columns with logger properties and those data
-    propcols = [col for col in df.columns if not col.startswith('res')]
-    datacols = [col for col in df.columns if col.startswith('res')]
-    datacols = [col for col in datacols if df[col].notnull().any()]
-
-    # split data strings and re-merge into one dataframe
-    propdf = df[propcols]
-    propdf.columns = pd.MultiIndex.from_tuples([(c, '') for c in propcols])
-    datadf = pd.concat([splitstrings(bh, df[col]) for col in datacols], axis=1)
-    df = pd.concat([propdf, datadf], axis=1)
-
-    # read calibration coefficients
-    coefs = pd.read_csv(cfilename, index_col=0, comment='#')
-    coefs = coefs.loc[df['ixr'].columns]
-
-    # calibrate tilt angles
-    df['ixr'] = (df['ixr'] - coefs['bx'])/coefs['ax']
-    df['iyr'] = (df['iyr'] - coefs['by'])/coefs['ay']
-
-    # convert temperatures to degrees and pressures to meters of water
-    df['p'] *= 1e2/g
-    df['t'] /= 1e3
-
-    # return filled dataframe
     return df
 
 
@@ -421,34 +448,6 @@ def get_thstring_data(bh, log, manual=False):
     df.columns = [bh[0].upper() + 'T%02d' % (i+1) for i in range(16)]
 
     # return as dataframe
-    return df
-
-
-# Tiltunit data extraction methods
-# --------------------------------
-
-def floatornan(x):
-    """Try to convert to float and return NaN if that fails."""
-    try:
-        return float(x)
-    except (ValueError, TypeError):
-        return np.nan
-
-
-def splitstrings(bh, ts):
-    """Split series of data strings into multi-column data frame."""
-
-    # split data strings into new multi-column dataframe and fill with NaN
-    df = ts.str.split(',', expand=True).applymap(floatornan)
-
-    # replace null values by nan
-    df = df.replace([-99.199996, 2499.0, 4999.0, 7499.0, 9999.0], np.nan)
-
-    # rename columns
-    unitname = bh[0].upper() + 'I%02d' % int(ts.name[-2:-1])
-    df.columns = [tiltunit_sensors, [unitname]*len(tiltunit_sensors)]
-
-    # return splitted dataframe
     return df
 
 
@@ -486,8 +485,8 @@ def main():
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
     # read all data except pre-field
-    bh1_inc = get_tiltunit_data('upper', inc_loggers['BH1'])['2014-07':]
-    bh3_inc = get_tiltunit_data('lower', inc_loggers['BH3'])['2014-07':]
+    bh1_inc = read_inclinometer_data('upper')['2014-07':]
+    bh3_inc = read_inclinometer_data('lower')['2014-07':]
     bh2_pzm = get_pressure_data('upper', pzm_loggers['BH2'])['2014-07':]
     bh3_pzm = get_pressure_data('lower', pzm_loggers['BH3'])['2014-07':]
     bh2_thr_temp = get_thstring_data('upper', thr_loggers['BH2'])['2014-07':]
@@ -503,12 +502,12 @@ def main():
 
     # get initial sensor depths
     # FIXME: base depths should be independent of instrument type
-    bh1_inc_dept, bh3_inc_dept = sensor_depths_init('tiltunit', bh1_inc['p'], bh3_inc['p'])
+    bh1_inc_dept, bh3_inc_dept = sensor_depths_init('tiltunit', bh1_inc.wlev, bh3_inc.wlev)
     bh2_pzm_dept, bh3_pzm_dept = sensor_depths_init('pressure', bh2_pzm_wlev, bh3_pzm_wlev)
     bh2_thr_dept, bh3_thr_dept = thstring_depth_init()
 
     # calibrate temperatures using initial depths
-    bh3_inc['t'] = cal_temperature(bh3_inc['t'], bh3_inc_dept)
+    bh3_inc.temp = cal_temperature(bh3_inc.temp, bh3_inc_dept)
     bh3_thr_temp = cal_temperature(bh3_thr_temp, bh3_thr_dept)
 
     # compute borehole base evolution
@@ -528,14 +527,14 @@ def main():
     bh3_inc_base.to_csv('processed/bowdoin.bh3.inc.base.csv', header=True)
     bh1_inc_dept.to_csv('processed/bowdoin.bh1.inc.dept.csv')
     bh3_inc_dept.to_csv('processed/bowdoin.bh3.inc.dept.csv')
-    bh1_inc['t'].to_csv('processed/bowdoin.bh1.inc.temp.csv')
-    bh3_inc['t'].to_csv('processed/bowdoin.bh3.inc.temp.csv')
-    bh1_inc['ixr'].to_csv('processed/bowdoin.bh1.inc.tilx.csv')
-    bh1_inc['iyr'].to_csv('processed/bowdoin.bh1.inc.tily.csv')
-    bh3_inc['ixr'].to_csv('processed/bowdoin.bh3.inc.tilx.csv')
-    bh3_inc['iyr'].to_csv('processed/bowdoin.bh3.inc.tily.csv')
-    bh1_inc['p'].to_csv('processed/bowdoin.bh1.inc.wlev.csv')
-    bh3_inc['p'].to_csv('processed/bowdoin.bh3.inc.wlev.csv')
+    bh1_inc.temp.to_csv('processed/bowdoin.bh1.inc.temp.csv')
+    bh3_inc.temp.to_csv('processed/bowdoin.bh3.inc.temp.csv')
+    bh1_inc.tilx.to_csv('processed/bowdoin.bh1.inc.tilx.csv')
+    bh1_inc.tily.to_csv('processed/bowdoin.bh1.inc.tily.csv')
+    bh3_inc.tilx.to_csv('processed/bowdoin.bh3.inc.tilx.csv')
+    bh3_inc.tily.to_csv('processed/bowdoin.bh3.inc.tily.csv')
+    bh1_inc.wlev.to_csv('processed/bowdoin.bh1.inc.wlev.csv')
+    bh3_inc.wlev.to_csv('processed/bowdoin.bh3.inc.wlev.csv')
     bh2_pzm_base.to_csv('processed/bowdoin.bh2.pzm.base.csv', header=True)
     bh3_pzm_base.to_csv('processed/bowdoin.bh3.pzm.base.csv', header=True)
     bh2_pzm_dept.to_csv('processed/bowdoin.bh2.pzm.dept.csv')
