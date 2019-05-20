@@ -12,15 +12,15 @@ import cartopy.crs as ccrs
 # Global data
 # -----------
 
-# borehole properties
-sensor_holes = dict(pressure=dict(upper='BH2', lower='BH3'),
-                    thstring=dict(upper='BH2', lower='BH3'),
-                    tiltunit=dict(upper='BH1', lower='BH3'))
-observ_dates = dict(bh1='2014-07-17 18:07:00',  # assumed
-                    bh2='2014-07-17 18:07:00',  # assumed
-                    bh3='2014-07-23 00:30:00')  # assumed
-water_depths = dict(bh1=48.0, bh2=46.0, bh3=0.0)
+# borehole depths measured immediately after drilling
+DRILLING_DATES = None  # FIXME
 INITIAL_DEPTHS = dict(bh1=272.0, bh2=262.0, bh3=252.0)
+
+# observations of initial borehole water depths
+INITIAL_WATER_DEPTHS = dict(bh1=48.0, bh2=46.0, bh3=0.0)
+INITIAL_WATER_TIMING = dict(bh1='2014-07-17 18:07:00',  # assumed
+                            bh2='2014-07-17 18:07:00',  # assumed
+                            bh3='2014-07-23 00:30:00')  # assumed
 
 
 # Borehole location methods
@@ -107,27 +107,53 @@ def borehole_base_evol(upper='bh1', lower='bh3'):
 # Sensor depth methods
 # --------------------
 
-def sensor_depths_init(upper_wlev, lower_wlev, upper='bh1', lower='bh3'):
-    """Return initial sensor depths as data series."""
-    # FIXME: This could be called for one borehole at a time.
+def locate_inclinometers(borehole, wlev):
+    """
+    Compute inclinometer depths from the initial borehole water level.
+    Return initial depth for each sensor as a series.
 
-    # compute sensor depths (groupy averages duplicate)
-    ut = observ_dates[upper]
-    lt = observ_dates[lower]
-    uz = upper_wlev.loc[ut:ut].groupby(level=0).mean() + water_depths[upper]
-    lz = lower_wlev.loc[lt:lt].groupby(level=0).mean() + water_depths[lower]
+    Parameters
+    ----------
+    borehole: string
+        Borehole name bh1, bh2 or bh3
+    wlev: DataFrame
+        Water level above the inclinometers
+    """
 
-    # convert series to horizontal dataframes
-    if len(uz.shape) == 1:
-        uz = uz.to_frame()
-        lz = lz.to_frame()
+    # get the initial water depth and time of observation
+    water_depth = INITIAL_WATER_DEPTHS[borehole]
+    observ_time = INITIAL_WATER_TIMING[borehole]
 
-    # squeeze using columns as new index
-    uz = uz.squeeze(axis=0)
-    lz = lz.squeeze(axis=0)
+    # sensor depth is the recorded water level plus the observed water depth
+    depth = wlev.loc[observ_time].squeeze() + water_depth
 
     # return sensor depths
-    return uz, lz
+    return depth
+
+
+def locate_piezometers(borehole, wlev):
+    """
+    Compute piezometer depth from the initial borehole water level.
+    Return output as a series with lenght one.
+
+    Parameters
+    ----------
+    borehole: string
+        Borehole name bh1, bh2 or bh3
+    wlev: Series
+        Water level above the inclinometers
+    """
+
+    # get the initial water depth and time of observation
+    water_depth = INITIAL_WATER_DEPTHS[borehole]
+    observ_time = INITIAL_WATER_TIMING[borehole]
+
+    # sensor depth is the recorded water level plus the observed water depth
+    depth = wlev.loc[observ_time].mean() + water_depth
+    depth = pd.Series(data=depth, index=[wlev.name], name=observ_time)
+
+    # return sensor depths
+    return depth
 
 
 def sensor_depths_evol(upper_dept, lower_dept, upper='bh1', lower='bh3'):
@@ -149,7 +175,7 @@ def sensor_depths_evol(upper_dept, lower_dept, upper='bh1', lower='bh3'):
     return upper_dept, lower_dept
 
 
-def thstring_depth_init():
+def locate_thermistors():
     """
     Return initial temperature sensor depths as data series.
 
@@ -195,8 +221,8 @@ def thstring_depth_init():
     melt = 1.96
 
     # borehole bases
-    # ubase = INITIAL_DEPTHS[sensor_holes['thstring']['upper']]
-    # lbase = INITIAL_DEPTHS[sensor_holes['thstring']['lower']]
+    # ubase = INITIAL_DEPTHS['bh2']
+    # lbase = INITIAL_DEPTHS['bh3']
 
     # upper borehole
     surf_string = [0.0 - 13.40 - 20.0*i for i in [-6, -5, -4, -3, 0, -2, -1]]
@@ -508,10 +534,11 @@ def main():
     bh3_pzm_temp = bh3_pzm['temp'].rename('LP')
 
     # get initial sensor depths
-    # FIXME: base depths should be independent of instrument type
-    bh1_inc_dept, bh3_inc_dept = sensor_depths_init(bh1_inc.wlev, bh3_inc.wlev, upper='bh1', lower='bh3')
-    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_init(bh2_pzm_wlev, bh3_pzm_wlev, upper='bh2', lower='bh3')
-    bh2_thr_dept, bh3_thr_dept = thstring_depth_init()
+    bh1_inc_dept = locate_inclinometers('bh1', bh1_inc.wlev)
+    bh3_inc_dept = locate_inclinometers('bh3', bh3_inc.wlev)
+    bh2_pzm_dept = locate_piezometers('bh2', bh2_pzm_wlev)
+    bh3_pzm_dept = locate_piezometers('bh3', bh3_pzm_wlev)
+    bh2_thr_dept, bh3_thr_dept = locate_thermistors()
 
     # calibrate temperatures using initial depths
     bh3_inc.temp = recalibrate_temperature(bh3_inc.temp, bh3_inc_dept)
