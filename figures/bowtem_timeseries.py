@@ -1,36 +1,47 @@
 #!/usr/bin/env python
+# Copyright (c) 2019, Julien Seguinot <seguinot@vaw.baug.ethz.ch>
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import numpy as np
+"""Plot Bowdoin temperature time series."""
+
 import pandas as pd
 import absplots as apl
-import util as ut
+import util
 
 
-# initialize figure
-fig, ax = apl.subplots_mm(figsize=(150, 75),
-                          gridspec_kw=dict(left=10, right=2.5,
-                                           bottom=10, top=2.5))
+def main():
+    """Main program called during execution."""
 
-# loop on boreholes
-for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
+    # initialize figure
+    gridspec_kw = dict(left=12.5, right=2.5, bottom=12.5, top=2.5)
+    fig, ax = apl.subplots_mm(figsize=(150, 75), gridspec_kw=gridspec_kw)
 
-    # load data
-    t, z, b = ut.io.load_bowtem_data(bh)
-    t = t['2014-07':].resample('1D').mean()
+    # for each borehole
+    for bh, color in util.tem.COLOURS.items():
 
-    # extract days to freezing
-    d0 = pd.to_datetime(ut.bowtem_bhdates[int(bh[-1])-1])  # drilling dates
-    d1 = t['2014-07'].notnull().idxmax()  # start of record
-    df = t[d0+pd.to_timedelta('1D'):].diff().idxmin()  # date of freezing
-    df[df == t.index[1]] = np.nan
+        # plot daily means
+        temp, depth, base = util.tem.load_all(bh)
+        temp = temp.resample('1D').mean()
+        temp.plot(ax=ax, c=color, legend=False, lw=0.5)
 
-    # plot
-    t.resample('1D').mean().plot(ax=ax, c=c, legend=False, x_compat=True)
-    ax.plot(df, [t.loc[df[k], k] for k in t], 'k+')
+        # add closure dates
+        closure_dates = util.tem.estimate_closure_dates(bh, temp)
+        closure_temps = [temp.loc[closure_dates[k], k] for k in temp]
+        closure_temps = pd.Series(index=closure_dates, data=closure_temps)
+        closure_temps.plot(ax=ax, color='k', marker='|', ls='')
 
-# set axes properties
-ax.set_ylabel(u'temperature (°C)')
-ax.set_ylim(-15.0, 1.0)
+    # add campaigns
+    util.com.plot_field_campaigns(ax=ax)
 
-# save
-ut.pl.savefig(fig)
+    # set axes properties
+    ax.set_ylabel(u'temperature (°C)')
+    ax.set_xlim('20140615', '20170815')
+    ax.set_ylim(-14.5, 0.5)
+
+    # save
+    util.com.savefig(fig)
+
+
+if __name__ == '__main__':
+    main()
