@@ -3,3 +3,4 @@
 
 """Utils and parameters for the Bowdoin project."""
 
+import util.tem  # temperature article

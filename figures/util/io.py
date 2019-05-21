@@ -62,41 +62,6 @@ def load_depth(sensor, borehole):
     return df
 
 
-def load_bowtem_data(borehole):
-    """Load temperature and depths in concatenated data frames per borehole."""
-
-    # sensore and borehole site
-    bh = dict(bh1='upper', bh2='upper', bh3='lower')[borehole]
-    sensors = dict(bh1=['tiltunit'], bh2=['pressure', 'thstring'],
-                   bh3=['pressure', 'tiltunit', 'thstring'])[borehole]
-
-    # read data
-    # FIXME: depth evolution from GPS and radar
-    t = pd.concat([load_data(s, 'temp', bh) for s in sensors], axis=1)
-    z = pd.concat([load_data(s, 'depth', bh) for s in sensors], axis=1).iloc[0]
-    b = pd.concat([load_data(s, 'base', bh) for s in sensors], axis=1).iloc[0]
-
-    # make sure all sensors have same depths
-    assert b.min() == b.max()
-    b = b[0]
-
-    # ignore lower borehole deep thermistors
-    # FIXME: fit to freezing times or ignore deep thermistors
-    if borehole == 'bh3':
-        z[['LT%02d' % i for i in range(1, 10)]] += 37.5
-
-    # order by initial depth
-    cols = z[z>0.0].dropna().sort_values().index.values
-    z = z[cols]
-    t = t[cols]
-
-    # sensors can't be deeper than base
-    z[z>b] = b
-
-    # return temperature and depth
-    return t, z, b
-
-
 def load_bowtid_depth():
     ts = ut.io.load_depth('tiltunit', 'both')
     ts = ts.sort_index(ascending=False)
