@@ -4,4 +4,5 @@
 """Utils and parameters for the Bowdoin project."""
 
 import util.com  # common tools
+import util.geo  # mapping tools
 import util.tem  # temperature article
