@@ -8,7 +8,6 @@ import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
 import cartopy.crs as ccrs
 import gpxpy
 
@@ -25,19 +24,6 @@ ll = ccrs.PlateCarree()
 
 # Axes preparation
 # ----------------
-
-def add_subfig_label(text, ax=None, x=None, y=None, ha='left', va='top',
-                     offset=2.5/25.4):
-    """Add figure label in bold."""
-    ax = ax or plt.gca()
-    x = x or (ha == 'right')  # 0 for left edge, 1 for right edge
-    y = y or (va == 'top')  # 0 for bottom edge, 1 for top edge
-    xoffset = (1 - 2*x)*offset
-    yoffset = (1 - 2*y)*offset
-    offset = mtransforms.ScaledTranslation(
-        xoffset, yoffset, ax.figure.dpi_scale_trans)
-    return ax.text(x, y, text, ha=ha, va=va, fontweight='bold',
-                   transform=ax.transAxes + offset)
 
 
 def unframe(ax, edges=['bottom', 'left']):
