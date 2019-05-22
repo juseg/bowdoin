@@ -37,7 +37,7 @@ def load_all(borehole):
 
     # in this paper with ignore depth changes
     dept = dept.iloc[0]
-    base = base.iloc[0].drop_duplicates()
+    base = base.iloc[0].drop_duplicates().squeeze()
 
     # artificially shift BH3 deep thermistors up
     # FIXME: fit to freezing times
@@ -50,7 +50,7 @@ def load_all(borehole):
     temp = temp[cols]
 
     # sensors can't be deeper than base
-    dept[dept > base.squeeze()] = base.squeeze()
+    dept[dept > base] = base
 
     # return temperature and depth
     return temp, dept, base
@@ -63,7 +63,8 @@ def estimate_closure_dates(borehole, temp):
     """
     Estimate borehole closure dates from temperature time series. Look for the
     steepest cooling starting one day after the date of drilling. This seems to
-    work best using daily-averaged time series.
+    work best using daily-averaged time series. In practice this does not seem
+    to work on sensors for which the beginning of the record is missing.
 
     Parameters
     ----------

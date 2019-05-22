@@ -1,58 +1,70 @@
 #!/usr/bin/env python
+# Copyright (c) 2019, Julien Seguinot <seguinot@vaw.baug.ethz.ch>
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import numpy as np
+"""Plot Bowdoin temperature borehole setup."""
+
 import pandas as pd
 import absplots as apl
-import util as ut
+import util
 
-# date for temperature profile
-d = '2014-09-02'
 
-# initialize figure
-fig, ax = apl.subplots_mm(figsize=(150, 75), ncols=2, sharex=True,
-                          gridspec_kw=dict(left=10, right=2.5, wspace=10,
-                                           bottom=10, top=2.5))
+def main():
+    """Main program called during execution."""
 
-# add subfigure labels
-ut.pl.add_subfig_label(ax=ax[0], text='(a)')
-ut.pl.add_subfig_label(ax=ax[1], text='(b)')
+    # initialize figure
+    gridspec_kw = dict(left=10, right=2.5, wspace=10, bottom=10, top=2.5)
+    fig, (ax0, ax1) = apl.subplots_mm(figsize=(150, 75), ncols=2, sharex=True,
+                                      gridspec_kw=gridspec_kw)
 
-# loop on boreholes
-for bh, c in zip(ut.bowtem_bhnames, ut.bowtem_colours):
+    # add subfigure labels
+    util.com.add_subfig_label(ax=ax0, text='(a)')
+    util.com.add_subfig_label(ax=ax1, text='(b)')
 
-    # load data
-    t, z, b = ut.io.load_bowtem_data(bh)
-    t = t['2014-07':'2016-12']
-    t = t.resample('1D').mean()
+    # for each boreholes
+    for bh, color in util.tem.COLOURS.items():
 
-    # extract days to freezing
-    d0 = pd.to_datetime(ut.bowtem_bhdates[int(bh[-1])-1])  # drilling dates
-    d1 = t['2014-07'].notnull().idxmax()  # start of record
-    df = t[d0+pd.to_timedelta('1D'):].diff().idxmin()  # date of freezing
-    df[df == t.index[1]] = np.nan
-    df = (df-d0).dt.total_seconds()/(24*3600)  # days to freezing
+        # load daily means
+        temp, depth, base = util.tem.load_all(bh)
+        temp = temp.resample('6H').mean()
 
-    # temperature during freezing
-    #tf = pd.Series(index=df.index, data=[t.loc[df[k], k] for k in df.index])
+        # estimate closure dates
+        closure_dates = util.tem.estimate_closure_dates(bh, temp)
+        closure_temps = [temp.loc[closure_dates[k], k] for k in temp]
+        closure_temps = pd.Series(index=closure_dates, data=closure_temps)
 
-    # plot
-    for s, m in zip(ut.bowtem_sensors, ut.bowtem_markers):
-        cols = (df.notnull() * df.index.str[1] == s)
-        if cols.sum() > 0:
-            ax[0].plot(df[cols], t.loc[d, cols].T, c=c, marker=m, ls='',
-                       label=bh.upper()+s)
-            ax[1].plot(df[cols], z[cols], c=c, marker=m, ls='')
-    ax[1].axhline(b, c=c, lw=0.5)
+        # compute closure times
+        # FIXME: drilling dates are duplicately hardcoded here and in util
+        drilling_date = dict(bh1='20140716', bh2='20140717', bh3='20140722')
+        drilling_date = pd.to_datetime(drilling_date[bh])
+        closure_times = closure_dates - drilling_date
+        closure_times = closure_times.dt.total_seconds()/(24*3600)
 
-# set axes properties
-ax[0].legend()
-ax[0].set_xscale('log')
-ax[0].set_xlabel('days to freezing')
-ax[0].set_ylabel(u'temperature (°C)')
-ax[1].set_xlabel('days to freezing')
-ax[1].set_ylabel('depth (m)')
-ax[1].axhline(0.0, c='k', lw=0.5)
-ax[1].invert_yaxis()
+        # for each sensor type
+        for sensor, marker in util.tem.MARKERS.items():
+            cols = closure_times.index.str[1] == sensor
+            ax0.plot(closure_times[cols], temp.min(axis=0)[cols], color=color,
+                     marker=marker, ls='', label=bh.upper()+sensor)
+            ax1.plot(closure_times[cols], depth[cols], color=color,
+                     marker=marker, ls='')
 
-# save
-ut.pl.savefig(fig)
+        # add baseline
+        ax1.axhline(base, color=color, lw=0.5)
+
+    # set axes properties
+    ax0.legend()
+    ax0.set_xscale('log')
+    ax0.set_xlabel('days to freezing')
+    ax0.set_ylabel(u'minimum temperature (°C)')
+    ax1.set_xlabel('days to freezing')
+    ax1.set_ylabel('depth (m)')
+    ax1.axhline(0.0, c='k', lw=0.5)
+    ax1.invert_yaxis()
+
+    # save
+    util.com.savefig(fig)
+
+
+if __name__ == '__main__':
+    main()
