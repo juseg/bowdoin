@@ -13,7 +13,7 @@ import pandas as pd
 # -----------------
 
 COLOURS = dict(bh1='C0', bh2='C1', bh3='C2')
-MARKERS = dict(bh1='^', bh2='o', bh3='s')
+MARKERS = dict(I='^', P='s', T='o')
 
 
 # Data loading methods
@@ -50,7 +50,7 @@ def load_all(borehole):
     temp = temp[cols]
 
     # sensors can't be deeper than base
-    dept[dept > base.squeeze()] = base
+    dept[dept > base.squeeze()] = base.squeeze()
 
     # return temperature and depth
     return temp, dept, base
