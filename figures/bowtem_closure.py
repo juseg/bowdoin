@@ -36,7 +36,8 @@ def main():
 
         # compute closure times
         # FIXME: drilling dates are duplicately hardcoded here and in util
-        drilling_date = dict(bh1='20140716', bh2='20140717', bh3='20140722')
+        drilling_date = dict(bh1='20140716', bh2='20140717', bh3='20140722',
+                             err='20140722')
         drilling_date = pd.to_datetime(drilling_date[bh])
         closure_times = closure_dates - drilling_date
         closure_times = closure_times.dt.total_seconds()/(24*3600)

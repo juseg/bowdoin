@@ -51,10 +51,10 @@ def plot_location_map(ax):
 
     # add boreholes and camp waypointsfor each borehole
     # FIXME: this GPX interface could also be a part of cartowik
-    for bh, color in util.tem.COLOURS.items():
+    for bh in ('bh1', 'bh2', 'bh3'):
         for y in ['14', '16', '17']:
-            util.geo.add_waypoint('B'+y+bh.upper(), ax=ax, color=color,
-                                  marker='o', text='20'+y,
+            util.geo.add_waypoint('B'+y+bh.upper(), ax=ax, marker='o',
+                                  color=util.tem.COLOURS[bh], text='20'+y,
                                   textpos=('lr' if bh == 'bh1' else 'ul'))
     util.geo.add_waypoint('Tent Swiss', ax=ax, color='w', marker='^',
                           text='Camp', textpos='lc')
@@ -67,28 +67,33 @@ def plot_long_profile(ax):
     """Draw boreholes long profile with intrumental setup."""
 
     # borehole plot properties
-    distances = dict(bh1=2.015, bh2=1.985, bh3=1.85)
+    distances = dict(bh1=2.015, bh2=1.985, bh3=1.85, err=1.85)
 
     # for each borehole
     for bh, color in util.tem.COLOURS.items():
+
+        # draw a vertical line symbolising the borehole
         temp, dept, base = util.tem.load_all(bh)
         dist = distances[bh]
+        if bh != 'err':
+            ax.plot([dist, dist], [base, 0.0], 'k-_')
+            ax.text(dist, -5.0, bh.upper(), ha='center', va='bottom')
+            ax.text(dist, base+5.0, str(base) + ' m', ha='center', va='top')
+
+        # locate the different units along that line
         for unit, dept in dept.items():
             sensor = unit[1]
             marker = util.tem.MARKERS[sensor]
             offset = 0.01 if sensor == 'I' else -0.01
             ax.plot(dist+1*offset, dept, color=color, marker=marker,
                     label='', ls='')
-            ax.text(dist+2*offset, dept, unit,
+            ax.text(dist+2*offset, dept, unit, color=color,
                     ha=('left' if offset > 0 else 'right'),
                     va=('bottom' if unit in ('LP') else
                         'top' if unit in ('LT01', 'UT01') else
                         'center'))
-        ax.plot([dist, dist], [base, 0.0], 'k-_')
-        ax.text(dist, -5.0, bh.upper(), ha='center', va='bottom')
-        ax.text(dist, base+5.0, '%d m' % base, ha='center', va='top')
 
-    # add flow direction arrow
+# add flow direction arrow
     ax.text(0.9, 0.55, 'ice flow', ha='center', transform=ax.transAxes)
     ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
                 xycoords=ax.transAxes, textcoords=ax.transAxes,

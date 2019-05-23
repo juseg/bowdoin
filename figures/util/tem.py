@@ -12,7 +12,7 @@ import pandas as pd
 # Global parameters
 # -----------------
 
-COLOURS = dict(bh1='C0', bh2='C1', bh3='C2')
+COLOURS = dict(bh1='C0', bh2='C1', bh3='C2', err='0.75')
 MARKERS = dict(I='^', P='s', T='o')
 
 
@@ -30,7 +30,7 @@ def load_all(borehole):
     """Load all temperature and depths for the given borehole."""
 
     # load all data for this borehole
-    prefix = '../data/processed/bowdoin.' + borehole
+    prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
     temp = pd.concat([load(f) for f in glob.glob(prefix+'*.temp.csv')], axis=1)
     dept = pd.concat([load(f) for f in glob.glob(prefix+'*.dept.csv')], axis=1)
     base = pd.concat([load(f) for f in glob.glob(prefix+'*.base.csv')], axis=1)
@@ -39,10 +39,11 @@ def load_all(borehole):
     dept = dept.iloc[0]
     base = base.iloc[0].drop_duplicates().squeeze()
 
-    # artificially shift BH3 deep thermistors up
-    # FIXME: fit to freezing times
+    # segregate BH3 erratic data
     if borehole == 'bh3':
-        dept[['LT%02d' % i for i in range(1, 10)]] += 37.5
+        dept = dept[~dept.index.str.startswith('LT0')]
+    elif borehole == 'err':
+        dept = dept[dept.index.str.startswith('LT0')]
 
     # order by initial depth and remove sensors located on the surface
     cols = dept[dept > 0.0].dropna().sort_values().index.values
@@ -73,7 +74,8 @@ def estimate_closure_dates(borehole, temp):
     temp: dataframe
         Daily temperature time series.
     """
-    drilling_date = dict(bh1='20140716', bh2='20140717', bh3='20140722')
+    drilling_date = dict(bh1='20140716', bh2='20140717', bh3='20140722',
+                         err='20140722')
     drilling_date = pd.to_datetime(drilling_date[borehole])
     closure_dates = temp[drilling_date+pd.to_timedelta('1D'):].diff().idxmin()
     closure_dates = closure_dates.mask(closure_dates == temp.index[1])
