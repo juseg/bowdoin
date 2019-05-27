@@ -49,7 +49,7 @@ def plot_location_map(ax):
     data = reshape_as_image(data)
     ax.imshow(data, extent=extent, origin='upper', cmap='Blues')
 
-    # add boreholes and camp waypointsfor each borehole
+    # add boreholes and camp waypoints for each borehole
     # FIXME: this GPX interface could also be a part of cartowik
     for bh in ('bh1', 'bh2', 'bh3'):
         for y in ['14', '16', '17']:
@@ -93,7 +93,7 @@ def plot_long_profile(ax):
                         'top' if unit in ('LT01', 'UT01') else
                         'center'))
 
-# add flow direction arrow
+    # add flow direction arrow
     ax.text(0.9, 0.55, 'ice flow', ha='center', transform=ax.transAxes)
     ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
                 xycoords=ax.transAxes, textcoords=ax.transAxes,
