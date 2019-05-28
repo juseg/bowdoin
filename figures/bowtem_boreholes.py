@@ -72,8 +72,10 @@ def plot_long_profile(ax):
         dist = distances[bh]
         if bh != 'err':
             ax.plot([dist, dist], [base, 0.0], 'k-_')
-            ax.text(dist, -5.0, bh.upper(), ha='center', va='bottom')
-            ax.text(dist, base+5.0, str(base) + ' m', ha='center', va='top')
+            ax.text(dist, -5.0, bh.upper(), color=color, fontweight='bold',
+                    ha='center', va='bottom')
+            ax.text(dist, base+5.0, '{:.0f} m'.format(base),
+                    ha='center', va='top')
 
         # locate the different units along that line
         for unit, dept in dept.items():
