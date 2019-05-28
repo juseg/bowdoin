@@ -6,31 +6,12 @@
 """Plot Bowdoin temperature Arctic DEM map and profile."""
 
 import numpy as np
-import scipy as sp
+import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import cartowik.shadedrelief as csr
 import absplots as apl
 import gpxpy
 import util
-
-
-def coords_from_extent(extent, cols, rows):
-    """Compute coordinate vectors from image extent."""
-
-    # compute dx and dy
-    (w, e, s, n) = extent
-    dx = (e-w) / cols
-    dy = (n-s) / rows
-
-    # prepare coordinate vectors
-    xwcol = w + 0.5*dx  # x-coord of W row cell centers
-    ysrow = s + 0.5*dy  # y-coord of N row cell centers
-    x = xwcol + np.arange(cols)*dx  # from W to E
-    y = ysrow + np.arange(rows)*dy  # from S to N
-
-    # return coordinate vectors
-    return x, y
 
 
 def project_borehole_locations(date, crs):
@@ -88,9 +69,9 @@ def main():
     sensdate = '2014-09-06 17:30:00'
 
     # plot elevation map (UTM 19 extent 510400, 510700, 8623700, 8624050)
-    bounds = -535075, -1227050, -534775, -1226700  # 300x350m
-    data, extent = csr._open_raster_data(filename, bounds=bounds)
-    ax0.imshow(data, cmap='Blues_r', extent=extent, origin='upper')
+    data = xr.open_rasterio(filename).squeeze(drop=True)
+    data = data.loc[-1226700:-1227050, -535075:-534775]
+    data.plot.imshow(ax=ax0, add_colorbar=False, cmap='Blues_r')
 
     # FIXME: Implement windowed plotting in Cartowik.
     # FIXME: Implement contour plots in Cartowik.
@@ -99,10 +80,10 @@ def main():
 
     # contour code too slow for full dem
     levs = np.arange(70.0, 100.0, 1.0)
-    cs = ax0.contour(data, colors='0.25', levels=levs[(levs % 5 != 0)],
-                     extent=extent, linewidths=0.1, origin='upper')
-    cs = ax0.contour(data, colors='0.25', levels=levs[(levs % 5 == 0)],
-                     extent=extent, linewidths=0.1, origin='upper')
+    cs = data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 != 0)],
+                           linewidths=0.1)
+    cs = data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 == 0)],
+                           linewidths=0.1)
     cs.clabel(fmt='%d')
 
     # plot borehole locations on the map
@@ -131,10 +112,10 @@ def main():
     dist -= ((projected['bh3']-coords[0])**2).sum()**0.5
 
     # plot Arctic DEM topographic profile
-    # FIXME: Implement profile interpolation in Cartowik (xarray?).
-    demx, demy = coords_from_extent(extent, *data.shape[::-1])
-    demz = sp.interpolate.interpn((demx, demy), data[::-1].T, coords,
-                                  method='linear', bounds_error=False)
+    # FIXME: Implement profile interpolation in Cartowik?
+    x = xr.DataArray(coords[:, 0], coords=[dist], dims='d')
+    y = xr.DataArray(coords[:, 1], coords=[dist], dims='d')
+    demz = data.interp(x=x, y=y, method='linear')
     ax1.plot(dist, demz, color='0.25')
 
     # mark borehole locations along profile

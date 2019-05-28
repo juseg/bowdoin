@@ -5,6 +5,7 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
+import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartowik.shadedrelief as csr
@@ -41,13 +42,7 @@ def plot_location_map(ax):
 
     # plot Sentinel image data
     filename = '../data/external/S2A_20160808_175915_456_RGB.jpg'
-    # FIXME: Cartowik.shadedrelief._open_raster_data is a private method.
-    # FIXME: Make it public? Or add a method to plot RGB images?
-    # FIXME: Besiodes band=1 is a poor default for RGB images.
-    from rasterio.plot import reshape_as_image
-    data, extent = csr._open_raster_data(filename, band=None)
-    data = reshape_as_image(data)
-    ax.imshow(data, extent=extent, origin='upper', cmap='Blues')
+    xr.open_rasterio(filename).plot.imshow(ax=ax)
 
     # add boreholes and camp waypoints for each borehole
     # FIXME: this GPX interface could also be a part of cartowik

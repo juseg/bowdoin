@@ -5,9 +5,8 @@
 
 """Plot Bowdoin temperature Arctic DEM time series."""
 
-import numpy as np
+import xarray as xr
 import cartopy.crs as ccrs
-import cartowik.shadedrelief as csr
 import absplots as apl
 import util
 
@@ -51,28 +50,25 @@ def main():
     # loop on data strips
     for i, strip in enumerate(datastrips):
         ax = grid.flat[i]
-        ax.set_extent([-537500, -532500, -1229000, -1224000],
-                      crs=ax.projection)
         ax.set_rasterization_zorder(2.5)
         ax.set_title(strip[11:19])
 
         # load elevation data
-        # FIXME try rasterio / salem
-        elev, extent = csr._open_raster_data('../data/external/%s.tif' % strip)
-        elev = np.ma.masked_equal(elev, -9999.0)
+        elev = xr.open_rasterio('../data/external/%s.tif' % strip)[0]
+        elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
 
         # plot reference elevation map
         if i == 0:
-            im0 = ax.imshow(elev, cmap='PuOr_r', extent=extent, origin='upper',
-                            vmin=0, vmax=200)
+            im0 = elev.plot.imshow(ax=ax, add_colorbar=False, add_labels=False,
+                                   cmap='PuOr_r', vmin=0, vmax=200)
             ref = elev
 
         # plot normalized elevation change
         else:
             diff = elev - ref
-            diff = diff - diff[4500:, 2250:3750].mean()  # FIXME use ice mask
-            im1 = ax.imshow(diff, cmap='RdBu', extent=extent, origin='upper',
-                            vmin=-30, vmax=30)
+            diff = diff - diff[2250:, 1250:2250].mean()  # FIXME use ice mask
+            im1 = diff.plot.imshow(ax=ax, add_colorbar=False, add_labels=False,
+                                   cmap='RdBu', vmin=-30, vmax=30)
 
     # add colorbar
     cb = fig.colorbar(im0, cax=cax0, extend='both')
