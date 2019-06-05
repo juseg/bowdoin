@@ -5,17 +5,11 @@
 # Variables
 # ---------
 
-# default figure extension
-EXT = pdf
-
-# python executable
-PY = python
-
 # all python figures
 PY_CODE = $(addprefix bowtem_, arcticdem boreholes closure demseries \
                                profiles timeseries) \
           $(addprefix bowpal_, samplemap)
-PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
+PY_FIGS = $(addsuffix .pdf, $(PY_CODE))
 
 # all figures
 ALL_FIGS = $(PY_FIGS)
@@ -40,9 +34,13 @@ ALL_FIGS = $(PY_FIGS)
 # default rule
 all: $(ALL_FIGS)
 
-# rules and dependencies for python figures
+# make python figures
 $(PY_FIGS): %.pdf : %.py matplotlibrc util
-	$(PY) $<
+	python $<
+
+# lint python code
+lint:
+	pylint -j 0 $(PY_CODE) util/???.py
 
 # clean up
 .PHONY: clean
