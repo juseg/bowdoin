@@ -21,7 +21,7 @@ def main():
     for bh, color in util.tem.COLOURS.items():
 
         # plot daily means
-        temp, depth, base = util.tem.load_all(bh)
+        temp, _, _ = util.tem.load_all(bh)
         temp = temp.resample('1D').mean()
         temp.plot(ax=ax, c=color, legend=False, lw=0.5)
 

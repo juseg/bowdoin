@@ -66,10 +66,10 @@ def main():
     # plot melting point and zero line
     # FIXME move ice physical parameters somewhere
     base = 272.0    # glacier base
-    g = 9.80665     # gravity
+    gravity = 9.80665     # gravity
     rhoi = 910.0    # ice density
     beta = 7.9e-8   # Luethi et al. (2002)
-    melt = -beta * rhoi * g * base
+    melt = -beta * rhoi * gravity * base
     ax0.plot([0, melt], [0, base], c='k', ls=':', lw=0.5)
     ax1.plot([0, 0], [0, base], c='k', ls=':', lw=0.5)
 

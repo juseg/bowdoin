@@ -9,8 +9,8 @@ import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import absplots as apl
 import gpxpy
+import absplots as apl
 import util
 
 
@@ -70,7 +70,8 @@ def main():
 
     # plot elevation map (UTM 19 extent 510400, 510700, 8623700, 8624050)
     data = xr.open_rasterio(filename).squeeze(drop=True)
-    data = data.loc[-1226700:-1227050, -535075:-534775]
+    data = data.loc[-1226500:-1227200, -535200:-534600]  # 700x600 m
+    data = data.loc[-1226700:-1227050, -535075:-534775]  # 350x300 m
     data.plot.imshow(ax=ax0, add_colorbar=False, cmap='Blues_r')
 
     # FIXME: Implement windowed plotting in Cartowik.
@@ -80,11 +81,10 @@ def main():
 
     # contour code too slow for full dem
     levs = np.arange(70.0, 100.0, 1.0)
-    cs = data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 != 0)],
-                           linewidths=0.1)
-    cs = data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 == 0)],
-                           linewidths=0.1)
-    cs.clabel(fmt='%d')
+    data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 != 0)],
+                      linewidths=0.1)
+    data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 == 0)],
+                      linewidths=0.1).clabel(fmt='%d')
 
     # plot borehole locations on the map
     initial, projected = project_borehole_locations(sensdate, ax0.projection)
@@ -100,7 +100,7 @@ def main():
             ax0.annotate('', xy=projected[bh], xytext=initial[bh],
                          arrowprops=dict(arrowstyle='->', color=color))
             ax0.add_patch(plt.Circle(projected[bh], radius=10.0, fc='w',
-                          ec=color, alpha=0.5))
+                                     ec=color, alpha=0.5))
 
     # add scale
     util.geo.add_scale_bar(ax=ax0, length=100, label='100 m', color='k')
@@ -115,8 +115,8 @@ def main():
     # FIXME: Implement profile interpolation in Cartowik?
     x = xr.DataArray(coords[:, 0], coords=[dist], dims='d')
     y = xr.DataArray(coords[:, 1], coords=[dist], dims='d')
-    demz = data.interp(x=x, y=y, method='linear')
-    ax1.plot(dist, demz, color='0.25')
+    z = data.interp(x=x, y=y, method='linear')
+    ax1.plot(dist, z, color='0.25')
 
     # mark borehole locations along profile
     for bh in ('bh1', 'bh2', 'bh3'):

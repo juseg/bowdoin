@@ -69,7 +69,7 @@ def plot_long_profile(ax):
     for bh, color in util.tem.COLOURS.items():
 
         # draw a vertical line symbolising the borehole
-        temp, dept, base = util.tem.load_all(bh)
+        _, dept, base = util.tem.load_all(bh)
         dist = distances[bh]
         if bh != 'err':
             ax.plot([dist, dist], [base, 0.0], 'k-_')

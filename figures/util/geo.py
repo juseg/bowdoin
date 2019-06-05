@@ -7,7 +7,6 @@ Bowdoin geographic utils.
 """
 
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 import gpxpy
 
 

@@ -71,10 +71,10 @@ def main():
                                    cmap='RdBu', vmin=-30, vmax=30)
 
     # add colorbar
-    cb = fig.colorbar(im0, cax=cax0, extend='both')
-    cb.set_label('surface elevation (m)')
-    cb = fig.colorbar(im1, cax=cax1, extend='both')
-    cb.set_label('elevation change (m)')
+    cbar = fig.colorbar(im0, cax=cax0, extend='both')
+    cbar.set_label('surface elevation (m)')
+    cbar = fig.colorbar(im1, cax=cax1, extend='both')
+    cbar.set_label('elevation change (m)')
 
     # save
     util.com.savefig(fig)
