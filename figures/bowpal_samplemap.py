@@ -1,12 +1,71 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import numpy as np
+import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import util as ut
 import gpxpy
+import util
 
-#from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+# from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+
+
+def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
+                     alpha=1.0, **kwargs):
+    """Draw annotated scatter plot from GPX waypoints."""
+
+    # get current axes if None given
+    ax = ax or plt.gca()
+
+    # initialize coordinate lists
+    xlist = []
+    ylist = []
+
+    # expand textpos to a list
+    if isinstance(textloc, str):
+        textloc = [textloc] * len(names)
+
+    # GPX usually uses geographic coordinates
+    crs = ccrs.PlateCarree()
+
+    # open GPX file
+    with open('../data/locations.gpx', 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+
+        # find the right waypoints
+        for wpt in gpx.waypoints:
+            if wpt.name in names:
+
+                # extract point coordinates
+                proj = ax.projection
+                coords = proj.transform_point(wpt.longitude, wpt.latitude, crs)
+                xlist.append(coords[0])
+                ylist.append(coords[1])
+
+                # stop here if text is unwanted
+                if text is False:
+                    continue
+
+                # add annotation
+                text = '%s\n%.0f m' % (wpt.name, wpt.elevation)
+                loc = textloc[names.index(wpt.name)]
+                xshift = ((loc[1] == 'r')-(loc[1] == 'l'))
+                xoffset = xshift * offset
+                yshift = ((loc[0] == 'u')-(loc[0] == 'l'))
+                yoffset = yshift * offset
+                relpos = (0.5*(1-xshift), 0.5*(1-yshift))
+                halign = {'r': 'left', 'l': 'right', 'c': 'center'}[loc[1]]
+                valign = {'u': 'bottom', 'l': 'top', 'c': 'center'}[loc[0]]
+                xytext = xoffset, yoffset
+                ax.annotate(text, xy=coords, xytext=xytext,
+                            textcoords='offset points', ha=halign, va=valign,
+                            bbox=dict(boxstyle='square,pad=0.5', fc='w'),
+                            arrowprops=dict(arrowstyle='->', color='k',
+                                            relpos=relpos, alpha=alpha))
+
+    # add scatter plot
+    ax.scatter(xlist, ylist, alpha=alpha, **kwargs)
+
 
 if __name__ == '__main__':
 
@@ -50,79 +109,79 @@ if __name__ == '__main__':
         rect = plt.Rectangle((w, n), (e-w), (s-n), fc='none')
         grid[0].add_patch(rect)
         grid[0].text(w, n+100, '(%s)' % label, fontweight='bold')
-    ut.pl.add_subfig_label('(a) Bowdoin Glacier', ax=grid[0])
-    ut.pl.add_subfig_label('(b) Sentinel hill', ax=grid[1])
-    ut.pl.add_subfig_label('(c) Bartlett hill', ax=grid[2])
-    ut.pl.add_subfig_label('(d) Upper cam. hill', ax=grid[3])
-    ut.pl.add_subfig_label('(e) East Branch moraine', ax=grid[4])
+    util.com.add_subfig_label('(a) Bowdoin Glacier', ax=grid[0])
+    util.com.add_subfig_label('(b) Sentinel hill', ax=grid[1])
+    util.com.add_subfig_label('(c) Bartlett hill', ax=grid[2])
+    util.com.add_subfig_label('(d) Upper cam. hill', ax=grid[3])
+    util.com.add_subfig_label('(e) East Branch moraine', ax=grid[4])
 
     # plot S2A image
     filename = '../data/external/S2A_20160410_180125_659_RGB.jpg'
-    data, extent = ut.io.open_gtif(filename, regions[0])
-    data = np.moveaxis(data, 0, 2)
+    data = xr.open_rasterio(filename)
     for ax in grid:
-        ax.imshow(data, extent=extent, transform=utm)
+        data.plot.imshow(ax=ax)
 
     # open Yvo's digital elevation model
+    # FIXME: use the Arctic DEM
     filename = '../data/external/bowdoin_20100904_15m_20140929.tif'
-    data, extent = ut.io.open_gtif(filename, regions[0])
+    data = xr.open_rasterio(filename).squeeze()
     levs = np.arange(0.0, 800.0, 20.0)
 
     # plot contours
     for ax in grid:
-        cs = ax.contour(data, levels=levs[(levs % 100 != 0)], extent=extent,
-                        colors='k', linewidths=0.1, alpha=0.75)
-        cs = ax.contour(data, levels=levs[(levs % 100 == 0)], extent=extent,
-                        colors='k', linewidths=0.25, alpha=0.75)
+        cs = data.plot.contour(ax=ax, levels=levs[(levs % 100 != 0)],
+                               colors='k', linewidths=0.1, alpha=0.75)
+        cs = data.plot.contour(ax=ax, levels=levs[(levs % 100 == 0)],
+                               colors='k', linewidths=0.25, alpha=0.75)
         cs.clabel(fmt='%d')
 
     # plot all sample locations on main panel
     comkwa = dict(s=40, alpha=0.5)
-    bedkwa = dict(marker='s', c=ut.palette['darkblue'], **comkwa)
-    boukwa = dict(marker='o', c=ut.palette['darkred'], **comkwa)
+    bedkwa = dict(marker='s', c='C0', **comkwa)
+    boukwa = dict(marker='o', c='C3', **comkwa)
     carkwa = dict(marker='^', c='w', **comkwa)
-    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)] +
-                           ['BOW16-MF-BED%d' % i for i in range(1, 4)],
-                           ax=grid[0], text=False, **bedkwa)
-    ut.pl.waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
-                           ['BOW16-JS-%02d' % i for i in range(4, 14)] +
-                           ['BOW16-MF-BOU%d' % i for i in range(1, 4)],
-                           ax=grid[0], text=False, **boukwa)
-    ut.pl.waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
-                           ax=grid[0], text=False, **carkwa)
+    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)] +
+                     ['BOW16-MF-BED%d' % i for i in range(1, 4)],
+                     ax=grid[0], text=False, **bedkwa)
+    waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
+                     ['BOW16-JS-%02d' % i for i in range(4, 14)] +
+                     ['BOW16-MF-BOU%d' % i for i in range(1, 4)],
+                     ax=grid[0], text=False, **boukwa)
+    waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
+                     ax=grid[0], text=False, **carkwa)
 
     # plot Sentinel hill sample locations
-    ut.pl.waypoint_scatter(['BOW16-MF-BED%d' % i for i in range(1, 4)],
-                           textloc=['ul', 'lr', 'll'],
-                           ax=grid[1], **bedkwa)
-    ut.pl.waypoint_scatter(['BOW16-MF-BOU%d' % i for i in range(1, 4)],
-                           textloc=['ll', 'cr', 'ur'],
-                           ax=grid[1], **boukwa)
+    waypoint_scatter(['BOW16-MF-BED%d' % i for i in range(1, 4)],
+                     textloc=['ul', 'lr', 'll'],
+                     ax=grid[1], **bedkwa)
+    waypoint_scatter(['BOW16-MF-BOU%d' % i for i in range(1, 4)],
+                     textloc=['ll', 'cr', 'ur'],
+                     ax=grid[1], **boukwa)
 
     # plot Bartlett hill sample locations
-    ut.pl.waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
-                           ['BOW16-JS-%02d' % i for i in (12, 13)],
-                           textloc=['ur', 'cr', 'cl', 'ur', 'ul', 'cr', 'lr',
-                                    'll', 'cl', 'cl', 'ul'],
-                           ax=grid[2], **boukwa)
+    waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
+                     ['BOW16-JS-%02d' % i for i in (12, 13)],
+                     textloc=['ur', 'cr', 'cl', 'ur', 'ul', 'cr', 'lr',
+                              'll', 'cl', 'cl', 'ul'],
+                     ax=grid[2], **boukwa)
 
     # plot Camp carbon sample locations
-    ut.pl.waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
-                           textloc=['lr', 'cr', 'ur'],
-                           ax=grid[3], **carkwa)
+    waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
+                     textloc=['lr', 'cr', 'ur'],
+                     ax=grid[3], **carkwa)
 
     # plot Upper cam hill sample locations
-    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)],
-                           textloc=['cr', 'cl', 'll'],
-                           ax=grid[3], **bedkwa)
-    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(4, 7)],
-                           textloc=['ul', 'ur', 'lr'],
-                           ax=grid[3], **boukwa)
+    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)],
+                     textloc=['cr', 'cl', 'll'],
+                     ax=grid[3], **bedkwa)
+    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(4, 7)],
+                     textloc=['ul', 'ur', 'lr'],
+                     ax=grid[3], **boukwa)
 
     # plot East Branch moraine sample locations
-    ut.pl.waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
-                           textloc=['cr', 'lr', 'll', 'ul', 'ur'],
-                           ax=grid[4], **boukwa)
+    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
+                     textloc=['cr', 'lr', 'll', 'ul', 'ur'],
+                     ax=grid[4], **boukwa)
 
     # save
-    ut.pl.savefig(fig)
+    util.com.savefig(fig)

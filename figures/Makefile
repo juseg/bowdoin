@@ -12,8 +12,9 @@ EXT = pdf
 PY = python
 
 # all python figures
-PY_FIGS = $(addprefix bowtem_, arcticdem boreholes closure demseries \
-			       profiles timeseries)
+PY_CODE = $(addprefix bowtem_, arcticdem boreholes closure demseries \
+                               profiles timeseries) \
+          $(addprefix bowpal_, samplemap)
 PY_FIGS := $(addsuffix .$(EXT), $(PY_FIGS))
 
 # all figures
@@ -27,7 +28,6 @@ ALL_FIGS = $(PY_FIGS)
 #            $(addprefix map_, dem gmb gsv ls8 ls8_uv vgd vgd_uv) \
 #            $(addprefix summer_, 2014 2015 2016) \
 #            $(addprefix ts_, angvel defvel detrended gpsvel satvel satvel_uv tilt)) \
-#          $(addprefix bowpal_, samplemap) \
 #          $(addprefix bowtid_, boreholes correlate diffseries fft gmb \
 #                               highpass intervals lombscargle previous \
 #                               specgrams tempseries tideseries wlevseries) \
