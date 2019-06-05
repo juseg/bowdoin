@@ -8,7 +8,7 @@
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import cartowik.shadedrelief as csr
+import cartowik.annotations as can
 import absplots as apl
 import util
 
@@ -45,14 +45,15 @@ def plot_location_map(ax):
     xr.open_rasterio(filename).plot.imshow(ax=ax)
 
     # add boreholes and camp waypoints for each borehole
-    # FIXME: this GPX interface could also be a part of cartowik
+    locations = util.geo.read_locations('../data/locations.gpx')
     for bh in ('bh1', 'bh2', 'bh3'):
-        for y in ['14', '16', '17']:
-            util.geo.add_waypoint('B'+y+bh.upper(), ax=ax, marker='o',
-                                  color=util.tem.COLOURS[bh], text='20'+y,
-                                  textpos=('lr' if bh == 'bh1' else 'ul'))
-    util.geo.add_waypoint('Tent Swiss', ax=ax, color='w', marker='^',
-                          text='Camp', textpos='lc')
+        point = 'se' if bh == 'bh1' else 'nw'
+        kwa = dict(ax=ax, color=util.tem.COLOURS[bh], point=point)
+        can.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
+        can.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
+        can.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
+    can.annotate_location(locations['Tent Swiss'], ax=ax, color='w', point='s',
+                          marker='^', text='Camp')
 
     # add scale
     util.geo.add_scale_bar(ax=ax, length=1000, label='1km', color='w')

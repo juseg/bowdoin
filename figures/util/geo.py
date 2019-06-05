@@ -11,6 +11,15 @@ import cartopy.crs as ccrs
 import gpxpy
 
 
+# GPX locations methods
+# ---------------------
+
+def read_locations(filename='../data/locations.gpx'):
+    """Read waypoints dictionary from GPX file."""
+    with open(filename, 'r') as gpx:
+        return {wpt.name: wpt for wpt in gpxpy.parse(gpx).waypoints}
+
+
 # Plotting methods
 # ----------------
 
@@ -19,41 +28,10 @@ def add_scale_bar(ax=None, length=1000, pad=None, label=None, color='k'):
     # FIXME: Move this scale bar method to Cartowik?
     ax = ax or plt.gca()
     pad = pad or 0.25*length
-    west, east, south, north = ax.get_extent()
+    _, east, south, _ = ax.get_extent()
     ax.plot([east-pad-length, east-pad], [south+pad]*2, c=color, marker='|')
     ax.text(east-pad-0.5*length, south+pad, label+'\n',
             color=color, fontweight='bold', ha='center', va='center')
-
-
-def add_waypoint(name, ax=None, color=None, marker='o', text=None,
-                 textpos='ul', offset=8, **kwargs):
-    """Plot and annotate waypoint from GPX file"""
-    # FIXME: Move the GPX interface to Cartowik?
-
-    # read waypoint from GPX file
-    with open('../data/locations.gpx', 'r') as gpx_file:
-        locations = {wpt.name: wpt for wpt in gpxpy.parse(gpx_file).waypoints}
-    wpt = locations[name]
-
-    # process arguments
-    ax = ax or plt.gca()
-    crs = ccrs.PlateCarree()
-    text = text or wpt.name
-    yloc, xloc = textpos
-
-    # plot annotated waypoint
-    ax.plot(wpt.longitude, wpt.latitude, c=color, marker=marker, transform=crs)
-    ax.annotate(text, xy=(wpt.longitude, wpt.latitude),
-                xytext=({'l': -1, 'c': 0, 'r': 1}[xloc]*offset,
-                        {'l': -1, 'c': 0, 'u': 1}[yloc]*offset),
-                xycoords=crs._as_mpl_transform(ax), textcoords='offset points',
-                ha={'l': 'right', 'c': 'center', 'r': 'left'}[xloc],
-                va={'l': 'top', 'c': 'center', 'u': 'bottom'}[yloc],
-                arrowprops=dict(arrowstyle='->', color=color,
-                                relpos=({'l': 1, 'c': 0.5, 'r': 0}[xloc],
-                                        {'l': 1, 'c': 0.5, 'u': 0}[yloc])),
-                bbox=dict(pad=0, ec='none', fc='none'), color=color,
-                fontweight='bold', **kwargs)
 
 
 def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
