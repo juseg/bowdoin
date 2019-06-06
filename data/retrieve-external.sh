@@ -104,13 +104,3 @@ do
     orig="$root$dest"
     [ -f "$dest" ] || wget $orig -O $dest
 done
-
-# Office desktop locations
-geodata="iceberg:/scratch_net/iceberg_second/juliens/geodata"
-s2adata="$geodata/satellite/sentinel-2a"
-
-# Greenland gravimetric mass balance (GMB) grids
-orig=$geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
-dest=$(basename $orig)
-[ -f "$dest" ] || scp $orig $dest
-
