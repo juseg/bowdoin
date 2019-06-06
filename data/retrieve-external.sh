@@ -91,3 +91,16 @@ do
     orig="$root$dest"
     [ -f "$dest" ] || wget $orig -O $dest
 done
+
+# Greenland MEaSUREs 100m ice velocity for selected sites
+server=https://daacdata.apps.nsidc.org/pub/DATASETS/
+dataset=nsidc0646_MEASURES_greenland_vel_optical_v2/Wcoast-77.80N/
+if [ "$(find OPT_W77.80N_*.tif | wc -l)" != 40 ]
+then
+    wget \
+        --load-cookies ~/.urs_cookies --save-cookies ~/.urs_cookies \
+        --keep-session-cookies --no-check-certificate --auth-no-challenge=on \
+        --recursive --no-directories --no-parent --execute robots=off \
+        --accept 'OPT_W77.80N_201[4-7]*_v?_v2.tif' \
+        $server/$dataset
+fi
