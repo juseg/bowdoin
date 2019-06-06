@@ -41,7 +41,7 @@ def plot_location_map(ax):
     ax.set_extent([507.6e3, 512.4e3, 8620.7e3, 8626.3e3], crs=ax.projection)
 
     # plot Sentinel image data
-    filename = '../data/external/S2A_20160808_175915_456_RGB.jpg'
+    filename = '../data/external/20160808_175915_456_S2A_RGB.jpg'
     xr.open_rasterio(filename).plot.imshow(ax=ax)
 
     # add boreholes and camp waypoints for each borehole

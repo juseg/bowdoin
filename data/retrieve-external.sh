@@ -47,7 +47,7 @@ do
     if [ ! -f "$dest.jpg" ]
     then
         sentinelflow.sh --name bowdoin --intersect 77.7,-68.5 --tiles 19XEG \
-                        --extent 500000,8620000,520000,8640000 \
+                        --extent 500000,8615000,520000,8645000 \
                         --maxrows 1 --cloudcover 30 --nullvalues 99 \
                         --daterange ${dest:0:8}..${dest:0:8} $*
         ln -sf composite/bowdoin/$dest.jpg $dest.jpg

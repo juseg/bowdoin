@@ -106,7 +106,7 @@ if __name__ == '__main__':
     # add subfigure labels
     for reg, label in zip(regions[1:], list('bcde')):
         w, e, s, n = reg
-        rect = plt.Rectangle((w, n), (e-w), (s-n), fc='none')
+        rect = plt.Rectangle((w, n), (e-w), (s-n), fc='none', ec='k')
         grid[0].add_patch(rect)
         grid[0].text(w, n+100, '(%s)' % label, fontweight='bold')
     util.com.add_subfig_label('(a) Bowdoin Glacier', ax=grid[0])
@@ -115,10 +115,10 @@ if __name__ == '__main__':
     util.com.add_subfig_label('(d) Upper cam. hill', ax=grid[3])
     util.com.add_subfig_label('(e) East Branch moraine', ax=grid[4])
 
-#    # plot S2A image
-#    img = xr.open_rasterio('../data/external/S2A_20160410_180125_659_RGB.jpg')
-#    for ax in grid:
-#        img.plot.imshow(ax=ax)
+    # plot S2A image
+    img = xr.open_rasterio('../data/external/20160410_180125_659_S2A_RGB.jpg')
+    for ax in grid:
+        img.plot.imshow(ax=ax)
 
     # plot all sample locations on main panel
     comkwa = dict(s=40, alpha=0.5)
