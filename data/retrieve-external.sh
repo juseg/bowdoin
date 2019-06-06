@@ -40,6 +40,19 @@ do
     fi
 done
 
+# Sentinel-2A (S2A) Bowdoin 20x20 km images
+# (for Qaanaaq 60x60 km use --extent 465000,8595000,525000,8655000)
+for dest in {20160410_180125_659,20160808_175915_456}_S2A_RGB.jpg
+do
+    if [ ! -f "$dest" ]
+    then
+        sentinelflow.sh --name bowdoin --intersect 77.7,-68.5 --tiles 19XEG \
+                        --extent 500000,8620000,520000,8640000 \
+                        --maxrows 1 --cloudcover 30 --nullvalues 99 \
+                        --daterange ${dest:0:8}..${dest:0:8} $*
+        ln -sf composite/bowdoin/$dest $dest
+    fi
+done
 
 # Greenland MEaSUREs 250m multi-year velocity mosaic
 # FIXME update to Greenland CCI
@@ -101,10 +114,3 @@ orig=$geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
 dest=$(basename $orig)
 [ -f "$dest" ] || scp $orig $dest
 
-# Qaanaaq Sentinel-2A (S2A) images
-for date in 20160410_180125_659 20160808_175915_456
-do
-    orig=$s2adata/composite/greenland/qaanaaq/rgb/S2A_${date}_RGB.jpg
-    dest=$(basename $orig)
-    [ -f "$dest" ] ||[ -f "${dest%.jpg}.jpw" ] || scp $orig ${orig%.jpg}.jpw .
-done
