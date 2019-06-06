@@ -5,21 +5,15 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import gpxpy
+import cartowik.annotations as can
 import util
 
 # from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 
-def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
+def waypoint_scatter(names, text=None, textloc='ne', offset=15,
                      alpha=1.0, **kwargs):
     """Draw annotated scatter plot from GPX waypoints."""
-
-    # get current axes if None given
-    ax = ax or plt.gca()
-
-    # initialize coordinate lists
-    xlist = []
-    ylist = []
 
     # expand textpos to a list
     if isinstance(textloc, str):
@@ -28,43 +22,14 @@ def waypoint_scatter(names, ax=None, text=True, textloc='ur', offset=15,
     # GPX usually uses geographic coordinates
     crs = ccrs.PlateCarree()
 
-    # open GPX file
-    with open('../data/locations.gpx', 'r') as gpx_file:
-        gpx = gpxpy.parse(gpx_file)
+    # read locations
+    locations = util.geo.read_locations('../data/locations.gpx')
 
-        # find the right waypoints
-        for wpt in gpx.waypoints:
-            if wpt.name in names:
-
-                # extract point coordinates
-                proj = ax.projection
-                coords = proj.transform_point(wpt.longitude, wpt.latitude, crs)
-                xlist.append(coords[0])
-                ylist.append(coords[1])
-
-                # stop here if text is unwanted
-                if text is False:
-                    continue
-
-                # add annotation
-                text = '%s\n%.0f m' % (wpt.name, wpt.elevation)
-                loc = textloc[names.index(wpt.name)]
-                xshift = ((loc[1] == 'r')-(loc[1] == 'l'))
-                xoffset = xshift * offset
-                yshift = ((loc[0] == 'u')-(loc[0] == 'l'))
-                yoffset = yshift * offset
-                relpos = (0.5*(1-xshift), 0.5*(1-yshift))
-                halign = {'r': 'left', 'l': 'right', 'c': 'center'}[loc[1]]
-                valign = {'u': 'bottom', 'l': 'top', 'c': 'center'}[loc[0]]
-                xytext = xoffset, yoffset
-                ax.annotate(text, xy=coords, xytext=xytext,
-                            textcoords='offset points', ha=halign, va=valign,
-                            bbox=dict(boxstyle='square,pad=0.5', fc='w'),
-                            arrowprops=dict(arrowstyle='->', color='k',
-                                            relpos=relpos, alpha=alpha))
-
-    # add scatter plot
-    ax.scatter(xlist, ylist, alpha=alpha, **kwargs)
+    # for each waypoint name
+    for (name, point) in zip(names, textloc):
+        loc = locations[name]
+        text = text or '%s\n%.0f m' % (loc.name, loc.elevation)
+        can.annotate_location(loc, text=text, point=point, **kwargs)
 
 
 if __name__ == '__main__':
@@ -121,51 +86,50 @@ if __name__ == '__main__':
         img.plot.imshow(ax=ax)
 
     # plot all sample locations on main panel
-    comkwa = dict(s=40, alpha=0.5)
-    bedkwa = dict(marker='s', c='C0', **comkwa)
-    boukwa = dict(marker='o', c='C3', **comkwa)
-    carkwa = dict(marker='^', c='w', **comkwa)
+    bedkwa = dict(marker='s', color='C0')
+    boukwa = dict(marker='o', color='C3')
+    carkwa = dict(marker='^', color='k')
     waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)] +
                      ['BOW16-MF-BED%d' % i for i in range(1, 4)],
-                     ax=grid[0], text=False, **bedkwa)
+                     ax=grid[0], text=' ', **bedkwa)
     waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
                      ['BOW16-JS-%02d' % i for i in range(4, 14)] +
                      ['BOW16-MF-BOU%d' % i for i in range(1, 4)],
-                     ax=grid[0], text=False, **boukwa)
+                     ax=grid[0], text=' ', **boukwa)
     waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
-                     ax=grid[0], text=False, **carkwa)
+                     ax=grid[0], text=' ', **carkwa)
 
     # plot Sentinel hill sample locations
     waypoint_scatter(['BOW16-MF-BED%d' % i for i in range(1, 4)],
-                     textloc=['ul', 'lr', 'll'],
+                     textloc=['nw', 'se', 'sw'],
                      ax=grid[1], **bedkwa)
     waypoint_scatter(['BOW16-MF-BOU%d' % i for i in range(1, 4)],
-                     textloc=['ll', 'cr', 'ur'],
+                     textloc=['sw', 'e', 'ne'],
                      ax=grid[1], **boukwa)
 
     # plot Bartlett hill sample locations
     waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
                      ['BOW16-JS-%02d' % i for i in (12, 13)],
-                     textloc=['ur', 'cr', 'cl', 'ur', 'ul', 'cr', 'lr',
-                              'll', 'cl', 'cl', 'ul'],
+                     textloc=['ne', 'e', 'w', 'ne', 'nw', 'e', 'se',
+                              'sw', 'w', 'w', 'nw'],
                      ax=grid[2], **boukwa)
 
     # plot Camp carbon sample locations
     waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
-                     textloc=['lr', 'cr', 'ur'],
+                     textloc=['se', 'e', 'ne'],
                      ax=grid[3], **carkwa)
 
     # plot Upper cam hill sample locations
     waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)],
-                     textloc=['cr', 'cl', 'll'],
+                     textloc=['e', 'w', 'sw'],
                      ax=grid[3], **bedkwa)
     waypoint_scatter(['BOW16-JS-%02d' % i for i in range(4, 7)],
-                     textloc=['ul', 'ur', 'lr'],
+                     textloc=['nw', 'ne', 'se'],
                      ax=grid[3], **boukwa)
 
     # plot East Branch moraine sample locations
     waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
-                     textloc=['cr', 'lr', 'll', 'ul', 'ur'],
+                     textloc=['e', 'se', 'sw', 'nw', 'ne'],
                      ax=grid[4], **boukwa)
 
     # save
