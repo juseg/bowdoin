@@ -55,26 +55,9 @@ do
     fi
 done
 
-# Greenland MEaSUREs 250m multi-year velocity mosaic
-# FIXME update to Greenland CCI
-orig=ftp://sidads.colorado.edu/DATASETS/nsidc0670_MEASURES_my_vel_mosaic_v1/\
-greenland_vel_mosaic250_v1.tif
-dest=$(basename $orig)
-[ -f "$dest" ] || wget $orig
 
-## Greenland Climate Change Initiative (CCI) 2015 velocity map
-#root=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-cci
-#orig=$root/greenland_ice_velocity_map_winter_2014_2015/\
-#greenland_iv_500m_s1_20141101_20151201_v1_0.nc
-#dest=$(basename $orig)
-#[ -f "$dest" ] || scp $orig $dest
-
-## Greenland Climate Change Initiative (CCI) 2016 velocity map
-#root=ogive:/scratch_net/ogive/juliens/geodata/icesheets/greenland-cci
-#orig=$root/greenland_ice_velocity_map_winter_2015_2016/\
-#greenland_iv_500m_s1_20151223_20160331_v1_0.nc
-#dest=$(basename $orig)
-#[ -f "$dest" ] || scp $orig $dest
+# Bowdoin pressure paper data
+# ---------------------------
 
 # Global Sea Level Observing System (GLOSS) Pituffik tide data
 orig="http://ilikai.soest.hawaii.edu/woce/h808.dat"
@@ -95,6 +78,9 @@ do
                                             -e "s:</td>:,:g" \
                                             -e "s:<[^>]*>::g" > $dest
 done
+
+# Bowdoin deformation paper data
+# ------------------------------
 
 # SIGMA-B automatic weather station data
 for year in 20{14..17}
