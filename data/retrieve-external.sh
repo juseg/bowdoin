@@ -12,13 +12,6 @@ cd external
 # Arctic v3.0 DEM crop on Bowdoin
 # (strips manually selected through index shapefile available online)
 # (for UTM 19 use -t_srs EPSG:32619 -te 500000 8615000 520000 8630000)
-# (two more strips contain data over Bowdoin:
-#  * SETSM_WV02_20120512_103001001932B700_1030010018CB9600_seg1_2m_v2.0, and
-#  * SETSM_WV02_20140906_103001003766BC00_1030010036B2F000_seg4_2m_v2.0)
-# (old v2.0 strips:
-#  * SETSM_WV01_20120730_102001001C3CA200_102001001C997D00_seg3_2m_v3.0,
-#  * SETSM_WV02_20130404_1030010020AC5E00_1030010021347000_seg1_2m_v3.0,
-#  * SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg2_2m_v3.0)
 root="http://data.pgc.umn.edu/elev/dem/setsm/ArcticDEM/geocell/v3.0/2m/n77w069"
 for strp in SETSM_W1W1_20150427_102001003C04A300_102001003ECD7100_seg1_2m_v3.0 \
             SETSM_W1W2_20140905_10200100318E9F00_1030010037BBC200_seg3_2m_v3.0 \
@@ -47,10 +40,6 @@ do
     fi
 done
 
-## Greenland MEaSUREs Ice Mapping Project (GIMP) dem
-#orig=ftp://sidads.colorado.edu/pub/DATASETS/nsidc0645_MEASURES_gimp_dem_v1/30/gimpdem0_4.tif
-#dest=$(basename $orig)
-#[ -f "$dest" ] || wget $orig
 
 # Greenland MEaSUREs 250m multi-year velocity mosaic
 # FIXME update to Greenland CCI
@@ -110,13 +99,6 @@ s2adata="$geodata/satellite/sentinel-2a"
 # Greenland gravimetric mass balance (GMB) grids
 orig=$geodata/icesheets/greenland-gmb/GIS_GMB_grid.nc
 dest=$(basename $orig)
-[ -f "$dest" ] || scp $orig $dest
-
-# Yvo's DEM
-# FIXME update to Arctic DEM
-orig="iceberg:/usr/itetnas01/data-vaw-01/glazioarch/GlacioProject/bowdoin/\
-bowdoin_2015/GIS/Data/DSM/bowdoin_20100904_15m_20140929.tif"
-dest="$(basename $orig)"
 [ -f "$dest" ] || scp $orig $dest
 
 # Qaanaaq Sentinel-2A (S2A) images

@@ -115,25 +115,10 @@ if __name__ == '__main__':
     util.com.add_subfig_label('(d) Upper cam. hill', ax=grid[3])
     util.com.add_subfig_label('(e) East Branch moraine', ax=grid[4])
 
-    # plot S2A image
-    filename = '../data/external/S2A_20160410_180125_659_RGB.jpg'
-    data = xr.open_rasterio(filename)
-    for ax in grid:
-        data.plot.imshow(ax=ax)
-
-    # open Yvo's digital elevation model
-    # FIXME: use the Arctic DEM
-    filename = '../data/external/bowdoin_20100904_15m_20140929.tif'
-    data = xr.open_rasterio(filename).squeeze()
-    levs = np.arange(0.0, 800.0, 20.0)
-
-    # plot contours
-    for ax in grid:
-        cs = data.plot.contour(ax=ax, levels=levs[(levs % 100 != 0)],
-                               colors='k', linewidths=0.1, alpha=0.75)
-        cs = data.plot.contour(ax=ax, levels=levs[(levs % 100 == 0)],
-                               colors='k', linewidths=0.25, alpha=0.75)
-        cs.clabel(fmt='%d')
+#    # plot S2A image
+#    img = xr.open_rasterio('../data/external/S2A_20160410_180125_659_RGB.jpg')
+#    for ax in grid:
+#        img.plot.imshow(ax=ax)
 
     # plot all sample locations on main panel
     comkwa = dict(s=40, alpha=0.5)
