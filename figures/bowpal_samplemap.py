@@ -11,25 +11,16 @@ import util
 # from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 
-def waypoint_scatter(names, text=None, textloc='ne', offset=15,
-                     alpha=1.0, **kwargs):
+def waypoint_scatter(locations, **kwargs):
     """Draw annotated scatter plot from GPX waypoints."""
+    for loc in locations:
+        can.annotate_location(loc, text=' ', **kwargs)
 
-    # expand textpos to a list
-    if isinstance(textloc, str):
-        textloc = [textloc] * len(names)
 
-    # GPX usually uses geographic coordinates
-    crs = ccrs.PlateCarree()
-
-    # read locations
-    locations = util.geo.read_locations('../data/locations.gpx')
-
-    # for each waypoint name
-    for (name, point) in zip(names, textloc):
-        loc = locations[name]
-        text = text or '%s\n%.0f m' % (loc.name, loc.elevation)
-        can.annotate_location(loc, text=text, point=point, **kwargs)
+def annotate_sample(location, **kwargs):
+    """Annotate a sample and label with name and altitude."""
+    text = '{:s}\n{:.0f} m'.format(location.name, location.elevation)
+    can.annotate_location(location, text=text, **kwargs)
 
 
 if __name__ == '__main__':
@@ -85,52 +76,67 @@ if __name__ == '__main__':
     for ax in grid:
         img.plot.imshow(ax=ax)
 
+    # read sample locations
+    locs = util.geo.read_locations('../data/locations.gpx')
+
     # plot all sample locations on main panel
     bedkwa = dict(marker='s', color='C0')
     boukwa = dict(marker='o', color='C3')
     carkwa = dict(marker='^', color='k')
-    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)] +
-                     ['BOW16-MF-BED%d' % i for i in range(1, 4)],
-                     ax=grid[0], text=' ', **bedkwa)
-    waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
-                     ['BOW16-JS-%02d' % i for i in range(4, 14)] +
-                     ['BOW16-MF-BOU%d' % i for i in range(1, 4)],
-                     ax=grid[0], text=' ', **boukwa)
-    waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
-                     ax=grid[0], text=' ', **carkwa)
+    waypoint_scatter([locs['BOW16-JS-%02d' % i] for i in range(1, 4)] +
+                     [locs['BOW16-MF-BED%d' % i] for i in range(1, 4)],
+                     ax=grid[0], **bedkwa)
+    waypoint_scatter([locs['BOW15-%02d' % i] for i in range(1, 10)] +
+                     [locs['BOW16-JS-%02d' % i] for i in range(4, 14)] +
+                     [locs['BOW16-MF-BOU%d' % i] for i in range(1, 4)],
+                     ax=grid[0], **boukwa)
+    waypoint_scatter([locs['BOW16-CA-%02d' % i] for i in range(2, 5)],
+                     ax=grid[0], **carkwa)
 
     # plot Sentinel hill sample locations
-    waypoint_scatter(['BOW16-MF-BED%d' % i for i in range(1, 4)],
-                     textloc=['nw', 'se', 'sw'],
-                     ax=grid[1], **bedkwa)
-    waypoint_scatter(['BOW16-MF-BOU%d' % i for i in range(1, 4)],
-                     textloc=['sw', 'e', 'ne'],
-                     ax=grid[1], **boukwa)
+    ax = grid[1]
+    annotate_sample(locs['BOW16-MF-BED1'], ax=ax, point='nw', **bedkwa)
+    annotate_sample(locs['BOW16-MF-BED2'], ax=ax, point='se', **bedkwa)
+    annotate_sample(locs['BOW16-MF-BED3'], ax=ax, point='sw', **bedkwa)
+    annotate_sample(locs['BOW16-MF-BOU1'], ax=ax, point='sw', **boukwa)
+    annotate_sample(locs['BOW16-MF-BOU2'], ax=ax, point='e', **boukwa)
+    annotate_sample(locs['BOW16-MF-BOU3'], ax=ax, point='ne', **boukwa)
 
     # plot Bartlett hill sample locations
-    waypoint_scatter(['BOW15-%02d' % i for i in range(1, 10)] +
-                     ['BOW16-JS-%02d' % i for i in (12, 13)],
-                     textloc=['ne', 'e', 'w', 'ne', 'nw', 'e', 'se',
-                              'sw', 'w', 'w', 'nw'],
-                     ax=grid[2], **boukwa)
+    ax = grid[2]
+    annotate_sample(locs['BOW15-01'], ax=ax, point='ne', **boukwa)
+    annotate_sample(locs['BOW15-02'], ax=ax, point='e', **boukwa)
+    annotate_sample(locs['BOW15-03'], ax=ax, point='w', **boukwa)
+    annotate_sample(locs['BOW15-04'], ax=ax, point='ne', **boukwa)
+    annotate_sample(locs['BOW15-05'], ax=ax, point='nw', **boukwa)
+    annotate_sample(locs['BOW15-06'], ax=ax, point='e', **boukwa)
+    annotate_sample(locs['BOW15-07'], ax=ax, point='se', **boukwa)
+    annotate_sample(locs['BOW15-08'], ax=ax, point='sw', **boukwa)
+    annotate_sample(locs['BOW15-09'], ax=ax, point='w', **boukwa)
+    annotate_sample(locs['BOW16-JS-12'], ax=ax, point='w', **boukwa)
+    annotate_sample(locs['BOW16-JS-13'], ax=ax, point='nw', **boukwa)
 
     # plot Camp carbon sample locations
-    waypoint_scatter(['BOW16-CA-%02d' % i for i in range(2, 5)],
-                     textloc=['se', 'e', 'ne'],
-                     ax=grid[3], **carkwa)
+    ax = grid[3]
+    annotate_sample(locs['BOW16-CA-02'], ax=ax, point='se', **carkwa)
+    annotate_sample(locs['BOW16-CA-03'], ax=ax, point='e', **carkwa)
+    annotate_sample(locs['BOW16-CA-04'], ax=ax, point='ne', **carkwa)
 
     # plot Upper cam hill sample locations
-    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(1, 4)],
-                     textloc=['e', 'w', 'sw'],
-                     ax=grid[3], **bedkwa)
-    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(4, 7)],
-                     textloc=['nw', 'ne', 'se'],
-                     ax=grid[3], **boukwa)
+    annotate_sample(locs['BOW16-JS-01'], ax=ax, point='e', **bedkwa)
+    annotate_sample(locs['BOW16-JS-02'], ax=ax, point='w', **bedkwa)
+    annotate_sample(locs['BOW16-JS-03'], ax=ax, point='sw', **bedkwa)
+    annotate_sample(locs['BOW16-JS-04'], ax=ax, point='nw', **boukwa)
+    annotate_sample(locs['BOW16-JS-05'], ax=ax, point='ne', **boukwa)
+    annotate_sample(locs['BOW16-JS-06'], ax=ax, point='se', **boukwa)
 
     # plot East Branch moraine sample locations
-    waypoint_scatter(['BOW16-JS-%02d' % i for i in range(7, 12)],
-                     textloc=['e', 'se', 'sw', 'nw', 'ne'],
-                     ax=grid[4], **boukwa)
+    ax = grid[4]
+    annotate_sample(locs['BOW16-JS-07'], ax=ax, point='e', **boukwa)
+    annotate_sample(locs['BOW16-JS-08'], ax=ax, point='se', **boukwa)
+    annotate_sample(locs['BOW16-JS-09'], ax=ax, point='sw', **boukwa)
+    annotate_sample(locs['BOW16-JS-10'], ax=ax, point='nw', **boukwa)
+    annotate_sample(locs['BOW16-JS-11'], ax=ax, point='ne', **boukwa)
 
     # save
     util.com.savefig(fig)
