@@ -9,6 +9,24 @@ import absplots as apl
 import util
 
 
+def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
+    """
+    Compute the pressure-melting point from depth below the ice surface.
+
+    Parameters
+    ----------
+    depth : scalar
+        Depth below the ice surface.
+    beta : scalar
+        Clapeyron constant for ice (default: Luethi et al., 2002).
+    gravity : scalar
+        Standard gravity in m s-2.
+    rho_i : scalar
+        Ice density in kg m-3.
+    """
+    return -beta * rho_i * gravity * depth
+
+
 def main():
     """Main program called during execution."""
 
@@ -64,12 +82,8 @@ def main():
         ax.axhline(0, color='k', lw=0.5)
 
     # plot melting point and zero line
-    # FIXME move ice physical parameters somewhere
-    base = 272.0    # glacier base
-    gravity = 9.80665     # gravity
-    rhoi = 910.0    # ice density
-    beta = 7.9e-8   # Luethi et al. (2002)
-    melt = -beta * rhoi * gravity * base
+    base = 272
+    melt = compute_melting_point(base)
     ax0.plot([0, melt], [0, base], c='k', ls=':', lw=0.5)
     ax1.plot([0, 0], [0, base], c='k', ls=':', lw=0.5)
 
