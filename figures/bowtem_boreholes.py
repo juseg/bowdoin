@@ -8,8 +8,9 @@
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import cartowik.annotations as can
 import absplots as apl
+import cartowik.annotations as can
+import cartowik.decorations as cde
 import util
 
 
@@ -56,7 +57,7 @@ def plot_location_map(ax):
                           marker='^', text='Camp')
 
     # add scale
-    util.geo.add_scale_bar(ax=ax, length=1000, label='1km', color='w')
+    cde.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
 
 
 def plot_long_profile(ax):

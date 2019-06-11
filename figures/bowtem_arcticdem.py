@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import gpxpy
 import absplots as apl
+import cartowik.decorations as cde
 import util
 
 
@@ -103,7 +104,7 @@ def main():
                                      ec=color, alpha=0.5))
 
     # add scale
-    util.geo.add_scale_bar(ax=ax0, length=100, label='100 m', color='k')
+    cde.add_scale_bar(ax=ax0, color='k', label='100 m', length=100)
 
     # prepare profile coords and compute distance from bh3
     coords = np.linspace(2*projected['bh3']-1*projected['bh1'],
