@@ -1,2 +1,4 @@
-[ basic ]
+[BASIC]
 good-names = ax, bh, i, j, x, y, z
+[TYPECHECK]
+ignored-classes=_PlotMethods
