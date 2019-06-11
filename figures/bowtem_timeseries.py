@@ -5,7 +5,6 @@
 
 """Plot Bowdoin temperature time series."""
 
-import pandas as pd
 import absplots as apl
 import util
 
@@ -25,12 +24,10 @@ def main():
         temp = temp.resample('1D').mean()
         temp.plot(ax=ax, c=color, legend=False, lw=0.5)
 
-        # add closure dates
-        if bh != 'err':
-            closure_dates = util.tem.estimate_closure_dates(bh, temp)
-            closure_temps = [temp.loc[closure_dates[k], k] for k in temp]
-            closure_temps = pd.Series(index=closure_dates, data=closure_temps)
-            closure_temps.plot(ax=ax, color='k', marker='|', ls='')
+        # add closure dates (see markers issue #14958)
+        state = util.tem.estimate_closure_state(bh, temp)
+        state.plot(x='date', y='temp', ax=ax, c=color, marker='+', ls='',
+                   label=bh.upper())
 
     # add campaigns
     util.com.plot_field_campaigns(ax=ax)
@@ -39,6 +36,10 @@ def main():
     ax.set_ylabel(u'temperature (°C)')
     ax.set_xlim('20140615', '20170815')
     ax.set_ylim(-14.5, 0.5)
+
+    # fix the legend (see markers issue #14958)
+    ax.legend(*zip(*[(h, l) for h, l in zip(*ax.get_legend_handles_labels())
+                     if l in ('BH1', 'BH2', 'BH3', 'ERR')]))
 
     # save
     util.com.savefig(fig)

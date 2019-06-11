@@ -5,7 +5,6 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
-import pandas as pd
 import absplots as apl
 import util
 
@@ -29,15 +28,8 @@ def main():
         temp, depth, base = util.tem.load_all(bh)
         temp = temp.resample('6H').mean()
 
-        # estimate closure dates
-        closure_dates = util.tem.estimate_closure_dates(bh, temp)
-        closure_temps = [temp.loc[closure_dates[k], k] for k in temp]
-        closure_temps = pd.Series(index=closure_dates, data=closure_temps)
-
-        # compute closure times
-        drilling_date = util.tem.DRILLING_DATES[bh.replace('err', 'bh3')]
-        drilling_date = pd.to_datetime(drilling_date)
-        closure_times = closure_dates - drilling_date
+        # estimate closure times
+        closure_times = util.tem.estimate_closure_state(bh, temp).time
         closure_times = closure_times.dt.total_seconds()/(24*3600)
 
         # for each sensor type

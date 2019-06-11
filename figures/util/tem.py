@@ -61,12 +61,15 @@ def load_all(borehole):
 # Data processing methods
 # -----------------------
 
-def estimate_closure_dates(borehole, temp):
+def estimate_closure_state(borehole, temp):
     """
     Estimate borehole closure dates from temperature time series. Look for the
     steepest cooling starting one day after the date of drilling. This seems to
     work best using daily-averaged time series. In practice this does not seem
     to work on sensors for which the beginning of the record is missing.
+
+    Returns a dataframe containing closure dates, the corresponding
+    temperatures and time since the drilling for each unit.
 
     Parameters
     ----------
@@ -79,4 +82,6 @@ def estimate_closure_dates(borehole, temp):
     drilling_date = pd.to_datetime(drilling_date)
     closure_dates = temp[drilling_date+pd.to_timedelta('1D'):].diff().idxmin()
     closure_dates = closure_dates.mask(closure_dates == temp.index[1])
-    return closure_dates
+    closure_temps = [temp.loc[closure_dates[k], k] for k in temp]
+    return pd.DataFrame(dict(date=closure_dates, temp=closure_temps,
+                             time=closure_dates-drilling_date))
