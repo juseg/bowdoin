@@ -14,6 +14,7 @@ import pandas as pd
 
 COLOURS = dict(bh1='C0', bh2='C1', bh3='C2', err='0.75')
 MARKERS = dict(I='^', P='s', T='o')
+DRILLING_DATES = dict(bh1='20140716', bh2='20140717', bh3='20140722')
 
 
 # Data loading methods
@@ -74,9 +75,8 @@ def estimate_closure_dates(borehole, temp):
     temp: dataframe
         Daily temperature time series.
     """
-    drilling_date = dict(bh1='20140716', bh2='20140717', bh3='20140722',
-                         err='20140722')
-    drilling_date = pd.to_datetime(drilling_date[borehole])
+    drilling_date = DRILLING_DATES[borehole.replace('err', 'bh3')]
+    drilling_date = pd.to_datetime(drilling_date)
     closure_dates = temp[drilling_date+pd.to_timedelta('1D'):].diff().idxmin()
     closure_dates = closure_dates.mask(closure_dates == temp.index[1])
     return closure_dates
