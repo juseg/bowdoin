@@ -98,11 +98,10 @@ def main():
     # csr.add_multishade(filename, ax=ax0)
 
     # contour code too slow for full dem
-    levs = np.arange(70.0, 100.0, 1.0)
-    data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 != 0)],
+    data.plot.contour(ax=ax0, colors='0.25', levels=range(70, 100),
                       linewidths=0.1)
-    data.plot.contour(ax=ax0, colors='0.25', levels=levs[(levs % 5 == 0)],
-                      linewidths=0.1).clabel(fmt='%d')
+    data.plot.contour(ax=ax0, colors='0.25', levels=range(70, 100, 5),
+                      linewidths=0.25).clabel(fmt='%d')
 
     # plot borehole locations on the map
     initial, projected = project_borehole_locations(sensdate, ax0.projection)
@@ -130,15 +129,14 @@ def main():
     data.interp(x=x, y=y, method='linear').plot(ax=ax1, color='0.25')
 
     # mark borehole locations along profile
-    for bh in ('bh1', 'bh2', 'bh3'):
+    for bh in ('bh1', 'bh3'):
         color = util.tem.COLOURS[bh]
         dist = ((projected[bh]-points[0])**2).sum()**0.5
         ax1.axvline(dist, color=color)
-        ax1.text(dist, 76, ' '+bh.upper()+' ', color=color, fontweight='bold',
-                 ha=('right' if bh == 'bh1' else 'left'))
+        ax1.text(dist, 76, ' '+bh.upper()+' ', color=color, fontweight='bold')
 
     # set axes properties
-    ax1.set_xlabel('distance along flow (m)')
+    ax1.set_xlabel('distance along profile (m)')
     ax1.set_ylabel('surface elevation (m)')
 
     # save
