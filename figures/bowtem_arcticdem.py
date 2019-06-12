@@ -43,6 +43,28 @@ def project_borehole_locations(date, crs):
     return initial, projected
 
 
+def build_profile_coords(points, interval=None, method='linear'):
+    """Interpolate coordinates along profile through given points."""
+
+    # compute distance along profile
+    x, y = np.asarray(points).T
+    dist = ((np.diff(x)**2+np.diff(y)**2)**0.5).cumsum()
+    dist = np.insert(dist, 0, 0)
+
+    # build coordinate xarrays
+    x = xr.DataArray(x, coords=[dist], dims='d')
+    y = xr.DataArray(y, coords=[dist], dims='d')
+
+    # if interval was given, interpolate coordinates
+    if interval is not None:
+        dist = np.arange(0, dist[-1], interval)
+        x = x.interp(d=dist, method=method)
+        y = y.interp(d=dist, method=method)
+
+    # return coordinates
+    return x, y
+
+
 def main():
     """Main program called during execution."""
 
@@ -101,23 +123,16 @@ def main():
     # add scale
     cde.add_scale_bar(ax=ax0, color='k', label='100 m', length=100)
 
-    # prepare profile coords and compute distance from bh3
-    coords = np.linspace(2*projected['bh3']-1*projected['bh1'],
-                         2*projected['bh1']-1*projected['bh3'], 301)
-    dist = ((coords-coords[0])**2).sum(axis=1)**0.5
-    dist -= ((projected['bh3']-coords[0])**2).sum()**0.5
-
     # plot Arctic DEM topographic profile
-    # FIXME: Implement profile interpolation in Cartowik?
-    x = xr.DataArray(coords[:, 0], coords=[dist], dims='d')
-    y = xr.DataArray(coords[:, 1], coords=[dist], dims='d')
-    z = data.interp(x=x, y=y, method='linear')
-    ax1.plot(dist, z, color='0.25')
+    points = [2*projected['bh3']-projected['bh1'],
+              2*projected['bh1']-projected['bh3']]
+    x, y = build_profile_coords(points, interval=1)
+    data.interp(x=x, y=y, method='linear').plot(ax=ax1, color='0.25')
 
     # mark borehole locations along profile
     for bh in ('bh1', 'bh2', 'bh3'):
         color = util.tem.COLOURS[bh]
-        dist = ((projected[bh]-projected['bh3'])**2).sum()**0.5
+        dist = ((projected[bh]-points[0])**2).sum()**0.5
         ax1.axvline(dist, color=color)
         ax1.text(dist, 76, ' '+bh.upper()+' ', color=color, fontweight='bold',
                  ha=('right' if bh == 'bh1' else 'left'))
