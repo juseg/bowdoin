@@ -29,6 +29,10 @@ def main():
         state.plot(x='date', y='temp', ax=ax, c=color, marker='+', ls='',
                    label=bh.upper())
 
+        # add profile dates
+        for date in util.tem.PROFILES_DATES[bh]:
+            ax.axvline(date, color=color, ls='--')
+
     # add campaigns
     util.com.plot_field_campaigns(ax=ax)
 

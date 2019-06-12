@@ -31,9 +31,10 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    gridspec_kw = dict(left=10, right=2.5, wspace=2.5, bottom=10, top=2.5)
     fig, (ax0, ax1) = apl.subplots_mm(figsize=(150, 75), ncols=2, sharey=True,
-                                      gridspec_kw=gridspec_kw)
+                                      gridspec_kw=dict(left=10, right=2.5,
+                                                       bottom=10, top=2.5,
+                                                       wspace=2.5))
 
     # add subfigure labels
     util.com.add_subfig_label(ax=ax0, text='(a)', ypad=15)
@@ -42,26 +43,23 @@ def main():
     # for each borehole
     for bh, color in util.tem.COLOURS.items():
 
-        # load all data
+        # load temperature profiles
         temp, depth, base = util.tem.load_all(bh)
+        dates = util.tem.PROFILES_DATES[bh]
+        temp0 = temp[dates[0]].mean()
+        temp1 = temp[dates[1]].mean()
 
-        # plot initial profiles
-        date0 = util.tem.PROFILES_DATES[bh][0]
-        temp0 = temp[date0].mean()
-        ax0.plot(temp0, depth, c=color, label='%s, %s' % (bh.upper(), date0))
+        # plot temperature profiles
+        ax0.plot(temp0, depth, c=color, label=bh.upper() + ', ' + dates[0])
+        ax0.plot(temp1, depth, c=color, label=bh.upper() + ', ' + dates[1],
+                 ls='--', lw=0.5,)
+        ax1.plot(temp1-temp0, depth, c=color, ls='--', lw=0.5, label='')
 
-        # add markers
+        # add markers by sensor type
         for sensor, marker in util.tem.MARKERS.items():
-            cols = depth.index.str[1] == sensor
-            if cols.sum() > 0:
-                ax0.plot(temp0[cols], depth[cols], c=color, marker=marker,
-                         ls='', label='')
-
-        # plot next profiles
-        for date1 in util.tem.PROFILES_DATES[bh][1:]:
-            temp1 = temp[date1].mean()
-            ax0.plot(temp1, depth, c=color, ls='--', lw=0.5, label='')
-            ax1.plot(temp1-temp0, depth, c=color, ls='--', lw=0.5, label='')
+            ax0.plot(temp0[depth.index.str[1] == sensor],
+                     depth[depth.index.str[1] == sensor],
+                     c=color, marker=marker, ls='', label='')
 
         # add base line
         for ax in (ax0, ax1):
@@ -79,6 +77,7 @@ def main():
 
     # set axes properties
     ax0.invert_yaxis()
+    ax1.invert_yaxis()
     ax0.legend(loc='lower left')
     ax0.set_ylabel('initial sensor depth (m)')
     ax0.set_xlabel(u'ice temperature (°C)')
