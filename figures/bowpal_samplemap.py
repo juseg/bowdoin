@@ -36,7 +36,6 @@ def main():
     """Main program called during execution."""
 
     # regions extents and axes position in figure
-    # FIXME: Implement add_axes_mm / add_subplot_mm for unique subplots.
     figw, figh = 175, 150
     subregions = {
         '(a) Bowdoin Glacier':     (503750, 516250, 8619000, 8629000),
@@ -45,11 +44,11 @@ def main():
         '(d) Upper cam. hill':     (511350, 512350, 8623000, 8624300),
         '(e) East Branch moraine': (514250, 515250, 8625100, 8625800)}
     axposition = {
-        '(a) Bowdoin Glacier':     [0/figw, 50/figh, 125/figw, 100/figh],
-        '(b) Sentinel hill':       [0/figw, 0/figh, 75/figw, 50/figh],
-        '(c) Bartlett hill':       [75/figw, 0/figh, 100/figw, 50/figh],
-        '(d) Upper cam. hill':     [125/figw, 50/figh, 50/figw, 65/figh],
-        '(e) East Branch moraine': [125/figw, 115/figh, 50/figw, 35/figh]}
+        '(a) Bowdoin Glacier':     [0, 50, 125, 100],
+        '(b) Sentinel hill':       [0, 0, 75, 50],
+        '(c) Bartlett hill':       [75, 0, 100, 50],
+        '(d) Upper cam. hill':     [125, 50, 50, 65],
+        '(e) East Branch moraine': [125, 115, 50, 35]}
 
     # read sample locations and background image
     locs = util.geo.read_locations('../data/locations.gpx')
@@ -64,7 +63,8 @@ def main():
     for region, extent in subregions.items():
 
         # add axes
-        ax = grid[region] = fig.add_axes(axposition[region], projection=proj)
+        ax = grid[region] = fig.add_axes_mm(axposition[region],
+                                            projection=proj)
         ax.set_extent(extent, crs=ax.projection)
         ax.outline_patch.set_linewidth(2.0)
         ax.outline_patch.set_edgecolor('k')

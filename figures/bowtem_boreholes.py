@@ -18,13 +18,9 @@ def init_figure():
     """Initialize figure with map and profile subplots."""
 
     # initialize figure
-    # FIXME implement add_axes_mm / add_subplot_mm for unique subplots
     fig = apl.figure_mm(figsize=(150, 75))
-    gridspec_kw = dict(left=2.5, right=87.5, bottom=2.5, top=2.5)
-    ax0 = fig.subplots_mm(gridspec_kw=gridspec_kw,
-                          subplot_kw=dict(projection=ccrs.UTM(19)))
-    gridspec_kw = dict(left=75, right=2.5, bottom=10, top=2.5)
-    ax1 = fig.subplots_mm(gridspec_kw=gridspec_kw)
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 70], projection=ccrs.UTM(19))
+    ax1 = fig.add_axes_mm([75, 10, 72.5, 62.5])
 
     # add subfigure labels
     util.com.add_subfig_label(ax=ax0, text='(a)', color='w')
