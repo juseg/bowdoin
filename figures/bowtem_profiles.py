@@ -30,16 +30,6 @@ def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
 def main():
     """Main program called during execution."""
 
-    # dates to plot
-    # FIXME store these dates in utils and plot
-    dates = dict(
-        bh1=['2014-10-25', '2015-10-14', '2017-01-28'],
-        bh2=['2014-11-01', '2015-07-14'],
-        bh3=['2015-01-01', '2015-04-01', '2015-07-12', '2015-11-12',
-             '2016-06-19'],
-        err=['2015-01-01', '2015-04-01', '2015-07-12', '2015-11-12',
-             '2016-06-19'])
-
     # initialize figure
     gridspec_kw = dict(left=10, right=2.5, wspace=2.5, bottom=10, top=2.5)
     fig, (ax0, ax1) = apl.subplots_mm(figsize=(150, 75), ncols=2, sharey=True,
@@ -56,7 +46,7 @@ def main():
         temp, depth, base = util.tem.load_all(bh)
 
         # plot initial profiles
-        date0 = dates[bh][0]
+        date0 = util.tem.PROFILES_DATES[bh][0]
         temp0 = temp[date0].mean()
         ax0.plot(temp0, depth, c=color, label='%s, %s' % (bh.upper(), date0))
 
@@ -68,7 +58,7 @@ def main():
                          ls='', label='')
 
         # plot next profiles
-        for date1 in dates[bh][1:]:
+        for date1 in util.tem.PROFILES_DATES[bh][1:]:
             temp1 = temp[date1].mean()
             ax0.plot(temp1, depth, c=color, ls='--', lw=0.5, label='')
             ax1.plot(temp1-temp0, depth, c=color, ls='--', lw=0.5, label='')
