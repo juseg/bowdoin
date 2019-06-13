@@ -6,10 +6,10 @@
 """Plot Bowdoin temperature Arctic DEM map and profile."""
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import gpxpy
 import absplots as apl
 import cartowik.decorations as cde
 import util
@@ -40,24 +40,26 @@ def project_borehole_locations(date, crs):
     Estimate borehole locations for a given date based their initial positions
     measured by hand-held GPS and the continuous D-GPS record at BH1.
     """
-    # FIXME: account for different dates in bh1 and bh3 waypoints
 
     # read initial positions from GPX file
-    lonlat = ccrs.PlateCarree()
-    with open('../data/locations.gpx', 'r') as gpx_file:
-        initial = {wpt.name[3:].lower():
-                   crs.transform_point(wpt.longitude, wpt.latitude, lonlat)
-                   for wpt in gpxpy.parse(gpx_file).waypoints
-                   if wpt.name.startswith('B14')}
+    locs = util.com.read_locations(crs=crs)
+    locs = locs[locs.index.str.startswith('B14')]
+    locs.index = locs.index.str[3:].str.lower()
+    initial = locs[['x', 'y']]
 
     # interpolate DEM date BH1 location from continuous GPS
+    lonlat = ccrs.PlateCarree()
     gps = util.tem.load('../data/processed/bowdoin.bh1.gps.csv')
     gps = gps.interpolate().loc[date]
-    gps = crs.transform_point(gps['lon'], gps['lat'], lonlat)
+    gps['x'], gps['y'] = crs.transform_point(gps.lon, gps.lat, lonlat)
+    gps = gps[['x', 'y']]
 
-    # compute DEM date positions from BH1 displacement
-    displacement = np.array(gps) - initial['bh1']
-    projected = {bh: pos + displacement for bh, pos in initial.items()}
+    # compute DEM date positions from BH1 displacement with time mutliplier
+    displacement = gps - initial.loc['bh1']
+    date = pd.to_datetime(date)
+    multiplier = (date-locs.time.bh1) / (date-locs.time)
+    displacement = displacement.apply(lambda x: x*multiplier).T
+    projected = initial + displacement
 
     # return initial and projected locations
     return initial, projected
@@ -112,31 +114,32 @@ def main():
     initial, projected = project_borehole_locations(sensdate, ax0.projection)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = util.tem.COLOURS[bh]
-        ax0.plot(*initial[bh], color='0.25', marker='+')
-        ax0.plot(*projected[bh], color=color, marker='+')
-        ax0.text(*projected[bh]+np.array([10, 0]), s=bh.upper(), color=color,
-                 ha='left', va='center', fontweight='bold')
+        ax0.plot(*initial.loc[bh], color='0.25', marker='+')
+        ax0.plot(*initial.loc[bh], color='0.25', marker='+')
+        ax0.plot(*projected.loc[bh], color=color, marker='+')
+        ax0.text(*projected.loc[bh]+np.array([10, 0]), s=bh.upper(),
+                 color=color, ha='left', va='center', fontweight='bold')
 
         # add arrows and uncertainty circles
         if bh != 'bh1':
-            ax0.annotate('', xy=projected[bh], xytext=initial[bh],
+            ax0.annotate('', xy=projected.loc[bh], xytext=initial.loc[bh],
                          arrowprops=dict(arrowstyle='->', color=color))
-            ax0.add_patch(plt.Circle(projected[bh], radius=10.0, fc='w',
+            ax0.add_patch(plt.Circle(projected.loc[bh], radius=10.0, fc='w',
                                      ec=color, alpha=0.5))
 
     # add scale
     cde.add_scale_bar(ax=ax0, color='k', label='100 m', length=100)
 
     # plot Arctic DEM topographic profile
-    points = [2*projected['bh3']-projected['bh1'],
-              2*projected['bh1']-projected['bh3']]
+    points = [2*projected.loc['bh3']-projected.loc['bh1'],
+              2*projected.loc['bh1']-projected.loc['bh3']]
     x, y = build_profile_coords(points, interval=1)
     data.interp(x=x, y=y, method='linear').plot(ax=ax1, color='0.25')
 
     # mark borehole locations along profile
     for bh in ('bh1', 'bh3'):
         color = util.tem.COLOURS[bh]
-        dist = ((projected[bh]-points[0])**2).sum()**0.5
+        dist = ((projected.loc[bh]-points[0])**2).sum()**0.5
         ax1.axvline(dist, color=color)
         ax1.text(dist, 76, ' '+bh.upper()+' ', color=color, fontweight='bold')
 
