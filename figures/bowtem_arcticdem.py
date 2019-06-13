@@ -15,6 +15,26 @@ import cartowik.decorations as cde
 import util
 
 
+def init_figure():
+    """Initialize figure with map and profile subplots."""
+
+    # initialize figure
+    fig = apl.figure_mm(figsize=(150, 75))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 70], projection=ccrs.Stereographic(
+        central_latitude=90, central_longitude=-45, true_scale_latitude=70))
+    ax1 = fig.add_axes_mm([75, 10, 72.5, 62.5])
+
+    # add subfigure labels
+    util.com.add_subfig_label(ax=ax0, text='(a)')
+    util.com.add_subfig_label(ax=ax1, text='(b)')
+
+    # prepare axes
+    ax0.set_rasterization_zorder(2.5)
+
+    # return figure and axes
+    return fig, (ax0, ax1)
+
+
 def project_borehole_locations(date, crs):
     """
     Estimate borehole locations for a given date based their initial positions
@@ -69,17 +89,7 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig = apl.figure_mm(figsize=(150, 75))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 70], projection=ccrs.Stereographic(
-        central_latitude=90, central_longitude=-45, true_scale_latitude=70))
-    ax1 = fig.add_axes_mm([75, 10, 72.5, 62.5])
-
-    # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=ax1, text='(b)')
-
-    # prepare axes
-    ax0.set_rasterization_zorder(2.5)
+    fig, (ax0, ax1) = init_figure()
 
     # Arctic DEM strip and sensing date
     demstrip = 'SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m'
@@ -91,11 +101,6 @@ def main():
     data = data.loc[-1226500:-1227200, -535200:-534600]  # 700x600 m
     data = data.loc[-1226700:-1227050, -535075:-534775]  # 350x300 m
     data.plot.imshow(ax=ax0, add_colorbar=False, cmap='Blues_r')
-
-    # FIXME: Implement windowed plotting in Cartowik.
-    # FIXME: Implement contour plots in Cartowik.
-    # csr.add_topography(filename, ax=ax0, cmap='Blues_r')
-    # csr.add_multishade(filename, ax=ax0)
 
     # contour code too slow for full dem
     data.plot.contour(ax=ax0, colors='0.25', levels=range(70, 100),
