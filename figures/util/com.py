@@ -12,14 +12,29 @@ import gpxpy
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+import cartopy.crs as ccrs
 
 
-def read_locations(filename='../data/locations.gpx'):
+# Input methods
+# -------------
+
+def read_locations(filename='../data/locations.gpx', crs=None):
     """Read waypoints dataframe from GPX file."""
+
+    # read locations in geographic coordinates
     with open(filename, 'r') as gpx:
         attributes = [{attr: getattr(wpt, attr) for attr in wpt.__slots__}
                       for wpt in gpxpy.parse(gpx).waypoints]
-    return pd.DataFrame(attributes).dropna(axis=1, how='all').set_index('name')
+    data = pd.DataFrame(attributes).dropna(axis=1, how='all').set_index('name')
+
+    # if crs is given, append coordinates in given crs
+    if crs is not None:
+        xyz = data[['longitude', 'latitude', 'elevation']].values
+        xyz = crs.transform_points(ccrs.PlateCarree(), *xyz.T).T
+        data['x'], data['y'], data['z'] = xyz
+
+    # return locations dataframe
+    return data
 
 
 # Plotting methods
