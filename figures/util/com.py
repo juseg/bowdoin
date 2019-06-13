@@ -8,9 +8,18 @@ Bowdoin common utils.
 
 import os
 import sys
+import gpxpy
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+
+
+def read_locations(filename='../data/locations.gpx'):
+    """Read waypoints dataframe from GPX file."""
+    with open(filename, 'r') as gpx:
+        attributes = [{attr: getattr(wpt, attr) for attr in wpt.__slots__}
+                      for wpt in gpxpy.parse(gpx).waypoints]
+    return pd.DataFrame(attributes).dropna(axis=1, how='all').set_index('name')
 
 
 # Plotting methods
