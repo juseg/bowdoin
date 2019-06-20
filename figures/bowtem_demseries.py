@@ -5,6 +5,7 @@
 
 """Plot Bowdoin temperature Arctic DEM time series."""
 
+from scipy import stats
 import xarray as xr
 import cartopy.crs as ccrs
 import absplots as apl
@@ -63,10 +64,10 @@ def main():
                                    cmap='PuOr_r', vmin=0, vmax=200)
             ref = elev
 
-        # plot normalized elevation change
+        # plot normalized elevation using mode as zero
         else:
             diff = elev - ref
-            diff = diff - diff[2250:, 1250:2250].mean()  # FIXME use ice mask
+            diff = diff - stats.mode(diff, axis=None)[0]
             im1 = diff.plot.imshow(ax=ax, add_colorbar=False, add_labels=False,
                                    cmap='RdBu', vmin=-30, vmax=30)
 
