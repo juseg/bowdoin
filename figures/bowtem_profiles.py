@@ -5,8 +5,27 @@
 
 """Plot Bowdoin temperature profiles."""
 
+import numpy as np
+import pandas as pd
 import absplots as apl
 import util
+
+
+def compute_diffusion(depth, temp, timestep, c_i=2009, k_i=2.1, rho_i=910.0):
+    """
+    Compute temperature diffusion.
+
+    Parameters
+    ----------
+    c_i : scalar
+        Ice specific heat capacity in J kg-1 K-1.
+    k_i : scalar
+        Ice thermal conductivity in J m-1 K-1 s-1.
+    rho_i : scalar
+        Ice density in kg m-3.
+    """
+    laplacian = np.gradient(np.gradient(temp, depth), depth)
+    return timestep * k_i / (rho_i*c_i) * laplacian
 
 
 def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
@@ -53,7 +72,13 @@ def main():
         ax0.plot(temp0, depth, c=color, label=bh.upper() + ', ' + dates[0])
         ax0.plot(temp1, depth, c=color, label=bh.upper() + ', ' + dates[1],
                  ls='--', lw=0.5,)
-        ax1.plot(temp1-temp0, depth, c=color, ls='--', lw=0.5, label='')
+        ax1.plot(temp1-temp0, depth, c=color, ls='--', lw=0.5)
+
+        # plot theroretical diffusion
+        timestep = pd.to_datetime(dates[1]) - pd.to_datetime(dates[0])
+        timestep = timestep.total_seconds()
+        diffusion = compute_diffusion(depth, temp0, timestep)
+        ax1.plot(diffusion, depth, c=color)
 
         # add markers by sensor type
         for sensor, marker in util.tem.MARKERS.items():
