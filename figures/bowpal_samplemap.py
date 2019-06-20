@@ -32,8 +32,8 @@ def annotate_sample(location,
                                  offset=12, text=text, **kwargs)
 
 
-def main():
-    """Main program called during execution."""
+def init_figure():
+    """Initialize figure with multiple insets."""
 
     # regions extents and axes position in figure
     figw, figh = 175, 150
@@ -49,10 +49,6 @@ def main():
         '(c) Bartlett hill':       [75, 0, 100, 50],
         '(d) Upper cam. hill':     [125, 50, 50, 65],
         '(e) East Branch moraine': [125, 115, 50, 35]}
-
-    # read sample locations and background image
-    locs = util.geo.read_locations('../data/locations.gpx')
-    img = xr.open_rasterio('../data/external/20160410_180125_659_S2A_RGB.jpg')
 
     # initialize figure
     fig = apl.figure_mm(figsize=(figw, figh))
@@ -73,8 +69,23 @@ def main():
         util.com.add_subfig_label(region, ax=ax)
         mark_inset(ax0=fig.axes[0], ax1=ax, text=region[:3], fc='none', ec='k')
 
-        # plot Sentinel image
+    # return figure and axes
+    return fig, grid
+
+
+def main():
+    """Main program called during execution."""
+
+    # initialize figure
+    fig, grid = init_figure()
+
+    # plot Sentinel image
+    img = xr.open_rasterio('../data/external/20160410_180125_659_S2A_RGB.jpg')
+    for ax in grid.values():
         img.plot.imshow(ax=ax)
+
+    # read sample locations
+    locs = util.geo.read_locations('../data/locations.gpx')
 
     # plot all sample locations on the main panel
     ax = grid['(a) Bowdoin Glacier']
