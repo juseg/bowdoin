@@ -11,21 +11,26 @@ import absplots as apl
 import util
 
 
-def compute_diffusion(depth, temp, timestep, c_i=2009, k_i=2.1, rho_i=910.0):
+def compute_diffusive_heating(depth, temp, capacity=2009, conductivity=2.1,
+                              density=910.0):
     """
-    Compute temperature diffusion.
+    Compute temperature rate of change by heat diffusion.
 
     Parameters
     ----------
-    c_i : scalar
+    depth : array
+        Depth below the ice surface in m.
+    temp : array
+        Ice temperature in K.
+    capacity : scalar
         Ice specific heat capacity in J kg-1 K-1.
-    k_i : scalar
+    conductivity : scalar
         Ice thermal conductivity in J m-1 K-1 s-1.
-    rho_i : scalar
+    density : scalar
         Ice density in kg m-3.
     """
-    laplacian = np.gradient(np.gradient(temp, depth), depth)
-    return timestep * k_i / (rho_i*c_i) * laplacian
+    heat_flux = conductivity * np.gradient(temp, depth)
+    return np.gradient(heat_flux, depth) / (density * capacity)
 
 
 def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
@@ -50,10 +55,9 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, (ax0, ax1) = apl.subplots_mm(figsize=(150, 75), ncols=2, sharey=True,
-                                      gridspec_kw=dict(left=10, right=2.5,
-                                                       bottom=10, top=2.5,
-                                                       wspace=2.5))
+    fig, (ax0, ax1) = apl.subplots_mm(
+        figsize=(150, 75), ncols=2, sharey=True,
+        gridspec_kw=dict(left=10, right=2.5, bottom=10, top=2.5, wspace=2.5))
 
     # add subfigure labels
     util.com.add_subfig_label(ax=ax0, text='(a)', ypad=15)
@@ -75,10 +79,9 @@ def main():
         ax1.plot(temp1-temp0, depth, c=color, ls='--', lw=0.5)
 
         # plot theroretical diffusion
-        timestep = pd.to_datetime(dates[1]) - pd.to_datetime(dates[0])
-        timestep = timestep.total_seconds()
-        diffusion = compute_diffusion(depth, temp0, timestep)
-        ax1.plot(diffusion, depth, c=color)
+        dates = pd.to_datetime(dates)
+        ax1.plot((dates[1]-dates[0]).total_seconds() *
+                 compute_diffusive_heating(depth, temp0), depth, c=color)
 
         # add markers by sensor type
         for sensor, marker in util.tem.MARKERS.items():
