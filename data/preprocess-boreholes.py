@@ -441,14 +441,22 @@ def read_piezometer_data(site):
     return df
 
 
-def read_thermistor_data(site, manual=False):
-    """Return upper (BH2) or lower (BH3) thermistor data in a data frame."""
+def read_thermistor_data(site, suffix='Therm'):
+    """
+    Return upper (BH2) or lower (BH3) thermistor data in a data frame.
+
+    Parameters
+    ----------
+    site : string
+        borehole site 'lower' or 'upper'.
+    suffix : string
+        data file suffix 'Manual', 'Masked', or 'Therm'.
+    """
 
     # input file names
     logger = THERMISTOR_LOGGERS[site]
-    postfix = 'Manual' if manual else 'Therm'
     cfilename = 'original/temperature/%s_Coefs.dat' % logger
-    ifilename = 'original/temperature/%s_%s.dat' % (logger, postfix)
+    ifilename = 'original/temperature/%s_%s.dat' % (logger, suffix)
 
     # read rearranged calibration coefficients
     # sensor order lower: BH2A[1-9] + BH2B[1-7],
@@ -456,14 +464,15 @@ def read_thermistor_data(site, manual=False):
     a1, a2, a3 = np.loadtxt(cfilename, unpack=True)
 
     # read resistance data
-    skiprows = [0] if manual else [0, 2, 3]
-    df = pd.read_csv(ifilename, skiprows=skiprows, comment='#',
-                     na_values='NAN', index_col=0)
+    df = pd.read_csv(ifilename, index_col=0, comment='#', na_values='NAN',
+                     skipinitialspace=True,
+                     skiprows=([0]+(suffix == 'Therm')*[2, 3]))
     df = df[['Resist({:d})'.format(i+1) for i in range(16)]]
 
     # compute temperature from resistance
-    df = np.log(df)
-    df = 1 / (a1 + a2*df + a3*df**3) - 273.15
+    if suffix != 'Masked':
+        df = np.log(df)
+        df = 1 / (a1 + a2*df + a3*df**3) - 273.15
 
     # rename index and columns
     df.index = df.index.rename('date')
@@ -533,8 +542,10 @@ def main():
     bh3_pzm = read_piezometer_data('lower')['2014-07':]
     bh2_thr_temp = read_thermistor_data('upper')['2014-07':]
     bh3_thr_temp = read_thermistor_data('lower')['2014-07':]
-    bh2_thr_manu = read_thermistor_data('upper', manual=True)
-    bh3_thr_manu = read_thermistor_data('lower', manual=True)
+    bh2_thr_manu = read_thermistor_data('upper', suffix='Manual')
+    bh3_thr_manu = read_thermistor_data('lower', suffix='Manual')
+    bh2_thr_mask = read_thermistor_data('upper', suffix='Masked')
+    bh3_thr_mask = read_thermistor_data('lower', suffix='Masked')
 
     # extract time series
     bh2_pzm_wlev = bh2_pzm['wlev'].rename('UP')
@@ -597,6 +608,8 @@ def main():
     bh3_thr_dept.to_csv('processed/bowdoin.bh3.thr.dept.csv')
     bh2_thr_manu.to_csv('processed/bowdoin.bh2.thr.manu.csv')
     bh3_thr_manu.to_csv('processed/bowdoin.bh3.thr.manu.csv')
+    bh2_thr_mask.to_csv('processed/bowdoin.bh2.thr.mask.csv')
+    bh3_thr_mask.to_csv('processed/bowdoin.bh3.thr.mask.csv')
     bh2_thr_temp.to_csv('processed/bowdoin.bh2.thr.temp.csv')
     bh3_thr_temp.to_csv('processed/bowdoin.bh3.thr.temp.csv')
 
