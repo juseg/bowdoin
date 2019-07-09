@@ -476,14 +476,15 @@ def read_thermistor_data(site, manual=False):
 # Temperature calibration methods
 # -------------------------------
 
-def recalibrate_temperature(temp, depth, beta=7.9e-8, gravity=9.80665,
-                            rho_i=910.0, start='2014-07-23 11:20',
-                            end='2014-07-23 15:00'):
+def temperature_correction(temp, depth, beta=7.9e-8, gravity=9.80665,
+                           rho_i=910.0, start='2014-07-23 11:20',
+                           end='2014-07-23 15:00'):
     """
-    Recalibrate the lower (BH3) borehole temperature assuming all temperatures
-    were at the melting point for a given time interval following the drilling.
-    Unfortunately the initial upper (BH2) thermistor data were lost such that
-    sensors are already undergoing freezup when the record starts.
+    Compute temperature recalibration offsets for the lower (BH3) borehole,
+    assuming that all temperatures were at the melting point for a given time
+    interval following the drilling. Unfortunately the initial upper (BH2)
+    thermistor data were lost such that sensors are already undergoing freezup
+    when the record starts.
 
     Parameters
     ----------
@@ -504,7 +505,7 @@ def recalibrate_temperature(temp, depth, beta=7.9e-8, gravity=9.80665,
     melting_point = -beta * rho_i * gravity * depth
     initial_temp = temp[start:end].mean()
     melt_offset = (melting_point - initial_temp).fillna(0.0)
-    return temp + melt_offset
+    return melt_offset
 
 
 # Main program
@@ -549,8 +550,10 @@ def main():
     bh2_thr_dept, bh3_thr_dept = locate_thermistors()
 
     # calibrate temperatures using initial depths
-    bh3_inc.temp = recalibrate_temperature(bh3_inc.temp, bh3_inc_dept)
-    bh3_thr_temp = recalibrate_temperature(bh3_thr_temp, bh3_thr_dept)
+    bh3_inc.temp += temperature_correction(bh3_inc.temp, bh3_inc_dept)
+    bh3_correction = temperature_correction(bh3_thr_temp, bh3_thr_dept)
+    bh3_thr_manu += bh3_correction
+    bh3_thr_temp += bh3_correction
 
     # compute borehole base evolution
     # FIXME: base depths should be independent of instrument type
