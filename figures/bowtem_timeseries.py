@@ -5,6 +5,7 @@
 
 """Plot Bowdoin temperature time series."""
 
+import matplotlib.pyplot as plt
 import absplots as apl
 import util
 
@@ -24,10 +25,11 @@ def main():
         temp = temp.resample('1D').mean()
         temp.plot(ax=ax, c=color, legend=False, lw=0.5)
 
-        # add closure dates (see markers issue #14958)
-        state = util.tem.estimate_closure_state(bh, temp)
-        state.plot(x='date', y='temp', ax=ax, c=color, marker='+', ls='',
-                   label=bh.upper())
+        # plot manual readings
+        if bh != 'bh1':
+            manu = util.tem.load_manual(bh)
+            manu = manu.resample('1D').mean()
+            manu.plot(ax=ax, c=color, marker='o', label=bh.upper())
 
         # add profile dates
         for date in util.tem.PROFILES_DATES[bh]:
@@ -41,9 +43,9 @@ def main():
     ax.set_xlim('20140615', '20170815')
     ax.set_ylim(-14.5, 0.5)
 
-    # fix the legend (see markers issue #14958)
-    ax.legend(*zip(*[(h, l) for h, l in zip(*ax.get_legend_handles_labels())
-                     if l in ('BH1', 'BH2', 'BH3', 'ERR')]))
+    # add standalone legend
+    ax.legend(*zip(*[(plt.Line2D([], [], c=c, marker='o'*(bh != 'bh1')),
+                      bh.upper()) for bh, c in util.tem.COLOURS.items()]))
 
     # save
     util.com.savefig(fig)
