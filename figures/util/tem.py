@@ -15,10 +15,10 @@ import pandas as pd
 COLOURS = dict(bh1='C0', bh2='C1', bh3='C2', err='0.75')
 MARKERS = dict(I='^', P='s', T='o')
 DRILLING_DATES = dict(bh1='20140716', bh2='20140717', bh3='20140722')
-PROFILES_DATES = dict(bh1=['20141025', '20170128'],
-                      bh2=['20141101', '20150714'],
-                      bh3=['20150101', '20151112'],
-                      err=['20150101', '20160719'])
+PROFILES_DATES = dict(bh1=['20141015', '20170128'],
+                      bh2=['20141015', '20160712'],
+                      bh3=['20141015', '20151112'],
+                      err=['20141015', '20160719'])
 
 
 # Data loading methods

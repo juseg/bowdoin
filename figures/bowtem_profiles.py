@@ -66,11 +66,17 @@ def main():
     # for each borehole
     for bh, color in util.tem.COLOURS.items():
 
-        # load temperature profiles
+        # load initial temperature profiles
         temp, depth, base = util.tem.load_all(bh)
         dates = util.tem.PROFILES_DATES[bh]
         temp0 = temp[dates[0]].mean()
-        temp1 = temp[dates[1]].mean()
+
+        # load final profiles ev. using manual data
+        try:
+            temp1 = temp[dates[1]].mean()
+        except KeyError:
+            manu, mask = util.tem.load_manual(bh)
+            temp1 = manu.mask(mask).loc[dates[1], depth.index].squeeze()
 
         # plot temperature profiles
         ax0.plot(temp0, depth, c=color, label=bh.upper() + ', ' + dates[0])
@@ -105,11 +111,11 @@ def main():
 
     # set axes properties
     ax0.invert_yaxis()
-    ax1.invert_yaxis()
     ax0.legend(loc='lower left')
     ax0.set_ylabel('initial sensor depth (m)')
     ax0.set_xlabel(u'ice temperature (°C)')
     ax1.set_xlabel(u'temperature change (°C)')
+    ax0.set_xlim(-10.5, 0.5)
     ax1.set_xlim(-0.3, 0.7)
 
     # save
