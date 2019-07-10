@@ -76,7 +76,7 @@ def main():
             temp1 = temp[dates[1]].mean()
         except KeyError:
             manu, mask = util.tem.load_manual(bh)
-            temp1 = manu.mask(mask).loc[dates[1], depth.index].squeeze()
+            temp1 = manu.mask(mask)[dates[1]].squeeze().reindex(depth.index)
 
         # plot temperature profiles
         ax0.plot(temp0, depth, c=color, label=bh.upper() + ', ' + dates[0])
