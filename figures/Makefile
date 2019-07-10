@@ -6,8 +6,8 @@
 # ---------
 
 # all python figures
-PY_CODE = $(addprefix bowtem_, arcticdem boreholes closure demseries \
-                               profiles timeseries) \
+PY_CODE = $(addprefix bowtem_, arcticdem boreholes calibration closure \
+			       demseries profiles timeseries) \
           $(addprefix bowpal_, samplemap)
 PY_FIGS = $(addsuffix .pdf, $(PY_CODE))
 
