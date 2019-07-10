@@ -31,23 +31,6 @@ def load(filename):
     return data
 
 
-def load_manual(borehole):
-    """Load manual temperature readings for the given borehole."""
-
-    # load all data for this borehole
-    prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
-    manu = pd.concat([load(f) for f in glob.glob(prefix+'*.manu.csv')], axis=1)
-
-    # segregate BH3 erratic data
-    if borehole == 'bh3':
-        manu = manu.filter(like='LT1')
-    elif borehole == 'err':
-        manu = manu.filter(like='LT0')
-
-    # return temperature and depth
-    return manu
-
-
 def load_all(borehole):
     """Load all temperature and depths for the given borehole."""
 
@@ -77,6 +60,26 @@ def load_all(borehole):
 
     # return temperature and depth
     return temp, dept, base
+
+
+def load_manual(borehole):
+    """Load manual temperature readings and mask for the given borehole."""
+
+    # load all data for this borehole
+    prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
+    manu = pd.concat([load(f) for f in glob.glob(prefix+'*.manu.csv')], axis=1)
+    mask = pd.concat([load(f) for f in glob.glob(prefix+'*.mask.csv')], axis=1)
+
+    # segregate BH3 erratic data
+    if borehole == 'bh3':
+        manu = manu.filter(like='LT1')
+        mask = mask.filter(like='LT1')
+    elif borehole == 'err':
+        manu = manu.filter(like='LT0')
+        mask = mask.filter(like='LT0')
+
+    # return temperature and depth
+    return manu, mask
 
 
 # Data processing methods

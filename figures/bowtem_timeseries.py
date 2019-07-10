@@ -27,9 +27,11 @@ def main():
 
         # plot manual readings
         if bh != 'bh1':
-            manu = util.tem.load_manual(bh)
+            manu, mask = util.tem.load_manual(bh)
             manu = manu.resample('1D').mean()
-            manu.plot(ax=ax, c=color, marker='o', label=bh.upper())
+            mask = mask.resample('1D').prod()
+            manu.where(mask).plot(ax=ax, c='w', marker='o', mec=color)
+            manu.mask(mask).plot(ax=ax, c=color, marker='o')
 
         # add profile dates
         for date in util.tem.PROFILES_DATES[bh]:
