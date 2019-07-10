@@ -131,9 +131,10 @@ def main():
     cde.add_scale_bar(ax=ax0, color='k', label='100 m', length=100)
 
     # plot Arctic DEM topographic profile
-    points = [2*projected.loc['bh3']-projected.loc['bh1'],
-              2*projected.loc['bh1']-projected.loc['bh3']]
+    points = [1.5*projected.loc['bh3']-0.5*projected.loc['bh1'],
+              1.5*projected.loc['bh1']-0.5*projected.loc['bh3']]
     x, y = build_profile_coords(points, interval=1)
+    ax0.plot(x, y, color='0.25', linestyle='--')
     data.interp(x=x, y=y, method='linear').plot(ax=ax1, color='0.25')
 
     # mark borehole locations along profile
