@@ -76,7 +76,7 @@ def add_subfig_label(text, ax=None, loc='ul', xpad=6, ypad=6, **kwargs):
                 xycoords='axes fraction', **kwargs)
 
 
-def plot_field_campaigns(ax=None, color='C1', ytext=0.0):
+def plot_field_campaigns(ax=None, color='C1', ytext=0.05):
     """Mark 2014--2017 summer field campaigns."""
 
     # get axes if None provided

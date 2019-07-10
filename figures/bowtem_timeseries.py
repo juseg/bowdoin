@@ -30,7 +30,7 @@ def main():
             manu, mask = util.tem.load_manual(bh)
             manu = manu.resample('1D').mean()
             mask = mask.resample('1D').prod()
-            manu.where(mask).plot(ax=ax, c='w', marker='o', mec=color)
+            manu.where(mask).plot(ax=ax, c='none', marker='o', mec=color)
             manu.mask(mask).plot(ax=ax, c=color, marker='o')
 
         # add profile dates
