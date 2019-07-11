@@ -1,10 +1,17 @@
-\documentclass{article}
+\documentclass[utf8]{article}
 
 \usepackage{authblk}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[pdftex]{xcolor}
 \usepackage[pdftex]{graphicx}
+%\usepackage[authoryear,round]{natbib}
+
+% review mode
+\usepackage{geometry}
+\usepackage{lineno}
+\linenumbers
+\linespread{1.5}
 
 \graphicspath{{../../figures/}}
 
@@ -79,7 +86,7 @@
     retreating faster than other parts of the ice sheet.
 
     As buoyance forces weaken and glaciers come close to floatation, basal
-    friction diminishes and the only limiting factor left against flow is the 
+    friction diminishes and the only limiting factor left against flow is the
     ice's internal viscosity.
 
     However, ice rheology depends very much on temperature. The ice softness
@@ -132,7 +139,7 @@
     between 2007 and 2013. Since 2013, the ice front is once again stable, yet
     the glacier surface continues to experience lowering at an alarming rate of
     ca. 6\,m/a.  Bowdoin Glacier velocities vary in response to tides and
-    calves according to a relatively recurring pattern. 
+    calves according to a relatively recurring pattern.
 
     In summer 2014, three boreholes BH1, BH2, and BH3 were drilled about 2\,km
     upstream from the calving front. After the sucessful drilling of BH1 and
@@ -297,6 +304,66 @@
         \hline
       \end{tabular}}
     \end{table}
+
+    \begin{table}
+      \caption{%
+        Timeline of events including borehole drilling, instrumental failures,
+        and final removal.}
+      \label{tab:timeline}
+      {\begin{tabular}{lccp{95mm}}
+        \hline
+        Date       & Hole & Type      & Event \\
+        \hline
+        2014-07-15 & ---  & Campaign & \emph{2014 summer fieldwork begins} \\
+        2014-07-16 & BH1  & Drilling & Contact to the deepest inclinometer
+                                       (UI01) is lost. \\
+        2014-07-17 & BH2  & Drilling & -- \\
+        2014-07-20 & BH2  & Incident & Earlier upper thermistor (UT*) data are
+                                       lost accidentally. \\
+        2014-07-23 & BH3  & Drilling & Contact to the deepest inclinometers
+                                       (LI01, LI02) is lost. \\
+        2014-07-28 & BH2  & Incident & The upper piezometer data logger battery
+                                       drains prematurely without notice from
+                                       the fieldwork participants. \\
+        2014-07-29 & ---  & Campaign & \emph{2014 summer fieldwork ends} \\
+        \hline
+        2014-10-25 & BH1  & Incident & Contact to the deepest inclinometers
+                                       (UI02, UI03) is lost. \\
+        \hline
+        2015-07-06 & ---  & Campaign & \emph{2015 summer fieldwork begins} \\
+        2015-07-09 & BH2  & Upgrade  & The upper piezometer (UP) data logger
+                                       gets a new battery. \\
+        2015-07-14 & BH2  & Removal  & The upper thermistor strings (UT*) data
+                                       logger is removed. \\
+        2015-07-20 & ---  & Campaign & \emph{2015 summer fieldwork ends} \\
+        \hline
+        2015-07-26 & BH2  & Battery  & The new battery for the upper piezometer
+                                       (UP) drains again prematurely, perhaps
+                                       indicating faulty instruments. \\
+        2015-11-12 & BH3  & Incident & Contact to all remaining inclinometers
+                                       (LI03, LI04, LI05) is lost due to
+                                       a crevasse opening on the surface. \\
+        \hline
+        2016-07-04 & ---  & Campaign & \emph{2016 summer fieldwork begins} \\
+        2016-07-19 & BH3  & Removal  & The lower thermistor strings (LT*) data
+                                       logger is removed. \\
+        2016-07-21 & ---  & Campaign & \emph{2016 summer fieldwork ends} \\
+        \hline
+        2017-01-28 & BH1  & Incident & Contact to the deepest inclinometer
+                                       (UI06) is lost. \\
+        2017-02-03 & BH3  & Incident & The lower piezometer (LP) starts
+                                       recording nonsense. \\
+        2017-06-21 & BH1  & Incident & Contact to the deepest inclimoneter
+                                       (UI07) is lost. \\
+        \hline
+        2017-07-04 & ---  & Campaign & \emph{2017 summer fieldwork begins} \\
+        2017-07-12 & BH1  & Removal  & The upper inclinometer (UI*) data logger
+                                       is removed. \\
+        2017-07-17 & ---  & Campaign & \emph{2017 summer fieldwork ends} \\
+        \hline
+      \end{tabular}}
+    \end{table}
+
 
 % ======================================================================
 \end{document}
