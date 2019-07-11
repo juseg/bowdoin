@@ -114,6 +114,8 @@
 
     Fig.~\ref{fig:boreholes}a -- Location map.
 
+    Table.~\ref{tab:drilling} -- Borehole drilling sites.
+
     Bowdoin Glacier is a minor outlet glacier of the Greeland Ice Sheet located
     in its northwestern parth. The site was choosen for its accessibility, and
     because at the time of field campaign planning it appeared that the
@@ -167,7 +169,30 @@
 
 
 \subsection{Temperature calibration}
-    Table 1 -- Temperature calibration
+
+    Table X -- Temperature calibration?
+
+    All thermistors were calibrated prior to fieldwork in the lab (Martin?).
+    For digital inclinometres to conversion from resistance measurements to
+    temperature values is performed in-situ by the englacial digitizers. For
+    basal piezometers this conversion is performed by the data logger installed
+    on the ice surface. For the thermistor strings the conversion is performed
+    during post-processing following the formula:
+
+    \begin{equation}
+      T = 1 / (a_1 + a_2 \log(R) + a_3 \log(R)^3) - 273.15
+    \end{equation}
+
+    where $R$ is the measured resistance, $T$ the ice temperature and $a_1$,
+    $a_2$, and $a_3$ coefficients calibrated individually for each sensor.
+
+    Despite this initial calibration it was observed that temperatures
+    observed initially in the borehole right after drilling were not at the
+    pressure melting point. Thus, where possible a recalibration was applied in
+    post-processing by applying a temperature offset when the initial
+    temperature data was available. Unfortunately some of the initial
+    temperature data has been lost so that this recalibration was possible for
+    some of the sensors only.
 
 
 % ----------------------------------------------------------------------
