@@ -243,26 +243,34 @@
     Table X -- Temperature calibration?
 
     All thermistors were calibrated prior to fieldwork in the lab (Martin?).
-    For digital inclinometres to conversion from resistance measurements to
-    temperature values is performed in-situ by the englacial digitizers. For
-    basal piezometers this conversion is performed by the data logger installed
-    on the ice surface. For the thermistor strings the conversion is performed
+    For digital inclinometres the conversion from resistance to temperature
+    values is performed in-situ by the englacial digitizers. For basal
+    piezometers this conversion is performed by the data logger installed on
+    the ice surface (?). For the thermistor strings the conversion is performed
     during post-processing following the formula:
-
+    %
     \begin{equation}
       T = 1 / (a_1 + a_2 \log(R) + a_3 \log(R)^3) - 273.15
     \end{equation}
+    %
+    where $R$ is the measured resistance, $T$ the ice temperature, and $a_1$,
+    $a_2$, and $a_3$ are coefficients calibrated individually for each sensor.
 
-    where $R$ is the measured resistance, $T$ the ice temperature and $a_1$,
-    $a_2$, and $a_3$ coefficients calibrated individually for each sensor.
-
-    Despite this initial calibration it was observed that temperatures
-    observed initially in the borehole right after drilling were not at the
-    pressure melting point. Thus, where possible a recalibration was applied in
-    post-processing by applying a temperature offset when the initial
-    temperature data was available. Unfortunately some of the initial
-    temperature data has been lost so that this recalibration was possible for
-    some of the sensors only.
+    Despite the pre-field calibration it was observed that initial temperatures
+    observed in the borehole immediately after drilling were not at the
+    pressure-melting point. Thus for senors where initial data is available,
+    a recalibration is applied in post-processing by correcting for the initial
+    temperature offset, $\Delta_T$. Unfortunately some of these initial
+    temperature data have been lost so that the recalibration was possible for
+    some sensors only. The pressure-melting point was computed as
+    %
+    \begin{equation}
+      T_m = -\beta \rho_i g z
+    \end{equation}
+    %
+    where $\beta$ is the empirical Clapeyron constant for glacier ice
+    (Luethi et al., 2002), $\rho_i$ is the ice density, $g$ is the standard
+    acceleration due to gravity, and $z$ is the depth below the ice surface.
 
 
 % ----------------------------------------------------------------------
