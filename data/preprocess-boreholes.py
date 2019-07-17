@@ -561,10 +561,11 @@ def main():
     bh2_thr_dept, bh3_thr_dept = locate_thermistors()
 
     # calibrate temperatures using initial depths
-    bh3_inc.temp += temperature_correction(bh3_inc.temp, bh3_inc_dept)
-    bh3_correction = temperature_correction(bh3_thr_temp, bh3_thr_dept)
-    bh3_thr_manu += bh3_correction
-    bh3_thr_temp += bh3_correction
+    bh3_inc_corr = temperature_correction(bh3_inc.temp, bh3_inc_dept)
+    bh3_inc.temp += bh3_inc_corr
+    bh3_thr_corr = temperature_correction(bh3_thr_temp, bh3_thr_dept)
+    bh3_thr_manu += bh3_thr_corr
+    bh3_thr_temp += bh3_thr_corr
 
     # compute borehole base evolution
     # FIXME: base depths should be independent of instrument type
