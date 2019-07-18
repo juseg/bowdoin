@@ -265,11 +265,11 @@
     some sensors only. The pressure-melting point was computed as
     %
     \begin{equation}
-      T_m = -\beta \rho_i g z
+      T_m = -\beta \rho g z
     \end{equation}
     %
     where $\beta$ is the empirical Clapeyron constant for glacier ice
-    (Luethi et al., 2002), $\rho_i$ is the ice density, $g$ is the standard
+    (Luethi et al., 2002), $\rho$ is the ice density, $g$ is the standard
     acceleration due to gravity, and $z$ is the depth below the ice surface.
 
 
@@ -359,10 +359,23 @@
 
     Fig.~\ref{fig:profiles}b -- Warming profiles.
 
-    Both profiles show a warming trend, except for the lowermost part which
-    takes a very long time to refreeze after the borehole was drilled.
-    However, the warming trend is much more prononced for the lower (BH3) than
-    for the upper (BH1, BH2) boreholes. This warming trend is up to an order of
+    All three temperature profiles show a general warming trend, except for
+    their base were some sensors take several months to refreeze after the
+    boreholes was drilled.  However, the warming trend is much more pronounced
+    for the lower (BH3) than for the upper (BH1, BH2) boreholes. Part of this
+    englacial warming can be explained by heat diffusion from the base and
+    near-surface of the glacier to its coldest depths.
+
+    Theoretical warming due to heat diffusion was approximated by central
+    differences on the one-dimensional diffusion equation,
+    %
+    \begin{equation}
+      \frac{\partial T}{\partial T} =
+        \frac{k}{\rho c} \frac{\partial^2 T}{\partial z^2}
+    \end{equation}
+    %
+    where $k$ is the thermal conductivity of ice, and $c$ its specific heat
+    capacity. However, the observed warming trend is up to an order of
     magnitude higher than the theoretical warming by diffusion.
 
 
