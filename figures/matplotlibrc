@@ -27,7 +27,7 @@ font.style              : normal  # normal (or roman), italic or oblique
 font.variant            : normal  # normal or small-caps
 font.weight             : medium  # normal, bold, bolder, lighter or number
 font.stretch            : normal  # not currently implemented
-font.size               : 6.0     # default font size in points (default 10.0)
+font.size               : 8.0     # default font size in points (default 10.0)
 
 ### TEXT
 text.color              : black   # text color (default black)

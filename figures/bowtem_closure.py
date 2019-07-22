@@ -13,8 +13,8 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    gridspec_kw = dict(left=10, right=2.5, wspace=10, bottom=10, top=2.5)
-    fig, (ax0, ax1) = apl.subplots_mm(figsize=(150, 75), ncols=2, sharex=True,
+    gridspec_kw = dict(left=12.5, right=2.5, wspace=12.5, bottom=12.5, top=2.5)
+    fig, (ax0, ax1) = apl.subplots_mm(figsize=(180, 90), ncols=2, sharex=True,
                                       gridspec_kw=gridspec_kw)
 
     # add subfigure labels

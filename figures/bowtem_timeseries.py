@@ -14,8 +14,8 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    gridspec_kw = dict(left=10, right=2.5, bottom=10, top=2.5)
-    fig, ax = apl.subplots_mm(figsize=(150, 75), gridspec_kw=gridspec_kw)
+    gridspec_kw = dict(left=12.5, right=2.5, bottom=12.5, top=2.5)
+    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw=gridspec_kw)
 
     # for each borehole
     for bh, color in util.tem.COLOURS.items():

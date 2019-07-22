@@ -18,9 +18,9 @@ def init_figure():
     """Initialize figure with map and profile subplots."""
 
     # initialize figure
-    fig = apl.figure_mm(figsize=(150, 75))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 70], projection=ccrs.UTM(19))
-    ax1 = fig.add_axes_mm([75, 10, 72.5, 62.5])
+    fig = apl.figure_mm(figsize=(180, 90))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.UTM(19))
+    ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
     util.com.add_subfig_label(ax=ax0, text='(a)', color='w')
@@ -34,12 +34,11 @@ def plot_location_map(ax):
     """Draw boreholes location map with Sentinel image background."""
 
     # prepare map axes
-    ax.set_rasterization_zorder(2.5)
-    ax.set_extent([507.6e3, 512.4e3, 8620.7e3, 8626.3e3], crs=ax.projection)
+    ax.set_extent([508e3, 512e3, 8621e3, 8626e3+2e3/3], crs=ax.projection)
 
     # plot Sentinel image data
     filename = '../data/external/20160808_175915_456_S2A_RGB.jpg'
-    xr.open_rasterio(filename).plot.imshow(ax=ax)
+    xr.open_rasterio(filename).plot.imshow(ax=ax, interpolation='bilinear')
 
     # add boreholes and camp waypoints for each borehole
     locations = util.geo.read_locations('../data/locations.gpx')

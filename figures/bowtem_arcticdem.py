@@ -19,10 +19,10 @@ def init_figure():
     """Initialize figure with map and profile subplots."""
 
     # initialize figure
-    fig = apl.figure_mm(figsize=(150, 75))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 70], projection=ccrs.Stereographic(
+    fig = apl.figure_mm(figsize=(180, 90))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.Stereographic(
         central_latitude=90, central_longitude=-45, true_scale_latitude=70))
-    ax1 = fig.add_axes_mm([75, 10, 72.5, 62.5])
+    ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
     util.com.add_subfig_label(ax=ax0, text='(a)')
@@ -100,8 +100,8 @@ def main():
 
     # plot elevation map (UTM 19 extent 510400, 510700, 8623700, 8624050)
     data = xr.open_rasterio(filename).squeeze(drop=True)
-    data = data.loc[-1226500:-1227200, -535200:-534600]  # 700x600 m
-    data = data.loc[-1226700:-1227050, -535075:-534775]  # 350x300 m
+    data = data.loc[-1226500:-1227200, -535200:-534600]  # 850x600 m
+    data = data.loc[-1226675:-1227100, -535075:-534775]  # 425x300 m
     data.plot.imshow(ax=ax0, add_colorbar=False, cmap='Blues_r')
 
     # contour code too slow for full dem

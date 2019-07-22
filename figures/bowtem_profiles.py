@@ -56,8 +56,8 @@ def main():
 
     # initialize figure
     fig, (ax0, ax1) = apl.subplots_mm(
-        figsize=(150, 75), ncols=2, sharey=True,
-        gridspec_kw=dict(left=10, right=2.5, bottom=10, top=2.5, wspace=2.5))
+        figsize=(180, 90), ncols=2, sharey=True, gridspec_kw=dict(
+            left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
 
     # add subfigure labels
     util.com.add_subfig_label(ax=ax0, text='(a)', ypad=15)
