@@ -5,6 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[pdftex]{xcolor}
 \usepackage[pdftex]{graphicx}
+\usepackage[colorlinks]{hyperref}
 %\usepackage[authoryear,round]{natbib}
 
 % review mode
@@ -173,19 +174,16 @@
 \subsection{Drilling sites}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Fig.~\ref{fig:boreholes}a -- Location map.
-
-    Table.~\ref{tab:drilling} -- Borehole drilling sites.
-
     During the field campaign in July 2014, three boreholes BH1, BH2, and BH3
     were drilled with hot water in the tidewater tongue of Bowdoin Glacier
-    using meltwater from the crevasses.  After the sucessful drilling of BH1
+    using meltwater from the crevasses. After the sucessful drilling of BH1
     and BH2 at the first (upper) drilling site ca.~2\,km from the calving
     front, it was planned that two other boreholes would be drilled ca.~x\,km
     ustream in the thicker part of the glacier. However, due to weather the
     hotwater drilling equipment could not be shipped upstream. Thus, a third
     and last hole was drilled ca.~x\,m downstream of the first drilling site
-    to be equipped with all instruments left.
+    to be equipped with all instruments left (Fig.~\ref{fig:boreholes}a,
+    Table~\ref{tab:drilling}).
 
     Although the experiment was originally planned for one year, some of the
     instruments were let on the glacier for up to three years as more funding
@@ -193,15 +191,13 @@
     experiments. From the drilling in July 2017 to the last field campaign in
     July 2017, the boreholes were displaced by xxx (BHx) to xxx\,m (BHx), and
     the distance between the lower (BH3) and uppermost (BH1) boreholes
-    increased from xxx to xxx\,m. New crevasses appeared on the glacier
-    surface, sometimes causing damage to the instruments.
+    increased from xxx to xxx\,m (Fig.~\ref{fig:boreholes}a). New crevasses
+    appeared on the glacier surface, some causing damage to the instruments.
 
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Instrumentation}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-
-    Fig.~\ref{fig:boreholes}b -- Borehole sensors map.
 
     The boreholes were equipped with three types of sensors: strings of simple,
     regularly-spaced thermistors arranged to span the entire depth of the
@@ -213,16 +209,22 @@
     data will be presented elsewhere.
 
     At the first (upper) drilling site, one borehole (BH1) was equipped with
-    seven digital inclinometers and the other (BH2) with one basal piezometer
-    and two thermistor strings. At the second (lower) drilling site, the unique
-    borehole (BH3) was equipped with five digital inclinometers, one basal
-    piezometer and two thermistor strings.
+    seven digital inclinometers (Fig.~\ref{fig:boreholes}b, blue triangles) and
+    the other (BH2) with one basal piezometer (Fig.~\ref{fig:boreholes}b,
+    orange square) and two thermistor strings (Fig.~\ref{fig:boreholes}b,
+    orange circles). At the second (lower) drilling site, the unique
+    borehole (BH3) was equipped with five digital inclinometers
+    (Fig.~\ref{fig:boreholes}b, green triangles), one basal piezometer
+    (Fig.~\ref{fig:boreholes}b, green square) and two thermistor strings
+    (Fig.~\ref{fig:boreholes}b, green and grey triangles).
+    \todo{maybe explain here about ERR sensors.}
 
     The basal piezometers (GeoKon xxx) were connected to Campbell (model xxx)
     data loggers. The thermistor strings (model xxx) were connected to
     Campbell CX1000 data loggers. Piezometers and thermistor strings data
     loggers each were powered by a xx\,V lead battery, and mounted in glass
-    fiber (?) cases on quadripods (photo). These batteries were carried out and
+    fiber (?) cases on quadripods (Fig.~\ref{fig:images}a). These batteries
+    were carried out and
     back on the glacier during each field campaign to be recharged using a
     petrol generator at the camp.
 
@@ -233,14 +235,14 @@
     In the case of digital inclinometers, the observed resistance from the
     thermistors were converted to temperature values in-situ by the englacial
     digitizers, thus avoiding to record the resistance of the borehole cables
-    and their potential variations due to cable deformation.
+    and their potential variations due to cable deformation. The deployment and
+    maintainance of the borehole installations was eased by the medial moraine
+    (Fig.~\ref{fig:images}b).
 
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Temperature calibration}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-
-    Table~\ref{tab:calibration} -- Temperature calibration.
 
     All thermistors were calibrated prior to fieldwork in the lab (Martin?).
     For digital inclinometres the conversion from resistance to temperature
@@ -254,7 +256,8 @@
     \end{equation}
     %
     where $R$ is the measured resistance, $T$ the ice temperature, and $a_1$,
-    $a_2$, and $a_3$ are coefficients calibrated individually for each sensor.
+    $a_2$, and $a_3$ are coefficients calibrated individually for each sensor
+    (Table~\ref{tab:calibration}).
 
     Despite the pre-field calibration it was observed that initial temperatures
     observed in the borehole immediately after drilling were not at the
@@ -270,7 +273,8 @@
     %
     where $\beta$ is the empirical Clapeyron constant for glacier ice
     (Luethi et al., 2002), $\rho$ is the ice density, $g$ is the standard
-    acceleration due to gravity, and $z$ is the depth below the ice surface.
+    acceleration due to gravity, and $z$ is the depth below the ice surface
+    (parameter values given in Table~\ref{tab:parameters}).
 
 
 % ----------------------------------------------------------------------
@@ -281,14 +285,12 @@
 \subsection{Length of the record}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Table~\ref{tab:timeline} -- Events timeline.
-
     From the two drilling sites on the tidewater tongue of Bowdoin Glacier,
     continuous ice temperature time series could be obtained with a lenght of
     up to three years. Although the experiment was initially planned for one
     year, following initial success some of the instruments were let installed
     for up to three years. However, sensors were successively lost to technical
-    failures and ice deformation.
+    failures and ice deformation (Table~\ref{tab:timeline}).
 
     Of the total 44~sensors installed, 41~worked after the installation, 38
     recorded data for one year, 35 were still functional after two years (of
@@ -298,14 +300,12 @@
     damage during installation (2014 July~16 and 23, three sensors) cable
     damage at depth (2014 Oct.~25, 2017 Jan.~28, Feb.~03, and June~21, five
     sensors) cable damage at the surface (2015 Nov.~12 and unknown dates,
-    33~sensors).
+    33~sensors, Table~\ref{tab:timeline}).
 
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Temperature time series}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-
-    Fig.~\ref{fig:timeseries} -- Temperature time series.
 
     After the drillings, most sensors are immerged and temperatures are
     measured at or near the pressure-melting point. In BH2 some sensors record
@@ -315,33 +315,33 @@
     depending on the sensor and relating to the equilibrium temperature. While
     most sensors reach a thermal equilibrium within three months, some refreeze
     only after more than a year, and stabilize at temperatures below but near
-    the pressure-melting point.
+    the pressure-melting point (Fig.~\ref{fig:timeseries}).
 
     The sensors nearest to the ice surface exhibit a seasonal temperature
     cycle, which is out-of-phase with the atmospheric temperature cycle. The
     amplitude increase with time as the thermistor strings progressively
     melt-out of the glacier. Temperature records for sensors installed deeper
     down in the ice do not show a seasonal cycle, but many exhibit a slow
-    warming trend.
+    warming trend (Fig.~\ref{fig:timeseries}).
 
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Temperature profiles}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Fig.~\ref{fig:profiles}a -- Temperature profiles.
-
     After the refreezing of the entire borehole, vertical profiles depict
     temperatures below the pressure-melting point except for the base of the
     glacier where temperatures are at the pressure-melting point. The coldest
     temperatures are reached in the middle part of the ice column, above which
     is found a layer of relatively high temperatures, and finally a layer with
-    seasonal temperature variations.
+    seasonal temperature variations (Fig.~\ref{fig:profiles}a).
 
-    The upper boreholles BH1 and BH2, which are separated by only ten metres,
-    show compatible temperature profiles. For the lower borehole, BH3, the
-    deepest thermistor string depict temperatures incompatible with those
-    recorded by digital inclinometers in the same hole. Because the depths of
+    The upper boreholes BH1 and BH2, which are separated by only ten metres,
+    show compatible temperature profiles (Fig.~\ref{fig:profiles}a, blue and
+    orange lines). For the lower borehole, BH3, the deepest thermistor string
+    (Fig.~\ref{fig:profiles}a, grey lines) depict temperatures incompatible
+    with those recorded by digital inclinometers in the same hole
+    (Fig.~\ref{fig:profiles}a, green lines). Because the depths of
     digital inclinometers was calibrated from independent pressure sensors, we
     interpret that sensors on the thermistor string were misplaced due to a
     manipulation error and mark these data as erratic (ERR) (maybe this should
@@ -357,12 +357,13 @@
 \subsection{Englacial warming}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Fig.~\ref{fig:profiles}b -- Warming profiles.
-
     All three temperature profiles show a general warming trend, except for
     their base were some sensors take several months to refreeze after the
-    boreholes was drilled.  However, the warming trend is much more pronounced
-    for the lower (BH3) than for the upper (BH1, BH2) boreholes. Part of this
+    boreholes was drilled (Figs.~\ref{fig:profiles}a and~\ref{fig:profiles}b,
+    dashed lines). However, the warming trend is much more pronounced for the
+    lower (BH3, ERR; Fig.~\ref{fig:profiles}, green and grey lines) than for
+    the upper (BH1, BH2; Fig.~\ref{fig:profiles}, blue and orange lines)
+    boreholes. Part of this
     englacial warming can be explained by heat diffusion from the base and
     near-surface of the glacier to its coldest depths.
 
@@ -375,8 +376,9 @@
     \end{equation}
     %
     where $k$ is the thermal conductivity of ice, and $c$ its specific heat
-    capacity. However, the observed warming trend is up to an order of
-    magnitude higher than the theoretical warming by diffusion.
+    capacity. However, the observed warming trend (Fig.~\ref{fig:profiles}b,
+    dashed lines) is up to an order of magnitude higher than the theoretical
+    warming by diffusion (Fig.~\ref{fig:profiles}b, solid lines).
 
 
 % ----------------------------------------------------------------------
@@ -398,16 +400,18 @@
 
     Nevertheless, the temperature profiles at Bowdoin Glacier show significant,
     longitudinal differences in temperature over the entire depth of the
-    glacier. These differences could be a relict advected from upstream areas
+    glacier (Fig.~\ref{fig:profiles}). These differences could be a relict
+    advected from upstream areas
     of Bowdoin Glacier with ice flow. However in this case, longitudinal
     temperature diffusion should cause both profiles to evolve towards more
     similar temperatures.
 
     On the opposite, the length of the temperature record allows to evidence an
-    englacial warming trend, which can be observed at most depths and is up to
-    is an order of magnitude stronger than the theoretical warming due to
-    vertical heat diffusion. The warming trend is strongest for the warmest
-    temperature profiel, thus further enhancing the temperature differences
+    englacial warming trend (Fig.~\ref{fig:timeseries}), which can be observed
+    at most depths and is up to is an order of magnitude stronger than the
+    theoretical warming due to vertical heat diffusion
+    (Fig.~\ref{fig:profiles}). The warming trend is strongest for the warmest
+    temperature profile, thus further enhancing the temperature differences
     between the two profiles. The different profiles and warming trend can only
     be explained by involving a additional, local, heat source, extending over
     the entire or nearly the entire depth of the glacier.
@@ -417,7 +421,7 @@
 \subsection{Deep crevassing}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Fig.~\ref{fig:arcticdem} -- Topography around boreholes.
+     -- Topography around boreholes.
 
     Although such local variations of temperatures could be explained by the
     proximity of a moulin, no large moulins have been observed in the vicinity
@@ -437,7 +441,8 @@
     The Bowdoin Glacier boreholes were drilled in a highly crevassed area in
     2014 and newly opened crevasses could be observed as the drilling site were
     advected downstream and drifted further apart over the subsequent field
-    seasons. Therefore we interpret the latent heating to relate to meltwater
+    seasons (Fig.~\ref{fig:images}). Therefore we interpret the latent heating
+    to relate to meltwater
     refreezing in deep crevasses reaching at or near the glacier bed.
 
 
@@ -456,11 +461,13 @@
     appear less crevassed than topographic dips.
 
     The upper borehole site (BH1, BH2) is located on a topographic high and the
-    lower borehole site (BH3) is located in a topographic low. Although this
+    lower borehole site (BH3) is located in a topographic low
+    (Fig.~\ref{fig:arcticdem}). Although this
     was not at all foreseen, the distance between the two borehole is roughly
     equal to half the ogive wavelenght. Because the surface topography of
     Bowdoin Glacier is overprinted by a dense crevasse pattern and abundent
-    penitents, the undulations are not obvious in the field.  But in fact it
+    penitents (Figs.~\ref{fig:images} and~\ref{fig:arcticdem}), the undulations
+    are not obvious in the field.  But in fact it
     could be observed during field seasons that the upper drilling site offered
     a more extensive view than the lower drilling site.
 
@@ -544,7 +551,7 @@
         \textbf{(b)} Aerial view of the drilling sites on 2016 July~21. The
           location of BH1 and BH3 could be inferred from visible field
           installations.}
-      \label{fig:photo}
+      \label{fig:images}
     \end{figure}
 
     \begin{figure}
@@ -592,7 +599,8 @@
 
     \begin{table}[t]
       \caption{%
-        Bowdoin Glacier drilling sites.}
+        Drilling locations, drilling dates and initial depths of the Bowdoin
+        Glacier boreholes.}
       \label{tab:drilling}
       \centerline{\begin{tabular}{cccccc}
         \hline
@@ -601,6 +609,98 @@
         BH1  & 272   & 2014-07-16 & 77.691244 & -68.555749 & 88.7 \\ % UI
         BH2  & 262   & 2014-07-17 & 77.691307 & -68.555685 & 87.7 \\ % UPT
         BH3  & 252   & 2014-07-23 & 77.689995 & -68.558857 & 83.4 \\ % LIPT
+        \hline
+      \end{tabular}}
+    \end{table}
+
+    \begin{table}
+      \centerline{\begin{minipage}{85mm}
+        \caption{%
+          Temperature calibration coefficients and melt offset corrections.}
+        \label{tab:calibration}
+        \begin{tabular}{ccccc} \\
+          \hline
+          Sensor & $a_1\times10^{3}$ & $a_2\times10^{4}$
+                 & $a_3\times10^{7}$ & $\Delta T$ (K) \\
+          \hline
+          LI03 &   ---   &   ---   &   ---   & -0.366179 \\
+          LI04 &   ---   &   ---   &   ---   &  0.153631 \\
+          LI05 &   ---   &   ---   &   ---   &  0.077992 \\
+          LP   &   ---   &   ---   &   ---   &     ---   \\
+          LT01 & 2.68849 & 2.91312 & 2.90792 & -0.146871 \\
+          LT02 & 2.72120 & 2.77064 & 6.36107 & -0.113681 \\
+          LT03 & 2.72538 & 2.75376 & 6.65425 & -0.155103 \\
+          LT04 & 2.72203 & 2.75468 & 6.66331 & -0.157251 \\
+          LT05 & 2.72629 & 2.74648 & 6.70740 & -0.099604 \\
+          LT06 & 2.71837 & 2.77063 & 6.77034 & -0.088528 \\
+          LT07 & 2.71239 & 2.80048 & 5.56011 & -0.114487 \\
+          LT08 & 2.71464 & 2.79042 & 5.78066 & -0.106990 \\
+          LT09 & 2.71831 & 2.78497 & 5.80214 & -0.117413 \\
+          LT10 & 2.73324 & 2.72923 & 7.50070 & -0.120982 \\
+          LT11 & 2.72182 & 2.77915 & 5.88847 & -0.078674 \\
+          LT12 & 2.71306 & 2.80286 & 5.33636 & -0.085439 \\
+          LT13 & 2.75088 & 2.66886 & 8.65715 & -0.098273 \\
+          LT14 & 2.71922 & 2.79321 & 5.78862 & -0.126086 \\
+          LT15 & 2.71990 & 2.78311 & 5.88938 & -4.615325 \\
+          LT16 & 2.71911 & 2.78555 & 5.89390 & -2.064276 \\
+          \hline
+        \end{tabular}
+      \end{minipage}
+      \begin{minipage}{85mm}
+        \begin{tabular}{ccccc}
+          \hline
+          Sensor & $a_1\times10^{3}$ & $a_2\times10^{4}$
+                 & $a_3\times10^{7}$ & $\Delta T$ (K) \\
+          \hline
+          UI02 &   ---   &   ---   &   ---   &     ---   \\
+          UI03 &   ---   &   ---   &   ---   &     ---   \\
+          UI04 &   ---   &   ---   &   ---   &     ---   \\
+          UI05 &   ---   &   ---   &   ---   &     ---   \\
+          UI06 &   ---   &   ---   &   ---   &     ---   \\
+          UI07 &   ---   &   ---   &   ---   &     ---   \\
+          UP   &   ---   &   ---   &   ---   &     ---   \\
+          UT01 & 2.62948 & 3.15882 &-2.11729 &     ---   \\
+          UT02 & 2.70630 & 2.83255 & 4.85636 &     ---   \\
+          UT03 & 2.71054 & 2.85092 & 4.36997 &     ---   \\
+          UT04 & 2.70327 & 2.85200 & 4.38303 &     ---   \\
+          UT05 & 2.70416 & 2.83808 & 4.40717 &     ---   \\
+          UT06 & 2.67961 & 2.96215 & 1.95166 &     ---   \\
+          UT07 & 2.71620 & 2.79459 & 5.60670 &     ---   \\
+          UT08 & 2.70382 & 2.83626 & 4.52513 &     ---   \\
+          UT09 & 2.72032 & 2.78078 & 5.86472 &     ---   \\
+          UT10 & 2.71264 & 2.82098 & 4.98119 &     ---   \\
+          UT11 & 2.70714 & 2.83545 & 4.61922 &     ---   \\
+          UT12 & 2.69855 & 2.87227 & 3.95361 &     ---   \\
+          UT13 & 2.70676 & 2.84831 & 4.31297 &     ---   \\
+          UT14 & 2.73315 & 2.73929 & 7.08468 &     ---   \\
+          UT15 & 2.70659 & 2.83499 & 4.69136 &     ---   \\
+          UT16 & 2.71143 & 2.82174 & 5.01209 &     ---   \\
+          \hline
+        \end{tabular}
+      \end{minipage}}
+    \end{table}
+
+    \begin{table}
+      \caption{%
+        Parameter values used to compute the pressure melting-point and
+        theoretical temperature diffusion.}
+      \label{tab:parameters}
+      \centerline{\begin{tabular}{llrll}
+        \hline
+        Not.    & Name & Value & Unit \\
+        \hline
+        $\beta$ & Clapeyron constant
+                & $7.9\times10^{-8}$    & K\,Pa$^{-1}$                      \\
+        $c$     & Ice specific heat capacity
+                & 2009                  & J\,kg$^{-1}$\,K$^{-1}$            \\
+        $g$     & Standard gravity
+                & 9.80665               & m\,s$^{-2}$                       \\
+        $k$     & Ice thermal conductivity
+                & 2.1                   & J\,m$^{-1}$\,K$^{-1}$\,s$^{-1}$   \\
+        %$L$    & Water latent heat of fusion
+        %       & $3.34\times10^5$      & J\,kg$^{-1}$\,K$^{-1}$            \\
+        $\rho$  & Ice density
+                & 910                   & kg\,m$^{-3}$                      \\
         \hline
       \end{tabular}}
     \end{table}
@@ -668,97 +768,6 @@
       \end{tabular}}
     \end{table}
 
-    \begin{table}
-      \label{tab:calibration}
-      \centerline{\begin{minipage}[b]{85mm}
-        \begin{tabular}{ccccc}
-          \hline
-          Sensor & $a_1\times10^{3}$ & $a_2\times10^{4}$
-                 & $a_3\times10^{7}$ & $\Delta T$ (K) \\
-          \hline
-          UI02 &   ---   &   ---   &   ---   &     ---   \\
-          UI03 &   ---   &   ---   &   ---   &     ---   \\
-          UI04 &   ---   &   ---   &   ---   &     ---   \\
-          UI05 &   ---   &   ---   &   ---   &     ---   \\
-          UI06 &   ---   &   ---   &   ---   &     ---   \\
-          UI07 &   ---   &   ---   &   ---   &     ---   \\
-          UP   &   ---   &   ---   &   ---   &     ---   \\
-          UT01 & 2.62948 & 3.15882 &-2.11729 &     ---   \\
-          UT02 & 2.70630 & 2.83255 & 4.85636 &     ---   \\
-          UT03 & 2.71054 & 2.85092 & 4.36997 &     ---   \\
-          UT04 & 2.70327 & 2.85200 & 4.38303 &     ---   \\
-          UT05 & 2.70416 & 2.83808 & 4.40717 &     ---   \\
-          UT06 & 2.67961 & 2.96215 & 1.95166 &     ---   \\
-          UT07 & 2.71620 & 2.79459 & 5.60670 &     ---   \\
-          UT08 & 2.70382 & 2.83626 & 4.52513 &     ---   \\
-          UT09 & 2.72032 & 2.78078 & 5.86472 &     ---   \\
-          UT10 & 2.71264 & 2.82098 & 4.98119 &     ---   \\
-          UT11 & 2.70714 & 2.83545 & 4.61922 &     ---   \\
-          UT12 & 2.69855 & 2.87227 & 3.95361 &     ---   \\
-          UT13 & 2.70676 & 2.84831 & 4.31297 &     ---   \\
-          UT14 & 2.73315 & 2.73929 & 7.08468 &     ---   \\
-          UT15 & 2.70659 & 2.83499 & 4.69136 &     ---   \\
-          UT16 & 2.71143 & 2.82174 & 5.01209 &     ---   \\
-          \hline
-        \end{tabular}
-      \end{minipage}
-      \begin{minipage}{85mm}
-        \caption{%
-          Temperature calibration coefficients and melt offset corrections.}
-        \begin{tabular}{ccccc} \\
-          \hline
-          Sensor & $a_1\times10^{3}$ & $a_2\times10^{4}$
-                 & $a_3\times10^{7}$ & $\Delta T$ (K) \\
-          \hline
-          LI03 &   ---   &   ---   &   ---   & -0.366179 \\
-          LI04 &   ---   &   ---   &   ---   &  0.153631 \\
-          LI05 &   ---   &   ---   &   ---   &  0.077992 \\
-          LP   &   ---   &   ---   &   ---   &     ---   \\
-          LT01 & 2.68849 & 2.91312 & 2.90792 & -0.146871 \\
-          LT02 & 2.72120 & 2.77064 & 6.36107 & -0.113681 \\
-          LT03 & 2.72538 & 2.75376 & 6.65425 & -0.155103 \\
-          LT04 & 2.72203 & 2.75468 & 6.66331 & -0.157251 \\
-          LT05 & 2.72629 & 2.74648 & 6.70740 & -0.099604 \\
-          LT06 & 2.71837 & 2.77063 & 6.77034 & -0.088528 \\
-          LT07 & 2.71239 & 2.80048 & 5.56011 & -0.114487 \\
-          LT08 & 2.71464 & 2.79042 & 5.78066 & -0.106990 \\
-          LT09 & 2.71831 & 2.78497 & 5.80214 & -0.117413 \\
-          LT10 & 2.73324 & 2.72923 & 7.50070 & -0.120982 \\
-          LT11 & 2.72182 & 2.77915 & 5.88847 & -0.078674 \\
-          LT12 & 2.71306 & 2.80286 & 5.33636 & -0.085439 \\
-          LT13 & 2.75088 & 2.66886 & 8.65715 & -0.098273 \\
-          LT14 & 2.71922 & 2.79321 & 5.78862 & -0.126086 \\
-          LT15 & 2.71990 & 2.78311 & 5.88938 & -4.615325 \\
-          LT16 & 2.71911 & 2.78555 & 5.89390 & -2.064276 \\
-          \hline
-        \end{tabular}
-      \end{minipage}}
-    \end{table}
-
-    \begin{table}
-      \caption{%
-        Parameter values used to compute the pressure melting-point and
-        theoretical temperature diffusion.}
-      \label{tab:parameters}
-      \centerline{\begin{tabular}{llrll}
-        \hline
-        Not.    & Name & Value & Unit \\
-        \hline
-        $\beta$ & Clapeyron constant
-                & $7.9\times10^{-8}$    & K\,Pa$^{-1}$                      \\
-        $c$     & Ice specific heat capacity
-                & 2009                  & J\,kg$^{-1}$\,K$^{-1}$            \\
-        $g$     & Standard gravity
-                & 9.80665               & m\,s$^{-2}$                       \\
-        $k$     & Ice thermal conductivity
-                & 2.1                   & J\,m$^{-1}$\,K$^{-1}$\,s$^{-1}$   \\
-        %$L$    & Water latent heat of fusion
-        %       & $3.34\times10^5$      & J\,kg$^{-1}$\,K$^{-1}$            \\
-        $\rho$  & Ice density
-                & 910                   & kg\,m$^{-3}$                      \\
-        \hline
-      \end{tabular}}
-    \end{table}
 
 % ======================================================================
 \end{document}
