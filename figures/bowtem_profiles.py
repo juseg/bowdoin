@@ -69,7 +69,8 @@ def main():
         # load initial temperature profiles
         temp, depth, base = util.tem.load_all(bh)
         dates = util.tem.PROFILES_DATES[bh]
-        temp0 = temp[dates[0]].mean()
+        temp0 = temp[dates[0]].mean().dropna()
+        depth = depth[temp0.index]
 
         # load final profiles ev. using manual data
         try:
