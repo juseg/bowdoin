@@ -100,7 +100,7 @@ def main():
 
     # plot elevation map (UTM 19 extent 510400, 510700, 8623700, 8624050)
     data = xr.open_rasterio(filename).squeeze(drop=True)
-    data = data.loc[-1226500:-1227200, -535200:-534600]  # 850x600 m
+    data = data.loc[-1226450:-1227300, -535200:-534600]  # 850x600 m
     data = data.loc[-1226675:-1227100, -535075:-534775]  # 425x300 m
     data.plot.imshow(ax=ax0, add_colorbar=False, cmap='Blues_r')
 
