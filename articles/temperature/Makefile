@@ -12,7 +12,7 @@ PAPER = bowdoin-temperature
 # -----
 
 # default rule
-$(PAPER).pdf: $(PAPER).tex
+$(PAPER).pdf: $(PAPER).tex ../../references/references.bib
 	latexmk -pdf -dvi- -ps- $<
 
 # clean up
