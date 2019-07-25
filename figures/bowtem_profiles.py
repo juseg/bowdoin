@@ -80,10 +80,19 @@ def main():
             temp1 = manu.mask(mask)[dates[1]].squeeze().reindex(depth.index)
 
         # plot temperature profiles
+        diff = temp1-temp0
         ax0.plot(temp0, depth, c=color, label=bh.upper() + ', ' + dates[0])
         ax0.plot(temp1, depth, c=color, label=bh.upper() + ', ' + dates[1],
                  ls='--', lw=0.5,)
-        ax1.plot(temp1-temp0, depth, c=color, ls='--', lw=0.5)
+        ax1.plot(diff, depth, c=color, ls='--', lw=0.5)
+
+        # annotate min temp and max warming
+        idx = temp0[depth>50].idxmin()
+        ax0.text(temp0[idx], depth[idx], '  %.2f°C' % temp0[idx], color=color,
+                 va='center')
+        idx = diff.idxmax()
+        ax1.text(diff[idx], depth[idx], '  +%.2f°C' % diff.max(), color=color,
+                 va='center')
 
         # plot theroretical diffusion
         dates = pd.to_datetime(dates)
@@ -117,7 +126,7 @@ def main():
     ax0.set_xlabel(u'ice temperature (°C)')
     ax1.set_xlabel(u'temperature change (°C)')
     ax0.set_xlim(-10.5, 0.5)
-    ax1.set_xlim(-0.3, 0.7)
+    ax1.set_xlim(-0.3, 0.9)
 
     # save
     util.com.savefig(fig)
