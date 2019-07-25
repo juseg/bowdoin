@@ -59,7 +59,7 @@ def plot_long_profile(ax):
     """Draw boreholes long profile with intrumental setup."""
 
     # borehole plot properties
-    distances = dict(bh1=2.015, bh2=1.985, bh3=1.85, err=1.85)
+    distances = dict(bh1=2.015, bh2=1.985, bh3=1.84, err=1.84)
 
     # for each borehole
     for bh, color in util.tem.COLOURS.items():
@@ -97,12 +97,12 @@ def plot_long_profile(ax):
     labels = ['Inclinometers', 'Thermistors', 'Piezometres']
     markers = [util.tem.MARKERS[l[0]] for l in labels]
     handles = [plt.Line2D([], [], ls='none', marker=m) for m in markers]
-    ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.90))
+    ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.90), loc='upper right')
 
     # set axes properties
-    ax.set_xlim(1.75, 2.15)
+    ax.set_xlim(1.74, 2.16)
     ax.set_ylim(292, -20)
-    ax.set_xticks([1.85, 2.0])
+    ax.set_xticks([1.84, 2.0])
     ax.set_xlabel('approximate distance from front in 2014 (km)')
     ax.set_ylabel('depth (m)')
     ax.grid(False, axis='x')
