@@ -19,20 +19,21 @@ def init_figure():
     """Initialize figure with map and profile subplots."""
 
     # initialize figure
-    fig = apl.figure_mm(figsize=(180, 90))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.Stereographic(
-        central_latitude=90, central_longitude=-45, true_scale_latitude=70))
-    ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
+    crs = ccrs.Stereographic(
+        central_latitude=90, central_longitude=-45, true_scale_latitude=70)
+    fig, grid = apl.subplots_mm(figsize=(180, 120), ncols=3, projection=crs,
+        gridspec_kw=dict(
+            left=1.25, right=1.25, bottom=60.0, top=2.5, wspace=2.5))
+    ax = fig.add_axes_mm([13.75, 12.5, 165, 45])
+    grid = list(grid) + [ax]
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=ax1, text='(b)')
-
-    # prepare axes
-    ax0.set_rasterization_zorder(2.5)
+    for ax, label in zip(grid, 'abcd'):
+        util.com.add_subfig_label(ax=ax, text='('+label+')')
+        ax.set_rasterization_zorder(2.5)
 
     # return figure and axes
-    return fig, (ax0, ax1)
+    return fig, grid
 
 
 def project_borehole_locations(date, crs):
@@ -91,7 +92,9 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, (ax0, ax1) = init_figure()
+    fig, grid = init_figure()
+    ax0 = grid[0]
+    ax1 = grid[3]
 
     # Arctic DEM strip and sensing date
     demstrip = 'SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m'
@@ -100,8 +103,7 @@ def main():
 
     # plot elevation map (UTM 19 extent 510400, 510700, 8623700, 8624050)
     data = xr.open_rasterio(filename).squeeze(drop=True)
-    data = data.loc[-1226450:-1227300, -535200:-534600]  # 850x600 m
-    data = data.loc[-1226675:-1227100, -535075:-534775]  # 425x300 m
+    data = data.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
     data.plot.imshow(ax=ax0, add_colorbar=False, cmap='Blues_r')
 
     # contour code too slow for full dem
