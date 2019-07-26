@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.decorations as cde
+import cartowik.shadedrelief as csr
 import util
 
 
@@ -98,18 +99,19 @@ def main():
     # initialize figure
     fig, grid, cax, pfax = init_figure()
 
+    # selected Arctic DEM data strips
+    st0 = 'SETSM_W1W2_20140905_10200100318E9F00_1030010037BBC200_seg3_2m_v3.0'
+    st1 = 'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0'
+    st1 = 'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0'
+
     # load reference elevation data
-    strp = 'SETSM_W1W2_20140905_10200100318E9F00_1030010037BBC200_seg3_2m_v3.0'
-    date = strp[11:19]
-    elev = xr.open_rasterio('../data/external/%s.tif' % strp)
+    elev = xr.open_rasterio('../data/external/%s.tif' % st0)
     elev = elev.squeeze(drop=True)
     elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
     zoom = elev.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
 
     # load elevation difference data
-    strp = 'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0'
-    strp = 'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0'
-    diff = xr.open_rasterio('../data/external/%s.tif' % strp)
+    diff = xr.open_rasterio('../data/external/%s.tif' % st1)
     diff = diff.squeeze(drop=True)
     diff = diff.loc[-1224000:-1229000, -537500:-532500].where(diff > -9999)
     diff = diff - elev
@@ -124,9 +126,9 @@ def main():
                       linewidths=0.25).clabel(fmt='%d')
 
     # plot reference elevation map
-    ax = grid[1]
-    elev.plot.imshow(ax=grid[1], add_colorbar=False,
-                     cmap='Blues_r', vmin=0, vmax=200)
+    # FIXME add xarray-centric cartowik methods
+    csr._compute_multishade(elev, altitudes=[30]*4).plot.imshow(
+        ax=grid[1], add_colorbar=False, cmap='Greys', vmin=-1, vmax=1)
 
     # plot elevation difference map
     diff.plot.imshow(ax=grid[2], cbar_ax=cax, cmap='RdBu', vmin=-20, vmax=20,
@@ -134,7 +136,7 @@ def main():
 
     # plot borehole locations on the map
     ax = grid[0]
-    initial, projected = project_borehole_locations(date, ax.projection)
+    initial, projected = project_borehole_locations(st0[11:19], ax.projection)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = util.tem.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
@@ -151,7 +153,7 @@ def main():
                                     ec=color, alpha=0.5))
 
     # add scales
-    cde.add_scale_bar(ax=grid[0], color='k', label='100 m', length=100)
+    cde.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
     cde.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
 
     # plot Arctic DEM topographic profile
@@ -169,6 +171,9 @@ def main():
         pfax.text(dist, 76, ' '+bh.upper()+' ', color=color, fontweight='bold')
 
     # set axes properties
+    grid[0].set_title(st0[11:19])
+    grid[1].set_title(st0[11:19])
+    grid[2].set_title(st1[11:19] + ' - ' + st0[11:19])
     pfax.set_xlabel('distance along profile (m)')
     pfax.set_ylabel('surface elevation (m)')
 
