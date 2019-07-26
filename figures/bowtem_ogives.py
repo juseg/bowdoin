@@ -11,6 +11,7 @@ import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import cartopy.io.shapereader as shpreader
 import absplots as apl
 import cartowik.decorations as cde
 import cartowik.shadedrelief as csr
@@ -93,6 +94,21 @@ def build_profile_coords(points, interval=None, method='linear'):
     return x, y
 
 
+def open_shp_coords(filename, crs=None, **kwargs):
+    """Spline-interpolate coordinates along profile from shapefile."""
+
+    # read profile from shapefile
+    shp = shpreader.Reader(filename)
+    geom = next(shp.geometries())[0]
+    points = np.asarray(geom)
+    if crs is not None:
+        points = crs.transform_points(ccrs.PlateCarree(), *points.T)[:, :2]
+    x, y = build_profile_coords(points, **kwargs)
+
+    # return coordinates
+    return x, y
+
+
 def main():
     """Main program called during execution."""
 
@@ -152,29 +168,42 @@ def main():
             ax.add_patch(plt.Circle(projected.loc[bh], radius=10.0, fc='w',
                                     ec=color, alpha=0.5))
 
+        # on other maps too
+        grid[1].plot(*projected.loc[bh], color=color, marker='o')
+        grid[2].plot(*projected.loc[bh], color=color, marker='o')
+
     # add scales
     cde.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
     cde.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
 
+    # open profile coordinates
+    x, y = open_shp_coords('../data/native/flowline.shp',
+                           crs=grid[1].projection, interval=1)
+    x = x[x.d<5000]
+    y = y[y.d<5000]
+
+    # plot profile on shaded relief map
+    ax = grid[1]
+    ax.plot(x, y, color='w', linestyle='--')
+
     # plot Arctic DEM topographic profile
-    points = [1.5*projected.loc['bh3']-0.5*projected.loc['bh1'],
-              1.5*projected.loc['bh1']-0.5*projected.loc['bh3']]
-    x, y = build_profile_coords(points, interval=1)
-    ax.plot(x, y, color='0.25', linestyle='--')
     elev.interp(x=x, y=y, method='linear').plot(ax=pfax, color='0.25')
 
     # mark borehole locations along profile
-    for bh in ('bh1', 'bh3'):
+    for bh, ha in zip(['bh2', 'bh3'], ['left', 'right']):
+        loc = projected.loc[bh]
         color = util.tem.COLOURS[bh]
-        dist = ((projected.loc[bh]-points[0])**2).sum()**0.5
+        dist = ((x-loc.x)**2+(y-loc.y)**2)**0.5
+        dist = dist.where(dist==dist.min(), drop=True).d
         pfax.axvline(dist, color=color)
-        pfax.text(dist, 76, ' '+bh.upper()+' ', color=color, fontweight='bold')
+        pfax.text(dist, 40, ' '+bh.upper()+' ', color=color, fontweight='bold',
+                  ha=ha)
 
     # set axes properties
     grid[0].set_title(st0[11:19])
     grid[1].set_title(st0[11:19])
     grid[2].set_title(st1[11:19] + ' - ' + st0[11:19])
-    pfax.set_xlabel('distance along profile (m)')
+    pfax.set_xlabel('distance from the calving front (m)')
     pfax.set_ylabel('surface elevation (m)')
 
     # save
