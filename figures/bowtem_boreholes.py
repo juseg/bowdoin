@@ -23,7 +23,7 @@ def init_figure():
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)', color='w')
+    util.com.add_subfig_label(ax=ax0, text='(a)', color='k')
     util.com.add_subfig_label(ax=ax1, text='(b)')
 
     # return figure and axes
@@ -37,7 +37,7 @@ def plot_location_map(ax):
     ax.set_extent([508e3, 512e3, 8621e3, 8626e3+2e3/3], crs=ax.projection)
 
     # plot Sentinel image data
-    filename = '../data/external/20160808_175915_456_S2A_RGB.jpg'
+    filename = '../data/external/20170310_174129_456_S2A_RGB.jpg'
     xr.open_rasterio(filename).plot.imshow(ax=ax, interpolation='bilinear')
 
     # add boreholes and camp waypoints for each borehole
@@ -48,11 +48,11 @@ def plot_location_map(ax):
         can.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
         can.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
         can.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
-    can.annotate_location(locations['Tent Swiss'], ax=ax, color='w', point='s',
+    can.annotate_location(locations['Tent Swiss'], ax=ax, color='k', point='s',
                           marker='^', text='Camp')
 
     # add scale
-    cde.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
+    cde.add_scale_bar(ax=ax, color='k', label='1km', length=1000)
 
 
 def plot_long_profile(ax):

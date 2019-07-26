@@ -42,17 +42,18 @@ done
 
 # Sentinel-2A (S2A) Bowdoin 20x20 km images
 # (for Qaanaaq 60x60 km use --extent 465000,8595000,525000,8655000)
-for dest in {20160410_180125_659,20160808_175915_456}_S2A_RGB
+for date in 20160410 20160808 20170301
 do
-    if [ ! -f "$dest.jpg" ]
+    if [ ! -f "composite/bowdoin/$date*.jpg" ]
     then
         sentinelflow.sh --name bowdoin --intersect 77.7,-68.5 --tiles 19XEG \
                         --extent 500000,8615000,520000,8645000 \
-                        --maxrows 1 --cloudcover 30 --nullvalues 99 \
-                        --daterange ${dest:0:8}..${dest:0:8} $*
-        ln -sf composite/bowdoin/$dest.jpg $dest.jpg
-        ln -sf composite/bowdoin/$dest.jpw $dest.jpw
+                        --maxrows 1 --daterange $date..$date $*
     fi
+done
+for img in composite/bowdoin/*.jp?
+do
+    ln -sf $img $(basename $img)
 done
 
 
