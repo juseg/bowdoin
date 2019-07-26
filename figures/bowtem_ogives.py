@@ -5,6 +5,7 @@
 
 """Plot Bowdoin temperature Arctic DEM map and profile."""
 
+from scipy import stats
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -21,19 +22,23 @@ def init_figure():
     # initialize figure
     crs = ccrs.Stereographic(
         central_latitude=90, central_longitude=-45, true_scale_latitude=70)
-    fig, grid = apl.subplots_mm(figsize=(180, 120), ncols=3, projection=crs,
-        gridspec_kw=dict(
+    fig, axes = apl.subplots_mm(
+        figsize=(180, 120), ncols=3, projection=crs, gridspec_kw=dict(
             left=1.25, right=1.25, bottom=60.0, top=2.5, wspace=2.5))
-    ax = fig.add_axes_mm([13.75, 12.5, 165, 45])
-    grid = list(grid) + [ax]
+    caxes = fig.subplots_mm(ncols=3, gridspec_kw=dict(
+        left=1.25, right=1.25, bottom=55, top=62.5, wspace=2.5))
+
+    # add profile axes
+    pfax = fig.add_axes_mm([13.75, 12.5, 165, 30])
+    axes = list(axes) + [pfax]
 
     # add subfigure labels
-    for ax, label in zip(grid, 'abcd'):
+    for ax, label in zip(axes, 'abcd'):
         util.com.add_subfig_label(ax=ax, text='('+label+')')
         ax.set_rasterization_zorder(2.5)
 
     # return figure and axes
-    return fig, grid
+    return fig, axes, caxes
 
 
 def project_borehole_locations(date, crs):
@@ -92,52 +97,75 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = init_figure()
-    ax0 = grid[0]
-    ax1 = grid[3]
+    fig, axes, caxes = init_figure()
+    ax1 = axes[3]
 
-    # Arctic DEM strip and sensing date
-    demstrip = 'SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m'
-    filename = '../data/external/' + demstrip + '_v3.0.tif'
-    sensdate = '2014-09-06 17:30:00'
+    # load reference elevation data
+    strp = 'SETSM_W1W2_20140905_10200100318E9F00_1030010037BBC200_seg3_2m_v3.0'
+    elev = xr.open_rasterio('../data/external/%s.tif' % strp)
+    elev = elev.squeeze(drop=True)
+    elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
+    zoom = elev.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
 
-    # plot elevation map (UTM 19 extent 510400, 510700, 8623700, 8624050)
-    data = xr.open_rasterio(filename).squeeze(drop=True)
-    data = data.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
-    data.plot.imshow(ax=ax0, add_colorbar=False, cmap='Blues_r')
+    # load elevation difference data
+    strp = 'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0'
+    strp = 'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0'
+    diff = xr.open_rasterio('../data/external/%s.tif' % strp)
+    diff = diff.squeeze(drop=True)
+    diff = diff.loc[-1224000:-1229000, -537500:-532500].where(diff > -9999)
+    diff = diff - elev
+    diff = diff - stats.mode(diff, axis=None)[0]
+
+    # plot zoomed-in elevation map
+    ax = axes[0]
+    zoom.plot.imshow(ax=ax, cbar_ax=caxes[0], cbar_kwargs=dict(
+        label='elevation (m)', orientation='horizontal'),
+                     cmap='Blues_r')
+
+    # plot reference elevation map
+    elev.plot.imshow(ax=axes[1], cbar_ax=caxes[1], cbar_kwargs=dict(
+        label='elevation (m)', orientation='horizontal'),
+                     cmap='Blues_r', vmin=25, vmax=175)
+
+    # plot elevation difference map
+    diff.plot.imshow(ax=axes[2], cbar_ax=caxes[2], cbar_kwargs=dict(
+        label='elevation change (m)', orientation='horizontal'),
+                     cmap='RdBu', vmin=-20, vmax=20)
 
     # contour code too slow for full dem
-    data.plot.contour(ax=ax0, colors='0.25', levels=range(70, 100),
+    zoom.plot.contour(ax=ax, colors='0.25', levels=range(70, 100),
                       linewidths=0.1)
-    data.plot.contour(ax=ax0, colors='0.25', levels=range(70, 100, 5),
+    zoom.plot.contour(ax=ax, colors='0.25', levels=range(70, 100, 5),
                       linewidths=0.25).clabel(fmt='%d')
 
     # plot borehole locations on the map
-    initial, projected = project_borehole_locations(sensdate, ax0.projection)
+    sensdate = '2014-09-06 17:30:00'  # FIXME
+    initial, projected = project_borehole_locations(sensdate, ax.projection)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = util.tem.COLOURS[bh]
-        ax0.plot(*initial.loc[bh], color='0.25', marker='+')
-        ax0.plot(*initial.loc[bh], color='0.25', marker='+')
-        ax0.plot(*projected.loc[bh], color=color, marker='+')
-        ax0.text(*projected.loc[bh]+np.array([10, 0]), s=bh.upper(),
-                 color=color, ha='left', va='center', fontweight='bold')
+        ax.plot(*initial.loc[bh], color='0.25', marker='+')
+        ax.plot(*initial.loc[bh], color='0.25', marker='+')
+        ax.plot(*projected.loc[bh], color=color, marker='+')
+        ax.text(*projected.loc[bh]+np.array([10, 0]), s=bh.upper(),
+                color=color, ha='left', va='center', fontweight='bold')
 
         # add arrows and uncertainty circles
         if bh != 'bh1':
-            ax0.annotate('', xy=projected.loc[bh], xytext=initial.loc[bh],
-                         arrowprops=dict(arrowstyle='->', color=color))
-            ax0.add_patch(plt.Circle(projected.loc[bh], radius=10.0, fc='w',
-                                     ec=color, alpha=0.5))
+            ax.annotate('', xy=projected.loc[bh], xytext=initial.loc[bh],
+                        arrowprops=dict(arrowstyle='->', color=color))
+            ax.add_patch(plt.Circle(projected.loc[bh], radius=10.0, fc='w',
+                                    ec=color, alpha=0.5))
 
-    # add scale
-    cde.add_scale_bar(ax=ax0, color='k', label='100 m', length=100)
+    # add scales
+    cde.add_scale_bar(ax=axes[0], color='k', label='100 m', length=100)
+    cde.add_scale_bar(ax=axes[1], color='k', label='1 km', length=1000)
 
     # plot Arctic DEM topographic profile
     points = [1.5*projected.loc['bh3']-0.5*projected.loc['bh1'],
               1.5*projected.loc['bh1']-0.5*projected.loc['bh3']]
     x, y = build_profile_coords(points, interval=1)
-    ax0.plot(x, y, color='0.25', linestyle='--')
-    data.interp(x=x, y=y, method='linear').plot(ax=ax1, color='0.25')
+    ax.plot(x, y, color='0.25', linestyle='--')
+    elev.interp(x=x, y=y, method='linear').plot(ax=ax1, color='0.25')
 
     # mark borehole locations along profile
     for bh in ('bh1', 'bh3'):
