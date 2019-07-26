@@ -23,18 +23,33 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 65), ncols=2, gridspec_kw=dict(
-        left=2.5, right=2.5, bottom=2.5, top=5, wspace=2.5))
+    fig, grid = apl.subplots_mm(figsize=(180, 120), ncols=2, gridspec_kw=dict(
+        left=2.5, right=2.5, bottom=0.5, top=62, wspace=2.5))
+    ax0 = fig.add_axes_mm([2.5, 60.5, 175, 175/3])
 
     # add subfigure labels
-    for ax, label in zip(grid, 'ab'):
-        util.com.add_subfig_label(ax=ax, text='('+label+')', c='w', ypad=10)
+    util.com.add_subfig_label(ax=ax0, text='(a)', c='k')
+    util.com.add_subfig_label(ax=grid[0], text='(b)', c='w', ypad=10)
+    util.com.add_subfig_label(ax=grid[1], text='(c)', c='w', ypad=10)
+    for ax, label in zip([ax0]+list(grid), 'abc'):
         ax.set_xticks([])
         ax.set_yticks([])
 
+    # show panoramic photo
+    ax = ax0
+    ax.imshow(plt.imread('../photos/julien-d3200-150717-192938-192948-dev.jpg'))
+
+    # mark glacier names
+    ax.text(500, 75, 'Tuktoo Glacier', color='k', ha='center')
+    ax.text(1250, 75, 'Bowdoin Glacier', color='w', ha='center')
+    ax.text(1750, 75, 'Obelisk G.', color='w', ha='center')
+
+    # plot camp location
+    ax.plot(1333, 288, 'w^')
+    ax.text(1333, 288+50, 'Camp', color='w', ha='center')
+
     # show lower site ground photo
     ax = grid[0]
-    ax.set_title('Lower drilling site, 20160719')
     ax.imshow(plt.imread('../photos/julien-xt10-160719-145819-dev.jpg'))
 
     # mark glacier names
@@ -46,7 +61,6 @@ def main():
 
     # show boreholes aerial photo
     ax = grid[1]
-    ax.set_title('Aerial view, 20160721')
     ax.imshow(plt.imread('../photos/julien-xt10-160721-121549-dev.jpg'))
 
     # mark glacier name
