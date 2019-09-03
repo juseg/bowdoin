@@ -66,18 +66,11 @@ def main():
     # for each borehole
     for bh, color in util.tem.COLOURS.items():
 
-        # load initial temperature profiles
-        temp, depth, base = util.tem.load_all(bh)
-        dates = util.tem.PROFILES_DATES[bh]
-        temp0 = temp[dates[0]].mean().dropna()
-        depth = depth[temp0.index]
-
-        # load final profiles ev. using manual data
-        try:
-            temp1 = temp[dates[1]].mean()
-        except KeyError:
-            manu, mask = util.tem.load_manual(bh)
-            temp1 = manu.mask(mask)[dates[1]].squeeze().reindex(depth.index)
+        # load temperature profiles
+        temp, depth, base = util.tem.load_profiles(bh)
+        dates = temp.columns
+        temp0 = temp[dates[0]]
+        temp1 = temp[dates[1]]
 
         # plot temperature profiles
         diff = temp1-temp0

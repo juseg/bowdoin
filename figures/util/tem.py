@@ -82,6 +82,33 @@ def load_manual(borehole):
     return manu, mask
 
 
+def load_profiles(borehole):
+    """
+    Load temperature profiles for selected dates from auto or manual data.
+    """
+
+    # load automatic data and init results dataframe
+    auto, depth, base = load_all(borehole)
+    dates = PROFILES_DATES[borehole]
+    temp = pd.DataFrame()
+
+    # for each date
+    for date in dates:
+
+        # use automatic data if available
+        if date in auto.index:
+            temp[date] = auto[date].mean()
+
+        # otherwise load manual data
+        else:
+            manu, mask = load_manual(borehole)
+            temp[date] = manu.mask(mask)[date].squeeze().reindex(depth.index)
+
+    # remove depths with no data
+    depth = depth[temp.index]
+    return temp, depth, base
+
+
 # Data processing methods
 # -----------------------
 
