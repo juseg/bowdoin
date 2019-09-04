@@ -27,6 +27,11 @@ INITIAL_WATER_TIMING = dict(bh1='2014-07-17 18:07:00',  # assumed
                             bh2='2014-07-17 18:07:00',  # assumed
                             bh3='2014-07-23 00:30:00')  # assumed
 
+# temperature recalibration intervals
+RECALIB_INTERVALS = dict(bh1=('2014-07-20 18:00', '2014-07-21 02:00'),
+                         bh2=('2014-07-18 00:00', '2014-07-22 00:00'),
+                         bh3=('2014-07-23 12:00', '2014-07-23 20:00'))
+
 
 # Borehole location methods
 # -------------------------
@@ -485,15 +490,16 @@ def read_thermistor_data(site, suffix='Therm'):
 # Temperature calibration methods
 # -------------------------------
 
-def temperature_correction(temp, depth, beta=7.9e-8, gravity=9.80665,
-                           rho_i=910.0, start='2014-07-23 11:20',
-                           end='2014-07-23 15:00'):
+def temperature_correction(borehole, temp, depth, beta=7.9e-8, gravity=9.80665,
+                           rho_i=910.0):
     """
-    Compute temperature recalibration offsets for the lower (BH3) borehole,
-    assuming that all temperatures were at the melting point for a given time
-    interval following the drilling. Unfortunately the initial upper (BH2)
-    thermistor data were lost such that sensors are already undergoing freezup
-    when the record starts.
+    Compute temperature recalibration offsets assuming that all temperatures
+    were at the melting point for a given time interval following the drilling.
+    Sensors depicting unstable temperatures (std > 0.01 K) are interpreted to
+    be either exposed to air temperatures or already refreezing and thus
+    applied a zero correction. Unfortunately the initial upper (BH1, BH2) data
+    were lost such that several sensors are already undergoing freezing when
+    the record starts.
 
     Parameters
     ----------
@@ -508,13 +514,12 @@ def temperature_correction(temp, depth, beta=7.9e-8, gravity=9.80665,
     end: datetime-like
         End of the calibration interval
     """
-
-    # FIXME: implement recalibration for upper borehole sensors for which data
-    # is available. Remove sensors located above the surface.
+    start, end = RECALIB_INTERVALS[borehole]
     melting_point = -beta * rho_i * gravity * depth
     initial_temp = temp[start:end].mean()
-    melt_offset = (melting_point - initial_temp).fillna(0.0)
-    return melt_offset
+    stable_cond = temp[start:end].std() < 0.01
+    melt_offset = stable_cond * (melting_point - initial_temp).fillna(0.0)
+    return melt_offset.squeeze()
 
 
 # Main program
@@ -560,10 +565,15 @@ def main():
     bh3_pzm_dept = locate_piezometers('bh3', bh3_pzm_wlev)
     bh2_thr_dept, bh3_thr_dept = locate_thermistors()
 
-    # calibrate temperatures using initial depths
-    bh3_inc_corr = temperature_correction(bh3_inc.temp, bh3_inc_dept)
-    bh3_inc.temp += bh3_inc_corr
-    bh3_thr_corr = temperature_correction(bh3_thr_temp, bh3_thr_dept)
+    # recalibrate temperatures using initial depths
+    bh1_inc.temp += temperature_correction('bh1', bh1_inc.temp, bh1_inc_dept)
+    bh3_inc.temp += temperature_correction('bh3', bh3_inc.temp, bh3_inc_dept)
+    bh2_pzm_temp += temperature_correction('bh2', bh2_pzm_temp, bh2_pzm_dept)
+    bh3_pzm_temp += temperature_correction('bh3', bh3_pzm_temp, bh3_pzm_dept)
+    bh2_thr_corr = temperature_correction('bh2', bh2_thr_temp, bh2_thr_dept)
+    bh2_thr_temp += bh2_thr_corr
+    bh2_thr_manu += bh2_thr_corr
+    bh3_thr_corr = temperature_correction('bh3', bh3_thr_temp, bh3_thr_dept)
     bh3_thr_manu += bh3_thr_corr
     bh3_thr_temp += bh3_thr_corr
 
