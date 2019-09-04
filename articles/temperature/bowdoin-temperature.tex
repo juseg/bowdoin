@@ -271,7 +271,8 @@
     2017 using a hand-held ohmmeter.
 
     The digital inclinometers \citep[DIBOSS,][]{Ryser.2014, Ryser.etal.2014,
-    Ryser.etal.2014a} were connected to CR1000 data loggers. Each data logger
+    Ryser.etal.2014a} are equipped with TSic~716 temperature sensors and were
+    connected to CR1000 data loggers. Each data logger
     was set-up in a hard plastic case including three 12\,V, 65\,Ah lead
     batteries and a solar panel on the outside, and anchored to an aluminum
     poles drilled into the ice.
@@ -288,12 +289,9 @@
 \subsection{Temperature calibration}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    For digital inclinometers the conversion from resistance to temperature
-    values is performed in-situ by the englacial digitizers. For basal
-    piezometers \todo{ask Mauro if the sensors deliver a temperature or if this
-    conversion is performed by the data loggers installed on the glacier
-    surface?}. For the thermistor strings the conversion is performed during
-    post-processing following the Steinhart-Hart equation:
+
+    For the thermistor strings, the conversion from resistance to temperature
+    is performed during post-processing following the Steinhart-Hart equation:
     %
     \begin{equation}
       \frac{1}{T} = a_0 + a_1 \log(R) + a_3 \log(R)^3
@@ -301,8 +299,11 @@
     %
     where $R$ is the measured resistance, $T$ the ice temperature, and $a_0$,
     $a_1$, and $a_3$ are coefficients calibrated individually for each sensor
-    (Table~\ref{tab:calibration}) prior to fieldwork in the lab for
-    temperatures of -15, -12, -9, -6, -3 and 0\,$^\circ$C.
+    prior to fieldwork in the lab for temperatures of -15, -12, -9, -6, -3 and
+    0\,$^\circ$C (Table~\ref{tab:calibration}). The basal piezometers use
+    temperature calibration coefficients published by the constructor
+    (Table~\ref{tab:calibration}). The digital inclinometers use fully
+    calibrated sensors delivering direct temperature measurements.
 
     Despite the pre-field calibration it was observed that initial temperatures
     observed in the borehole immediately after drilling were not at the
@@ -322,10 +323,7 @@
     acceleration due to gravity, and $z$ is the depth below the ice surface
     (parameter values given in Table~\ref{tab:parameters}).
 
-    \note{The values for $a_0$ around $10^{-3}$\,K are very small compared to
-          the correction needed to bring initial temperatures to the pressure
-          melting point...}
-    \todo{I would be possible to extend this recalibration to some sensors of
+    \todo{It would be possible to extend this recalibration to some sensors of
           BH1 and BH2, which refreeze after the loss of data.}
 
 
@@ -765,7 +763,7 @@
           LI03 &   ---   &   ---   &   ---   & -0.366179 \\
           LI04 &   ---   &   ---   &   ---   &  0.153631 \\
           LI05 &   ---   &   ---   &   ---   &  0.077992 \\
-          LP   &   ---   &   ---   &   ---   &     ---   \\
+          LP   & 1.4051  & 2.369   & 1.019   &     ---   \\
           LT01 & 2.68849 & 2.91312 & 2.90792 & -0.146871 \\
           LT02 & 2.72120 & 2.77064 & 6.36107 & -0.113681 \\
           LT03 & 2.72538 & 2.75376 & 6.65425 & -0.155103 \\
@@ -797,7 +795,7 @@
           UI05 &   ---   &   ---   &   ---   &     ---   \\
           UI06 &   ---   &   ---   &   ---   &     ---   \\
           UI07 &   ---   &   ---   &   ---   &     ---   \\
-          UP   &   ---   &   ---   &   ---   &     ---   \\
+          UP   & 1.4051  & 2.369   & 1.019   &     ---   \\
           UT01 & 2.62948 & 3.15882 &-2.11729 &     ---   \\
           UT02 & 2.70630 & 2.83255 & 4.85636 &     ---   \\
           UT03 & 2.71054 & 2.85092 & 4.36997 &     ---   \\
