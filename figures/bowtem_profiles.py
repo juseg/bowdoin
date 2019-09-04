@@ -6,8 +6,7 @@
 """Plot Bowdoin temperature profiles."""
 
 import numpy as np
-import scipy as sp
-import scipy.interpolate
+import scipy.interpolate as sinterp
 import pandas as pd
 import absplots as apl
 import util
@@ -54,13 +53,24 @@ def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
 
 
 def plot_interp(ax, depth, temp, **kwargs):
-    """Plot spline-interpolated temperature profile."""
+    """
+    Plot spline-interpolated temperature profile.
+    """
     mask = np.isnan(temp)
     temp = temp[~mask]  # pandas equiv. temp.dropna()
     depth = depth[~mask]  # pandas equiv. depth[temp.index]
     depth_new = np.arange(depth[0], depth[-1], 1)
-    temp_new = sp.interpolate.interp1d(depth, temp, kind='cubic')(depth_new)
+    temp_new = sinterp.interp1d(depth, temp, kind='cubic')(depth_new)
     return ax.plot(temp_new, depth_new, **kwargs)
+
+
+def plot_markers(ax, depth, temp, **kwargs):
+    """
+    Plot markers profile based on sensor type.
+    """
+    for sensor, marker in util.tem.MARKERS.items():
+        mask = depth.index.str[1] == sensor
+        ax.plot(temp[mask], depth[mask], marker=marker, ls='', **kwargs)
 
 
 def main():
@@ -80,39 +90,37 @@ def main():
 
         # load temperature profiles
         temp, depth, base = util.tem.load_profiles(bh)
-        dates = temp.columns
-        temp0 = temp[dates[0]]
-        temp1 = temp[dates[1]]
-        diff = temp1-temp0
+        temp0 = temp.iloc[:, 0]
+        temp1 = temp.iloc[:, 1]
+
+        # plot markers profile
+        plot_markers(ax0, depth, temp0, c=color)
 
         # plot interpolates between sensors
-        labels = [bh.upper() + ', ' + s for s in temp]
+        labels = [bh.upper() + ', ' + date for date in temp]
         plot_interp(ax0, depth, temp0, c=color, label=labels[0])
         plot_interp(ax0, depth, temp1, c=color, label=labels[1], ls='--', lw=0.5)
-        plot_interp(ax1, depth, diff, c=color, ls='--', lw=0.5)
+        plot_interp(ax1, depth, temp1-temp0, c=color, ls='--', lw=0.5)
 
-        # annotate min temp and max warming
-        idx = temp0[depth>50].idxmin()
-        ax0.text(temp0[idx], depth[idx], '%.2f°C  ' % temp0[idx], color=color,
-                 ha='right', va='bottom')
-        idx = diff.idxmax()
-        ax1.plot(diff[idx], depth[idx], c=color,
-                 marker=util.tem.MARKERS[idx[1]])
-        ax1.text(diff[idx], depth[idx], '  +%.2f°C' % diff.max(), color=color,
+        # annotate minimum observed temperature below 50m depth
+        sensor = temp0[depth > 50].idxmin()
+        ax0.text(temp0[sensor], depth[sensor], '%.2f°C  ' % temp0[sensor],
+                 color=color, ha='right', va='bottom')
+
+        # annotate maximum observed warming
+        sensor = (temp1-temp0).idxmax()
+        ax1.plot((temp1-temp0)[sensor], depth[sensor], c=color,
+                 marker=util.tem.MARKERS[sensor[1]])
+        ax1.text((temp1-temp0)[sensor], depth[sensor],
+                 '  +%.2f°C' % (temp1-temp0)[sensor], color=color,
                  ha='left', va='bottom')
 
         # plot theroretical diffusion
-        dates = pd.to_datetime(dates)
+        dates = pd.to_datetime(temp.columns)
         dheat = compute_diffusive_heating(depth, temp0)
         dheat *= (dates[1]-dates[0]).total_seconds()
         ax1.plot(dheat, depth, c=color, marker='_', ls='')
         plot_interp(ax1, depth, dheat, c=color)
-
-        # add markers by sensor type
-        for sensor, marker in util.tem.MARKERS.items():
-            ax0.plot(temp0[depth.index.str[1] == sensor],
-                     depth[depth.index.str[1] == sensor],
-                     c=color, marker=marker, ls='', label='')
 
         # add base line
         for ax in (ax0, ax1):
