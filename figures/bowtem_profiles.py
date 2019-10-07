@@ -12,6 +12,12 @@ import absplots as apl
 import util
 
 
+def compute_gradient(temp, depth):
+    """Compute temperature gradient as a data series."""
+    temp[:] = np.gradient(temp, depth)
+    return temp
+
+
 def compute_diffusive_heating(depth, temp, capacity=2009, conductivity=2.1,
                               density=910.0):
     """
@@ -30,8 +36,8 @@ def compute_diffusive_heating(depth, temp, capacity=2009, conductivity=2.1,
     density : scalar
         Ice density in kg m-3.
     """
-    heat_flux = conductivity * np.gradient(temp, depth)
-    return np.gradient(heat_flux, depth) / (density * capacity)
+    heat_flux = conductivity * compute_gradient(temp, depth)
+    return compute_gradient(heat_flux, depth) / (density * capacity)
 
 
 def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
@@ -56,9 +62,8 @@ def plot_interp(ax, depth, temp, **kwargs):
     """
     Plot spline-interpolated temperature profile.
     """
-    mask = np.isnan(temp)
-    temp = temp[~mask]  # pandas equiv. temp.dropna()
-    depth = depth[~mask]  # pandas equiv. depth[temp.index]
+    temp = temp.dropna()
+    depth = depth[temp.index]
     depth_new = np.arange(depth[0], depth[-1], 1)
     temp_new = sinterp.interp1d(depth, temp, kind='cubic')(depth_new)
     return ax.plot(temp_new, depth_new, **kwargs)
