@@ -105,25 +105,28 @@ def main():
         labels = [bh.upper() + ', ' + date for date in temp]
         plot_interp(ax0, depth, temp0, c=color, label=labels[0])
         plot_interp(ax0, depth, temp1, c=color, label=labels[1], ls='--', lw=0.5)
-        plot_interp(ax1, depth, temp1-temp0, c=color, ls='--', lw=0.5)
+
+        # plot temperature change
+        dates = pd.to_datetime(temp.columns)
+        change = (temp1-temp0)/((dates[1]-dates[0])/pd.to_timedelta('1Y'))
+        plot_interp(ax1, depth, change, c=color, ls='--', lw=0.5)
 
         # annotate minimum observed temperature below 50m depth
         sensor = temp0[depth > 50].idxmin()
         ax0.text(temp0[sensor], depth[sensor], '%.2f°C  ' % temp0[sensor],
                  color=color, ha='right', va='bottom')
 
-        # annotate maximum observed warming
-        sensor = (temp1-temp0).idxmax()
-        ax1.plot((temp1-temp0)[sensor], depth[sensor], c=color,
+        # annotate maximum observed warming below
+        sensor = change.idxmax()
+        ax1.plot(change[sensor], depth[sensor], c=color,
                  marker=util.tem.MARKERS[sensor[1]])
-        ax1.text((temp1-temp0)[sensor], depth[sensor],
-                 '  +%.2f°C' % (temp1-temp0)[sensor], color=color,
+        ax1.text(change[sensor], depth[sensor],
+                 '  +%.2f$°C\,a^{-1}$' % (change)[sensor], color=color,
                  ha='left', va='bottom')
 
         # plot theroretical diffusion
-        dates = pd.to_datetime(temp.columns)
         dheat = compute_diffusive_heating(depth, temp0)
-        dheat *= (dates[1]-dates[0]).total_seconds()
+        dheat *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
         ax1.plot(dheat, depth, c=color, marker='_', ls='')
         plot_interp(ax1, depth, dheat, c=color)
 
@@ -146,7 +149,7 @@ def main():
     ax0.legend(loc='lower left')
     ax0.set_ylabel('initial sensor depth (m)')
     ax0.set_xlabel(u'ice temperature (°C)')
-    ax1.set_xlabel(u'temperature change (°C)')
+    ax1.set_xlabel(u'temperature change ($°C\,a^{-1}$)')
     ax0.set_xlim(-10.5, 0.5)
     ax1.set_xlim(-0.3, 0.9)
 
