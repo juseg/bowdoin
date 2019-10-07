@@ -33,6 +33,9 @@ def read_locations(filename='../data/locations.gpx', crs=None):
         xyz = crs.transform_points(ccrs.PlateCarree(), *xyz.T).T
         data['x'], data['y'], data['z'] = xyz
 
+    # remove timezone information (see gpxpy issue #182)
+    data.time = data.time.dt.tz_localize(None)
+
     # return locations dataframe
     return data
 
