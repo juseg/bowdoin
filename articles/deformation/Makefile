@@ -5,7 +5,7 @@
 # Variables
 # ---------
 
-PAPER = bowdoin-temperature
+PAPER = bowdoin-deformation
 
 
 # Rules
