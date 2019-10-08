@@ -5,4 +5,5 @@
 
 import util.com  # common tools
 import util.geo  # mapping tools
+import util.inc  # deformation article
 import util.tem  # temperature article

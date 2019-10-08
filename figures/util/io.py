@@ -81,34 +81,6 @@ def load_bowtid_data(var):
     return df
 
 
-def load_strain_rate(borehole, freq, as_angle=False):
-    """Return horizontal shear strain rate from tilt at given frequency."""
-
-    # check argument validity
-    assert borehole in ut.boreholes
-
-    # load tilt data
-    tiltx = load_data('tiltunit', 'tiltx', borehole).resample(freq).mean()
-    tilty = load_data('tiltunit', 'tilty', borehole).resample(freq).mean()
-
-    # compute horizontal shear strain
-    exz_x = np.sin(tiltx).diff()
-    exz_y = np.sin(tilty).diff()
-    exz = np.sqrt(exz_x**2+exz_y**2)
-
-    # convert to angles
-    if as_angle == True:
-        exz = np.arcsin(exz)*180/np.pi
-
-    # convert to strain rate
-    dt = pd.to_timedelta(freq).total_seconds()
-    dt /= 365.0 * 24 * 60 * 60
-    exz /= dt
-
-    # return strain rate series
-    return exz
-
-
 def load_total_strain(borehole, start, end=None, as_angle=False):
     """Return horizontal shear strain rate from tilt relative to a start date
     or between two dates."""

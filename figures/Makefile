@@ -6,7 +6,8 @@
 # ---------
 
 # all python figures
-PY_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
+PY_CODE = $(addprefix bowdef_, strainrates) \
+          $(addprefix bowtem_, boreholes calibration closure demseries \
 			       images ogives profiles timeseries) \
           $(addprefix bowpal_, samplemap)
 PY_FIGS = $(addsuffix .pdf, $(PY_CODE))
@@ -21,7 +22,7 @@ ALL_FIGS = $(PY_FIGS)
 #            $(addprefix hist_, ls8 ls8_uv) \
 #            $(addprefix map_, gmb gsv ls8 ls8_uv vgd vgd_uv) \
 #            $(addprefix summer_, 2014 2015 2016) \
-#            $(addprefix ts_, angvel defvel detrended gpsvel satvel satvel_uv tilt)) \
+#            $(addprefix ts_, defvel detrended gpsvel satvel satvel_uv tilt)) \
 #          $(addprefix bowtid_, boreholes correlate diffseries fft gmb \
 #                               highpass intervals lombscargle previous \
 #                               specgrams tempseries tideseries wlevseries) \
