@@ -52,34 +52,65 @@
 %\end{abstract}
 
 % ----------------------------------------------------------------------
-%\section{Methods}
+\section{Methods}
 % ----------------------------------------------------------------------
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-\subsection{Strain heating computation}
+\subsection{Theoretical englacial warming}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    The energy dissipation due to strain heating can be expressed by 
+    \todo{check or add references.}
+
+    The theoretical englacial warming due to heat diffusion and viscous
+    dissipation can be expressed by the temperature evolution equation,
     %
     \begin{equation}
-        H = \mathrm{tr}(\tau\dot\epsilon).
+      \rho c \frac{\partial T}{\partial t}
+        = k \frac{\partial^2 T}{\partial z^2} + H,
     \end{equation}
-
-    Let us applying the constitutive law for ice \citep{Glen.1952, Nye.1953},
+    %
+    where $T$ is the ice temperature $\rho$ is the ice density, $k$ is the
+    thermal conductivity of ice, and $c$ its specific heat capacity
+    (Table~\ref{tab:parameters}). The source term, $H$, corresponds to the
+    energy dissipation due to strain heating, which can be expressed as
+    %
+    \begin{equation}
+      H = \mathrm{tr}(\tau\dot\epsilon),
+    \end{equation}
+    %
+    where $\tau$ is the deviatoric stress tensor, and $\dot\epsilon$ the
+    strain-rate tensor. Stresses and strains can be related by the
+    constitutive law for ice \citep{Glen.1952, Nye.1953},
     %
     \begin{equation}
         \dot{\epsilon} = A\,\tau_e^{n-1}\,\tau \,,
     \end{equation}
     %
     where the equivalent stress, $\tau_e$, is defined by ${\tau_e}^2 =
-    \frac{1}{2} \mathrm{tr}(\tau^2)$, and the ice softness coefficient, $A$,
-    depends on the pressure-adjusted ice temperature, $T_{pa}$, through an
-    Arrhenius-type law: $A = A_0 \,e^\frac{-Q}{RT_{pa}}$
-    \citep[Eqs.~63--65]{Paterson.Budd.1982, Aschwanden.etal.2012}.
-    The strain heating can be rewritten as a function of pure deviatoric
-    stresses or strain rates,
+    \frac{1}{2} \mathrm{tr}(\tau^2)$. The ice softness coefficient, $A$,
+    depends on the pressure-adjusted ice temperature, $T$, and pressure, $p$,
+    through an Arrhenius-type law, $A = A_0 \,e^\frac{-Q}{RT_{pa}}$, where
+    $T_{pa}$ is the pressure-adjusted ice temperature calculated using
+    the Clapeyron relation, ${T_{pa} = T - \beta p}$.
+    %$R=8.31441$\,J\,mol$^{-1}$\,K$^{-1}$ is the ideal gas
+    %constant, and $A_0$ and $Q$ are constant parameters
+    %\citep[p.~72]{Paterson.Budd.1982, Cuffey.Paterson.2010}
+    %\citep[Eqs.~63--65]{Paterson.Budd.1982, Aschwanden.etal.2012}.
+    The strain heating can then be rewritten as a function of the deviatoric
+    stresses or the strain rates only,
     \begin{equation}
         H = 2 A \tau_e^{n+1} = 2 A^{-1/n} \dot\epsilon_e^{1+1/n}.
+    \end{equation}
+
+    Assuming two-dimensional, vertical planar deformation, the effective strain
+    rate, $\dot\epsilon_e^2 = \frac{1}{2}\mathrm{tr}(\epsilon^2)$, can be
+    expressed in terms of its cartesian components, $\dot\epsilon_e^2 =
+    \frac{1}{2}(\dot\epsilon_{xx}^2 + \dot\epsilon_{zz}^2) +
+    \dot\epsilon_{xz}^2$. The consevation of volume yields
+    $\mathrm{div}(\dot\epsilon) = \dot\epsilon_{xx} + \dot\epsilon_{zz} = 0$ so
+    that the effective strain can be simplified to a function of its
+    longitudinal and shear components, \begin{equation}
+        \dot\epsilon_e^2 = \dot\epsilon_{xx}^2 + \dot\epsilon_{xz}^2.
     \end{equation}
 
 
