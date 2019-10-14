@@ -62,8 +62,8 @@
 
     All around the margins of the Greenland Ice Sheet, ocean-terminating
     glaciers currently thin and accelerate. With basal friction forces nearly
-    suppressed, only the internal viscous forces limit ice flow \todo{rework}.
-    The viscosity
+    suppressed, only the internal viscous forces limit ice flow \todo{rework,
+    drag at the margins}. The viscosity
     of ice depends critically on its temperature, but temperature has rarely
     been measured on such fast flowing and heavily crevassed glaciers.
     %
@@ -78,6 +78,8 @@
     crevasses reaching to or near the bed of the glacier, whose localisation
     may be controlled by preferential mechanical damage and meltwater ponding
     in topographic dips between ogives.
+    %
+    \todo{mention shear / strain heating}
 
 \end{abstract}
 
@@ -102,7 +104,8 @@
     \citep{Meier.Post.1987}. When the glaciers come close to floatation, basal
     friction may be so low \citep{Shapero.etal.2016, Seddik.etal.2019} that the
     only factor limiting flow velocities are the internal viscous forces in
-    the ice \todo{rework: lateral friction, buttressing by ice melange}.
+    the ice \todo{rework: lateral friction, buttressing by ice melange,
+    temperate base with sliding, lateral drag}.
 
     However, ice viscosity depends critically on temperature. Between
     $-15\,^\circ$C and the pressure-melting point, ice softness varies by as
@@ -132,7 +135,8 @@
     challenges to instrumentation.
 
     Here, we present a new, three-year, continuous record of englacial
-    temperature from Bowdoin Glacier, a relatively accessible tidewater outlet
+    temperature from Bowdoin Glacier, a relatively easy-accessible tidewater
+    outlet
     glacier of the northwestern Greenland Ice Sheet. Despite successive data
     losses due to harsh climate and ice deformation, the record reveals
     new mechanisms controlling temperature variations in tidewater glacier.
@@ -146,12 +150,12 @@
 \subsection{Bowdoin Glacier}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Bowdoin Glacier is a relatively accessible tidewater glacier located in
-    northwest Greenland. It is a medium-size outlet glacier of the Greenland
+    Bowdoin Glacier is a relatively easy-accessible tidewater glacier located
+    in northwest Greenland. It is a medium-size outlet glacier of the Greenland
     Ice Sheet with a catchment of about 60$\times$60\,km, and drains into
     Bowdoin Fjord across a 3\,km-wide calving front
     (Fig.~\ref{fig:boreholes}a). The glacier front is located 30\,km from the
-    village of Qaanaaq and northernmost airport in Greenland
+    settlement of Qaanaaq and northernmost airport in Greenland
     \citep[Fig.~1]{Sugiyama.etal.2015}.
 
     The glacier was chosen for fieldwork due to its accessibility, and
@@ -216,7 +220,8 @@
     and BH2 7\,m apart at the first (upper) drilling site ca.~2\,km from the
     calving front, it was planned that two other boreholes would be drilled
     upstream in the thicker part of the glacier. Due to unfavourable weather the
-    hot water drilling equipment could not be shipped upstream. Thus, a third
+    hot water drilling equipment could not be transported upstream. Thus, a
+    third
     and last hole was drilled 158\,m downstream of the first borehole site
     to be equipped with all instruments left (Fig.~\ref{fig:boreholes}a,
     Table~\ref{tab:drilling}).
@@ -264,7 +269,11 @@
     inclinometers were calibrated from independent pressure sensors, we
     interpret that sensors on the thermistor string were misplaced due to a
     manipulation error and mark their positions and data as erratic (ERR,
-    Fig.~\ref{fig:boreholes}b, grey circles).
+    Fig.~\ref{fig:boreholes}b, grey circles). This error may be related to the
+    decision to install all remaining instruments in a single (BH3) borehole
+    instead of the two originally planned, which was taken in light of the
+    the observed diminishing availability of surface meltwater for drilling in
+    this part of the glacier.
 
     The basal piezometers (GeoKon 4500) were connected to Campbell CR10X data
     loggers via Campbell AVW1 vibrating wire interfaces. The thermistor strings
@@ -292,9 +301,10 @@
     (Fig.~\ref{fig:images}b).
 
     Finally, a Differential Global Positioning System (DGPS) receiver was
-    installed near the first borehole (BH1). The DGPS receiver (\todo{model
-    name?}) was mounted on an aluminium stake re-drilled every summer in the
-    ice to accumodate melt. It was connected to a \todo{model name?} data
+    installed near the first borehole (BH1). The DGPS receiver (\todo{
+    model GEM-1 or GEM-2, www.ghss.co.jp, name?})
+    was mounted on an aluminium stake re-drilled every summer in the
+    ice to accumodate melt. It was connected to a \todo{complete system} data
     logger set-up in a hard plastic case and powered by an external
     \todo{XX\,V, XX\,Ah} lead battery and a solar panel. The DGPS reference
     station was installed near the camp site (Fig.~\ref{fig:boreholes}).
@@ -323,10 +333,10 @@
 
     Despite the pre-field calibration it was observed that initial temperatures
     observed in the borehole immediately after drilling were not at the
-    pressure-melting point. Thus for sensors where initial data is available,
-    a recalibration is applied in post-processing by correcting for the initial
-    temperature offset, $\Delta T$ (Table~\ref{tab:calibration}). Unfortunately
-    some of these initial
+    pressure-melting point but instead up to 0.16\,$^\circ$C colder.  Thus for
+    sensors where initial data are available, a recalibration is applied in
+    post-processing by correcting for the initial temperature offset, $\Delta
+    T$ (Table~\ref{tab:calibration}). Unfortunately some of these initial
     temperature data have been lost so that the recalibration was possible for
     some sensors only. The pressure-melting point was computed as
     %
@@ -404,6 +414,7 @@
 
     After the refreezing of the entire boreholes, vertical profiles depict
     temperatures below the pressure-melting point except for the base of the
+    \todo{maybe there is a temperate layer}
     glacier where temperatures are at the pressure-melting point. The coldest
     temperatures are reached in the middle part of the ice column, above which
     is found a layer of relatively high temperatures, and finally a layer with
@@ -733,7 +744,8 @@
         with outliers marked as empty circles, and 2017 values off the graph).
         Field campaigns (orange spans) and dates selected for
         temperature profiles (dashed lines; Fig.~\ref{fig:profiles}) are
-        indicated.}
+        indicated.
+        \todo{introduce ERR, month labels in English.}}
       \label{fig:timeseries}
     \end{figure}
 
@@ -747,7 +759,8 @@
         \textbf{(b)} Theoretical temperature diffusion (solid lines) and
           observed temperature changes (dashed lines) for the corresponding
           time period. The maximum observed warming is indicated. All curves
-          are interpolated using cubic splines.}
+          are interpolated using cubic splines.
+          \todo{introduce ERR and glacier base lines.}}
       \label{fig:profiles}
     \end{figure}
 
