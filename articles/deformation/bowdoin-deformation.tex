@@ -59,8 +59,6 @@
 \subsection{Theoretical englacial warming}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    \todo{check or add references.}
-
     The theoretical englacial warming due to heat diffusion and viscous
     dissipation can be expressed by the temperature evolution equation,
     %
@@ -96,6 +94,7 @@
     \citep[p.~72]{Cuffey.Paterson.2010}.
     The strain heating can then be rewritten as a function of the deviatoric
     stresses or the strain rates only,
+    %
     \begin{equation}
         H = 2 A \tau_e^{n+1} = 2 A^{-1/n} \dot\epsilon_e^{1+1/n}.
     \end{equation}
@@ -107,9 +106,36 @@
     \dot\epsilon_{xz}^2$. The consevation of volume yields
     $\mathrm{div}(\dot\epsilon) = \dot\epsilon_{xx} + \dot\epsilon_{zz} = 0$ so
     that the effective strain can be simplified to a function of its
-    longitudinal and shear components, \begin{equation}
+    longitudinal and shear components,
+    %
+    \begin{equation}
         \dot\epsilon_e^2 = \dot\epsilon_{xx}^2 + \dot\epsilon_{xz}^2.
     \end{equation}
+
+
+% ----------------------------------------------------------------------
+\section{Results}
+% ----------------------------------------------------------------------
+
+% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+\subsection{Quick estimation}
+% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
+    The longitudinal strain can be estimated from the observed borehole
+    positions. The distance distance between the lower (BH3) and uppermost
+    (BH2) boreholes increased from 165 to 197\,m between 2014 July 20 (midpoint
+    between the two observation dates 17 and 23) and 2017 July 17. This
+    corresponds to a longitudinal strain rate, $\dot\epsilon_{xx}$, of
+    $2.01\times10^9$\,s$^{-1}$. Measured horizontal shear strain rates,
+    $\dot\epsilon_{xy}$, are on the order of $3\times10^9$\,s$^{-1}$, yielding
+    an effective strain rate, $\dot\epsilon_e$, of $3.61\times10^9$\,s$^{-1}$.
+
+    Assuming a constant ice hardness coefficient, $A$, corresponding to the
+    pressure-melting point ice hardness, $A_0$ (Table~\ref{tab:parameters}),
+    yields to a slight overestimate of the heat dissipation due to strain
+    heating, $H$, at $1.57\times10^3$\,Pa\,s$^{-1}$. The corresponding
+    rate of temperature change is $2.60\times10^{-2}$\,$^{\circ}$C\,a$^{-1}$,
+    which is negligible as compared to the observed temperature changes.
 
 
 % ----------------------------------------------------------------------
@@ -149,7 +175,7 @@
         \hline
         Not.    & Name & Value & Unit & Source \\
         \hline
-        $A$     & Ice hardness coefficient
+        $A_0$   & Ice hardness coefficient
                 & $3.5\times10^{-25}$
                 & Pa$^{-3}$\,s$^{-1}$
                 & \citet[p.~74]{Cuffey.Paterson.2010} \\
