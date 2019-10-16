@@ -138,6 +138,31 @@
     which is negligible as compared to the observed temperature changes.
 
 
+% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+\subsection{Temporal variations}
+% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
+    The previous approach has strong limitations.  First, the shear strain is
+    negligible over much of the depth profile but may be important near the
+    base. However, there are not enough sensors near the base to simply
+    interpolate a strain rate profile through the available measurements.
+    Instead, one could to fit a SIA velocity profile through to the
+    measurements and try to extrapolate shear strain near the base where it
+    primarily occurs but no measurements are available.
+
+    Second, both longitudinal and shear strain rates vary a lot through time.
+    This is most visible in the continuous, tilt measurements time series
+    (Fig.~\ref{fig:strainrates}), but also true for surface velocities
+    measured by surface DGPS, which need to be extrapolated to winter using
+    other data sources. The nonlinearity in the dissipation equation will
+    amplify fluctuations in effective strain, resulting in a higher value for
+    strain heating than if one just considers the mean strain rate.
+
+    However, if these time varitions were significant. one could expect to see
+    their effects in the ice temperature time-series. The temperature record
+    instead seems to show a continuous warming throughout the seasons.
+
+
 % ----------------------------------------------------------------------
 % Acknowledgements
 % ----------------------------------------------------------------------
@@ -159,8 +184,15 @@
 
 % ----------------------------------------------------------------------
 % Figures
-%\clearpage
+\clearpage
 % ----------------------------------------------------------------------
+
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_strainrates}}
+      \caption{%
+          Strain rates time series from daily average tilt measurements.}
+      \label{fig:strainrates}
+    \end{figure}
 
 % ----------------------------------------------------------------------
 % Tables
