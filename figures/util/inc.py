@@ -27,10 +27,19 @@ def load(filename):
     return data
 
 
-def load_strain_rate(borehole, freq='1D'):
+def load_strain_rate(borehole, freq='1D', per='s'):
     """
     Return horizontal shear strain rate from tilt relative to a start date
     or between two dates.
+
+    Parameters
+    ----------
+    borehole: string
+        Borehole name bh1 or bh3.
+    freq: string
+        Frequency to resample average tilts before time differentiation.
+    per: string
+        Time unit relative to which strain rates are returned.
     """
 
     # load borehole data
@@ -45,7 +54,7 @@ def load_strain_rate(borehole, freq='1D'):
 
     # convert to strain rate in a-1
     exz /= pd.to_timedelta(freq).total_seconds()
-    exz *= pd.to_timedelta('1Y') / pd.to_timedelta('1s')
+    exz *= pd.to_timedelta('1'+per) / pd.to_timedelta('1s')
 
     # return strain rate
     return exz

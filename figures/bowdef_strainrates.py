@@ -20,7 +20,7 @@ def main():
     for bh in ('bh1', 'bh3'):
 
         # load strain rate
-        exz = util.inc.load_strain_rate(bh)
+        exz = util.inc.load_strain_rate(bh, per='Y')
 
         # plot strain rate
         exz.plot(ax=ax)
