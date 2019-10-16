@@ -5,6 +5,7 @@
 
 """Estimate viscous dissipation due to strain heating."""
 
+import pandas as pd
 import cartopy.crs as ccrs
 import absplots as apl
 import util
@@ -24,10 +25,10 @@ def main(capacity=2097, density=910.0, hardness=3.5e-25):
             locs.time.B17BH3 - locs.time.B14BH3)/2
 
     # estimate effective strain rate
-    # FIXME compute avg shear from tilts
     e_xx = 2*(d_17-d_14)/(d_17+d_14)/time.total_seconds()
-    e_xy = 3e-9
-    e_e = (e_xx**2+e_xy**2)**0.5
+    e_xz = pd.concat([util.inc.load_strain_rate(bh)['2014-10':].mean()
+                     for bh in ('bh1', 'bh3')]).mean()
+    e_e = (e_xx**2+e_xz**2)**0.5
 
     # estimate heat dissipation
     # FIXME ice hardness depends on temperature
@@ -44,7 +45,7 @@ def main(capacity=2097, density=910.0, hardness=3.5e-25):
         "effective strain rate: {:.2e} s-1\n"
         "heat dissipation: {:.2e} Pa s-1\n\n"
         "temperature change: {:.2e} °C a-1").format(
-            e_xx, e_xy, e_e, heat, change))
+            e_xx, e_xz, e_e, heat, change))
     util.com.savefig(fig)
 
 
