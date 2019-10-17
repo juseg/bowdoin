@@ -12,6 +12,11 @@ import cartopy.crs as ccrs
 # Global data
 # -----------
 
+# Physical constants
+CLAPEYRON = 7.9e-8      # Clapeyron constant,   K Pa-1          (LU02)
+DENSITY = 917           # Ice density,          kg m-3          (CP10, p. 12)
+GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
+
 # borehole depths measured immediately after drilling
 DRILLING_DATES = None  # FIXME
 INITIAL_DEPTHS = dict(bh1=272.0, bh2=262.0, bh3=252.0)
@@ -503,19 +508,19 @@ def temperature_correction(borehole, temp, depth, clapeyron=CLAPEYRON,
 
     Parameters
     ----------
-    beta : scalar
-        Clapeyron constant for ice (default: Luethi et al., 2002)
+    clapeyron : scalar
+        Clapeyron constant for ice
+    density : scalar
+        Ice density in kg m-3
     gravity : scalar
         Standard gravity in m s-2
-    rho_i : scalar
-        Ice density in kg m-3
     start : datetime-like
         Start of the calibration interval
     end: datetime-like
         End of the calibration interval
     """
     start, end = RECALIB_INTERVALS[borehole]
-    melting_point = -beta * rho_i * gravity * depth
+    melting_point = -clapeyron * density * gravity * depth
     initial_temp = temp[start:end].mean()
     stable_cond = temp[start:end].std() < 0.01
     melt_offset = stable_cond * (melting_point - initial_temp).fillna(0.0)
