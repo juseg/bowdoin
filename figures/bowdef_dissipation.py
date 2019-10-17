@@ -11,7 +11,8 @@ import absplots as apl
 import util
 
 
-def main(capacity=2097, density=910.0, hardness=3.5e-25):
+def main(capacity=util.com.CAPACITY, density=util.com.DENSITY,
+         hardness=util.com.HARDNESS):
     """Main program called during execution."""
 
     # load borehole positions

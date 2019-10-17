@@ -15,6 +15,24 @@ import matplotlib.transforms as mtransforms
 import cartopy.crs as ccrs
 
 
+# Physical constants
+# ------------------
+
+ACTIV_ENERGY = 116e3    # Flow law act. ener.,  J mol-1         (CP10, p. 74)
+CLAPEYRON = 7.9e-8      # Clapeyron constant,   K Pa-1          (LU02)
+CAPACITY = 2097         # Ice spec. heat cap.,  J kg-1 K-1      (CP10, p. 400)
+CONDUCTIVITY = 2.10     # Ice thermal cond.,    J m-1 K-1 s-1   (CP10, p. 400)
+DENSITY = 917           # Ice density,          kg m-3          (CP10, p. 12)
+GAS_CONSTANT = 8.31441  # Ideal gas constant,   J mol-1 K-1     (--)
+GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
+HARDNESS = 3.5e-25      # Ice hardness coeff.,  Pa-3 s-1        (CP10 p. 74)
+LATENT_HEAT = 3.35e5    # Latent heat fusion,   J kg-1 K-1      (CP10, p. 400)
+
+# References
+# - CP10: CP10
+# - LU02: Lüthi et al., 2002
+
+
 # Input methods
 # -------------
 
