@@ -490,8 +490,8 @@ def read_thermistor_data(site, suffix='Therm'):
 # Temperature calibration methods
 # -------------------------------
 
-def temperature_correction(borehole, temp, depth, beta=7.9e-8, gravity=9.80665,
-                           rho_i=910.0):
+def temperature_correction(borehole, temp, depth, clapeyron=CLAPEYRON,
+                           density=DENSITY, gravity=GRAVITY):
     """
     Compute temperature recalibration offsets assuming that all temperatures
     were at the melting point for a given time interval following the drilling.

@@ -18,8 +18,9 @@ def compute_gradient(temp, depth):
     return temp
 
 
-def compute_diffusive_heating(depth, temp, capacity=2009, conductivity=2.1,
-                              density=910.0):
+def compute_diffusive_heating(depth, temp, capacity=util.com.CAPACITY,
+                              conductivity=util.com.CONDUCTIVITY,
+                              density=util.com.DENSITY):
     """
     Compute temperature rate of change by heat diffusion.
 
@@ -40,7 +41,8 @@ def compute_diffusive_heating(depth, temp, capacity=2009, conductivity=2.1,
     return compute_gradient(heat_flux, depth) / (density * capacity)
 
 
-def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
+def compute_melting_point(depth, clapeyron=util.com.CLAPEYRON,
+                          density=util.com.DENSITY, gravity=util.com.GRAVITY):
     """
     Compute the pressure-melting point from depth below the ice surface.
 
@@ -48,14 +50,14 @@ def compute_melting_point(depth, beta=7.9e-8, gravity=9.80665, rho_i=910.0):
     ----------
     depth : scalar
         Depth below the ice surface.
-    beta : scalar
-        Clapeyron constant for ice (default: Luethi et al., 2002).
+    clapeyron : scalar
+        Clapeyron constant for ice.
+    density : scalar
+        Ice density in kg m-3.
     gravity : scalar
         Standard gravity in m s-2.
-    rho_i : scalar
-        Ice density in kg m-3.
     """
-    return -beta * rho_i * gravity * depth
+    return -clapeyron * density * gravity * depth
 
 
 def plot_interp(ax, depth, temp, **kwargs):
