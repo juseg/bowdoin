@@ -31,7 +31,7 @@ def main():
     util.com.add_subfig_label(ax=ax0, text='(a)', c='k')
     util.com.add_subfig_label(ax=grid[0], text='(b)', c='w', ypad=10)
     util.com.add_subfig_label(ax=grid[1], text='(c)', c='w', ypad=10)
-    for ax, label in zip([ax0]+list(grid), 'abc'):
+    for ax in [ax0]+list(grid):
         ax.set_xticks([])
         ax.set_yticks([])
 

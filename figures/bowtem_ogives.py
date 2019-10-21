@@ -179,8 +179,8 @@ def main():
     # open profile coordinates
     x, y = open_shp_coords('../data/native/flowline.shp',
                            crs=grid[1].projection, interval=1)
-    x = x[x.d<5000]
-    y = y[y.d<5000]
+    x = x[x.d < 5000]
+    y = y[y.d < 5000]
 
     # plot profile on shaded relief map
     ax = grid[1]
@@ -190,14 +190,14 @@ def main():
     elev.interp(x=x, y=y, method='linear').plot(ax=pfax, color='0.25')
 
     # mark borehole locations along profile
-    for bh, ha in zip(['bh2', 'bh3'], ['left', 'right']):
+    for bh in ['bh2', 'bh3']:
         loc = projected.loc[bh]
         color = util.tem.COLOURS[bh]
         dist = ((x-loc.x)**2+(y-loc.y)**2)**0.5
-        dist = dist.where(dist==dist.min(), drop=True).d
+        dist = dist.where(dist == dist.min(), drop=True).d
         pfax.axvline(dist, color=color)
         pfax.text(dist, 40, ' '+bh.upper()+' ', color=color, fontweight='bold',
-                  ha=ha)
+                  ha=('left' if bh == 'bh2' else 'right'))
 
     # set axes properties
     grid[0].set_title(st0[11:19])

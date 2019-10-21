@@ -28,7 +28,7 @@ def main(capacity=util.com.CAPACITY, density=util.com.DENSITY,
     # estimate effective strain rate
     e_xx = 2*(d_17-d_14)/(d_17+d_14)/time.total_seconds()
     e_xz = pd.concat([util.inc.load_strain_rate(bh)['2014-10':].mean()
-                     for bh in ('bh1', 'bh3')]).mean()
+                      for bh in ('bh1', 'bh3')]).mean()
     e_e = (e_xx**2+e_xz**2)**0.5
 
     # estimate heat dissipation
