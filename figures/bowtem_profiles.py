@@ -104,9 +104,10 @@ def main():
         plot_markers(ax0, depth, temp0, c=color)
 
         # plot interpolates between sensors
-        labels = [bh.upper() + ', ' + date for date in temp]
-        plot_interp(ax0, depth, temp0, c=color, label=labels[0])
-        plot_interp(ax0, depth, temp1, c=color, label=labels[1], ls='--', lw=0.5)
+        plot_interp(ax0, depth, temp0, c=color,
+                    label=bh.upper() + ', ' + temp0.name)
+        plot_interp(ax0, depth, temp1, c=color,
+                    label=bh.upper() + ', ' + temp1.name, ls='--', lw=0.5)
 
         # plot temperature change
         dates = pd.to_datetime(temp.columns)
@@ -123,35 +124,33 @@ def main():
         ax1.plot(change[sensor], depth[sensor], c=color,
                  marker=util.tem.MARKERS[sensor[1]])
         ax1.text(change[sensor], depth[sensor],
-                 '  +%.2f$°C\,a^{-1}$' % (change)[sensor], color=color,
+                 r'  +%.2f$°C\,a^{-1}$' % (change)[sensor], color=color,
                  ha='left', va='bottom')
 
         # plot theroretical diffusion
-        dheat = compute_diffusive_heating(depth, temp0)
-        dheat *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
-        ax1.plot(dheat, depth, c=color, marker='_', ls='')
-        plot_interp(ax1, depth, dheat, c=color)
+        change = compute_diffusive_heating(depth, temp0)
+        change *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
+        ax1.plot(change, depth, c=color, marker='_', ls='')
+        plot_interp(ax1, depth, change, c=color)
 
         # add base line
-        for ax in (ax0, ax1):
-            ax.axhline(base, color=color, lw=0.5)
+        ax0.axhline(base, color=color, lw=0.5)
+        ax1.axhline(base, color=color, lw=0.5)
 
     # add ice surface
-    for ax in (ax0, ax1):
-        ax.axhline(0, color='k', lw=0.5)
+    ax0.axhline(0, color='k', lw=0.5)
+    ax1.axhline(0, color='k', lw=0.5)
 
     # plot melting point and zero line
-    base = 272
-    melt = compute_melting_point(base)
-    ax0.plot([0, melt], [0, base], c='k', ls=':', lw=0.5)
-    ax1.plot([0, 0], [0, base], c='k', ls=':', lw=0.5)
+    ax0.plot([0, compute_melting_point(272)], [0, 272], c='k', ls=':', lw=0.5)
+    ax1.plot([0, 0], [0, 272], c='k', ls=':', lw=0.5)
 
     # set axes properties
     ax0.invert_yaxis()
     ax0.legend(loc='lower left')
     ax0.set_ylabel('initial sensor depth (m)')
     ax0.set_xlabel(u'ice temperature (°C)')
-    ax1.set_xlabel(u'temperature change ($°C\,a^{-1}$)')
+    ax1.set_xlabel(r'temperature change ($°C\,a^{-1}$)')
     ax0.set_xlim(-10.5, 0.5)
     ax1.set_xlim(-0.3, 0.9)
 
