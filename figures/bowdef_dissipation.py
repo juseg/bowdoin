@@ -16,7 +16,6 @@ def main(capacity=util.com.CAPACITY, density=util.com.DENSITY,
     """Main program called during execution."""
 
     # load borehole positions
-    # FIXME allow ccrs as string in read_locations
     locs = util.com.read_locations(crs=ccrs.UTM(19))
     d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
             (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5

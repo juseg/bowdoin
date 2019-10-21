@@ -74,6 +74,7 @@ def project_borehole_locations(date, crs):
 
 def build_profile_coords(points, interval=None, method='linear'):
     """Interpolate coordinates along profile through given points."""
+    # FIXME move profile functionality to cratowik.
 
     # compute distance along profile
     x, y = np.asarray(points).T
@@ -107,6 +108,17 @@ def open_shp_coords(filename, crs=None, **kwargs):
 
     # return coordinates
     return x, y
+
+
+def project_location(x, y, loc):
+    """
+    Find the distance along a profile corresponding to the nearest point of
+    the profile to a given location.
+    """
+    dist = ((x-loc.x)**2+(y-loc.y)**2)**0.5
+    dist = dist.where(dist == dist.min(), drop=True).d
+    return dist
+
 
 
 def main():
@@ -191,10 +203,8 @@ def main():
 
     # mark borehole locations along profile
     for bh in ['bh2', 'bh3']:
-        loc = projected.loc[bh]
         color = util.tem.COLOURS[bh]
-        dist = ((x-loc.x)**2+(y-loc.y)**2)**0.5
-        dist = dist.where(dist == dist.min(), drop=True).d
+        dist = project_location(x, y, projected.loc[bh])
         pfax.axvline(dist, color=color)
         pfax.text(dist, 40, ' '+bh.upper()+' ', color=color, fontweight='bold',
                   ha=('left' if bh == 'bh2' else 'right'))
