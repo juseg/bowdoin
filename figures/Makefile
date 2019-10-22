@@ -37,7 +37,7 @@ all: $(ALL_FIGS)
 
 # make python figures
 $(PY_FIGS): %.pdf : %.py matplotlibrc util
-	python $<
+	LC_ALL=en_US.utf8 python $<
 
 # lint python code
 lint:
