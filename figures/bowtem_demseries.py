@@ -38,13 +38,13 @@ def main():
         'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0']
 
     # initialize figure
-    proj = ccrs.Stereographic(central_latitude=90.0, central_longitude=-45.0,
-                              true_scale_latitude=70.0)
-    fig, grid = apl.subplots_mm(figsize=(180, 90), nrows=2, ncols=4,
-                                sharex=True, sharey=True, projection=proj,
-                                gridspec_kw=dict(left=2.5, right=17.5,
-                                                 bottom=2.5, top=5,
-                                                 wspace=2.5, hspace=5))
+    fig, grid = apl.subplots_mm(
+        figsize=(180, 90), nrows=2, ncols=4, sharex=True, sharey=True,
+        gridspec_kw=dict(
+            left=2.5, right=17.5, wspace=2.5, bottom=2.5, top=5, hspace=5),
+        subplot_kw=dict(projection=ccrs.Stereographic(
+            central_latitude=90, central_longitude=-45,
+            true_scale_latitude=70)))
     cax0, cax1 = fig.subplots_mm(nrows=2, gridspec_kw=dict(
         left=165, right=12.5, bottom=2.5, top=5, hspace=5))
 

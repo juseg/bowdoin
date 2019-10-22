@@ -22,11 +22,12 @@ def init_figure():
     """Initialize figure with map and profile subplots."""
 
     # initialize figure
-    crs = ccrs.Stereographic(
-        central_latitude=90, central_longitude=-45, true_scale_latitude=70)
     fig, grid = apl.subplots_mm(
-        figsize=(180, 120), ncols=3, projection=crs, gridspec_kw=dict(
-            left=2.5, right=22.5, bottom=65, top=5, wspace=2.5))
+        figsize=(180, 120), ncols=3, gridspec_kw=dict(
+            left=2.5, right=22.5, bottom=65, top=5, wspace=2.5),
+        subplot_kw=dict(projection=ccrs.Stereographic(
+            central_latitude=90, central_longitude=-45,
+            true_scale_latitude=70)))
 
     # add colorbar and profile axes
     cax = fig.add_axes_mm([160, 65, 5, 50])
@@ -118,7 +119,6 @@ def project_location(x, y, loc):
     dist = ((x-loc.x)**2+(y-loc.y)**2)**0.5
     dist = dist.where(dist == dist.min(), drop=True).d
     return dist
-
 
 
 def main():
