@@ -5,6 +5,7 @@
 
 """Plot Bowdoin temperature time series."""
 
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
 import brokenaxes as bax
@@ -13,6 +14,18 @@ import util
 
 # Pandas plot methods do not work on brokenaxes (issue #40)
 pd.plotting.register_matplotlib_converters()
+
+
+def format_date_axis(axis):
+    """
+    Locate ticks and format date labels on a time axis.
+    """
+    locator = mdates.MonthLocator([1, 4, 7, 10])
+    formatter = mdates.ConciseDateFormatter(
+        locator, formats=['%b\n%Y', '%b']+['']*4, show_offset=False)
+    axis.set_major_locator(locator)
+    axis.set_minor_locator(mdates.MonthLocator())
+    axis.set_major_formatter(formatter)
 
 
 def main():
@@ -61,11 +74,13 @@ def main():
     util.com.plot_field_campaigns(ax=ax.axs[1])
 
     # set axes properties
-    ax.set_xlabel('date', labelpad=24)
     ax.set_ylabel(u'temperature (°C)', labelpad=24)
     ax.set_xlim('20140615', '20170815')
 
-    # set better ticks
+    # set better ticks (pandas would do it if #40 is fixed)
+    format_date_axis(ax.axs[0].xaxis)
+    format_date_axis(ax.axs[1].xaxis)
+    ax.axs[0].xaxis.set_tick_params(which='both', length=0)
     ax.axs[0].set_yticks(range(-6, 1))
     ax.axs[1].set_yticks(range(-14, -6, 2))
 
