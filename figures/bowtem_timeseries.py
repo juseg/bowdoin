@@ -31,15 +31,10 @@ def format_date_axis(axis):
 def main():
     """Main program called during execution."""
 
-    # FIXME implement gridspec_mm in absplots
-    # fig = apl.figure_mm(figsize=(180, 120))
-    # subplotspec = fig.add_gridspec_mm(1, 1)[:]
-
     # initialize figure
+    fig = apl.figure_mm(figsize=(180, 120))
     gridspec_kw = dict(left=12.5, right=2.5, bottom=12.5, top=2.5)
-    fig, ax = apl.subplots_mm(figsize=(180, 120), gridspec_kw=gridspec_kw)
-    subplotspec = ax.get_subplotspec()
-    ax.remove()
+    subplotspec = fig.add_gridspec_mm(nrows=1, ncols=1, **gridspec_kw)[:]
     ax = bax.brokenaxes(despine=False, height_ratios=[4, 1], hspace=0.02,
                         subplot_spec=subplotspec, tilt=15,
                         ylims=[(-15.5, -6.5), (-6.5, 0.5)])
