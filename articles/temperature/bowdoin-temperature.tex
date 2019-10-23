@@ -459,27 +459,6 @@
     lower (BH3, ERR; Fig.~\ref{fig:profiles}, green and grey lines) than for
     the upper (BH1, BH2; Fig.~\ref{fig:profiles}, blue and orange lines)
     boreholes.
-    \todo{Shin: ``can you move this [following] interpretation to the discussion?
-          Instead, you better just quantify the warming trend in this results
-          section.'' Merge this with new part on dissipation.}
-    Part of this
-    englacial warming can be explained by heat diffusion from the base and
-    near-surface of the glacier to its coldest depths.
-
-    \todo{Move this to the next section}
-    Theoretical warming due to heat diffusion was approximated by central
-    differences on the one-dimensional diffusion equation,
-    %
-    \begin{equation}
-      \frac{\partial T}{\partial t} =
-        \frac{k}{\rho c} \frac{\partial^2 T}{\partial z^2}
-    \end{equation}
-    %
-    where $k$ is the thermal conductivity of ice, and $c$ its specific heat
-    capacity (Table~\ref{tab:parameters}). However, the observed warming trend
-    (Fig.~\ref{fig:profiles}b,
-    dashed lines) is up to an order of magnitude higher than the theoretical
-    warming by diffusion (Fig.~\ref{fig:profiles}b, solid lines).
 
 
 % ----------------------------------------------------------------------
@@ -532,9 +511,9 @@
 
     Assuming two-dimensional, vertical planar deformation, the effective strain
     rate, $\dot\epsilon_e^2 = \frac{1}{2}\mathrm{tr}(\epsilon^2)$, can be
-    expressed in terms of its cartesian components, $\dot\epsilon_e^2 =
+    expressed in terms of its Cartesian components, $\dot\epsilon_e^2 =
     \frac{1}{2}(\dot\epsilon_{xx}^2 + \dot\epsilon_{zz}^2) +
-    \dot\epsilon_{xz}^2$. The consevation of volume yields
+    \dot\epsilon_{xz}^2$. The conservation of volume yields
     $\mathrm{div}(\dot\epsilon) = \dot\epsilon_{xx} + \dot\epsilon_{zz} = 0$ so
     that the effective strain can be simplified to a function of its
     longitudinal and shear components,
@@ -558,14 +537,22 @@
     heating, $H$, at $1.79\times10^3$\,Pa\,s$^{-1}$. The corresponding
     rate of temperature change is $2.93\times10^{-2}$\,$^{\circ}$C\,a$^{-1}$,
     which is negligible as compared to the observed temperature changes.
+    \todo{Include temperature effect into the computation of A.}
 
-    \note{This average strain rate appraoch has limitations. First, shear
-          strain is confined to the base where there are no inclinometres.
+    Finally, heat diffusion was approximated by central differences on the
+    first temperature profile (Fig.~\ref{fig:profiles}a, solid lines).
+    However, the observed warming trend (Fig.~\ref{fig:profiles}b, solid lines)
+    is up to an order of magnitude higher than the theoretical warming due to
+    heat diffusion and viscous dissipation (Fig.~\ref{fig:profiles}b, solid
+    lines).
+
+    \note{This average strain rate approach has limitations. First, shear
+          strain is confined to the base where there are no inclinometers.
           Second, tilt measurements and GPS surface velocities show that all
           strain rates vary significantly through time. Due to the power
           $1+1/n$, these variations will be amplified in the time integrations,
           yielding a higher value for strain heating than if one just considers
-          the mean strain rate. But, if these time varitions were significant,
+          the mean strain rate. But, if these time variations were significant,
           we should observe more warming in summer than winter.}
 
 
@@ -573,8 +560,6 @@
 \subsection{Latent heating}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    \todo{Check that the transition from the previous new section on
-          theoretical warming works.}
     Longitudinal variations in ice temperature have previously been observed in
     Arctic tidewater glaciers. On Hansbreen, a tidewater glacier in northern
     Spitsbergen, ice temperatures recorded 10\,m below the ice surface were 2
