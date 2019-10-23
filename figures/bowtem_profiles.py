@@ -29,23 +29,9 @@ LATENT_HEAT = 3.35e5    # Latent heat fusion,   J kg-1 K-1      (CP10, p. 400)
 # - LU02: Lüthi et al., 2002
 
 
-def compute_melting_point(depth, clapeyron=CLAPEYRON,
-                          density=DENSITY, gravity=GRAVITY):
-    """
-    Compute the pressure-melting point from depth below the ice surface.
-
-    Parameters
-    ----------
-    depth : scalar
-        Depth below the ice surface.
-    clapeyron : scalar
-        Clapeyron constant for ice.
-    density : scalar
-        Ice density in kg m-3.
-    gravity : scalar
-        Standard gravity in m s-2.
-    """
-    return -clapeyron * density * gravity * depth
+def compute_melting_point(depth):
+    """Compute the pressure-melting point from depth below the ice surface."""
+    return -CLAPEYRON * DENSITY * GRAVITY * depth
 
 
 def compute_series_gradient(temp, depth):
@@ -54,34 +40,17 @@ def compute_series_gradient(temp, depth):
     return temp
 
 
-def compute_theoretical_diffusion(temp, depth,
-                                  conductivity=CONDUCTIVITY):
-    """
-    Compute temperature rate of change by heat diffusion.
-
-    Parameters
-    ----------
-    temp : array
-        Ice temperature in K.
-    depth : array
-        Depth below the ice surface in m.
-    conductivity : scalar
-        Ice thermal conductivity in J m-1 K-1 s-1.
-    """
-    heat_flux = conductivity * compute_series_gradient(temp, depth)
+def compute_theoretical_diffusion(temp, depth):
+    """Compute temperature rate of change by heat diffusion."""
+    heat_flux = CONDUCTIVITY * compute_series_gradient(temp, depth)
     return compute_series_gradient(heat_flux, depth)
 
 
-def compute_theoretical_dissipation(hardness=HARDNESS):
+def compute_theoretical_dissipation():
     """
     Compute theoretical dissipation in Pa s-1 assuming a constrant effective
     strain rate from the evolution of distance between BH1 and BH3 and the
     average shear strain from BH1 and BH3.
-
-    Parameters
-    ----------
-    hardness : scalar
-        Ice hardness coefficient in Pa-3 s-1.
     """
 
     # load borehole positions
@@ -101,7 +70,7 @@ def compute_theoretical_dissipation(hardness=HARDNESS):
 
     # estimate heat dissipation
     # FIXME ice hardness depends on temperature
-    heat = 2 * hardness**(-1/3)*e_e**(4/3)
+    heat = 2 * HARDNESS**(-1/3) * e_e**(4/3)
 
     # print numbers
     # print("long. strain rate:     {:.2e} s-1".format(e_xx))
@@ -113,29 +82,16 @@ def compute_theoretical_dissipation(hardness=HARDNESS):
     return heat
 
 
-def compute_theoretical_warming(temp, depth, capacity=CAPACITY,
-                                conductivity=CONDUCTIVITY,
-                                density=DENSITY,
-                                hardness=HARDNESS):
-    """
-    Compute theoretical temperature change in °C a-1 from both heat diffusion
-    and viscous dissipation.
-
-    Parameters
-    ----------
-    capacity : scalar
-        Ice specific heat capacity in J kg-1 K-1.
-    density : scalar
-        Ice density in kg m-3.
-    """
-    diffusion = compute_theoretical_diffusion(temp, depth,
-                                              conductivity=conductivity)
-    dissipation = compute_theoretical_dissipation(hardness=hardness)
+def compute_theoretical_warming(temp, depth):
+    """Compute theoretical temperature change in °C a-1 from both heat diffusion
+    and viscous dissipation."""
+    diffusion = compute_theoretical_diffusion(temp, depth)
+    dissipation = compute_theoretical_dissipation()
     # print dissipative temperature change
     # print("temperature change:    {:.2e} °C a-1".format(
     #     dissipation/(density*capacity) *
     # pd.to_timedelta('1Y')/pd.to_timedelta('1S')))
-    return (diffusion + dissipation) / (density * capacity)
+    return (diffusion + dissipation) / (DENSITY * CAPACITY)
 
 
 def plot_interp(ax, depth, temp, **kwargs):
