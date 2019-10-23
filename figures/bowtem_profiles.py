@@ -98,10 +98,16 @@ def plot_interp(ax, depth, temp, **kwargs):
     """
     Plot spline-interpolated temperature profile.
     """
-    temp = temp.dropna()
+
+    # drop isolated points and nans
+    temp = temp[temp.shift(-1).notna() | temp.shift(1).notna()].dropna()
     depth = depth[temp.index]
+
+    # interpolate temps to a 1 meter resolution
     depth_new = np.arange(depth[0], depth[-1], 1)
     temp_new = sinterp.interp1d(depth, temp, kind='cubic')(depth_new)
+
+    # plot the result
     return ax.plot(temp_new, depth_new, **kwargs)
 
 
@@ -138,10 +144,10 @@ def main():
         plot_markers(ax0, depth, temp0, c=color)
 
         # plot interpolates between sensors
-        plot_interp(ax0, depth, temp0, c=color,
-                    label=bh.upper() + ', ' + temp0.name)
-        plot_interp(ax0, depth, temp1, c=color,
-                    label=bh.upper() + ', ' + temp1.name, ls='--', lw=0.5)
+        for i, date in enumerate(temp):
+            plot_interp(ax0, depth, temp[date], c=color,
+                        label=bh.upper() + ', ' + date,
+                        ls=('--' if i > 0 else '-'), lw=(0.5 if i > 0 else 1))
 
         # plot temperature change
         dates = pd.to_datetime(temp.columns)
@@ -184,8 +190,8 @@ def main():
     ax0.set_ylabel('initial sensor depth (m)')
     ax0.set_xlabel(u'ice temperature (°C)')
     ax1.set_xlabel(r'temperature change ($°C\,a^{-1}$)')
-    ax0.set_xlim(-10.5, 0.5)
-    ax1.set_xlim(-0.3, 0.9)
+    ax0.set_xlim(-11.5, 0.5)
+    ax1.set_xlim(-0.3, 0.7)
 
     # save
     util.com.savefig(fig)
