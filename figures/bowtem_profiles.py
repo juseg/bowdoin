@@ -146,7 +146,7 @@ def main():
         # plot temperature change
         dates = pd.to_datetime(temp.columns)
         change = (temp1-temp0)/((dates[1]-dates[0])/pd.to_timedelta('1Y'))
-        plot_interp(ax1, depth, change, c=color, ls='--', lw=0.5)
+        plot_interp(ax1, depth, change, c=color)
 
         # annotate minimum observed temperature below 50m depth
         sensor = temp0[depth > 50].idxmin()
@@ -164,8 +164,7 @@ def main():
         # plot theroretical diffusion
         change = compute_theoretical_warming(temp0, depth)
         change *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
-        ax1.plot(change, depth, c=color, marker='_', ls='')
-        plot_interp(ax1, depth, change, c=color)
+        plot_interp(ax1, depth, change, c=color, ls='-.', lw=0.5)
 
         # add base line
         ax0.axhline(base, color=color, lw=0.5)
