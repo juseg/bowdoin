@@ -62,7 +62,8 @@ def main():
 
         # add profile dates
         for date in util.tem.PROFILES_DATES[bh]:
-            ax.axvline(date, color=color, ls='--')
+            offset = (0 if bh in ('bh1', 'bh3') else 3)
+            ax.axvline(date, color=color, ls=(offset, [2, 4]))
 
     # add campaigns
     util.com.plot_field_campaigns(ax=ax.axs[0], ytext=-1)
