@@ -52,91 +52,8 @@
 %\end{abstract}
 
 % ----------------------------------------------------------------------
-\section{Methods}
-% ----------------------------------------------------------------------
-
-% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-\subsection{Theoretical englacial warming}
-% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-
-    The theoretical englacial warming due to heat diffusion and viscous
-    dissipation can be expressed by the temperature evolution equation,
-    %
-    \begin{equation}
-      \rho c \frac{\partial T}{\partial t}
-        = k \frac{\partial^2 T}{\partial z^2} + H,
-    \end{equation}
-    %
-    where $T$ is the ice temperature $\rho$ is the ice density, $k$ is the
-    thermal conductivity of ice, and $c$ its specific heat capacity
-    (Table~\ref{tab:parameters}). The source term, $H$, corresponds to the
-    energy dissipation due to strain heating, which can be expressed as
-    %
-    \begin{equation}
-      H = \mathrm{tr}(\tau\dot\epsilon),
-    \end{equation}
-    %
-    where $\tau$ is the deviatoric stress tensor, and $\dot\epsilon$ the
-    strain-rate tensor \citep[p.~417]{Clarke.etal.1977, Cuffey.Paterson.2010}.
-    Stresses and strains can be related by the constitutive law for ice
-    \citep{Glen.1952, Nye.1953},
-    %
-    \begin{equation}
-        \dot{\epsilon} = A\,\tau_e^{n-1}\,\tau \,,
-    \end{equation}
-    %
-    where the equivalent stress, $\tau_e$, is defined by ${\tau_e}^2 =
-    \frac{1}{2} \mathrm{tr}(\tau^2)$. The ice softness coefficient, $A$,
-    depends on the pressure-adjusted ice temperature, $T$, and pressure, $p$,
-    through an Arrhenius-type law, $A = A_0 \,e^\frac{-Q}{RT_{pa}}$, where
-    $T_{pa}$ is the pressure-adjusted ice temperature calculated using
-    the Clapeyron relation, ${T_{pa} = T - \beta p}$
-    \citep[p.~72]{Cuffey.Paterson.2010}.
-    The strain heating can then be rewritten as a function of the deviatoric
-    stresses or the strain rates only,
-    %
-    \begin{equation}
-        H = 2 A \tau_e^{n+1} = 2 A^{-1/n} \dot\epsilon_e^{1+1/n}.
-    \end{equation}
-
-    Assuming two-dimensional, vertical planar deformation, the effective strain
-    rate, $\dot\epsilon_e^2 = \frac{1}{2}\mathrm{tr}(\epsilon^2)$, can be
-    expressed in terms of its cartesian components, $\dot\epsilon_e^2 =
-    \frac{1}{2}(\dot\epsilon_{xx}^2 + \dot\epsilon_{zz}^2) +
-    \dot\epsilon_{xz}^2$. The consevation of volume yields
-    $\mathrm{div}(\dot\epsilon) = \dot\epsilon_{xx} + \dot\epsilon_{zz} = 0$ so
-    that the effective strain can be simplified to a function of its
-    longitudinal and shear components,
-    %
-    \begin{equation}
-        \dot\epsilon_e^2 = \dot\epsilon_{xx}^2 + \dot\epsilon_{xz}^2.
-    \end{equation}
-
-
-% ----------------------------------------------------------------------
 \section{Results}
 % ----------------------------------------------------------------------
-
-% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-\subsection{Quick estimation}
-% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-
-    The longitudinal strain can be estimated from the observed borehole
-    positions. The distance distance between the lower (BH3) and uppermost
-    (BH2) boreholes increased from 165 to 197\,m between 2014 July 20 (midpoint
-    between the two observation dates 17 and 23) and 2017 July 17. This
-    corresponds to a longitudinal strain rate, $\dot\epsilon_{xx}$, of
-    $2.01\times10^9$\,s$^{-1}$. Measured horizontal shear strain rates,
-    $\dot\epsilon_{xy}$, average to $3.43\times10^9$\,s$^{-1}$, yielding
-    an effective strain rate, $\dot\epsilon_e$, of $3.97\times10^9$\,s$^{-1}$.
-
-    Assuming a constant ice hardness coefficient, $A$, corresponding to the
-    pressure-melting point ice hardness, $A_0$ (Table~\ref{tab:parameters}),
-    yields to a slight overestimate of the heat dissipation due to strain
-    heating, $H$, at $1.79\times10^3$\,Pa\,s$^{-1}$. The corresponding
-    rate of temperature change is $2.93\times10^{-2}$\,$^{\circ}$C\,a$^{-1}$,
-    which is negligible as compared to the observed temperature changes.
-
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Temporal variations}
@@ -198,53 +115,6 @@
 % Tables
 %\clearpage
 % ----------------------------------------------------------------------
-
-    \begin{table}
-      \caption{%
-        Parameter values used to compute the theoretical englacial warming.}
-      \label{tab:parameters}
-      \centerline{\begin{tabular}{llrlll}
-        \hline
-        Not.    & Name & Value & Unit & Source \\
-        \hline
-        $A_0$   & Ice hardness coefficient
-                & $3.5\times10^{-25}$
-                & Pa$^{-3}$\,s$^{-1}$
-                & \citet[p.~74]{Cuffey.Paterson.2010} \\
-        $\beta$ & Clapeyron constant
-                & $7.9\times10^{-8}$
-                & K\,Pa$^{-1}$
-                & \citet{Luthi.etal.2002} \\
-        $c$     & Ice specific heat capacity
-                & 2097
-                & J\,kg$^{-1}$\,K$^{-1}$
-                & \citet[p.~400]{Cuffey.Paterson.2010} \\
-        $g$     & Standard gravity
-                & 9.80665
-                & m\,s$^{-2}$
-                & -- \\
-        $k$     & Ice thermal conductivity
-                & 2.10
-                & J\,m$^{-1}$\,K$^{-1}$\,s$^{-1}$
-                & \citet[p.~400]{Cuffey.Paterson.2010} \\
-        %$L$     & Water latent heat of fusion
-        %        & $3.35\times10^5$      & J\,kg$^{-1}$\,K$^{-1}$
-        %        & \citet[p.~400]{Cuffey.Paterson.2010} \\
-        $Q$     & Flow law activation energy
-                & $116\times10^3$
-                & J\,mol$^{-1}$
-                & \citet[p.~74]{Cuffey.Paterson.2010} \\
-        $R$     & Ideal gas constant
-                & 8.31441
-                & J\,mol$^{-1}$\,K$^{-1}$
-                & -- \\
-        $\rho$  & Ice density
-                & 917
-                & kg\,m$^{-3}$
-                & \citet[p.~12]{Cuffey.Paterson.2010} \\
-        \hline
-      \end{tabular}}
-    \end{table}
 
 
 % ======================================================================
