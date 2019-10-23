@@ -8,6 +8,7 @@
 import numpy as np
 import scipy.interpolate as sinterp
 import pandas as pd
+import cartopy.crs as ccrs
 import absplots as apl
 import util
 
@@ -58,6 +59,64 @@ def compute_theoretical_diffusion(temp, depth, capacity=util.com.CAPACITY,
     """
     heat_flux = conductivity * compute_series_gradient(temp, depth)
     return compute_series_gradient(heat_flux, depth) / (density * capacity)
+
+
+def compute_theoretical_dissipation(capacity=util.com.CAPACITY,
+                                    density=util.com.DENSITY,
+                                    hardness=util.com.HARDNESS):
+    """Main program called during execution."""
+
+    # load borehole positions
+    locs = util.com.read_locations(crs=ccrs.UTM(19))
+    d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
+            (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5
+    d_14 = ((locs.x.B14BH3-locs.x.B14BH1)**2 +
+            (locs.y.B14BH3-locs.y.B14BH1)**2)**0.5
+    time = (locs.time.B17BH1 - locs.time.B14BH1 +
+            locs.time.B17BH3 - locs.time.B14BH3)/2
+
+    # estimate effective strain rate
+    e_xx = 2*(d_17-d_14)/(d_17+d_14)/time.total_seconds()
+    e_xz = pd.concat([util.inc.load_strain_rate(bh)['2014-10':].mean()
+                      for bh in ('bh1', 'bh3')]).mean()
+    e_e = (e_xx**2+e_xz**2)**0.5
+
+    # estimate heat dissipation
+    # FIXME ice hardness depends on temperature
+    heat = 2 * hardness**(-1/3)*e_e**(4/3)
+
+    # estimate temperature change
+    change = heat / (density * capacity)
+
+    # print numbers
+    # print("long. strain rate:     {:.2e} s-1".format(e_xx))
+    # print("shear strain rate:     {:.2e} s-1".format(e_xz))
+    # print("effective strain rate: {:.2e} s-1".format(e_e))
+    # print("heat dissipation:      {:.2e} Pa s-1".format(heat))
+    # s2a = pd.to_timedelta('1Y') / pd.to_timedelta('1S')
+    # print("temperature change:    {:.2e} °C a-1".format(change*s2a))
+
+    # return temperature change
+    return change
+
+
+def compute_theoretical_warming(temp, depth, capacity=util.com.CAPACITY,
+                                conductivity=util.com.CONDUCTIVITY,
+                                density=util.com.DENSITY,
+                                hardness=util.com.HARDNESS):
+    """
+    Compute theoretical temperature change in °C a-1 from both heat diffusion
+    and viscous dissipation.
+    """
+    diffusion = compute_theoretical_diffusion(temp, depth, capacity=capacity,
+                                              conductivity=conductivity,
+                                              density=density)
+    dissipation = compute_theoretical_dissipation(capacity=capacity,
+                                                  density=density,
+                                                  hardness=hardness)
+    print(diffusion)
+    print(dissipation)
+    return diffusion + dissipation
 
 
 def plot_interp(ax, depth, temp, **kwargs):
@@ -128,7 +187,7 @@ def main():
                  ha='left', va='bottom')
 
         # plot theroretical diffusion
-        change = compute_theoretical_diffusion(temp0, depth)
+        change = compute_theoretical_warming(temp0, depth)
         change *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
         ax1.plot(change, depth, c=color, marker='_', ls='')
         plot_interp(ax1, depth, change, c=color)

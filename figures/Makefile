@@ -6,7 +6,7 @@
 # ---------
 
 # all python figures
-PY_CODE = $(addprefix bowdef_, dissipation strainrates) \
+PY_CODE = $(addprefix bowdef_, strainrates) \
           $(addprefix bowtem_, boreholes calibration closure demseries \
 			       images ogives profiles timeseries) \
           $(addprefix bowpal_, samplemap)
