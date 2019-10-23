@@ -12,35 +12,6 @@ import absplots as apl
 import util
 
 
-def compute_gradient(temp, depth):
-    """Compute temperature gradient as a data series."""
-    temp[:] = np.gradient(temp, depth)
-    return temp
-
-
-def compute_diffusive_heating(depth, temp, capacity=util.com.CAPACITY,
-                              conductivity=util.com.CONDUCTIVITY,
-                              density=util.com.DENSITY):
-    """
-    Compute temperature rate of change by heat diffusion.
-
-    Parameters
-    ----------
-    depth : array
-        Depth below the ice surface in m.
-    temp : array
-        Ice temperature in K.
-    capacity : scalar
-        Ice specific heat capacity in J kg-1 K-1.
-    conductivity : scalar
-        Ice thermal conductivity in J m-1 K-1 s-1.
-    density : scalar
-        Ice density in kg m-3.
-    """
-    heat_flux = conductivity * compute_gradient(temp, depth)
-    return compute_gradient(heat_flux, depth) / (density * capacity)
-
-
 def compute_melting_point(depth, clapeyron=util.com.CLAPEYRON,
                           density=util.com.DENSITY, gravity=util.com.GRAVITY):
     """
@@ -58,6 +29,35 @@ def compute_melting_point(depth, clapeyron=util.com.CLAPEYRON,
         Standard gravity in m s-2.
     """
     return -clapeyron * density * gravity * depth
+
+
+def compute_series_gradient(temp, depth):
+    """Compute temperature gradient as a data series."""
+    temp[:] = np.gradient(temp, depth)
+    return temp
+
+
+def compute_theoretical_diffusion(temp, depth, capacity=util.com.CAPACITY,
+                                  conductivity=util.com.CONDUCTIVITY,
+                                  density=util.com.DENSITY):
+    """
+    Compute temperature rate of change by heat diffusion.
+
+    Parameters
+    ----------
+    temp : array
+        Ice temperature in K.
+    depth : array
+        Depth below the ice surface in m.
+    capacity : scalar
+        Ice specific heat capacity in J kg-1 K-1.
+    conductivity : scalar
+        Ice thermal conductivity in J m-1 K-1 s-1.
+    density : scalar
+        Ice density in kg m-3.
+    """
+    heat_flux = conductivity * compute_series_gradient(temp, depth)
+    return compute_series_gradient(heat_flux, depth) / (density * capacity)
 
 
 def plot_interp(ax, depth, temp, **kwargs):
@@ -128,7 +128,7 @@ def main():
                  ha='left', va='bottom')
 
         # plot theroretical diffusion
-        change = compute_diffusive_heating(depth, temp0)
+        change = compute_theoretical_diffusion(temp0, depth)
         change *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
         ax1.plot(change, depth, c=color, marker='_', ls='')
         plot_interp(ax1, depth, change, c=color)
