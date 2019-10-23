@@ -13,8 +13,24 @@ import absplots as apl
 import util
 
 
-def compute_melting_point(depth, clapeyron=util.com.CLAPEYRON,
-                          density=util.com.DENSITY, gravity=util.com.GRAVITY):
+# Physical constants
+ACTIV_ENERGY = 116e3    # Flow law act. ener.,  J mol-1         (CP10, p. 74)
+CLAPEYRON = 7.9e-8      # Clapeyron constant,   K Pa-1          (LU02)
+CAPACITY = 2097         # Ice spec. heat cap.,  J kg-1 K-1      (CP10, p. 400)
+CONDUCTIVITY = 2.10     # Ice thermal cond.,    J m-1 K-1 s-1   (CP10, p. 400)
+DENSITY = 917           # Ice density,          kg m-3          (CP10, p. 12)
+GAS_CONSTANT = 8.31441  # Ideal gas constant,   J mol-1 K-1     (--)
+GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
+HARDNESS = 3.5e-25      # Ice hardness coeff.,  Pa-3 s-1        (CP10 p. 74)
+LATENT_HEAT = 3.35e5    # Latent heat fusion,   J kg-1 K-1      (CP10, p. 400)
+
+# References
+# - CP10: CP10
+# - LU02: Lüthi et al., 2002
+
+
+def compute_melting_point(depth, clapeyron=CLAPEYRON,
+                          density=DENSITY, gravity=GRAVITY):
     """
     Compute the pressure-melting point from depth below the ice surface.
 
@@ -39,7 +55,7 @@ def compute_series_gradient(temp, depth):
 
 
 def compute_theoretical_diffusion(temp, depth,
-                                  conductivity=util.com.CONDUCTIVITY):
+                                  conductivity=CONDUCTIVITY):
     """
     Compute temperature rate of change by heat diffusion.
 
@@ -56,7 +72,7 @@ def compute_theoretical_diffusion(temp, depth,
     return compute_series_gradient(heat_flux, depth)
 
 
-def compute_theoretical_dissipation(hardness=util.com.HARDNESS):
+def compute_theoretical_dissipation(hardness=HARDNESS):
     """
     Compute theoretical dissipation in Pa s-1 assuming a constrant effective
     strain rate from the evolution of distance between BH1 and BH3 and the
@@ -97,10 +113,10 @@ def compute_theoretical_dissipation(hardness=util.com.HARDNESS):
     return heat
 
 
-def compute_theoretical_warming(temp, depth, capacity=util.com.CAPACITY,
-                                conductivity=util.com.CONDUCTIVITY,
-                                density=util.com.DENSITY,
-                                hardness=util.com.HARDNESS):
+def compute_theoretical_warming(temp, depth, capacity=CAPACITY,
+                                conductivity=CONDUCTIVITY,
+                                density=DENSITY,
+                                hardness=HARDNESS):
     """
     Compute theoretical temperature change in °C a-1 from both heat diffusion
     and viscous dissipation.
