@@ -49,7 +49,7 @@ def main():
     ax.text(1333, 288+50, 'Camp', color='w', ha='center')
 
     # show lower site ground photo
-    ax = grid[0]
+    ax = grid[1]
     ax.imshow(plt.imread('../photos/julien-xt10-160719-145819-dev.jpg'))
 
     # mark glacier names
@@ -60,7 +60,7 @@ def main():
     annotate_borehole(950, 762, 'bh3', ax=ax, ha='center')
 
     # show boreholes aerial photo
-    ax = grid[1]
+    ax = grid[0]
     ax.imshow(plt.imread('../photos/julien-xt10-160721-121549-dev.jpg'))
 
     # mark glacier name
