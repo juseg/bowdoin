@@ -320,6 +320,23 @@
 
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+\subsection{Experiment duration}
+% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
+    Of the total 44~sensors installed, 41~worked after the installation, 38
+    recorded data for one year, 35 were still functional after two years (of
+    which 16 were not connected to a data logger any longer but were used for a
+    manual reading), and only two were left
+    working after three years. Contact to sensors was progressively lost due to a
+    battery issue (2014 July~28 and again 2015 July~26, one sensor) cable
+    damage during the installation (2014 July~16 and 23, three sensors) cable
+    damage at depth (2014 Oct.~25, 2017 Jan.~28, Feb.~03, and June~21, five
+    sensors), and most importantly, cable damage at the surface (2015 Nov.~12
+    and unknown dates, 33~sensors, Table~\ref{tab:timeline},
+    Fig.~\ref{fig:images}c).
+
+
+% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Temperature calibration}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
@@ -356,23 +373,6 @@
     \citep{Luthi.etal.2002}, $\rho$ is the ice density, $g$ is the standard
     acceleration due to gravity, and $z$ is the depth below the ice surface
     (parameter values given in Table~\ref{tab:parameters}).
-
-
-% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-\subsection{Experiment duration}
-% -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-
-    Of the total 44~sensors installed, 41~worked after the installation, 38
-    recorded data for one year, 35 were still functional after two years (of
-    which 16 were not connected to a data logger any longer but were used for a
-    manual reading), and only two were left
-    working after three years. Contact to sensors was progressively lost due to a
-    battery issue (2014 July~28 and again 2015 July~26, one sensor) cable
-    damage during the installation (2014 July~16 and 23, three sensors) cable
-    damage at depth (2014 Oct.~25, 2017 Jan.~28, Feb.~03, and June~21, five
-    sensors), and most importantly, cable damage at the surface (2015 Nov.~12
-    and unknown dates, 33~sensors, Table~\ref{tab:timeline},
-    Fig.~\ref{fig:images}c).
 
 
 % ----------------------------------------------------------------------
@@ -890,6 +890,7 @@
 % ----------------------------------------------------------------------
 % Tables
 \clearpage
+\linespread{1.25}  % allows two tables per page
 % ----------------------------------------------------------------------
 
     \begin{table}[t]
@@ -904,6 +905,69 @@
         BH1  & 272   & 2014-07-16 & 77.691244 & -68.555749 & 88.7 \\ % UI
         BH2  & 262   & 2014-07-17 & 77.691307 & -68.555685 & 87.7 \\ % UPT
         BH3  & 252   & 2014-07-23 & 77.689995 & -68.558857 & 83.4 \\ % LIPT
+        \hline
+      \end{tabular}}
+    \end{table}
+
+    \begin{table}
+      \caption{%
+        Timeline of events including borehole drilling, instrumental failures,
+        and final removal.}
+      \label{tab:timeline}
+      \centerline{\begin{tabular}{lccp{95mm}}
+        \hline
+        Date       & Hole & Type      & Event \\
+        \hline
+        2014-07-15 & ---  & Campaign & \emph{2014 summer fieldwork begins} \\
+        2014-07-16 & BH1  & Drilling & Contact to the deepest inclinometer
+                                       (UI01) is lost. \\
+        2014-07-17 & BH2  & Drilling & -- \\
+        2014-07-20 & BH2  & Incident & Earlier upper thermistor (UT*) data are
+                                       lost accidentally. \\
+        2014-07-23 & BH3  & Drilling & Contact to the deepest inclinometers
+                                       (LI01, LI02) is lost. \\
+        2014-07-28 & BH2  & Battery  & The upper piezometer data logger battery
+                                       drains prematurely without notice from
+                                       the fieldwork participants. \\
+        2014-07-29 & ---  & Campaign & \emph{2014 summer fieldwork ends} \\
+        \hline
+        2014-10-25 & BH1  & Incident & Contact to the deepest inclinometers
+                                       (UI02, UI03) is lost. \\
+        \hline
+        2015-07-06 & ---  & Campaign & \emph{2015 summer fieldwork begins} \\
+        2015-07-09 & BH2  & Upgrade  & The upper piezometer (UP) data logger
+                                       gets a new battery. \\
+        2015-07-14 & BH2  & Removal  & The upper thermistor strings (UT*) data
+                                       logger is removed. \\
+        2015-07-20 & ---  & Campaign & \emph{2015 summer fieldwork ends} \\
+        \hline
+        2015-07-26 & BH2  & Battery  & The new battery for the upper piezometer
+                                       (UP) drains again prematurely, perhaps
+                                       indicating faulty instruments. \\
+        2015-11-12 & BH3  & Incident & Contact to all remaining inclinometers
+                                       (LI03, LI04, LI05) is lost due to
+                                       a crevasse opening on the surface. \\
+        \hline
+        2016-07-04 & ---  & Campaign & \emph{2016 summer fieldwork begins} \\
+        2016-07-19 & BH3  & Removal  & The lower thermistor strings (LT*) data
+                                       logger is removed. \\
+        2016-07-21 & ---  & Campaign & \emph{2016 summer fieldwork ends} \\
+        \hline
+        2017-01-28 & BH1  & Incident & Contact to the deepest inclinometer
+                                       (UI06) is lost. \\
+        2017-02-03 & BH3  & Incident & The lower piezometer (LP) starts
+                                       recording nonsense. \\
+        2017-06-21 & BH1  & Incident & Contact to the deepest inclinometer
+                                       (UI07) is lost. \\
+        ?          & BH2  & Incident & Contact to the thermistor strings (UT*)
+                                       is lost. \\
+        ?          & BH3  & Incident & Contact to the thermistor strings (LT*)
+                                       is lost. \\
+        \hline
+        2017-07-04 & ---  & Campaign & \emph{2017 summer fieldwork begins} \\
+        2017-07-12 & BH1  & Removal  & The upper inclinometer (UI*) data logger
+                                       is removed. \\
+        2017-07-17 & ---  & Campaign & \emph{2017 summer fieldwork ends} \\
         \hline
       \end{tabular}}
     \end{table}
@@ -1017,69 +1081,6 @@
                 & 917
                 & kg\,m$^{-3}$
                 & \citet[p.~12]{Cuffey.Paterson.2010} \\
-        \hline
-      \end{tabular}}
-    \end{table}
-
-    \begin{table}
-      \caption{%
-        Timeline of events including borehole drilling, instrumental failures,
-        and final removal.}
-      \label{tab:timeline}
-      \centerline{\begin{tabular}{lccp{95mm}}
-        \hline
-        Date       & Hole & Type      & Event \\
-        \hline
-        2014-07-15 & ---  & Campaign & \emph{2014 summer fieldwork begins} \\
-        2014-07-16 & BH1  & Drilling & Contact to the deepest inclinometer
-                                       (UI01) is lost. \\
-        2014-07-17 & BH2  & Drilling & -- \\
-        2014-07-20 & BH2  & Incident & Earlier upper thermistor (UT*) data are
-                                       lost accidentally. \\
-        2014-07-23 & BH3  & Drilling & Contact to the deepest inclinometers
-                                       (LI01, LI02) is lost. \\
-        2014-07-28 & BH2  & Battery  & The upper piezometer data logger battery
-                                       drains prematurely without notice from
-                                       the fieldwork participants. \\
-        2014-07-29 & ---  & Campaign & \emph{2014 summer fieldwork ends} \\
-        \hline
-        2014-10-25 & BH1  & Incident & Contact to the deepest inclinometers
-                                       (UI02, UI03) is lost. \\
-        \hline
-        2015-07-06 & ---  & Campaign & \emph{2015 summer fieldwork begins} \\
-        2015-07-09 & BH2  & Upgrade  & The upper piezometer (UP) data logger
-                                       gets a new battery. \\
-        2015-07-14 & BH2  & Removal  & The upper thermistor strings (UT*) data
-                                       logger is removed. \\
-        2015-07-20 & ---  & Campaign & \emph{2015 summer fieldwork ends} \\
-        \hline
-        2015-07-26 & BH2  & Battery  & The new battery for the upper piezometer
-                                       (UP) drains again prematurely, perhaps
-                                       indicating faulty instruments. \\
-        2015-11-12 & BH3  & Incident & Contact to all remaining inclinometers
-                                       (LI03, LI04, LI05) is lost due to
-                                       a crevasse opening on the surface. \\
-        \hline
-        2016-07-04 & ---  & Campaign & \emph{2016 summer fieldwork begins} \\
-        2016-07-19 & BH3  & Removal  & The lower thermistor strings (LT*) data
-                                       logger is removed. \\
-        2016-07-21 & ---  & Campaign & \emph{2016 summer fieldwork ends} \\
-        \hline
-        2017-01-28 & BH1  & Incident & Contact to the deepest inclinometer
-                                       (UI06) is lost. \\
-        2017-02-03 & BH3  & Incident & The lower piezometer (LP) starts
-                                       recording nonsense. \\
-        2017-06-21 & BH1  & Incident & Contact to the deepest inclinometer
-                                       (UI07) is lost. \\
-        ?          & BH2  & Incident & Contact to the thermistor strings (UT*)
-                                       is lost. \\
-        ?          & BH3  & Incident & Contact to the thermistor strings (LT*)
-                                       is lost. \\
-        \hline
-        2017-07-04 & ---  & Campaign & \emph{2017 summer fieldwork begins} \\
-        2017-07-12 & BH1  & Removal  & The upper inclinometer (UI*) data logger
-                                       is removed. \\
-        2017-07-17 & ---  & Campaign & \emph{2017 summer fieldwork ends} \\
         \hline
       \end{tabular}}
     \end{table}
