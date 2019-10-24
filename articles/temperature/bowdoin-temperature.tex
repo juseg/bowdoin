@@ -465,7 +465,7 @@
         = k \frac{\partial^2 T}{\partial z^2} + H,
     \end{equation}
     %
-    where $T$ is the ice temperature $\rho$ is the ice density, $k$ is the
+    where $T$ is the ice temperature, $\rho$ the ice density, $k$ the
     thermal conductivity of ice, and $c$ its specific heat capacity
     (Table~\ref{tab:parameters}). The source term, $H$, corresponds to the
     energy dissipation due to strain heating, which can be expressed as
@@ -485,10 +485,10 @@
     %
     where the equivalent stress, $\tau_e$, is defined by ${\tau_e}^2 =
     \frac{1}{2} \mathrm{tr}(\tau^2)$. The ice softness coefficient, $A$,
-    depends on the pressure-adjusted ice temperature, $T$, and pressure, $p$,
+    depends on the ice temperature, $T$, and pressure, $p$,
     through an Arrhenius-type law, $A = A_0 \,e^\frac{-Q}{RT_{pa}}$, where
     $T_{pa}$ is the pressure-adjusted ice temperature calculated using
-    the Clapeyron relation, ${T_{pa} = T - \beta p}$
+    the Clapeyron relation, ${T_{pa} = T - \beta \rho g z}$
     \citep[p.~72]{Cuffey.Paterson.2010}.
     The strain heating can then be rewritten as a function of the deviatoric
     stresses or the strain rates only,
@@ -511,13 +511,14 @@
     \end{equation}
 
     The longitudinal strain can be estimated from the observed borehole
-    positions. The distance distance between the lower (BH3) and uppermost
-    (BH2) boreholes increased from 165 to 197\,m between 2014 July 20 (midpoint
+    positions. The distance between BH1 and BH3
+    has increased from 158 to 191\,m between 2014 July 20 (midpoint
     between the two observation dates 17 and 23) and 2017 July 17. This
     corresponds to a longitudinal strain rate, $\dot\epsilon_{xx}$, of
     $2.01\times10^9$\,s$^{-1}$. Measured horizontal shear strain rates,
     $\dot\epsilon_{xy}$, average to $3.43\times10^9$\,s$^{-1}$, yielding
     an effective strain rate, $\dot\epsilon_e$, of $3.97\times10^9$\,s$^{-1}$.
+    \todo{Separate BH1 and BH3 in computation}.
 
     Assuming a constant ice hardness coefficient, $A$, corresponding to the
     pressure-melting point ice hardness, $A_0$ (Table~\ref{tab:parameters}),
@@ -527,12 +528,12 @@
     which is negligible as compared to the observed temperature changes.
     \todo{Include temperature effect into the computation of A.}
 
-    Finally, heat diffusion was approximated by central differences on the
-    first temperature profile (Fig.~\ref{fig:profiles}a, solid lines).
-    However, the observed warming trend (Fig.~\ref{fig:profiles}b, solid lines)
-    is up to an order of magnitude higher than the theoretical warming due to
-    heat diffusion and viscous dissipation (Fig.~\ref{fig:profiles}b, solid
-    lines).
+    Heat diffusion was approximated by central differences on the first
+    temperature profile. The theoretical warming resulting from viscous
+    dissipation and heat diffusion (Fig.~\ref{fig:profiles}b, dash-dotted
+    lines) is but up to an order of magnitude lower than the observed warming
+    trend (Fig.~\ref{fig:profiles}b, solid lines), indicating the presence of
+    another heat source within the glacier during the measurements period.
 
     \note{This average strain rate approach has limitations. First, shear
           strain is confined to the base where there are no inclinometers.
@@ -555,10 +556,11 @@
     \citep{Jania.etal.1996}.
     For comparison, the main annual air temperature at Qaanaaq airport,
     ca.~30\,km south-west and seawards from the drilling sites, from 2005 to
-    2015 is -8.5\,$^\circ$C \citep{Sugiyama.etal.2014, Tsutaki.etal.2017}. The
+    2015, is -8.5\,$^\circ$C \citep{Sugiyama.etal.2014, Tsutaki.etal.2017}. The
     ice temperatures of ca.~-3 to -1\,$^\circ$C measured below the annual
-    boundary layer in Bowdoin glacier (Fig.~\ref{fig:profiles}) are
-    significantly higher than this value. In Sermeq Avannarleq, a tidewater in
+    boundary layer in Bowdoin glacier (Fig.~\ref{fig:profiles}a) are
+    significantly higher than this value. In Sermeq Avannarleq, a tidewater
+    glacier in
     western Greenland, temperature differences up to 5\,$^\circ$C were measured
     between two boreholes only 86\,m apart down to a depth of ca.~300\,m
     \citep{Luthi.etal.2015}.
@@ -574,31 +576,25 @@
 
     Nevertheless, the temperature profiles at the upper and lower drilling
     sites of Bowdoin Glacier show significant differences over the entire depth
-    of the glacier (Fig.~\ref{fig:profiles}). These differences could be a
-    relict advected from upstream areas
-    of Bowdoin Glacier with ice flow. In this case, longitudinal
-    temperature diffusion should cause both profiles to evolve towards more
-    similar temperatures. On the opposite, the temperature difference between
-    the two profiles is increasing over time (Fig.~\ref{fig:profiles}).
-
-    \todo{Move this to new section on theoretical warming.}
-    On the opposite, the length of the temperature record allows to evidence an
-    englacial warming trend (Fig.~\ref{fig:timeseries}), which can be observed
-    at most depths and is up to an order of magnitude stronger than the
-    theoretical warming due to vertical heat diffusion
-    (Fig.~\ref{fig:profiles}). The warming trend is strongest for the warmest
-    temperature profile, thus further enhancing the temperature differences
-    between the two profiles (Fig.~\ref{fig:profiles}). The different profiles
-    and warming trend can only be explained by involving an additional, local
-    heat source, extending over the entire or nearly entire depth of the
-    glacier.
+    of the glacier (Fig.~\ref{fig:profiles}). If these differences were a
+    relict advected from upstream areas of Bowdoin Glacier, the longitudinal
+    diffusion of temperature should cause both profiles to evolve towards more
+    similar temperatures. However, the temperature difference between the two
+    profiles is actually increasing over time (Fig.~\ref{fig:profiles}).
+    Thus, the different temperature profiles and warming trend can only be
+    explained by involving a spatially localized source of latent heat,
+    extending over the entire or nearly entire depth of the glacier.
 
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Deep crevassing}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Although such local spatial variations of temperatures could be explained by the
+    The penetration of meltwater to the bed of Bowdoin Glacier is evident from
+    the subglacial discharge of ice-dammed lakes, the formation of sediment
+    plumes at the calving front \citep{Jouvet.etal.2018, Kanna.etal.2018}, and
+    diurnal speed variations \citep{Sugiyama.etal.2014, Podolskiy.etal.2016}.
+    Although locally warmer ice temperatures could be explained by the
     proximity of a moulin, no large moulins have been observed in the vicinity
     of the borehole sites or elsewhere on Bowdoin Glacier during the field
     campaigns. Smaller moulins with apparent diameters of ca.~1\,m have
@@ -610,34 +606,28 @@
     As a tidewater glacier, Bowdoin Glacier is subject to low basal friction
     \citep{Seddik.etal.2019} and
     thus continuous longitudinal extension yielding to the formation of
-    numerous surface transverse crevasses (Figs.~\ref{fig:boreholes} and
-    \ref{fig:images}). Surface GPS records indicate that the longitudinal
+    numerous surface transverse crevasses (Figs.~\ref{fig:images} and
+    \ref{fig:boreholes}). Surface GPS records indicate that the longitudinal
     extension is most important at lowering tide and correlated with an intense
-    seismic activity most likely a symptom of crevasse opening
+    seismic activity most likely symptomatic of crevasse opening
     \citep{Podolskiy.etal.2016, Podolskiy.etal.2017}.
-
     The Bowdoin Glacier boreholes were drilled in a highly crevassed area in
     2014 and newly opened crevasses could be observed as the drilling sites
     were
     advected downstream and drifted further apart over the subsequent field
-    seasons (Fig.~\ref{fig:images}b). After crevasse initiation, fracture
-    propagation to the bed of the glacier is theoretically possible if enough
-    water is supplied \citep{Veen.2007}. In fact full-depth crevasse
-    propagation through kilometre-thick ice has already been observed in
-    association with the drainage of a subglacial lake \citep{Das.etal.2008}.
+    seasons (Fig.~\ref{fig:images}b).
 
-    If such crevasses form in a tidewater glacier, it is to be expected that
-    they would remain filled at least up to sea level even after the drainage.
-    If surrounded by cold ice, meltwater filling the crevasses would eventually
-    refreeze generating latent heat. Therefore, we interpret the latent heating
-    inferred at Bowdoin Glacier to relate to meltwater refreezing in deep
-    crevasses reaching at or near the glacier bed.
-
-    Penetration of water to the bed is evident from the subglacial discharge of
-    meltwater including ice-dammed lakes, from the formation of sediment plumes
-    at the calving front \citep{Jouvet.etal.2018, Kanna.etal.2018}, and from
-    diurnal speed variations \citep{Sugiyama.etal.2014, Podolskiy.etal.2016}.
-    \todo{Move this to the beginning of this subsection?}
+    Full-depth crevasse propagation through kilometre-thick ice has already
+    been observed in Greenland in association with the drainage of a subglacial
+    lake \citep{Das.etal.2008}. After crevasse initiation, fracture propagation
+    to the bed of the glacier is theoretically possible if enough water is
+    supplied \citep{Veen.2007}. This condition is met on a tidewater glacier,
+    where crevasses can be expected to remain water filled at least up to sea
+    level even after connecting to the subglacial drainage system. If
+    surrounded by cold ice, meltwater filling the crevasses would progressively
+    refreeze generating latent heat. Therefore, we interpret the englacial
+    warming observed at Bowdoin Glacier to relate to meltwater refreezing in
+    deep crevasses reaching to or near the glacier bed.
 
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
@@ -648,8 +638,8 @@
     topography of Bowdoin Glacier exhibits surface undulations transverse to
     the flow direction. This banding is best visualized on low-light satellite
     images (Fig.~\ref{fig:boreholes}a) or shaded relief images
-    (Fig.~\ref{fig:ogives}b). The undulations are advected
-    by the movement of the glacier, and thus appear to be related to changes in
+    (Fig.~\ref{fig:ogives}b). The undulations are advected by the movement of
+    the glacier, and thus appear to be related to spatial variations in
     ice thickness rather than reflecting a pattern in the bed topography
     \citep[Fig.~\ref{fig:ogives}c;][Fig.~3]{Tsutaki.etal.2016}. They have a
     wavelength of ca.~350\,m and an amplitude of ca.~10\,m
@@ -673,7 +663,7 @@
     The lower borehole (BH3), located in a topographic dip, exhibits a warmer
     and faster-warming temperature profile than the upper boreholes (BH1, BH2),
     located on a topographic high. In light of the above observations we
-    speculate that areas of lower topography may tend to localise deep
+    speculate that topographic dips may tend to localise deep
     crevassing. This localisation of crevassing
     could be the result of mechanical damage due to thinner ice, increased
     meltwater infiltration ponding between ogives, or a combination of these
