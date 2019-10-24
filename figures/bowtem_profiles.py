@@ -46,7 +46,7 @@ def compute_theoretical_diffusion(temp, depth):
     return compute_series_gradient(heat_flux, depth)
 
 
-def compute_theoretical_dissipation():
+def compute_theoretical_dissipation(bh):
     """
     Compute theoretical dissipation in Pa s-1 assuming a constrant effective
     strain rate from the evolution of distance between BH1 and BH3 and the
@@ -63,9 +63,10 @@ def compute_theoretical_dissipation():
             locs.time.B17BH3 - locs.time.B14BH3)/2
 
     # estimate effective strain rate
+    bh = bh.replace('bh2', 'bh1').replace('err', 'bh3')
     e_xx = 2*(d_17-d_14)/(d_17+d_14)/time.total_seconds()
-    e_xz = pd.concat([util.inc.load_strain_rate(bh)['2014-10':].mean()
-                      for bh in ('bh1', 'bh3')]).mean()
+    e_xz = util.inc.load_strain_rate(bh)['2014-10':].mean()
+    e_xz = e_xz.mean()
     e_e = (e_xx**2+e_xz**2)**0.5
 
     # estimate heat dissipation
@@ -73,6 +74,7 @@ def compute_theoretical_dissipation():
     heat = 2 * HARDNESS**(-1/3) * e_e**(4/3)
 
     # print numbers
+    # print(bh.upper())
     # print("long. strain rate:     {:.2e} s-1".format(e_xx))
     # print("shear strain rate:     {:.2e} s-1".format(e_xz))
     # print("effective strain rate: {:.2e} s-1".format(e_e))
@@ -82,11 +84,11 @@ def compute_theoretical_dissipation():
     return heat
 
 
-def compute_theoretical_warming(temp, depth):
+def compute_theoretical_warming(bh, temp, depth):
     """Compute theoretical temperature change in °C a-1 from both heat diffusion
     and viscous dissipation."""
     diffusion = compute_theoretical_diffusion(temp, depth)
-    dissipation = compute_theoretical_dissipation()
+    dissipation = compute_theoretical_dissipation(bh)
     # print dissipative temperature change
     # print("temperature change:    {:.2e} °C a-1".format(
     #     dissipation/(density*capacity) *
@@ -168,7 +170,7 @@ def main():
                  ha='left', va='bottom')
 
         # plot theroretical diffusion
-        change = compute_theoretical_warming(temp0, depth)
+        change = compute_theoretical_warming(bh, temp0, depth)
         change *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
         plot_interp(ax1, depth, change, c=color, ls='-.', lw=0.5)
 
