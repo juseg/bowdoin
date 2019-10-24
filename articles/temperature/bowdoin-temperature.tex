@@ -485,10 +485,12 @@
     %
     where the equivalent stress, $\tau_e$, is defined by ${\tau_e}^2 =
     \frac{1}{2} \mathrm{tr}(\tau^2)$. The ice softness coefficient, $A$,
-    depends on the ice temperature, $T$, and pressure, $p$,
-    through an Arrhenius-type law, $A = A_0 \,e^\frac{-Q}{RT_{pa}}$, where
-    $T_{pa}$ is the pressure-adjusted ice temperature calculated using
-    the Clapeyron relation, ${T_{pa} = T - \beta \rho g z}$
+    depends on the ice temperature, $T$, and depth below the surface, $z$,
+    through an Arrhenius-type law,
+    ${A = A_0 \exp[\frac{-Q}{R}(\frac{1}{T_{pa}}-\frac{1}{T_{th}})]}$, where
+    $T_{pa}$ is the pressure-adjusted ice temperature calculated using the
+    Clapeyron relation, ${T_{pa} = T + \beta \rho g z}$, and $T_{th}$ a
+    temperature threshold defined by ${T_{th} = 263 + \beta \rho g z}$
     \citep[p.~72]{Cuffey.Paterson.2010}.
     The strain heating can then be rewritten as a function of the deviatoric
     stresses or the strain rates only,
@@ -1054,13 +1056,13 @@
         %        & J\,kg$^{-1}$\,K$^{-1}$
         %        & \citet[p.~400]{Cuffey.Paterson.2010} \\
         $Q$     & Flow law activation energy
-                & $116\times10^3$
+                & $115\times10^3$
                 & J\,mol$^{-1}$
                 & \citet[p.~74]{Cuffey.Paterson.2010} \\
         $R$     & Ideal gas constant
-                & 8.31441
+                & 8.314
                 & J\,mol$^{-1}$\,K$^{-1}$
-                & -- \\
+                & \citet[p.~72]{Cuffey.Paterson.2010} \\
         $\rho$  & Ice density
                 & 917
                 & kg\,m$^{-3}$
