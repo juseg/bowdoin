@@ -29,6 +29,15 @@ LATENT_HEAT = 3.35e5    # Latent heat fusion,   J kg-1 K-1      (CP10, p. 400)
 # - LU02: Lüthi et al., 2002
 
 
+def compute_ice_hardness(temp, depth):
+    """Compute the temperature and depth-dependant ice hardness."""
+    melt_pt = compute_melting_point(depth)
+    temp_pa = 273.15+temp-melt_pt
+    temp_th = 263-melt_pt
+    coeff = np.exp(-ACTIV_ENERGY/GAS_CONSTANT*(1/temp_pa-1/temp_th))
+    return HARDNESS * coeff
+
+
 def compute_melting_point(depth):
     """Compute the pressure-melting point from depth below the ice surface."""
     return -CLAPEYRON * DENSITY * GRAVITY * depth
@@ -36,8 +45,7 @@ def compute_melting_point(depth):
 
 def compute_series_gradient(temp, depth):
     """Compute temperature gradient as a data series."""
-    temp[:] = np.gradient(temp, depth)
-    return temp
+    return pd.Series(index=temp.index, data=np.gradient(temp, depth))
 
 
 def compute_theoretical_diffusion(temp, depth):
@@ -46,7 +54,7 @@ def compute_theoretical_diffusion(temp, depth):
     return compute_series_gradient(heat_flux, depth)
 
 
-def compute_theoretical_dissipation(bh):
+def compute_theoretical_dissipation(bh, temp, depth):
     """
     Compute theoretical dissipation in Pa s-1 assuming a constrant effective
     strain rate from the evolution of distance between BH1 and BH3 and the
@@ -70,15 +78,15 @@ def compute_theoretical_dissipation(bh):
     e_e = (e_xx**2+e_xz**2)**0.5
 
     # estimate heat dissipation
-    # FIXME ice hardness depends on temperature
-    heat = 2 * HARDNESS**(-1/3) * e_e**(4/3)
+    hardness = compute_ice_hardness(temp, depth)
+    heat = 2 * hardness**(-1/3) * e_e**(4/3)
 
     # print numbers
     # print(bh.upper())
     # print("long. strain rate:     {:.2e} s-1".format(e_xx))
     # print("shear strain rate:     {:.2e} s-1".format(e_xz))
     # print("effective strain rate: {:.2e} s-1".format(e_e))
-    # print("heat dissipation:      {:.2e} Pa s-1".format(heat))
+    # print("mean heat dissipation: {:.2e} Pa s-1".format(heat.mean()))
 
     # return temperature change
     return heat
@@ -88,11 +96,7 @@ def compute_theoretical_warming(bh, temp, depth):
     """Compute theoretical temperature change in °C a-1 from both heat diffusion
     and viscous dissipation."""
     diffusion = compute_theoretical_diffusion(temp, depth)
-    dissipation = compute_theoretical_dissipation(bh)
-    # print dissipative temperature change
-    # print("temperature change:    {:.2e} °C a-1".format(
-    #     dissipation/(density*capacity) *
-    # pd.to_timedelta('1Y')/pd.to_timedelta('1S')))
+    dissipation = compute_theoretical_dissipation(bh, temp, depth)
     return (diffusion + dissipation) / (DENSITY * CAPACITY)
 
 
