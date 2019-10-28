@@ -5,8 +5,8 @@
 # Variables
 # ---------
 
-PAPER = bowdoin-deformation
-REV = $(shell git describe --abbrev=0 --match=bowdef*)
+PAPER = bowdoin-tides
+REV = $(shell git describe --abbrev=0 --match=bowtid*)
 
 
 # Rules

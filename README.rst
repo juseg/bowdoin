@@ -9,12 +9,12 @@ BOWTEM: bowdoin-temperature
     Englacial warming indicates deep crevassing in Bowdoin tidewater glacier,
     Northwest Greenland
 
-BOWDEF: bowdoin-deformation
-    Tidewater glacier dynamics dominated by sliding at Bowdoin Glacier,
+BOWTID: bowdoin-tides
+    Inland tidal stress propagation observed at Bowdoin Glacier,
     Northwest Greenland
 
-BOWTID:
-    Inland tidal stress propagation observed at Bowdoin Glacier,
+BOWDEF: bowdoin-deformation
+    Tidewater glacier dynamics dominated by sliding at Bowdoin Glacier,
     Northwest Greenland
 
 BOWPAL: bowdoin-paleo
