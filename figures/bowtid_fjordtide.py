@@ -3,6 +3,8 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
+"""Plot Bowdoin tides in fjord and Pituffik."""
+
 import util
 import absplots as apl
 
@@ -39,10 +41,10 @@ def main():
     # save
     util.com.savefig(fig)
 
-    ## save alternative frames
-    #util.com.savefig(fig, suffix='_z1')
-    #ax.set_visible(False)
-    #util.com.savefig(fig, suffix='_z0')
+    # save alternative frames  # FIXME formalise presentation mode
+    # util.com.savefig(fig, suffix='_z1')
+    # ax.set_visible(False)
+    # util.com.savefig(fig, suffix='_z0')
 
 
 if __name__ == '__main__':
