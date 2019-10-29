@@ -5,16 +5,20 @@
 # Variables
 # ---------
 
-# all python figures
-PY_CODE = $(addprefix bowdef_, strainrates) \
-          $(addprefix bowtem_, boreholes calibration closure demseries \
-			       images ogives profiles timeseries) \
-          $(addprefix bowtid_, fjordtide) \
-          $(addprefix bowpal_, samplemap)
-PY_FIGS = $(addsuffix .pdf, $(PY_CODE))
+# python code
+DEF_CODE = $(addprefix bowdef_, strainrates)
+TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
+	                        images ogives profiles timeseries)
+TID_CODE = $(addprefix bowtid_, fjordtide)
+PAL_CODE = $(addprefix bowpal_, samplemap)
+ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(TID_CODE) $(PAL_CODE)
 
-# all figures
-ALL_FIGS = $(PY_FIGS)
+# python figures
+DEF_FIGS = $(addsuffix .pdf, $(DEF_CODE))
+TEM_FIGS = $(addsuffix .pdf, $(TEM_CODE))
+TID_FIGS = $(addsuffix .pdf, $(TID_CODE))
+PAL_FIGS = $(addsuffix .pdf, $(PAL_CODE))
+ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 
 # temporarily deactivated
 # (tmp off: campaign_2016 summary \
@@ -36,13 +40,18 @@ ALL_FIGS = $(PY_FIGS)
 # default rule
 all: $(ALL_FIGS)
 
+# project dependencies
+$(DEF_FIGS): util/inc.py
+$(TEM_FIGS): util/tem.py
+$(TID_FIGS): util/tid.py
+
 # make python figures
-$(PY_FIGS): %.pdf : %.py matplotlibrc util
+$(ALL_FIGS): %.pdf : %.py matplotlibrc util/com.py util/geo.py
 	LC_ALL=en_US.utf8 python $<
 
 # lint python code
 lint:
-	pylint -j 0 $(PY_CODE) util/???.py
+	pylint -j 0 $(ALL_CODE) util/???.py
 
 # clean up
 .PHONY: clean
