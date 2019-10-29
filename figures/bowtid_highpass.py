@@ -37,7 +37,7 @@ def main():
             ts.plot(ax=ax)
 
     # plot tide data
-    z = ut.io.load_tide_thul().resample('1H').mean() - 20.0  # kPa
+    z = util.tid.load_pituffik_tikes().resample('1H').mean() - 20.0  # kPa
     for ax in grid:
         z.plot(ax=ax, c='k', label='Tide')
 

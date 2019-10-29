@@ -67,7 +67,7 @@ def main():
 
     # plot tide data
     ax = grid.flat[-1]
-    ts = ut.io.ut.io.load_tide_thul().resample('1H').mean().interpolate().diff()[1:]/3.6
+    ts = ut.io.util.tid.load_pituffik_tikes().resample('1H').mean().interpolate().diff()[1:]/3.6
     ts.plot(ax=ax, visible=False)  # prepare axes in pandas format
     f, t, spec = sg.spectrogram(ts, nperseg=nfft, fs=fs, noverlap=0, scaling='spectrum')
     t = (pd.date_range(ts.index[0], freq=freq, periods=spec.shape[1]) +

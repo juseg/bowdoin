@@ -15,8 +15,8 @@ def main():
         left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
 
     # load Thule and Bowdoin tide data
-    thul = ut.io.load_tide_thul(start='2015-07', end='2015-08')
-    bowd = ut.io.load_tide_bowd()
+    thul = util.tid.load_pituffik_tides(start='2015-07', end='2015-08')
+    bowd = util.tid.load_bowdoin_tides()
 
     # crop Thule data and downsample Bowdoin
     thul = thul[bowd.index[0]:bowd.index[-1]]
