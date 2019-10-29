@@ -1,4 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+# Copyright (c) 2019, Julien Seguinot <seguinot@vaw.baug.ethz.ch>
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 import util as ut
 import pandas as pd
@@ -49,12 +52,12 @@ rate = ddm / dt
 ds.close()
 
 # contour levels and colors (xarray fails on color arrays)
-levs = range(-500, 501, 100)
-cols = list(plt.get_cmap('PRGn', len(levs)+1)(range(len(levs)+1)))
+levs = list(range(-500, 501, 100))
+cols = list(plt.get_cmap('PRGn', len(levs)+1)(list(range(len(levs)+1))))
 
 # plot
 for i, ax in enumerate(grid):
-    levs = range(-500, 501, 100)
+    levs = list(range(-500, 501, 100))
     cs = rate[i].plot.contourf(ax=ax, levels=levs, colors=cols,
                                cbar_ax=cax, add_labels=False)
 

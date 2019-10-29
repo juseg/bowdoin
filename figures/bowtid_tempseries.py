@@ -1,5 +1,7 @@
-#!/usr/bin/env python2
-# coding: utf-8
+#!/usr/bin/env python
+# Copyright (c) 2019, Julien Seguinot <seguinot@vaw.baug.ethz.ch>
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 import util as ut
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
@@ -19,7 +21,7 @@ for ax in grid:
     ax.plot(df, [t.loc[df[k], k] for k in t], 'k+')
 
 # set axes properties
-grid[0].set_ylabel(u'temperature (°C)')
+grid[0].set_ylabel('temperature (°C)')
 grid[0].legend(ncol=3)
 
 # set up zoom

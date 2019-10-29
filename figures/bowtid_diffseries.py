@@ -1,5 +1,7 @@
-#!/usr/bin/env python2
-# coding: utf-8
+#!/usr/bin/env python
+# Copyright (c) 2019, Julien Seguinot <seguinot@vaw.baug.ethz.ch>
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 import util as ut
 import matplotlib.pyplot as plt
@@ -12,7 +14,7 @@ fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
 
 # plot tilt unit water level
 p = ut.io.load_bowtid_data('wlev').resample('1H').mean()
-p = p.diff()[1:]/3.6 + 9 - range(p.shape[1])  # Pa s-1
+p = p.diff()[1:]/3.6 + 9 - list(range(p.shape[1]))  # Pa s-1
 for ax in grid:
     p.plot(ax=ax, legend=False)
 

@@ -1,5 +1,7 @@
-#!/usr/bin/env python2
-# coding: utf-8
+#!/usr/bin/env python
+# Copyright (c) 2019, Julien Seguinot <seguinot@vaw.baug.ethz.ch>
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 import util as ut
 import numpy as np
@@ -90,7 +92,7 @@ ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
 
 # set axes properties
 ax.set_xlim(1.75, 2.15)
-ax.set_xticks(distances.values())
+ax.set_xticks(list(distances.values()))
 ax.set_xlabel('approximate distance from front in 2014 (km)')
 ax.set_ylabel('depth (m)')
 ax.invert_yaxis()

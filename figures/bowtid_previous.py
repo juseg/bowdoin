@@ -1,5 +1,7 @@
-#!/usr/bin/env python2
-# coding: utf-8
+#!/usr/bin/env python
+# Copyright (c) 2019, Julien Seguinot <seguinot@vaw.baug.ethz.ch>
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 import util as ut
 import pandas as pd
@@ -63,7 +65,7 @@ for i, bh in enumerate(ut.boreholes):
         label = '{}, {}'.format(bh, date)
         ax.plot(temp, depth, c=c, ls=ls, label=label)
         if date == dates[bh][0]:
-            for sensor, marker in markers.iteritems():
+            for sensor, marker in list(markers.items()):
                 cols = [s for s in temp.index if s.startswith(sensor)]
                 ax.plot(temp[cols], depth[cols], marker, c=c)
 
@@ -83,7 +85,7 @@ ax.plot([0.0, base_temp_melt], [0.0, base_depth], c='k', ls=':')
 
 # set axes properties
 ax.invert_yaxis()
-ax.set_xlabel(u'ice temperature (°C)')
+ax.set_xlabel('ice temperature (°C)')
 ax.set_ylabel('depth (m)')
 ax.legend(loc='lower left')
 
