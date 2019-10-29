@@ -17,7 +17,7 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=12.5))
 
     # for each tilt unit
-    p = ut.io.load_bowtid_data('wlev')
+    p = util.inc.load_inc('wlev')
     for i, u in enumerate(p):
         c = 'C%d' % i
 

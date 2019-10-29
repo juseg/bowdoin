@@ -22,11 +22,11 @@ def main():
     cax = fig.add_axes_mm([162.5, 10, 2.5, 77.5])
 
     # get freezing dates
-    t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()
+    t = util.inc.load_inc('temp')['20140717':].resample('1H').mean()
     df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
 
     # for each tilt unit
-    p = ut.io.load_bowtid_data('wlev')
+    p = util.inc.load_inc('wlev')
     norm = mcolors.LogNorm(1e-6, 1e0)
     for i, u in enumerate(p):
         ax = grid.flat[i]
@@ -67,7 +67,7 @@ def main():
 
     # plot tide data
     ax = grid.flat[-1]
-    ts = ut.io.util.tid.load_pituffik_tikes().resample('1H').mean().interpolate().diff()[1:]/3.6
+    ts = ut.io.util.tid.load_pituffik_tides().resample('1H').mean().interpolate().diff()[1:]/3.6
     ts.plot(ax=ax, visible=False)  # prepare axes in pandas format
     f, t, spec = sg.spectrogram(ts, nperseg=nfft, fs=fs, noverlap=0, scaling='spectrum')
     t = (pd.date_range(ts.index[0], freq=freq, periods=spec.shape[1]) +

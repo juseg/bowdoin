@@ -68,17 +68,6 @@ def load_bowtid_depth():
     return ts
 
 
-def load_bowtid_data(var):
-    df = ut.io.load_data('tiltunit', var, 'both')
-    #FIXME remove water level conversion in preprocessing
-    if var == 'wlev':
-        df = g*df['20140701':]  # kPa
-    df = df.sort_index(axis=1, ascending=False)
-    df.columns = [c[0::3] for c in df.columns]
-    df = df.drop(['L1', 'L2', 'U1'], axis=1)
-    return df
-
-
 def load_total_strain(borehole, start, end=None, as_angle=False):
     """Return horizontal shear strain rate from tilt relative to a start date
     or between two dates."""

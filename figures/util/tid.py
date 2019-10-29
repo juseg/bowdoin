@@ -6,6 +6,7 @@
 Bowdoin tides paper utils.
 """
 
+import glob
 import scipy.signal as sg
 import pandas as pd
 
@@ -25,6 +26,34 @@ def is_multiline(filename):
         line = fil.readline()
         line = fil.readline()
     return line != ''
+
+
+def load(filename):
+    """Load preprocessed data file and return data with duplicates removed."""
+    # FIXME this is a duplicate of util.tem.load
+    data = pd.read_csv(filename, parse_dates=True, index_col='date')
+    data = data.groupby(level=0).mean()
+    return data
+
+
+def load_inc(variable):
+    """Load inclinometer variable data for all boreholes."""
+
+    # load all inclinometer data for this variable
+    pattern = '../data/processed/bowdoin.*.inc.' + variable + '.csv'
+    data = pd.concat([load(f) for f in glob.glob(pattern)], axis=1)
+
+    # convert water levels to pressure
+    # FIXME remove water level conversion in preprocessing
+    if variable == 'wlev':
+        data = GRAVITY*data['20140701':]  # kPa
+
+    # order data and drop useless records
+    data = data.sort_index(axis=1, ascending=False)
+    data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
+
+    # return dataframe
+    return data
 
 
 def load_bowdoin_tides(order=2, cutoff=1/3600.0):

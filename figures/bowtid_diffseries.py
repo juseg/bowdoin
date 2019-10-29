@@ -18,13 +18,13 @@ def main():
                          wspace=7.5))
 
     # plot tilt unit water level
-    p = ut.io.load_bowtid_data('wlev').resample('1H').mean()
+    p = util.tid.load_inc('wlev').resample('1H').mean()
     p = p.diff()[1:]/3.6 + 9 - list(range(p.shape[1]))  # Pa s-1
     for ax in grid:
         p.plot(ax=ax, legend=False)
 
     # plot tide data
-    z = util.tid.load_pituffik_tikes().resample('1H').mean().diff()[1:]/3.6  # Pa s-1
+    z = util.tid.load_pituffik_tides().resample('1H').mean().diff()[1:]/3.6  # Pa s-1
     z.plot(ax=grid[1], c='k', label='Tide')
 
     # set axes properties

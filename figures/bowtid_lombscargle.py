@@ -18,7 +18,7 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=12.5))
 
     # for each tilt unit
-    p = ut.io.load_bowtid_data('wlev')['2014-11':].diff()[1:]
+    p = util.inc.load_inc('wlev')['2014-11':].diff()[1:]
     for i, u in enumerate(p):
         ax = grid.flat[i]
         c = 'C%d' % i

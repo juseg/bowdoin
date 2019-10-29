@@ -17,7 +17,7 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
 
     # extract freezing dates
-    t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()
+    t = util.inc.load_inc('temp')['20140717':].resample('1H').mean()
     df = abs(t-0.1*t.max()-0.9*t.min()).idxmin()  # date of freezing
 
     # plot temperature data

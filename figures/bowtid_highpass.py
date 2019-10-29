@@ -22,7 +22,7 @@ def main():
     b, a = signal.butter(2, 3/24.0, 'high')
 
     # for each tilt unit
-    p = ut.io.load_bowtid_data('wlev')
+    p = util.inc.load_inc('wlev')
     for i, u in enumerate(p):
         c = 'C%d' % i
 
@@ -37,7 +37,7 @@ def main():
             ts.plot(ax=ax)
 
     # plot tide data
-    z = util.tid.load_pituffik_tikes().resample('1H').mean() - 20.0  # kPa
+    z = util.tid.load_pituffik_tides().resample('1H').mean() - 20.0  # kPa
     for ax in grid:
         z.plot(ax=ax, c='k', label='Tide')
 

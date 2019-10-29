@@ -17,11 +17,11 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=2.5))
 
     # get freezing dates
-    t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()
+    t = util.inc.load_inc('temp')['20140717':].resample('1H').mean()
     df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
 
     # for each tilt unit
-    p = ut.io.load_bowtid_data('wlev')['2014-07':]
+    p = util.inc.load_inc('wlev')['2014-07':]
     for i, u in enumerate(p):
         ax = grid.T.flat[i]
         c = 'C%d' % i
@@ -56,7 +56,7 @@ def main():
         ax.text(0.95, 0.1, u, color=c, ha='right', transform=ax.transAxes)
 
     # plot tide data
-    tide = ut.io.util.tid.load_pituffik_tikes().resample('1H').mean().interpolate().diff()[1:]/3.6
+    tide = ut.io.util.tid.load_pituffik_tides().resample('1H').mean().interpolate().diff()[1:]/3.6
     freq = np.fft.rfftfreq(tide.shape[-1], 1.0)
     rfft = np.fft.rfft(tide.values)
     ampl = np.abs(rfft)
