@@ -9,7 +9,7 @@
 DEF_CODE = $(addprefix bowdef_, strainrates)
 TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
 	                        images ogives profiles timeseries)
-TID_CODE = $(addprefix bowtid_, fjordtide)
+TID_CODE = $(addprefix bowtid_, diffseries fjordtide)
 PAL_CODE = $(addprefix bowpal_, samplemap)
 ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(TID_CODE) $(PAL_CODE)
 
@@ -28,9 +28,9 @@ ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 #            $(addprefix map_, gmb gsv ls8 ls8_uv vgd vgd_uv) \
 #            $(addprefix summer_, 2014 2015 2016) \
 #            $(addprefix ts_, defvel detrended gpsvel satvel satvel_uv tilt)) \
-#          $(addprefix bowtid_, boreholes correlate diffseries fft gmb \
+#          $(addprefix bowtid_, boreholes correlate fft gmb \
 #                               highpass intervals lombscargle previous \
-#                               specgrams tempseries tideseries wlevseries) \
+#                               specgrams tempseries wlevseries) \
 #          $(addprefix bowwat_, thinning wlevseries)
 
 

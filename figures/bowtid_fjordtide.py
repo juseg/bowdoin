@@ -5,8 +5,8 @@
 
 """Plot Bowdoin tides in fjord and Pituffik."""
 
-import util
 import absplots as apl
+import util
 
 
 def main():
