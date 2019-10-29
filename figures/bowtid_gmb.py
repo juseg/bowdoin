@@ -8,6 +8,7 @@ import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import absplots as apl
 
 
 def main():
@@ -24,12 +25,10 @@ def main():
 
     # initialize figure
     nmaps = len(targets)-1
-    figw, figh = 150.0, 75.0
-    fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=nmaps,
-                                  sharex=True, sharey=True, wspace=2.5,
-                                  left=2.5, right=22.5, bottom=2.5, top=2.5,
-                                  subplot_kw=dict(projection=proj))
-    cax = fig.add_axes([1-20.0/figw, 2.5/figh, 5.0/figw, 1-5.0/figh])
+    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=nmaps, sharex=True,
+        sharey=True, subplot_kw=dict(projection=proj), gridspec_kw=dict(
+            left=2.5, right=22.5, bottom=2.5, top=2.5, wspace=2.5))
+    cax = fig.add_axes_mm([160, 2.5, 5, 85])
 
     # open dataset
     ds = xr.open_dataset('../data/external/GIS_GMB_grid.nc')

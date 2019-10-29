@@ -5,15 +5,16 @@
 
 import util
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+import absplots as apl
 
 
 def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=9, ncols=2,
-                                  sharex='col', sharey=True, wspace=2.5, hspace=2.5,
-                                  left=10.0, right=2.5, bottom=10.0, top=2.5)
+    fig, grid = apl.subplots_mm(figsize=(180, 90), nrows=9, ncols=2,
+        sharex='col', sharey=True, gridspec_kw=dict(
+            left=12.5, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=12.5))
 
     # for each tilt unit
     p = ut.io.load_bowtid_data('wlev')

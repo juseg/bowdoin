@@ -6,15 +6,15 @@
 import util
 import numpy as np
 import matplotlib.pyplot as plt
+import absplots as apl
 
 
 def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=3,
-                                  sharex=False, sharey=False, wspace=12.5,
-                                  left=10.0, right=2.5, bottom=10.0, top=2.5)
+    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec=dict(
+        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5)
 
     # for each tilt unit
     z = ut.io.load_bowtid_data('depth').iloc[0]

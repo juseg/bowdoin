@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import scipy.signal as sg
 import matplotlib.colors as mcolors
+import absplots as apl
 
 
 def main():
@@ -15,11 +16,10 @@ def main():
 
 
     # initialize figure
-    figw, figh = 150.0, 75.0
-    fig, grid = ut.pl.subplots_mm(figsize=(figw, figh), nrows=10, ncols=1,
-                                  sharex=True, sharey=True, hspace=2.5,
-                                  left=10.0, right=15.0, bottom=10.0, top=2.5)
-    cax = fig.add_axes([1-12.5/figw, 10.0/figh, 2.5/figw, 1-12.5/figh])
+    fig, grid = apl.subplots_mm(figsize=(180, 90), nrows=10, ncols=1,
+        gridspec_kw=dict(
+            left=12.5, right=15, bottom=12.5, top=2.5, hspace=2.5))
+    cax = fig.add_axes_mm([162.5, 10, 2.5, 77.5])
 
     # get freezing dates
     t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()

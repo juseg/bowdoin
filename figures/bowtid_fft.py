@@ -5,15 +5,16 @@
 
 import util
 import numpy as np
+import absplots as apl
 
 
 def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=3, ncols=4,
-                                  sharex=True, sharey=True, hspace=2.5, wspace=2.5,
-                                  left=10.0, right=2.5, bottom=10.0, top=2.5)
+    fig, grid = apl.subplots_mm(figsize=(180, 90), nrows=3, ncols=4,
+        sharex=True, sharey=True, gridspec_kw=dict(
+            left=12.5, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=2.5))
 
     # get freezing dates
     t = ut.io.load_bowtid_data('temp')['20140717':].resample('1H').mean()

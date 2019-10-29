@@ -4,15 +4,15 @@
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 import util
+import absplots as apl
 
 
 def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = ut.pl.subplots_mm(figsize=(150.0, 75.0), nrows=1, ncols=2,
-                                  sharex=False, sharey=False, wspace=12.5,
-                                  left=10.0, right=2.5, bottom=10.0, top=2.5)
+    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=2, gridspec_kw=dict(
+        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
 
     # load Thule and Bowdoin tide data
     thul = ut.io.load_tide_thul(start='2015-07', end='2015-08')
