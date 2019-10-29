@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util as ut
+import util
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 
@@ -43,7 +43,7 @@ def main():
     grid[4, 0].set_ylabel('time step (h)')
 
     # save
-    ut.pl.savefig(fig)
+    util.com.savefig(fig)
 
 
 if __name__ == '__main__':

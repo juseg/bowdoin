@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util as ut
+import util
 import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -84,7 +84,7 @@ def main():
     cax.set_ylabel('Mass change rate ($mm\ w.eq.\,a^{-1}$ or $kg\,m^{-1}\,a^{-1}$)')
 
     # add colorbar and save
-    ut.pl.savefig(fig)
+    util.com.savefig(fig)
 
 
 if __name__ == '__main__':

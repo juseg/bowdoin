@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util as ut
+import util
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
@@ -42,7 +42,7 @@ def main():
 
     ## save without right panel
     #grid[1].set_visible(False)
-    #ut.pl.savefig(fig, suffix='_z0')
+    #util.com.savefig(fig, suffix='_z0')
     #grid[1].set_visible(True)
 
     # mark zoom inset
@@ -52,12 +52,12 @@ def main():
     #for k, v in zooms.iteritems():
     #    grid[1].set_xlim(*v[:2])
     #    grid[1].set_ylim(*v[2:])
-    #    ut.pl.savefig(fig, suffix='_'+k)
+    #    util.com.savefig(fig, suffix='_'+k)
 
     # save default
     grid[1].set_xlim(*zooms['z2'][:2])
     grid[1].set_ylim(*zooms['z2'][2:])
-    ut.pl.savefig(fig)
+    util.com.savefig(fig)
 
 
 if __name__ == '__main__':

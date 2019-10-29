@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util as ut
+import util
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -68,7 +68,7 @@ def main():
     grid[2].set_ylabel('depth (m)')
 
     # save
-    ut.pl.savefig(fig)
+    util.com.savefig(fig)
 
 
 if __name__ == '__main__':

@@ -3,8 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-
-import util as ut
+import util
 
 
 def main():
@@ -38,12 +37,12 @@ def main():
     ax.set_ylabel('Bowdoin tide (kPa)', labelpad=0.0)
 
     # save
-    ut.pl.savefig(fig)
+    util.com.savefig(fig)
 
     ## save alternative frames
-    #ut.pl.savefig(fig, suffix='_z1')
+    #util.com.savefig(fig, suffix='_z1')
     #ax.set_visible(False)
-    #ut.pl.savefig(fig, suffix='_z0')
+    #util.com.savefig(fig, suffix='_z0')
 
 
 if __name__ == '__main__':

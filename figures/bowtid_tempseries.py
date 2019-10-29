@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util as ut
+import util
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 
@@ -34,7 +34,7 @@ def main():
     mark_inset(grid[0], grid[1], loc1=2, loc2=3, ec='0.5', ls='--')
 
     # save
-    ut.pl.savefig(fig)
+    util.com.savefig(fig)
 
 
 if __name__ == '__main__':
