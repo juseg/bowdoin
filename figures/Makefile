@@ -9,7 +9,7 @@
 PY_CODE = $(addprefix bowdef_, strainrates) \
           $(addprefix bowtem_, boreholes calibration closure demseries \
 			       images ogives profiles timeseries) \
-          $(addprefix bowtid_, tideseries) \
+          $(addprefix bowtid_, fjordtide) \
           $(addprefix bowpal_, samplemap)
 PY_FIGS = $(addsuffix .pdf, $(PY_CODE))
 
