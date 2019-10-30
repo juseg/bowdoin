@@ -42,7 +42,7 @@ def main():
         z5=['20150915', '20151115', 2.00, 2.30],  # 14-day mode U4, L3
         z6=['20170315', '20170501', 1.35, 1.45],)  # 14-day mode U5
 
-    # save without right panel
+    # save without right panel  # FIXME formalise presentation mode
     # ax1.set_visible(False)
     # util.com.savefig(fig, suffix='_z0')
     # ax1.set_visible(True)

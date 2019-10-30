@@ -9,7 +9,8 @@
 DEF_CODE = $(addprefix bowdef_, strainrates)
 TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
 	                        images ogives profiles timeseries)
-TID_CODE = $(addprefix bowtid_, diffseries fjordtide timeseries)
+TID_CODE = $(addprefix bowtid_, diffseries fjordtide
+                                tempseries timeseries)
 PAL_CODE = $(addprefix bowpal_, samplemap)
 ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(TID_CODE) $(PAL_CODE)
 
@@ -30,7 +31,7 @@ ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 #            $(addprefix ts_, defvel detrended gpsvel satvel satvel_uv tilt)) \
 #          $(addprefix bowtid_, boreholes correlate fft gmb \
 #                               highpass intervals lombscargle previous \
-#                               specgrams tempseries) \
+#                               specgrams) \
 #          $(addprefix bowwat_, thinning wlevseries)
 
 
