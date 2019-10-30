@@ -24,7 +24,7 @@ diff: $(PAPER)-diff.pdf
 
 # latex diff patterned rule
 %-diff.tex: %.tex
-	latexdiff-vc --exclude-textcmd="section,subsection" --force --git -r $(REV) $<
+	latexdiff-vc --math-markup=3 --force --git -r $(REV) $<
 	mv $(basename $@)$(REV).tex $@
 
 # clean up
