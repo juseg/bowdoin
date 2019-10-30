@@ -9,7 +9,7 @@
 DEF_CODE = $(addprefix bowdef_, strainrates)
 TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
 	                        images ogives profiles timeseries)
-TID_CODE = $(addprefix bowtid_, diffseries fjordtide highpass
+TID_CODE = $(addprefix bowtid_, diffseries fjordtide highpass intervals
                                 tempseries timeseries)
 PAL_CODE = $(addprefix bowpal_, samplemap)
 ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(TID_CODE) $(PAL_CODE)
