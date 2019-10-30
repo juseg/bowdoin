@@ -104,7 +104,7 @@ def plot_long_profile(ax):
     ax.set_ylim(292, -20)
     ax.set_xticks([1.84, 2.0])
     ax.set_xlabel('approximate distance from front in 2014 (km)')
-    ax.set_ylabel('depth (m)')
+    ax.set_ylabel('initial depth (m)')
     ax.grid(False, axis='x')
 
 

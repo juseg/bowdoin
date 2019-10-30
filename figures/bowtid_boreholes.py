@@ -3,105 +3,101 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util
-import numpy as np
-import matplotlib.pyplot as plt
+"""Plot Bowdoin tides borehole setup."""
+
+import xarray as xr
 import cartopy.crs as ccrs
 import absplots as apl
+import cartowik.annotations as can
+import cartowik.decorations as cde
+import util
+
+COLOURS = dict(bh1='C0', bh3='C6')
 
 
-def main():
-    """Main program called during execution."""
-
-    # initialize figure
-    # -----------------
-
-    # projections and map boundaries
-    ll = ccrs.PlateCarree()
-    utm = ccrs.UTM(19)
-    reg = 507.5e3, 512.5e3, 8620e3, 8627e3
+def init_figure():
+    """Initialize figure with map and profile subplots."""
 
     # initialize figure
-    figw, figh = 150.0, 75.0
-    fig = plt.figure(figsize=(figw/25.4, figh/25.4))
-    ax1 = fig.add_axes([2.5/figw, 2.5/figh, 50.0/figw, 1-5.0/figh], projection=utm)
-    ax2 = fig.add_axes([67.5/figw, 10.0/figh, 80.0/figw, 1-12.5/figh])
+    fig = apl.figure_mm(figsize=(180, 90))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.UTM(19))
+    ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
+
+    # add subfigure labels
+    util.com.add_subfig_label(ax=ax0, text='(a)', color='w')
+    util.com.add_subfig_label(ax=ax1, text='(b)')
+
+    # return figure and axes
+    return fig, (ax0, ax1)
 
 
-    # map axes
-    # --------
+def plot_location_map(ax):
+    """Draw boreholes location map with Sentinel image background."""
 
-    ax = ax1
+    # prepare map axes
+    ax.set_extent([508e3, 512e3, 8621e3, 8626e3+2e3/3], crs=ax.projection)
 
-    # initialize figure
-    #fig = plt.figure()
-    #ax = fig.add_axes([0, 0, 1, 1], projection=utm)
-    ax.set_rasterization_zorder(2.5)
-    ax.set_extent(reg, crs=utm)
+    # plot Sentinel image data
+    filename = '../data/external/20160808_175915_456_S2A_RGB.jpg'
+    xr.open_rasterio(filename).plot.imshow(ax=ax, interpolation='bilinear')
 
-    # plot image data
-    filename = '../data/external/S2A_20160808_175915_456_RGB.jpg'
-    data, extent = ut.io.open_gtif(filename)
-    data = np.moveaxis(data, 0, 2)
-    ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
-
-    # plot borehole and camera locations
-    kwa = dict(ax=ax, color='C0', marker='o')
-    ut.pl.add_waypoint('B14BH1', text='2014', **kwa)
-    ut.pl.add_waypoint('B16BH1', text='2016', **kwa)
-    ut.pl.add_waypoint('B17BH1', text='2017', **kwa)
-    kwa = dict(ax=ax, color='C6', marker='o')
-    ut.pl.add_waypoint('B14BH3', **kwa)
-    ut.pl.add_waypoint('B16BH3', **kwa)
-    ut.pl.add_waypoint('B17BH3', **kwa)
-    kwa = dict(ax=ax, color='C1', marker='^')
-    ut.pl.add_waypoint('Camera Upper', **kwa)
-    ut.pl.add_waypoint('Camera Lower', text='Camera', **kwa)
-    kwa = dict(ax=ax, color='C3', marker='^')
-    ut.pl.add_waypoint('Tent Swiss', text='Camp', **kwa)
-    #ut.pl.add_waypoint('Camp Hill', text='Hill', **kwa)
+    # add boreholes and camp waypoints for each borehole
+    locations = util.geo.read_locations('../data/locations.gpx')
+    for bh in ('bh1', 'bh3'):
+        point = 'se' if bh == 'bh1' else 'nw'
+        kwa = dict(ax=ax, color=COLOURS[bh], point=point)
+        can.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
+        can.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
+        can.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
+    can.annotate_location(locations['Tent Swiss'], ax=ax, color='w', point='s',
+                          marker='^', text='Camp')
 
     # add scale
-    ax.plot([508.25e3, 509.25e3], [8620.25e3]*2, 'w|-')
-    ax.text(508.75e3, 8620.4e3, '1km', color='w', ha='center', fontweight='bold')
+    cde.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
 
 
-    # distance axes
-    # -------------
+def plot_long_profile(ax):
+    """Draw boreholes long profile with intrumental setup."""
 
-    ax = ax2
-
-    # arbitrary borehole distances
-    distances = {'U':2.0, 'L':1.85}
+    # draw vertical lines symbolising the boreholes
+    for bh, color in COLOURS.items():
+        base = util.tid.load('../data/processed/bowdoin.'+bh+'.inc.base.csv')
+        base = base.iloc[0].squeeze()
+        dist = dict(bh1=2, bh3=1.84)[bh]
+        ax.plot([dist, dist], [base, 0.0], 'k-_')
+        ax.text(dist, -5.0, bh.upper(), color=color, fontweight='bold',
+                ha='center', va='bottom')
+        ax.text(dist, base+5.0, '{:.0f} m'.format(base),
+                ha='center', va='top')
 
     # plot tilt unit depths
-    z = ut.io.load_bowtid_depth()
-    for u in z.index:
-        x = distances[u[0]]
-        ax.plot(x, z[u], marker='s')
-        ax.text(x+0.01, z[u], u, va='center')
-
-    # add base line
-    zp = ut.io.load_depth('pressure', 'both')
-    for u in zp.index:
-        x = distances[u[0]]
-        b = max(zp[u], z[z.index.str.startswith(u[0])].max())
-        ax.plot([x, x], [b, 0.0], 'k-_')
+    depth = util.tid.load_inc('dept').iloc[0]  # FIXME depth util?
+    for i, unit in enumerate(depth.index):
+        color = 'C%d' % i
+        dist = dict(U=2, L=1.84)[unit[0]]
+        ax.plot(dist+0.01, depth[unit], marker='^')
+        ax.text(dist+0.02, depth[unit], unit, color=color, va='center')
 
     # add flow direction arrow
     ax.text(0.9, 0.55, 'ice flow', ha='center', transform=ax.transAxes)
     ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
                 xycoords=ax.transAxes, textcoords=ax.transAxes,
-                arrowprops=dict(arrowstyle='->',  lw=1.0))
+                arrowprops=dict(arrowstyle='->', lw=1.0))
 
     # set axes properties
-    ax.set_xlim(1.75, 2.15)
-    ax.set_xticks(list(distances.values()))
+    ax.set_xlim(1.74, 2.16)
+    ax.set_ylim(292, -20)
+    ax.set_xticks([1.84, 2.0])
     ax.set_xlabel('approximate distance from front in 2014 (km)')
-    ax.set_ylabel('depth (m)')
-    ax.invert_yaxis()
+    ax.set_ylabel('initial depth (m)')
+    ax.grid(False, axis='x')
 
-    # save
+
+def main():
+    """Main program called during execution."""
+    fig, (ax0, ax1) = init_figure()
+    plot_location_map(ax0)
+    plot_long_profile(ax1)
     util.com.savefig(fig)
 
 
