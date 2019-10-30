@@ -1,5 +1,6 @@
 \documentclass[utf8]{article}
 
+\usepackage{bm}
 \usepackage{doi}
 \usepackage{authblk}
 \usepackage[T1]{fontenc}
@@ -471,20 +472,20 @@
     energy dissipation due to strain heating, which can be expressed as
     %
     \begin{equation}
-      H = \mathrm{tr}(\tau\dot\epsilon),
+      H = \mathrm{tr}(\bm{\tau\dot\epsilon}),
     \end{equation}
     %
-    where $\tau$ is the deviatoric stress tensor, and $\dot\epsilon$ the
+    where $\bm\tau$ is the deviatoric stress tensor, and $\bm{\dot\epsilon}$ the
     strain-rate tensor \citep[p.~417]{Clarke.etal.1977, Cuffey.Paterson.2010}.
     Stresses and strains can be related by the constitutive law for ice
     \citep{Glen.1952, Nye.1953},
     %
     \begin{equation}
-        \dot{\epsilon} = A\,\tau_e^{n-1}\,\tau \,,
+        \bm{\dot\epsilon} = A\,\tau_e^{n-1}\,\bm{\tau} \,,
     \end{equation}
     %
     where the equivalent stress, $\tau_e$, is defined by ${\tau_e}^2 =
-    \frac{1}{2} \mathrm{tr}(\tau^2)$. The ice softness coefficient, $A$,
+    \frac{1}{2} \mathrm{tr}(\bm\tau^2)$. The ice softness coefficient, $A$,
     depends on the ice temperature, $T$, and depth below the surface, $z$,
     through an Arrhenius-type law,
     ${A = A_0 \exp[\frac{-Q}{R}(\frac{1}{T_{pa}}-\frac{1}{T_{th}})]}$, where
@@ -500,12 +501,12 @@
     \end{equation}
 
     Assuming two-dimensional, vertical planar deformation, the effective strain
-    rate, $\dot\epsilon_e^2 = \frac{1}{2}\mathrm{tr}(\epsilon^2)$, can be
-    expressed in terms of its Cartesian components, $\dot\epsilon_e^2 =
+    rate, ${\dot\epsilon_e^2 = \frac{1}{2}\mathrm{tr}(\bm{\dot\epsilon}^2)}$,
+    can be expressed in terms of its Cartesian components, ${\dot\epsilon_e^2 =
     \frac{1}{2}(\dot\epsilon_{xx}^2 + \dot\epsilon_{zz}^2) +
-    \dot\epsilon_{xz}^2$. The conservation of volume yields
-    $\mathrm{div}(\dot\epsilon) = \dot\epsilon_{xx} + \dot\epsilon_{zz} = 0$ so
-    that the effective strain can be simplified to a function of its
+    \dot\epsilon_{xz}^2}$. The conservation of volume yields
+    ${\mathrm{div}(\bm{\dot\epsilon}) = \dot\epsilon_{xx} + \dot\epsilon_{zz} =
+    0}$ so that the effective strain can be simplified to a function of its
     longitudinal and shear components,
     %
     \begin{equation}
