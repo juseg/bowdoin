@@ -22,11 +22,11 @@ def main():
     cax = fig.add_axes_mm([162.5, 10, 2.5, 77.5])
 
     # get freezing dates
-    t = util.inc.load_inc('temp')['20140717':].resample('1H').mean()
+    t = util.tid.load_inc('temp')['20140717':].resample('1H').mean()
     df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
 
     # for each tilt unit
-    p = util.inc.load_inc('wlev')
+    p = util.tid.load_inc('wlev')
     norm = mcolors.LogNorm(1e-6, 1e0)
     for i, u in enumerate(p):
         ax = grid.flat[i]

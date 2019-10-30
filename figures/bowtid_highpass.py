@@ -22,7 +22,7 @@ def main():
     b, a = signal.butter(2, 3/24.0, 'high')
 
     # for each tilt unit
-    p = util.inc.load_inc('wlev')
+    p = util.tid.load_inc('wlev')
     for i, u in enumerate(p):
         c = 'C%d' % i
 
