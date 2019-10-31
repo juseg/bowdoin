@@ -11,6 +11,7 @@ import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
 import cartowik.decorations as cde
+import cartowik.naturalearth as cne
 import util
 
 
@@ -53,6 +54,20 @@ def plot_location_map(ax):
 
     # add scale
     cde.add_scale_bar(ax=ax, color='k', label='1km', length=1000)
+
+    # add invisible axes
+    # FIXME add minimap util, and maybe cartowik example
+    ax = ax.figure.add_axes_mm([5, 5, 10, 15], projection=ccrs.Stereographic(
+        central_latitude=90, central_longitude=-45, true_scale_latitude=70))
+    ax.set_extent([-1000e3, 1000e3, -3500e3, -500e3], crs=ax.projection)
+    ax.background_patch.set_visible(False)
+    ax.outline_patch.set_visible(False)
+
+    # draw minimap
+    can.annotate_location(locations['B16BH1'], ax=ax, color='k')
+    cne.add_countries(ax=ax, facecolor='none', scale='110m',
+                      subject='Greenland', subject_edgecolor='k',
+                      subject_facecolor='none')
 
 
 def plot_long_profile(ax):
