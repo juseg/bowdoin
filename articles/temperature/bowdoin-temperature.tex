@@ -489,39 +489,50 @@
     \citep{Glen.1952, Nye.1953},
     %
     \begin{equation}
-        \bm{\dot\epsilon} = A\,\tau_e^{n-1}\,\bm{\tau} \,,
+        \bm{\dot\epsilon} = A\,\tau_\mathrm{e}^{n-1}\,\bm{\tau} \,,
     \end{equation}
     %
-    where the equivalent stress, $\tau_e$, is defined by ${\tau_e}^2 =
-    \frac{1}{2} \mathrm{tr}(\bm\tau^2)$. The ice softness coefficient, $A$,
-    depends on the ice temperature, $T$, and depth below the surface, $z$,
-    through an Arrhenius-type law,
-    ${A = A_0 \exp[\frac{-Q}{R}(\frac{1}{T_{pa}}-\frac{1}{T_{th}})]}$, where
-    $T_{pa}$ is the pressure-adjusted ice temperature calculated using the
-    Clapeyron relation, ${T_{pa} = T + \beta \rho g z}$, and $T_{th}$ a
-    temperature threshold defined by ${T_{th} = 263 + \beta \rho g z}$
-    \citep[p.~72]{Cuffey.Paterson.2010}.
-    The strain heating can then be rewritten as a function of the deviatoric
-    stresses or the strain rates only,
+    where the effective stress, $\tau_\mathrm{e}$, is defined by
+        ${\tau_\mathrm{e}}^2 = \frac{1}{2} \mathrm{tr}(\bm\tau^2)$.
+    The ice softness coefficient, $A$, depends on the ice temperature, $T$, and
+    depth below the surface, $z$, through an Arrhenius-type law,
+        ${A = A_0 \exp[
+            \frac{-Q}{R}(\frac{1}{T_\mathrm{pa}}-\frac{1}{T_\mathrm{th}})]}$,
+    where $T_\mathrm{pa}$ is the pressure-adjusted ice temperature calculated
+    using the Clapeyron relation,
+        ${T_\mathrm{pa} = T + \beta \rho g z}$,
+    and $T_\mathrm{th}$ a temperature threshold defined by
+        ${T_\mathrm{th} = 263 + \beta \rho g z}$
+    \citep[p.~72]{Cuffey.Paterson.2010}. The strain heating can then be
+    rewritten as a function of either the deviatoric stresses or the strain
+    rates only,
     %
     \begin{equation}
-        H = 2 A \tau_e^{n+1} = 2 A^{-1/n} \dot\epsilon_e^{1+1/n}.
+        H = 2 A \tau_\mathrm{e}^{n+1}
+          = 2 A^{-1/n} \dot\epsilon_\mathrm{e}^{1+1/n}.
     \end{equation}
 
-    Assuming two-dimensional, vertical planar deformation, the effective strain
-    rate, ${\dot\epsilon_e^2 = \frac{1}{2}\mathrm{tr}(\bm{\dot\epsilon}^2)}$,
-    can be expressed in terms of its Cartesian components, ${\dot\epsilon_e^2 =
-    \frac{1}{2}(\dot\epsilon_{xx}^2 + \dot\epsilon_{zz}^2) +
-    \dot\epsilon_{xz}^2}$. Incompressibility yields
-    ${\mathrm{div}(\bm{\dot\epsilon}) = \dot\epsilon_{xx} + \dot\epsilon_{zz} =
-    0}$ so that the effective strain can be simplified to a function of its
+    Assuming deformation within a two-dimensional cross-section in the
+    vertical, $z$, and horizontal along-flow, $x$, dimensions, the effective
+    strain rate,
+        ${\dot\epsilon_\mathrm{e}^2
+          = \frac{1}{2}\mathrm{tr}(\bm{\dot\epsilon}^2)}$,
+    can be expressed in terms of its Cartesian components,
+        ${\dot\epsilon_\mathrm{e}^2
+          = \frac{1}{2}(\dot\epsilon_{xx}^2 + \dot\epsilon_{zz}^2)
+          + \dot\epsilon_{xz}^2}$.
+    Incompressibility yields
+        ${\mathrm{div}(\bm{\dot\epsilon})
+          = \dot\epsilon_{xx} + \dot\epsilon_{zz}
+          = 0}$
+    so that the effective strain can be simplified to a function of its
     longitudinal and shear components,
     %
     \begin{equation}
-        \dot\epsilon_e^2 = \dot\epsilon_{xx}^2 + \dot\epsilon_{xz}^2.
+        \dot\epsilon_\mathrm{e}^2 = \dot\epsilon_{xx}^2 + \dot\epsilon_{xz}^2.
     \end{equation}
 
-    The longitudinal strain can be estimated from the observed borehole
+    The longitudinal strain rate can be estimated from the observed borehole
     positions. The distance between BH1 and BH3
     has increased from 158 to 191\,m between 2014 July 20 (midpoint
     between the two observation dates 17 and 23) and 2017 July 17. This
@@ -529,46 +540,44 @@
     $2.01\times10^{-9}$\,s$^{-1}$. Measured horizontal shear strain rates,
     $\dot\epsilon_{xz}$, average to $3.66\times10^{-9}$ (BH1, also used for
     nearby BH2) and $2.97\times10^{-9}$\,s$^{-1}$ (BH3), yielding an effective
-    strain rate, $\dot\epsilon_e$, of respectively $4.17\times10^{-9}$ and
+    strain rate, $\dot\epsilon_\mathrm{e}$, of respectively $4.17\times10^{-9}$ and
     $3.59\times10^{-9}$\,s$^{-1}$.
 
-    Heat diffusion was approximated by central differences on the first
+    Heat diffusion was approximated by $z$-central, time-explicit differences
+    on the first
     temperature profile. The theoretical warming resulting from viscous
     dissipation and heat diffusion (Fig.~\ref{fig:profiles}b, dash-dotted
     lines) is up to an order of magnitude lower than the observed warming
     trend (Fig.~\ref{fig:profiles}b, solid lines), indicating the presence of
     another heat source within the glacier during the measurements period.
 
-    \note{This average strain rate approach has limitations. First, shear
-          strain is confined to the base where there are no inclinometers.
-          Second, tilt measurements and GPS surface velocities show that all
-          strain rates vary significantly through time. Due to the power
-          $1+1/n$, these variations will be amplified in the time integrations,
-          yielding a higher value for strain heating than if one just considers
-          the mean strain rate. But, if these time variations were significant,
-          we should observe more warming in summer than winter.}
-
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-\subsection{Latent heating}
+\subsection{Latent heat}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Longitudinal variations in ice temperature have previously been observed in
-    Arctic tidewater glaciers. On Hansbreen, a tidewater glacier in northern
-    Spitsbergen, ice temperatures recorded 10\,m below the ice surface were 2
-    to 3\,$^\circ$C higher than the mean annual air temperature
-    \citep{Jania.etal.1996}.
-    For comparison, the main annual air temperature at Qaanaaq airport,
+    The ice temperatures recorded in Bowdoin Glacier are generally higher than
+    for other outlet glaciers of the Greenland ice sheet \citep{Iken.etal.1993,
+    Luthi.etal.2002, Luthi.etal.2015, Harrington.etal.2015}. This is most
+    likely related to the smaller catchment size and relatively low elevation
+    of the Bowdoin Glacier accumulation area than for the outlet glaciers
+    of central western Greenland where measurements have been made so far.
+    Nevertheless, the main annual air temperature at Qaanaaq airport,
     ca.~30\,km south-west and seawards from the drilling sites, from 2005 to
     2015, is -8.5\,$^\circ$C \citep{Sugiyama.etal.2014, Tsutaki.etal.2017}. The
-    ice temperatures of -3.74 (BH2) and -1.35\,$^\circ$C measured below the annual
-    boundary layer in Bowdoin glacier (Fig.~\ref{fig:profiles}a) are
-    significantly higher than this value. In Sermeq Avannarleq, a tidewater
-    glacier in
+    ice temperatures of -3.74 (BH2) and -1.35\,$^\circ$C measured in Bowdoin
+    Glacier below the penetration depth of seasonal variations
+    (Fig.~\ref{fig:profiles}a) are significantly higher than this value.
+    Similarly on Hansbreen, a tidewater glacier in northern Spitsbergen, ice
+    temperatures recorded 10\,m below the ice surface and 2 to 3\,$^\circ$C
+    higher than the mean annual air temperature \citep{Jania.etal.1996} have
+    been explained by latent meltwater refreezing.
+
+    Longitudinal variations in ice temperature have previously been observed in
+    Arctic tidewater glaciers. In Sermeq Avannarleq, a tidewater glacier in
     western Greenland, temperature differences up to 5\,$^\circ$C were measured
     between two boreholes only 86\,m apart down to a depth of ca.~300\,m
     \citep{Luthi.etal.2015}.
-
     Such temperature differences have been explained by the release of latent
     heat from meltwater refreezing in crevasses, a process sometimes called
     cryo-hydrologic warming \citep{Phillips.etal.2010}. Year after year,
@@ -602,10 +611,15 @@
     proximity of a moulin, no large moulins have been observed in the vicinity
     of the borehole sites or elsewhere on Bowdoin Glacier during the field
     campaigns. Smaller moulins with apparent diameters of ca.~1\,m have
-    occasionally been observed on the glacier. However, these moulins would
+    occasionally been observed on the glacier. However, small englacial
+    conduits would be unsustainable in the middle part of the ice column where
+    ice temperatures are well below the melting point and the
+    ca.~10\,cm-diameter borehole was observed to refreeze within a few days.
+    (Fig.~\ref{fig:timeseries}). They would
     most likely refreeze over the winter and thus could not explain the
-    observed continuous warming trend nor the entirety of the temperature
-    differences between the two drilling sites.
+    observed continuous warming trend nor the 2\,$^\circ$C difference between
+    the two drilling sites, a result of several years of englacial warming
+    according to the observed rate of up to 0.39\,$^\circ$C\,a$^{-1}$.
 
     As a tidewater glacier, Bowdoin Glacier is subject to low basal friction
     \citep{Seddik.etal.2019} and
@@ -725,7 +739,9 @@
 
     We would like to thank Toku Oshima and Kim Petersen for their warm welcome
     in Qaanaaq, for the shooting lessons and for assistance with field
-    preparations. Many thanks to Evgeniy Podolskiy and Lukas Preiswerk for
+    preparations. Many thanks to Takanobu Sawagaki, Naoki Katayama, Jun Saito,
+    and Shun Tsutaki for their participation in the drilling and
+    to Evgeniy Podolskiy and Lukas Preiswerk for
     their precious help retrieving data from instruments and instruments from
     crevasses. We thank Martin Lüthi for his constructive comments and great
     help to interpret the data, and Eef van Dongen for insightful discussions
