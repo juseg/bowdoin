@@ -115,17 +115,17 @@ detail your concerns.**
       - *Figure 2 - spelling mistake - 'piezometers'*
       - *Figure 2 caption - ensure consistency with abbreviation, or lack of,
         of month. Plus past tense 'were also equipped'*
-#      - *Figure 3 - this figure could be slightly improved to make it clearer
-#        and more informative to the reader. For example, It's unclear what is
-#        referred to in the caption as solid lines. It is also currently
-#        impossible to distinguish between thermistors by depth and labelling
-#        the lines by depth could be considered. Also, different markers could
-#        be used to allow different thermistors to be identified. The use of the
-#        same markers is particularly problematic where there are large gaps.
-#        Its not clear what all of the vertical dashed lines refer to.*
-#      - *Figure 4 - clarify for the reader whether date format is YYYY-MM-DD or
-#        YYYY-DD-MM. I would recommend adding dashes to make the date easier tor
-#        read.*
+      - *Figure 3 - this figure could be slightly improved to make it clearer
+        and more informative to the reader. For example, It's unclear what is
+        referred to in the caption as solid lines. It is also currently
+        impossible to distinguish between thermistors by depth and labelling
+        the lines by depth could be considered. Also, different markers could
+        be used to allow different thermistors to be identified. The use of the
+        same markers is particularly problematic where there are large gaps.
+        Its not clear what all of the vertical dashed lines refer to.*
+      - *Figure 4 - clarify for the reader whether date format is YYYY-MM-DD or
+        YYYY-DD-MM. I would recommend adding dashes to make the date easier tor
+        read.*
       - *Figure 4 caption - add 'see' before Fig 3. Past tense 'were' in last
         sentence'.*
       - *Table 3 - consider whether 6 d.p. is excessive precision for delta T*

@@ -123,6 +123,15 @@ detail your concerns.**
         theoretical Nye depths calculated at your borehole sites could easily
         bound if your explanations of mechanical damage are plausible.*
 
+   - Line 69:  We do not know of a comprehensive study on crevasse density in
+     Greenland. The statement based on field experience and was reworked.
+   - Line 192: The borehole sites were inspected yearly. No sensor reached the
+     surface during the experiment. We added a mention of the potential effect
+     of sunlight penetrating the ice.
+   - Line 303: Longitudinal extension and crevassing have actually been observed
+     to peak at "lowering tide" and not during minimum tide (see Podolskiy et
+     al., 2016).
+
 **Q5 Check List**
 
       - *Is the English language of sufficient quality?
