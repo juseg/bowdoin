@@ -109,7 +109,7 @@ def plot_long_profile(ax):
                 arrowprops=dict(arrowstyle='->', lw=1.0))
 
     # add standalone legend
-    labels = ['Inclinometers', 'Thermistors', 'Piezometres']
+    labels = ['Inclinometers', 'Thermistors', 'Piezometers']
     markers = [util.tem.MARKERS[l[0]] for l in labels]
     handles = [plt.Line2D([], [], ls='none', marker=m) for m in markers]
     ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.90), loc='upper right')
