@@ -77,86 +77,58 @@ detail your concerns.**
       correct if the past tense were used. There are many other examples that
       should be corrected.*
 
-      *L18 - insert 'of' before 'up to'*
-
-      *L21 - suggest change to '... reaching to, or near to, the bed ...'*
-
-      *L27 - past tense 'thinned'*
-
-      *L57 - suggest replace 'successive data losses due to harsh climate and
-      ice deformation' with 'some data gaps'*
-
-      *L58 - insert 'a' before 'tidewater'*
-
-      *L62 - 60 km^2*
-
-      *L64 - it's unclear why a citation is required here or what it is for*
-
-      *L71 - when referring to Figures of cited studies I suggest you make it
-      clear by writing for example: (Fig. x of Smith et al. 2000).*
-
-      *L74 - quote reads nicely but isn't necessary and should probably be
-      removed.*
-
-      *L92 - insert 'the' before 'ice front'*
-
-      *L93 - suggest 'The emergence of subglacial meltwater forms several
-      submarine plumes ...'*
-
-      *L120 - unclear why BH3 is unique, suggest just delete 'unique'*
-
-      *L127 - it is slightly unclear why this data is marked as erratic. Did
-      the string get hung up in the borehole leading you to doubt whether the
-      depths are correct. Please clarify.*
-
-      *L169 - replace 'constructor' with 'manufacturer'. Also, more details on
-      the digital temperature sensor are required (e.g. model, accuracy,
-      resolution, calibration procedure)*
-
-      *L198 - '... due to surface ...'*
-
-      *L223 - typo repeat 'of'*
-
-      *L278 - 'fastening' does not mean increasing speed. Suggest 'enhancing ice
-      flow'.*
-
-      *L303 - delete 'an'*
-
-      *L308 - 'supraglacial lakes' not subglacial.*
-
-      *L317 - I think you mean 'low-solar angle', although of course light
-      levels are often low at low solar angles*
-
-      *L340 and elsewhere - suggest more commonly used 'marine-terminating'
-      instead of 'ocean-terminating'*
-
-      *L348 - suggest 'of latent heat released from meltwater refreezing in
-      crevasses reaching to, or near to, the base of the glacier'*
-
-      *L354 - suggest 'fortuitous' instead of 'lucky'*
-
-      *Figure 2 - spelling mistake - 'piezometers'*
-
-      *Figure 2 caption - ensure consistency with abbreviation, or lack of, of
-      month. Plus past tense 'were also equipped'*
-
-      *Figure 3 - this figure could be slightly improved to make it clearer and
-      more informative to the reader. For example, It's unclear what is
-      referred to in the caption as solid lines. It is also currently
-      impossible to distinguish between thermistors by depth and labelling the
-      lines by depth could be considered. Also, different markers could be used
-      to allow different thermistors to be identified. The use of the same
-      markers is particularly problematic where there are large gaps. Its not
-      clear what all of the vertical dashed lines refer to.*
-
-      *Figure 4 - clarify for the reader whether date format is YYYY-MM-DD or
-      YYYY-DD-MM. I would recommend adding dashes to make the date easier tor
-      read.*
-
-      *Figure 4 caption - add 'see' before Fig 3. Past tense 'were' in last
-      sentence'.*
-
-      *Table 3 - consider whether 6 d.p. is excessive precision for delta T*
+      - *L18 - insert 'of' before 'up to'*
+      - *L21 - suggest change to '... reaching to, or near to, the bed ...'*
+      - *L27 - past tense 'thinned'*
+      - *L57 - suggest replace 'successive data losses due to harsh climate and
+        ice deformation' with 'some data gaps'*
+      - *L58 - insert 'a' before 'tidewater'*
+      - *L62 - 60 km^2*
+      - *L64 - it's unclear why a citation is required here or what it is for*
+      - *L71 - when referring to Figures of cited studies I suggest you make it
+        clear by writing for example: (Fig. x of Smith et al. 2000).*
+      - *L74 - quote reads nicely but isn't necessary and should probably be
+        removed.*
+      - *L92 - insert 'the' before 'ice front'*
+      - *L93 - suggest 'The emergence of subglacial meltwater forms several
+        submarine plumes ...'*
+      - *L120 - unclear why BH3 is unique, suggest just delete 'unique'*
+      - *L127 - it is slightly unclear why this data is marked as erratic. Did
+        the string get hung up in the borehole leading you to doubt whether the
+        depths are correct. Please clarify.*
+      - *L169 - replace 'constructor' with 'manufacturer'. Also, more details
+        on the digital temperature sensor are required (e.g. model, accuracy,
+        resolution, calibration procedure)*
+      - *L198 - '... due to surface ...'*
+      - *L223 - typo repeat 'of'*
+      - *L278 - 'fastening' does not mean increasing speed. Suggest 'enhancing
+        ice flow'.*
+      - *L303 - delete 'an'*
+      - *L308 - 'supraglacial lakes' not subglacial.*
+      - *L317 - I think you mean 'low-solar angle', although of course light
+        levels are often low at low solar angles*
+      - *L340 and elsewhere - suggest more commonly used 'marine-terminating'
+        instead of 'ocean-terminating'*
+      - *L348 - suggest 'of latent heat released from meltwater refreezing in
+        crevasses reaching to, or near to, the base of the glacier'*
+      - *L354 - suggest 'fortuitous' instead of 'lucky'*
+      - *Figure 2 - spelling mistake - 'piezometers'*
+      - *Figure 2 caption - ensure consistency with abbreviation, or lack of,
+        of month. Plus past tense 'were also equipped'*
+      - *Figure 3 - this figure could be slightly improved to make it clearer
+        and more informative to the reader. For example, It's unclear what is
+        referred to in the caption as solid lines. It is also currently
+        impossible to distinguish between thermistors by depth and labelling
+        the lines by depth could be considered. Also, different markers could
+        be used to allow different thermistors to be identified. The use of the
+        same markers is particularly problematic where there are large gaps.
+        Its not clear what all of the vertical dashed lines refer to.*
+      - *Figure 4 - clarify for the reader whether date format is YYYY-MM-DD or
+        YYYY-DD-MM. I would recommend adding dashes to make the date easier tor
+        read.*
+      - *Figure 4 caption - add 'see' before Fig 3. Past tense 'were' in last
+        sentence'.*
+      - *Table 3 - consider whether 6 d.p. is excessive precision for delta T*
 
 **Q5 Check List**
 
