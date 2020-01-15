@@ -43,7 +43,7 @@ def main():
     for bh, color in util.tem.COLOURS.items():
 
         # plot daily means
-        temp, _, _ = util.tem.load_all(bh)
+        temp, depth, _ = util.tem.load_all(bh)
         temp = temp.resample('1D').mean()
         ax.plot(temp.index, temp.values, c=color, lw=0.5)
         # temp.plot(ax=ax, c=color, legend=False, lw=0.5)  # fails (issue #40)
@@ -65,13 +65,27 @@ def main():
             offset = (0 if bh in ('bh1', 'bh3') else 3)
             ax.axvline(date, color=color, ls=(offset, [2, 4]))
 
+        # add unit labels
+        offsets = dict(
+            LT01=8, LT02=2, LT03=-2, LT04=-5, LT05=2, LT06=3, LT07=-3, LT09=-1,
+            LT10=3, LT11=-2, LT12=-2, LT13=-2, UP=-2, UT01=2, UT04=2, UT07=4,
+            UT08=-4, UT09=0, UT10=-8, UT11=6, UT12=0, UT13=-2, UT14=-2)
+        for unit in temp:
+            last = temp[unit].dropna().tail(1)
+            ax.annotate(
+                '{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+                color=color, clip_on=True, fontsize=6, fontweight='bold',
+                xy=(last.index, last), xytext=(6, offsets.get(unit, 0)),
+                textcoords='offset points', ha='left', va='center')
+
+
     # add campaigns
     util.com.plot_field_campaigns(ax=ax.axs[0], ytext=-1)
     util.com.plot_field_campaigns(ax=ax.axs[1])
 
     # set axes properties
     ax.set_ylabel(u'temperature (°C)', labelpad=24)
-    ax.set_xlim('20140615', '20170815')
+    ax.set_xlim('20140615', '20171215')
 
     # set better ticks (pandas would do it if #40 is fixed)
     format_date_axis(ax.axs[0].xaxis)
