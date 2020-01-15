@@ -152,7 +152,8 @@ def main():
         # plot interpolates between sensors
         for i, date in enumerate(temp):
             plot_interp(ax0, depth, temp[date], c=color,
-                        label=bh.upper() + ', ' + date,
+                        label='{}, {}-{}-{}'.format(
+                            bh.upper(), date[:4], date[4:6], date[6:]),
                         ls=('--' if i > 0 else '-'), lw=(0.5 if i > 0 else 1))
 
         # plot temperature change
