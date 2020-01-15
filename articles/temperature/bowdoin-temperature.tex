@@ -348,11 +348,13 @@
     \todo{R1 - more details on the digital temperature sensor are required
           (e.g. model, accuracy, resolution, calibration procedure).}
 
-    Despite the pre-field calibration, the temperatures
-    observed in the borehole immediately after drilling were not at the
-    pressure-melting point but instead up to 0.16\,$^\circ$C colder.  Thus for
-    sensors where initial data are available, a recalibration is applied in
-    post-processing by correcting for the initial temperature offset, $\Delta
+    Despite the pre-field calibration, the temperatures observed in the
+    meltwater-filled borehole immediately after drilling were not at the
+    pressure-melting point but instead up to 0.16\,$^\circ$C colder.
+    As we can not exclude that the initial calibration was affected by the
+    transport of the instruments to Greenland, an in-situ recalibration
+    recalibration is applied in post-processing by correcting for the initial
+    temperature offset to the pressure melting-point, $\Delta
     T$ (Table~\ref{tab:calibration}). Unfortunately some of these initial
     temperature data have been lost so that the recalibration was possible for
     some sensors only. The pressure-melting point was computed as
@@ -361,10 +363,13 @@
       T_m = -\beta \rho g z,
     \end{equation}
     %
-    where $\beta$ is the empirical Clapeyron constant for glacier ice
-    \citep[][]{Luthi.etal.2002}, $\rho$ is the ice density, $g$ is the standard
+    where $\beta$ is the Clausius-Clapeyron constant,
+    $\rho$ is the ice density, $g$ is the standard
     acceleration due to gravity, and $z$ is the depth below the ice surface
     (parameter values given in Table~\ref{tab:parameters}).
+    Because the Clausius-Clapeyron constant may be affected by the meltwater
+    content and impurities, we use a value determined in similar condition for
+    another water-filled borehole in Greenland \citep[][]{Luthi.etal.2002}.
 
 
 % ----------------------------------------------------------------------
@@ -1061,7 +1066,7 @@
                 & $3.5\times10^{-25}$
                 & Pa$^{-3}$\,s$^{-1}$
                 & \citet[p.~74]{Cuffey.Paterson.2010} \\
-        $\beta$ & Clapeyron constant
+        $\beta$ & Clausius-Clapeyron constant
                 & $7.9\times10^{-8}$
                 & K\,Pa$^{-1}$
                 & \citet{Luthi.etal.2002} \\
