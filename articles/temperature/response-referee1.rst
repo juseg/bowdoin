@@ -89,6 +89,24 @@ detail your concerns.**
       over other values for example for pure ice and air saturated water. Why
       was it necessary to re-calibrate to the melting temperature?*
 
+   To be honest it is unclear to us too why temperature data needed to be
+   re-calibrated. After the initial calibration the instrument were sent by
+   container ship to Greenland. We do not know under which conditions the
+   thermistors were transported and can not exclude that the calibration has
+   been affected by the transport. On the other hand the in-situ calibration in
+   the meltwater-filled borehole is to our knowledge the most reliable method
+   to obtain obtain calibration parametres near the melting point.
+
+   The Clausius-Clapeyron constant has only little effect on the recalibration
+   as initial temperature offsets relative to the melting point have also been
+   observed  near the surface were pressure is lower. It is indeed expected
+   that the melting point in the borehole is different from theorerical values.
+   We use the constant estimated by Luthi et al. (2002) because it was measured
+   for similar conditions (water-filled borehole in Greenland).
+
+   A short justification for the recalibration and the choice of
+   Clausius-Clapeyron constant was added in the methods.
+
 **Q4 Please provide your detailed review report to the editor and authors
 (including any comments on the Q4 Check List):**
 
