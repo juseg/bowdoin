@@ -173,6 +173,12 @@ detail your concerns.**
         sentence'.*
       - *Table 3 - consider whether 6 d.p. is excessive precision for delta T*
 
+   Tables 1 and 2 were merged in order to save space. As we are well below the
+   Frontiers limit of 15 Figures and Tables, we would prefer to leave this
+   information within the manuscript (cf. author guidelines 1 and 2.3.4).
+
+   The line-specific comments were all implemented except for one:
+
    - L62 - We mean 60x60 km, i.e. 3600 km^2. The catchment of Bowdoin Glacier
      roughly corresponds to a square this size.
 

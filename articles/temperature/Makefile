@@ -50,7 +50,7 @@ diff: $(PAPER)-diff.pdf
 
 # latex diff patterned rule
 %-diff.tex: %.tex
-	latexdiff-vc --math-markup=3 --exclude-textcmd=section,subsection --force --git -r $(REV) $<
+	latexdiff-vc --math-markup=3 --append-textcmd=centerline --force --git -r $(REV) $<
 	mv $(basename $@)$(REV).tex $@
 
 # clean up
