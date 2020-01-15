@@ -47,6 +47,31 @@ EVALUATION
       full-depth warming by latent heat released by meltwater re-freezing. This
       would be worthy of brief mention.*
 
+   Thank you very much for your supportive and constructive rewiew! Your last
+   point on cooling near the bed is of course a valid concern, for which we can
+   think of several explanations.
+
+   - Late refreezing occurs for some sensors even after several months (up to 15
+     months for LT02). Even after refreezing, temperatures in the borehole
+     continue to cool down slowly towards an equilibrium with the surrounding
+     ice (following an S-curve). Regarding the profile plots it was not possible
+     to choose a start date that would exclude the initial refreezing phase of
+     basal sensors while leaving enough data to display warming trends of other
+     sensors.
+
+   - Vertical diffusion may be enhanced by basal melt affecting the distance
+     between sensors.
+
+   - Cable stretching, likely to occur near the base due to horizontal shear,
+     yields to increased cable lenght and decreased diametre which both
+     contribute to increased resistance. An increased resistance would yield a
+     decreased apparent temperature (Eqn 1).
+
+   The later explanation, which we think is the most probable, was briefly
+   mentioned at the end of the results section. That statement was removed and
+   replaced by a short paragraph in the discussion section on "theoretical
+   warming".
+
 **Q3 Please comment on the methods, results and data interpretation. If there
 are any objective errors, or if the conclusions are not supported, you should
 detail your concerns.**
