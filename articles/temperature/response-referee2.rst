@@ -135,6 +135,16 @@ detail your concerns.**
    variations of strain rates, and temporal variations in ice thickness.  This
    later point was clarified in the text.
 
+   The computation of theoretical maximum dry crevasse depth (Nye, 1957) was
+   added in the discussion section on "deep crevassing". This yields maximum
+   crevasse depths of 28 to 33 metres showing that water is necessary to form
+   deeper crevasses. To our knowledge, the most recent theory on water-filled
+   crevasse propagation (van der Veen, 2007), based on fracture mechanics, show
+   that crevasses can propagate to the bed if enough water is supplied. Also
+   we replaced "mechanical damage" by "increased longitudinal stretching" to
+   better reflect our idea that thinner parts of the glacier may be prone to
+   localize longitudinal strain.
+
    Line-specific were all implemented except for line 303. To clarify:
 
    - Line 69: We do not know of a comprehensive study on crevasse density in
@@ -145,9 +155,6 @@ detail your concerns.**
    - Line 303: Longitudinal extension and crevassing have actually been observed
      to peak at "lowering tide" and not during minimum tide (see Podolskiy et
      al., 2016).
-
-   .. FIXME Nye crevasse depths
-   .. FIXME references lines 29, 48.
 
 **Q5 Check List**
 
