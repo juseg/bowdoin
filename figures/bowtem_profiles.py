@@ -48,6 +48,13 @@ def compute_series_gradient(temp, depth):
     return pd.Series(index=temp.index, data=np.gradient(temp, depth))
 
 
+def compute_theoretical_crevasse_depth(temp, depth):
+    """Compute theoretical crevasse depth."""
+    e_xx = estimate_longitudinal_strain_rate()
+    hardness = compute_ice_hardness(temp, depth).min()
+    return 2/(DENSITY*GRAVITY) * (e_xx / hardness)**(1/3)
+
+
 def compute_theoretical_diffusion(temp, depth):
     """Compute temperature rate of change by heat diffusion."""
     heat_flux = CONDUCTIVITY * compute_series_gradient(temp, depth)
@@ -61,20 +68,9 @@ def compute_theoretical_dissipation(bh, temp, depth):
     average shear strain from BH1 and BH3.
     """
 
-    # load borehole positions
-    locs = util.com.read_locations(crs=ccrs.UTM(19))
-    d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
-            (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5
-    d_14 = ((locs.x.B14BH3-locs.x.B14BH1)**2 +
-            (locs.y.B14BH3-locs.y.B14BH1)**2)**0.5
-    time = (locs.time.B17BH1 - locs.time.B14BH1 +
-            locs.time.B17BH3 - locs.time.B14BH3)/2
-
     # estimate effective strain rate
-    bh = bh.replace('bh2', 'bh1').replace('err', 'bh3')
-    e_xx = 2*(d_17-d_14)/(d_17+d_14)/time.total_seconds()
-    e_xz = util.inc.load_strain_rate(bh)['2014-10':].mean()
-    e_xz = e_xz.mean()
+    e_xx = estimate_longitudinal_strain_rate()
+    e_xz = estimate_shear_strain_rate(bh)
     e_e = (e_xx**2+e_xz**2)**0.5
 
     # estimate heat dissipation
@@ -98,6 +94,37 @@ def compute_theoretical_warming(bh, temp, depth):
     diffusion = compute_theoretical_diffusion(temp, depth)
     dissipation = compute_theoretical_dissipation(bh, temp, depth)
     return (diffusion + dissipation) / (DENSITY * CAPACITY)
+
+
+def estimate_longitudinal_strain_rate():
+    """
+    Estimate longitudinal strain rate from from the evolution of distance
+    between BH1 and BH3.
+    """
+
+    # load borehole positions
+    locs = util.com.read_locations(crs=ccrs.UTM(19))
+    d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
+            (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5
+    d_14 = ((locs.x.B14BH3-locs.x.B14BH1)**2 +
+            (locs.y.B14BH3-locs.y.B14BH1)**2)**0.5
+    time = (locs.time.B17BH1 - locs.time.B14BH1 +
+            locs.time.B17BH3 - locs.time.B14BH3)/2
+
+    # estimate longitudinal strain rate
+    e_xx = 2*(d_17-d_14)/(d_17+d_14)/time.total_seconds()
+    return e_xx
+
+
+def estimate_shear_strain_rate(bh):
+    """
+    Estimate shear strain rate from the average observed tilt rates
+    in BH1 and BH3.
+    """
+    bh = bh.replace('bh2', 'bh1').replace('err', 'bh3')
+    e_xz = util.inc.load_strain_rate(bh)['2014-10':].mean()
+    e_xz = e_xz.mean()
+    return e_xz
 
 
 def plot_interp(ax, depth, temp, **kwargs):
@@ -173,6 +200,9 @@ def main():
         ax1.text(change[sensor], depth[sensor],
                  r'  +%.2f$°C\,a^{-1}$' % (change)[sensor], color=color,
                  ha='left', va='bottom')
+
+        # print theoretical crevasse depth
+        # print(bh, compute_theoretical_crevasse_depth(temp0, depth))
 
         # plot theroretical diffusion
         change = compute_theoretical_warming(bh, temp0, depth)
