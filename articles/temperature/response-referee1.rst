@@ -183,10 +183,12 @@ detail your concerns.**
    - L62 - We mean 60x60 km, i.e. 3600 km^2. The catchment of Bowdoin Glacier
      roughly corresponds to a square of this size.
 
-   Text labels have been added on Figure 3 to indicating the sensor unit and
-   depth corresponding to each curve. The new figure is a little heavy but this
-   is so far the only solution we could find to unambiguously label each curve.
-   Other suggestions on figures and tables have been implemented.
+   Figure 3 has been reworked to label each curve for the corresponding sensor
+   unit and depth. The new figure is a little loaded but this is so far the
+   only solution we could find to unambiguously label each curve. For BH2
+   (where a continuous record is missing gaps), thin dashed lines were added to
+   visualize the evolution of temperature between the 2015 and 2016 manual
+   readings. Other suggestions on figures and tables have been implemented.
 
 **Q5 Check List**
 

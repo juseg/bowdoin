@@ -45,12 +45,19 @@ def main():
         # plot daily means
         temp, depth, _ = util.tem.load_all(bh)
         temp = temp.resample('1D').mean()
-        ax.plot(temp.index, temp.values, c=color, lw=0.5)
-        # temp.plot(ax=ax, c=color, legend=False, lw=0.5)  # fails (issue #40)
+        ax.plot(temp.index, temp.values, c=color)
+        # temp.plot(ax=ax, c=color, legend=False)  # fails (issue #40)
 
         # plot manual readings
         if bh != 'bh1':
             manu, mask = util.tem.load_manual(bh)
+
+            # for bh2 draw dotted line across 2016 data gap
+            if bh == 'bh2':
+                ax.plot(manu[:3].index, manu[:3], c=color, ls=':', lw=0.5)
+                # manu[1:3].plot(ax=ax, c=color, ls=':', lw=0.5)  # fails (#40)
+
+            # for all boreholes draw filled and empty markers
             manu = manu.resample('1D').mean()
             mask = mask.resample('1D').prod()
             ax.plot(manu.where(mask).index, manu.where(mask).values,
