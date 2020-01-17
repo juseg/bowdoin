@@ -179,10 +179,12 @@ detail your concerns.**
    However, a new table was added including selected temperature profiles.
 
    Parts of the manuscript were rewritten using the past tense.
-   The line-specific comments were all implemented except for one:
+   The line-specific comments were all implemented except for two:
 
    - L62 - We mean 60x60 km, i.e. 3600 km^2. The catchment of Bowdoin Glacier
      roughly corresponds to a square of this size.
+   - L169 - The model name (iST TSic 716) is given in the methods instrumentation
+     section. Other details were added.
 
    Figure 3 has been reworked to label each curve for the corresponding sensor
    unit and depth. The new figure is a little loaded but this is so far the
