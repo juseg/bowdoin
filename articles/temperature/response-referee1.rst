@@ -178,6 +178,7 @@ detail your concerns.**
    information within the manuscript (cf. author guidelines 1 and 2.3.4).
    However, a new table was added including selected temperature profiles.
 
+   Parts of the manuscript were rewritten using the past tense.
    The line-specific comments were all implemented except for one:
 
    - L62 - We mean 60x60 km, i.e. 3600 km^2. The catchment of Bowdoin Glacier
