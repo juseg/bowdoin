@@ -138,8 +138,8 @@ detail your concerns.**
    The computation of theoretical maximum dry crevasse depth (Nye, 1957) was
    added in the discussion section on "deep crevassing". This yields maximum
    crevasse depths of 28 to 33 metres showing that water is necessary to form
-   deeper crevasses. To our knowledge, the most recent theory on water-filled
-   crevasse propagation (van der Veen, 2007), based on fracture mechanics, show
+   deeper crevasses. To our knowledge, more recent theories on water-filled
+   crevasse (Benn et al., 2007, van der Veen, 2007) show
    that crevasses can propagate to the bed if enough water is supplied. Also
    we replaced "mechanical damage" by "increased longitudinal stretching" to
    better reflect our idea that thinner parts of the glacier may be prone to
