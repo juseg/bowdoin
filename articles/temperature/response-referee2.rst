@@ -139,11 +139,11 @@ detail your concerns.**
    added in the discussion section on "deep crevassing". This yields maximum
    crevasse depths of 28 to 33 metres showing that water is necessary to form
    deeper crevasses. To our knowledge, more recent theories on water-filled
-   crevasse (Benn et al., 2007, van der Veen, 2007) show
-   that crevasses can propagate to the bed if enough water is supplied. Also
-   we replaced "mechanical damage" by "increased longitudinal stretching" to
-   better reflect our idea that thinner parts of the glacier may be prone to
-   localize longitudinal strain.
+   crevasses (Benn et al., 2007, van der Veen, 2007) show that crevasses can
+   propagate to the bed if enough water is supplied. In light of the above
+   numbers we removed our potential explanation by "mechanical damage" from the
+   discussion and conclusions and limit our interpretation to "preferential
+   meltwater infiltration in topographic dips associated with ogive banding".
 
    Line-specific were all implemented except for line 303. To clarify:
 
