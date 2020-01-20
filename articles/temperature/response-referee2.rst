@@ -126,13 +126,13 @@ detail your concerns.**
    Thank you very much for your supportive and constructive review! It is a bit
    difficult for us to understand your first point on the sensitivity of strain
    heating to ice thickness and density. The density is perhaps one of our most
-   well-known parametres. While the borehole is filled with refrozen ice,
+   well-known parameter. While the borehole is filled with refrozen ice,
    processes of diffusion and strain heating occur at a larger scale involving
    mostly glacier ice. In principle ice thickness should not affect the
    calculation of strain heating, which is based on measured strain rates. In
    any case these numbers are to be taken as a first-order estimate. More
    detailed calculations would need to to account for the temporal and vertical
-   variations of strain rates, and temporal variations in ice thickness.  This
+   variations of strain rates, and temporal variations in ice thickness. This
    later point was clarified in the text.
 
    The computation of theoretical maximum dry crevasse depth (Nye, 1957) was
@@ -148,7 +148,7 @@ detail your concerns.**
    Line-specific were all implemented except for line 303. To clarify:
 
    - Line 69: We do not know of a comprehensive study on crevasse density in
-     Greenland. The statement based on field experience and was reworked.
+     Greenland. The statement was based on field experience and was reworked.
    - Line 192: The borehole sites were inspected yearly. No sensor reached the
      surface during the experiment. We added a mention of the potential effect
      of sunlight penetrating the ice.

@@ -47,24 +47,24 @@ EVALUATION
       full-depth warming by latent heat released by meltwater re-freezing. This
       would be worthy of brief mention.*
 
-   Thank you very much for your supportive and constructive rewiew! Your last
+   Thank you very much for your supportive and constructive review! Your last
    point on cooling near the bed is of course a valid concern, for which we can
    think of several explanations.
 
    - Late refreezing occurs for some sensors even after several months (up to 15
      months for LT02). Even after refreezing, temperatures in the borehole
      continue to cool down slowly towards an equilibrium with the surrounding
-     ice (following an S-curve). Regarding the profile plots it was not possible
-     to choose a start date that would exclude the initial refreezing phase of
-     basal sensors while leaving enough data to display warming trends of other
-     sensors.
+     ice (following an S-curve). Actually it was not possible to choose an
+     initial profile date that would fully exclude the initial refreezing phase
+     of basal sensors while leaving enough data to display warming trends of
+     other sensors.
 
    - Vertical diffusion may be enhanced by basal melt affecting the distance
-     between sensors.
+     between the lowermost sensors.
 
    - Cable stretching, likely to occur near the base due to horizontal shear,
      yields to increased cable lenght and decreased diametre which both
-     contribute to increased resistance. An increased resistance would yield a
+     contribute to increase resistance. An increased resistance would yield a
      decreased apparent temperature (Eqn 1).
 
    The later explanation, which we think is the most probable, was briefly
@@ -90,7 +90,7 @@ detail your concerns.**
       was it necessary to re-calibrate to the melting temperature?*
 
    To be honest it is unclear to us too why temperature data needed to be
-   re-calibrated. After the initial calibration the instrument were sent by
+   re-calibrated. After the initial calibrations, the instruments were sent by
    container ship to Greenland. We do not know under which conditions the
    thermistors were transported and can not exclude that the calibration has
    been affected by the transport. On the other hand the in-situ calibration in
@@ -99,7 +99,7 @@ detail your concerns.**
 
    The Clausius-Clapeyron constant has only little effect on the recalibration
    as initial temperature offsets relative to the melting point have also been
-   observed  near the surface were pressure is lower. It is indeed expected
+   observed near the surface were pressure is lower. It is indeed expected
    that the melting point in the borehole is different from theorerical values.
    We use the constant estimated by Luthi et al. (2002) because it was measured
    for similar conditions (water-filled borehole in Greenland).
