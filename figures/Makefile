@@ -47,9 +47,9 @@ $(DEF_FIGS): util/inc.py
 $(TEM_FIGS): util/tem.py
 $(TID_FIGS): util/tid.py
 
-# make python figures
+# make python figures (alt use LC_ALL=en_GB.utf8 python)
 $(ALL_FIGS): %.pdf : %.py matplotlibrc util/com.py util/geo.py
-	LC_ALL=en_US.utf8 python $<
+	python $<
 
 # lint python code
 lint:

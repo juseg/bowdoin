@@ -59,7 +59,7 @@ def main():
 
             # for all boreholes draw filled and empty markers
             manu = manu.resample('1D').mean()
-            mask = mask.resample('1D').prod()
+            mask = mask.resample('1D').prod() > 0
             ax.plot(manu.where(mask).index, manu.where(mask).values,
                     c='none', marker='o', mec=color)
             ax.plot(manu.mask(mask).index, manu.mask(mask).values,

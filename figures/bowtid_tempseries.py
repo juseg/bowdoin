@@ -6,6 +6,7 @@
 """Plot Bowdoin tides temperature time series."""
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+import pandas as pd
 import absplots as apl
 import util
 
@@ -33,7 +34,7 @@ def main():
     ax0.legend(ncol=3)
 
     # set up zoom
-    ax1.set_xlim('20140715', '20140915')
+    ax1.set_xlim(*pd.to_datetime(['20140715', '20140915']))
     mark_inset(ax0, ax1, loc1=2, loc2=3, ec='0.5', ls='--')
 
     # save

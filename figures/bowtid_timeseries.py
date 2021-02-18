@@ -6,6 +6,7 @@
 """Plot Bowdoin tides pressure time series."""
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+import pandas as pd
 import absplots as apl
 import util
 
@@ -57,7 +58,7 @@ def main():
     #     util.com.savefig(fig, suffix='_'+k)
 
     # save default
-    ax1.set_xlim(*zooms['z2'][:2])
+    ax1.set_xlim(*pd.to_datetime(zooms['z2'][:2]))
     ax1.set_ylim(*zooms['z2'][2:])
     util.com.savefig(fig)
 
