@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -20,14 +20,14 @@ def main():
     for bh in ('bh1', 'bh3'):
 
         # load strain rate
-        exz = util.inc.load_strain_rate(bh, per='Y')
+        exz = util.inc.load_strain_rate(bh)*60*60*24*365.25
 
         # plot strain rate
         exz.plot(ax=ax)
 
     # set axes properties
     ax.legend(ncol=2)
-    ax.set_ylabel(r'strain rate ($m\,a^{-1}$')
+    ax.set_ylabel(r'strain rate ($a^{-1}$)')
     ax.set_xlim('20140615', '20170815')
     ax.set_ylim(0, 0.35)
 

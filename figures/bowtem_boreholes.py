@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -60,8 +60,8 @@ def plot_location_map(ax):
     ax = ax.figure.add_axes_mm([5, 5, 10, 15], projection=ccrs.Stereographic(
         central_latitude=90, central_longitude=-45, true_scale_latitude=70))
     ax.set_extent([-1000e3, 1000e3, -3500e3, -500e3], crs=ax.projection)
-    ax.background_patch.set_visible(False)
-    ax.outline_patch.set_visible(False)
+    ax.patch.set_visible(False)
+    ax.spines['geo'].set_visible(False)
 
     # draw minimap
     can.annotate_location(locations['B16BH1'], ax=ax, color='k')

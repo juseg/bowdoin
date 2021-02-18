@@ -185,7 +185,8 @@ def main():
 
         # plot temperature change
         dates = pd.to_datetime(temp.columns)
-        change = (temp1-temp0)/((dates[1]-dates[0])/pd.to_timedelta('1Y'))
+        change = (temp1-temp0)/((dates[1]-dates[0])/pd.to_timedelta('1s'))
+        change *= 60*60*24*365.2425
         plot_interp(ax1, depth, change, c=color)
 
         # annotate minimum observed temperature below 50m depth
@@ -206,7 +207,7 @@ def main():
 
         # plot theroretical diffusion
         change = compute_theoretical_warming(bh, temp0, depth)
-        change *= pd.to_timedelta('1Y') / pd.to_timedelta('1S')
+        change *= 60*60*24*365.2425
         plot_interp(ax1, depth, change, c=color, ls='-.', lw=0.5)
 
         # add base line

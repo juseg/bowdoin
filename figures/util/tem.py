@@ -97,12 +97,12 @@ def load_profiles(borehole):
 
         # use automatic data if available
         if date in auto.index:
-            temp[date] = auto[date].mean().dropna()
+            temp[date] = auto.loc[date].mean().dropna()
 
         # otherwise load manual data
         else:
             manu, mask = load_manual(borehole)
-            temp[date] = manu.mask(mask)[date].squeeze().dropna()
+            temp[date] = manu.mask(mask).loc[date].squeeze().dropna()
 
     # remove depths with no data
     depth = depth[temp.index]

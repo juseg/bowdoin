@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -62,8 +62,8 @@ def init_figure():
         ax = grid[region] = fig.add_axes_mm(axposition[region],
                                             projection=proj)
         ax.set_extent(extent, crs=ax.projection)
-        ax.outline_patch.set_linewidth(2.0)
-        ax.outline_patch.set_edgecolor('k')
+        ax.spines['geo'].set_linewidth(2.0)
+        ax.spines['geo'].set_edgecolor('k')
 
         # add subfigure label and mark inset
         util.com.add_subfig_label(region, ax=ax)
