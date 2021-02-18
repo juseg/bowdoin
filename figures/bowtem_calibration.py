@@ -46,7 +46,7 @@ def main():
     ax.legend(ncol=4)
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

@@ -72,7 +72,7 @@ def main():
     annotate_borehole(1065, 416, 'bh1', ax=ax, ha='right')
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

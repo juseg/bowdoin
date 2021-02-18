@@ -58,7 +58,7 @@ def main():
     grid[1, 0].set_ylabel(r'spectral power ($Pa^2 s^{-2}$)', labelpad=0)
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

@@ -83,7 +83,7 @@ def main():
     cax.set_ylabel('Mass change rate ($mm\ w.eq.\,a^{-1}$ or $kg\,m^{-1}\,a^{-1}$)')
 
     # add colorbar and save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

@@ -38,7 +38,7 @@ def main():
     mark_inset(ax0, ax1, loc1=2, loc2=3, ec='0.5', ls='--')
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

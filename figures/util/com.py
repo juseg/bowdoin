@@ -102,10 +102,3 @@ def plot_field_campaigns(ax=None, color='C1', ytext=0.05):
         midpoint = pd.to_datetime(start) + duration / 2
         ax.text(midpoint, ytext, midpoint.year, color=color, fontweight='bold',
                 ha='center', transform=trans)
-
-
-def savefig(fig=None, suffix=''):
-    """Save figure to script filename."""
-    fig = fig or plt.gcf()
-    res = fig.savefig(os.path.splitext(sys.argv[0])[0]+suffix)
-    return res

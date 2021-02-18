@@ -77,17 +77,17 @@ def main():
     grid[2, 3].set_visible(False)
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
     ## save different zooms
-    #util.com.savefig(fig, suffix='_z0')
+    #fig.savefig(__file__[:-3]+'_z0')
     #ax.set_xscale('linear')
     #ax.set_xticks([12.0, 24.0])
     #ax.set_xlim(6.0, 30.0)
-    #util.com.savefig(fig, suffix='_z1')
+    #fig.savefig(__file__[:-3]+'_z1')
     #ax.set_xticks([12.0, 12.0*30/29])
     #ax.set_xlim(11.5, 13.0)
-    #util.com.savefig(fig, suffix='_z2')
+    #fig.savefig(__file__[:-3]+'_z2')
 
 
 if __name__ == '__main__':

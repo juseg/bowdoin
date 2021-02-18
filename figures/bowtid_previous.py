@@ -127,7 +127,7 @@ def main():
     ax.set_xlabel(r'ice deformation %s to %s ($m\,a^{-1}$)' % (start, end))
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

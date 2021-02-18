@@ -39,12 +39,12 @@ def main():
     ax.set_ylabel('Bowdoin tide (kPa)', labelpad=0.0)
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
     # save alternative frames  # FIXME formalise presentation mode
-    # util.com.savefig(fig, suffix='_z1')
+    # fig.savefig(__file__[:-3]+'_z1')
     # ax.set_visible(False)
-    # util.com.savefig(fig, suffix='_z0')
+    # fig.savefig(__file__[:-3]+'_z0')
 
 
 if __name__ == '__main__':

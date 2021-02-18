@@ -57,7 +57,7 @@ def main():
 
     # save without right panel
     # ax1.set_visible(False)
-    # util.com.savefig(fig, suffix='_z0')
+    # fig.savefig(__file__[:-3]+'_z0')
     # ax1.set_visible(True)
 
     # mark zoom inset
@@ -66,11 +66,11 @@ def main():
     # save different zooms
     # for k, v in zooms.iteritems():
     #     grid[1].set_xlim(*v)
-    #     util.com.savefig(fig, suffix='_'+k)
+    #     fig.savefig(__file__[:-3]+'_'+k)
 
     # save default
     ax1.set_xlim(*zooms['z1'])
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

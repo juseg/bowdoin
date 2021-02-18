@@ -47,7 +47,7 @@ def main():
     grid[4, 0].set_ylabel('time step (h)')
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

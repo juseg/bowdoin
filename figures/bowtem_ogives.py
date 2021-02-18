@@ -221,7 +221,7 @@ def main():
     pfax.set_ylabel('surface elevation (m)')
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

@@ -139,7 +139,7 @@ def main():
     annotate_sample(locs['BOW16-JS-11'], ax=ax, point='ne')
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

@@ -45,7 +45,7 @@ def main():
 
     # save without right panel  # FIXME formalise presentation mode
     # ax1.set_visible(False)
-    # util.com.savefig(fig, suffix='_z0')
+    # fig.savefig(__file__[:-3]+'_z0')
     # ax1.set_visible(True)
 
     # mark zoom inset
@@ -55,12 +55,12 @@ def main():
     # for k, v in zooms.iteritems():
     #     grid[1].set_xlim(*v[:2])
     #     grid[1].set_ylim(*v[2:])
-    #     util.com.savefig(fig, suffix='_'+k)
+    #     fig.savefig(__file__[:-3]+'_'+k)
 
     # save default
     ax1.set_xlim(*pd.to_datetime(zooms['z2'][:2]))
     ax1.set_ylim(*zooms['z2'][2:])
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

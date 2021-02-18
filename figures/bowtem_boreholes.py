@@ -128,7 +128,7 @@ def main():
     fig, (ax0, ax1) = init_figure()
     plot_location_map(ax0)
     plot_long_profile(ax1)
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':

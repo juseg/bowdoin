@@ -54,7 +54,7 @@ def main():
     ax1.invert_yaxis()
 
     # save
-    util.com.savefig(fig)
+    fig.savefig(__file__[:-3])
 
 
 if __name__ == '__main__':
