@@ -27,10 +27,10 @@ ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 #          $(addprefix bowdef_, profiles spectrogram \
 #            $(addprefix fft_, gpsv tilt) \
 #            $(addprefix hist_, ls8 ls8_uv) \
-#            $(addprefix map_, gmb gsv ls8 ls8_uv vgd vgd_uv) \
+#            $(addprefix map_, gsv ls8 ls8_uv vgd vgd_uv) \
 #            $(addprefix summer_, 2014 2015 2016) \
 #            $(addprefix ts_, defvel detrended gpsvel satvel satvel_uv tilt)) \
-#          $(addprefix bowtid_, boreholes correlate fft gmb \
+#          $(addprefix bowtid_, boreholes correlate fft \
 #                               lombscargle previous \
 #                               specgrams) \
 #          $(addprefix bowwat_, thinning wlevseries)
