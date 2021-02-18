@@ -31,7 +31,7 @@ ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 #            $(addprefix summer_, 2014 2015 2016) \
 #            $(addprefix ts_, defvel detrended gpsvel satvel satvel_uv tilt)) \
 #          $(addprefix bowtid_, boreholes correlate fft \
-#                               lombscargle previous \
+#                               lombscargle \
 #                               specgrams) \
 #          $(addprefix bowwat_, thinning wlevseries)
 
