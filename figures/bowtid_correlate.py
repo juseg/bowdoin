@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -13,11 +13,11 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec=dict(
-        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5)
+    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw=dict(
+        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
 
     # for each tilt unit
-    z = util.tid.load_inc('depth').iloc[0]
+    z = util.tid.load_inc('dept').iloc[0]
     p = util.tid.load_inc('wlev')['20140827':'20141019']  # all sensors
     #p = util.tid.load_inc('wlev')['20140901':'20150330']  # clean signal
     #p = util.tid.load_inc('wlev')['20150401':'20150930']  # high frequency

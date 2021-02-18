@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -56,7 +56,8 @@ def main():
         ax.text(0.95, 0.1, u, color=c, ha='right', transform=ax.transAxes)
 
     # plot tide data
-    tide = ut.io.util.tid.load_pituffik_tides().resample('1H').mean().interpolate().diff()[1:]/3.6
+    tide = util.tid.load_pituffik_tides().resample('1H').mean()
+    tide = tide.interpolate().diff()[1:]/3.6
     freq = np.fft.rfftfreq(tide.shape[-1], 1.0)
     rfft = np.fft.rfft(tide.values)
     ampl = np.abs(rfft)

@@ -14,7 +14,7 @@ def main():
 
     # initialize figure
     fig, grid = apl.subplots_mm(figsize=(180, 90), nrows=3, ncols=3,
-        sharey=True, sharey=True, gridspec_kw=dict(
+        sharex=True, sharey=True, gridspec_kw=dict(
             left=12.5, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=12.5))
 
     # for each tilt unit
