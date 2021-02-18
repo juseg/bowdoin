@@ -102,7 +102,7 @@ def open_shp_coords(filename, crs=None, **kwargs):
 
     # read profile from shapefile
     shp = shpreader.Reader(filename)
-    geom = next(shp.geometries())[0]
+    geom = next(shp.geometries())#[0]
     points = np.asarray(geom)
     if crs is not None:
         points = crs.transform_points(ccrs.PlateCarree(), *points.T)[:, :2]
@@ -213,9 +213,10 @@ def main():
                   ha=('left' if bh == 'bh2' else 'right'))
 
     # set axes properties
-    grid[0].set_title(st0[11:19])
-    grid[1].set_title(st0[11:19])
-    grid[2].set_title(st1[11:19] + ' - ' + st0[11:19])
+    grid[0].set_title(st0[11:15]+'-'+st0[15:17]+'-'+st0[17:19])
+    grid[1].set_title(st0[11:15]+'-'+st0[15:17]+'-'+st0[17:19])
+    grid[2].set_title(st1[11:15]+'-'+st1[15:17]+'-'+st1[17:19]+' - '+
+                      st0[11:15]+'-'+st0[15:17]+'-'+st0[17:19])
     pfax.set_xlabel('distance from the calving front (m)')
     pfax.set_ylabel('surface elevation (m)')
 
