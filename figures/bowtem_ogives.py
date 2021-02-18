@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -38,7 +38,7 @@ def init_figure():
 
     # add subfigure labels
     for ax, label in zip(list(grid) + [pfax], 'abcd'):
-        util.com.add_subfig_label(ax=ax, text='('+label+')')
+        cde.add_subfig_label(ax=ax, text='('+label+')')
 
     # return figure and axes
     return fig, grid, cax, pfax

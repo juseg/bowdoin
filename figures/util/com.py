@@ -1,4 +1,4 @@
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -42,42 +42,6 @@ def read_locations(filename='../data/locations.gpx', crs=None):
 
 # Plotting methods
 # ----------------
-
-def add_subfig_label(text, ax=None, loc='ul', xpad=6, ypad=6, **kwargs):
-    """
-    Add a subfigure label in bold. The default position is near the upper left
-    corner of the axes frame.
-
-    Parameters
-    ----------
-    text: string
-        The subfigure label text.
-    ax: Axes
-        Axes to draw on, defaults to the current axes.
-    loc: string
-        Label location ll, lc, lr, cl, cc, cr, ul, uc or ur.
-    xpad: scalar
-        Horizontal pad between the axes margin and the label in points.
-    ypad: scalar
-        Vertical pad between the axes margin and the label in points.
-    **kwargs:
-        Additional keyword arguments are passed to annotate.
-    """
-
-    # process arguments
-    ax = ax or plt.gca()
-    yloc, xloc = loc
-
-    # add annotation
-    ax.annotate(text, fontweight='bold', textcoords='offset points',
-                ha={'l': 'left', 'c': 'center', 'r': 'right'}[xloc],
-                va={'l': 'bottom', 'c': 'center', 'u': 'top'}[yloc],
-                xy=({'l': 0, 'c': 0.5, 'r': 1}[xloc],
-                    {'l': 0, 'c': 0.5, 'u': 1}[yloc]),
-                xytext=({'l': 1, 'c': 0, 'r': -1}[xloc]*xpad,
-                        {'l': 1, 'c': 0, 'u': -1}[yloc]*ypad),
-                xycoords='axes fraction', **kwargs)
-
 
 def plot_field_campaigns(ax=None, color='C1', ytext=0.05):
     """Mark 2014--2017 summer field campaigns."""

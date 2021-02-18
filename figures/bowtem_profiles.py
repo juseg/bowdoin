@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -9,6 +9,7 @@ import numpy as np
 import scipy.interpolate as sinterp
 import pandas as pd
 import cartopy.crs as ccrs
+import cartowik.decorations as cde
 import absplots as apl
 import util
 
@@ -162,8 +163,8 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)', ypad=15)
-    util.com.add_subfig_label(ax=ax1, text='(b)', ypad=15)
+    cde.add_subfig_label(ax=ax0, text='(a)')
+    cde.add_subfig_label(ax=ax1, text='(b)')
 
     # for each borehole
     for bh, color in util.tem.COLOURS.items():

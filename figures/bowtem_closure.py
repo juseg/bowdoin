@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 """Plot Bowdoin temperature borehole setup."""
 
+import cartowik.decorations as cde
 import absplots as apl
 import util
 
@@ -18,8 +19,8 @@ def main():
                                       gridspec_kw=gridspec_kw)
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=ax1, text='(b)')
+    cde.add_subfig_label(ax=ax0, text='(a)')
+    cde.add_subfig_label(ax=ax1, text='(b)')
 
     # for each boreholes
     for bh, color in util.tem.COLOURS.items():

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 """Plot Bowdoin temperature profiles."""
 
 import matplotlib.pyplot as plt
+import cartowik.decorations as cde
 import absplots as apl
 import util
 
@@ -28,9 +29,9 @@ def main():
     ax0 = fig.add_axes_mm([2.5, 60.5, 175, 175/3])
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)', c='k')
-    util.com.add_subfig_label(ax=grid[0], text='(b)', c='w', ypad=10)
-    util.com.add_subfig_label(ax=grid[1], text='(c)', c='w', ypad=10)
+    cde.add_subfig_label(ax=ax0, text='(a)', c='k')
+    cde.add_subfig_label(ax=grid[0], text='(b)', c='w')
+    cde.add_subfig_label(ax=grid[1], text='(c)', c='w')
     for ax in [ax0]+list(grid):
         ax.set_xticks([])
         ax.set_yticks([])

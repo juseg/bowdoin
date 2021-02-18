@@ -24,8 +24,8 @@ def init_figure():
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)', color='w')
-    util.com.add_subfig_label(ax=ax1, text='(b)')
+    cde.add_subfig_label(ax=ax0, text='(a)', color='w')
+    cde.add_subfig_label(ax=ax1, text='(b)')
 
     # return figure and axes
     return fig, (ax0, ax1)
