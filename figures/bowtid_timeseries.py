@@ -15,51 +15,62 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, (ax0, ax1) = apl.subplots_mm(
-        figsize=(180, 90), ncols=2, gridspec_kw=dict(
-            left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
+    fig, ax0 = apl.subplots_mm(figsize=(180, 120), gridspec_kw=dict(
+        left=12.5, right=2.5, bottom=12.5, top=2.5))
+    insets = fig.subplots_mm(ncols=2, gridspec_kw=dict(
+        left=52.5, right=5, bottom=85, top=5, wspace=2.5))
 
     # plot tilt unit water level
-    pres = util.tid.load_inc('wlev').resample('1H').mean()/1e3
-    pres.plot(ax=ax0, legend=True, x_compat=True)
-    pres.plot(ax=ax1, legend=False, x_compat=True)
+    depth = util.tid.load_inc('dept').iloc[0]
+    freq = pd.to_timedelta('1D')/24  # needed for x-axis alignment
+    pres = util.tid.load_inc('wlev').resample(freq).mean()/1e3
+    for ax in (ax0, *insets):
+        pres.plot(ax=ax, legend=False)
 
     # plot freezing dates
-    temp = util.tid.load_inc('temp')['20140717':].resample('1H').mean()
-    date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
-    for ax in (ax0, ax1):
-        ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')
+    # temp = util.tid.load_inc('temp')['20140717':].resample('1H').mean()
+    # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
+    # for ax in (ax0, ax1):
+    #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')
 
-    # add labels
+    # add unit labels
+    offsets = dict(LI05=-4, UI02=4, UI03=-12)
+    for i, unit in enumerate(pres):
+        last = pres[unit].dropna().tail(1)
+        ax0.annotate(
+            r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+            color='C{}'.format(i), fontsize=6, fontweight='bold',
+            xy=(last.index[0], last), xytext=(4, offsets.get(unit, 0)),
+            textcoords='offset points', ha='left', va='center')
+
+    # add campaigns
+    util.com.plot_field_campaigns(ax=ax0, ytext=0.01)
+
+    # set main axes properties
+    ax0.set_xlabel('')
     ax0.set_ylabel('pressure (MPa)')
-    ax0.legend(loc='upper right', ncol=3)
+    ax0.set_xlim('20140615', '20171215')
 
-    # zooming windows
-    zooms = dict(
-        z1=['20140715', '20141015', 0.25, 3.85],  # zoom on closure phase
-        z2=['20140901', '20141001', 1.15, 1.55],  # 12-h cycle U5, U4, U3, L4
-        z3=['20150101', '20150201', 1.55, 1.80],  # 12-h cycle U5, U4
-        z4=['20150901', '20151015', 1.55, 1.65],  # 12-h cycle U5
-        z5=['20150915', '20151115', 2.00, 2.30],  # 14-day mode U4, L3
-        z6=['20170315', '20170501', 1.35, 1.45],)  # 14-day mode U5
+    # set inset axes limits
+    insets[0].set_xlim('20140901', '20141001')
+    insets[0].set_ylim(1.15, 1.55)
+    insets[1].set_xlim('20140906', '20140916')
+    insets[1].set_ylim(1.28, 1.40)
+    insets[1].set_xlim('20140922', '20140930')
+    insets[1].set_ylim(1.42, 1.50)
 
-    # save without right panel  # FIXME formalise presentation mode
-    # ax1.set_visible(False)
-    # fig.savefig(__file__[:-3]+'_z0')
-    # ax1.set_visible(True)
+    # remove ticks, add grid
+    for ax in insets:
+        ax.set_xticklabels([])
+        ax.set_yticks([])
+        ax.set_xlabel('')
+        ax.grid(which='minor')
 
-    # mark zoom inset
-    mark_inset(ax0, ax1, loc1=2, loc2=3, ec='0.5', ls='--')
-
-    # save different zooms
-    # for k, v in zooms.iteritems():
-    #     grid[1].set_xlim(*v[:2])
-    #     grid[1].set_ylim(*v[2:])
-    #     fig.savefig(__file__[:-3]+'_'+k)
+    # mark insets
+    mark_inset(ax0, insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
+    mark_inset(insets[0], insets[1], loc1=2, loc2=3, ec='0.75', ls='--')
 
     # save default
-    ax1.set_xlim(*pd.to_datetime(zooms['z2'][:2]))
-    ax1.set_ylim(*zooms['z2'][2:])
     fig.savefig(__file__[:-3])
 
 
