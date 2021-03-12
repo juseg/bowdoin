@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -21,14 +21,14 @@ def main():
         left=52.5, right=5, bottom=85, top=5, wspace=2.5))
 
     # plot tilt unit water level
-    depth = util.tid.load_inc('dept').iloc[0]
+    depth = util.str.load_inc('dept').iloc[0]
     freq = pd.to_timedelta('1D')/24  # needed for x-axis alignment
-    pres = util.tid.load_inc('wlev').resample(freq).mean()/1e3
+    pres = util.str.load_inc('wlev').resample(freq).mean()/1e3
     for ax in (ax0, *insets):
         pres.plot(ax=ax, legend=False)
 
     # plot freezing dates
-    # temp = util.tid.load_inc('temp')['20140717':].resample('1H').mean()
+    # temp = util.str.load_inc('temp')['20140717':].resample('1H').mean()
     # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
     # for ax in (ax0, ax1):
     #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')

@@ -9,16 +9,16 @@
 DEF_CODE = $(addprefix bowdef_, strainrates)
 TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
 	                        images ogives profiles timeseries)
-TID_CODE = $(addprefix bowtid_, \
+STR_CODE = $(addprefix bowstr_, \
     boreholes correlate diffseries fft fjordtide highpass intervals \
     lombscargle specgrams tempseries timeseries)
 PAL_CODE = $(addprefix bowpal_, samplemap)
-ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(TID_CODE) $(PAL_CODE)
+ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(STR_CODE) $(PAL_CODE)
 
 # python figures
 DEF_FIGS = $(addsuffix .pdf, $(DEF_CODE))
 TEM_FIGS = $(addsuffix .pdf, $(TEM_CODE))
-TID_FIGS = $(addsuffix .pdf, $(TID_CODE))
+STR_FIGS = $(addsuffix .pdf, $(STR_CODE))
 PAL_FIGS = $(addsuffix .pdf, $(PAL_CODE))
 ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 
@@ -42,7 +42,7 @@ all: $(ALL_FIGS)
 # project dependencies
 $(DEF_FIGS): util/inc.py
 $(TEM_FIGS): util/tem.py
-$(TID_FIGS): util/tid.py
+$(STR_FIGS): util/str.py
 
 # make python figures (alt use LC_ALL=en_GB.utf8 python)
 $(ALL_FIGS): %.pdf : %.py matplotlibrc util/com.py util/geo.py

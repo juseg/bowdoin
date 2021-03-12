@@ -17,10 +17,10 @@ def main():
         left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
 
     # for each tilt unit
-    z = util.tid.load_inc('dept').iloc[0]
-    p = util.tid.load_inc('wlev')['20140827':'20141019']  # all sensors
-    #p = util.tid.load_inc('wlev')['20140901':'20150330']  # clean signal
-    #p = util.tid.load_inc('wlev')['20150401':'20150930']  # high frequency
+    z = util.str.load_inc('dept').iloc[0]
+    p = util.str.load_inc('wlev')['20140827':'20141019']  # all sensors
+    #p = util.str.load_inc('wlev')['20140901':'20150330']  # clean signal
+    #p = util.str.load_inc('wlev')['20150401':'20150930']  # high frequency
     p = p.resample('10T').mean().interpolate().diff()[1:]/3.6  # Pa s-1
     for i, u in enumerate(p):
         c = 'C%d' % i

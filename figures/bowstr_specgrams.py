@@ -20,11 +20,11 @@ def main():
     cax = fig.add_axes_mm([180-17.5, 12.5, 2.5, 90-15])
 
     # get freezing dates
-    t = util.tid.load_inc('temp')['20140717':].resample('1H').mean()
+    t = util.str.load_inc('temp')['20140717':].resample('1H').mean()
     df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
 
     # for each tilt unit
-    p = util.tid.load_inc('wlev')
+    p = util.str.load_inc('wlev')
     for i, u in enumerate(p):
         ax = grid[i]
         c = 'C%d' % i
@@ -57,7 +57,7 @@ def main():
 
     # plot tide data
     ax = grid.flat[-1]
-    ts = util.tid.load_pituffik_tides().resample('1H').mean()
+    ts = util.str.load_pituffik_tides().resample('1H').mean()
     ts = ts.interpolate().diff()[1:]/3.6
     _, _, _, im = ax.specgram(
         ts, xextent=mdates.date2num([ts.index[0], ts.index[-1]]), **kwargs)

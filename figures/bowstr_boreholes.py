@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -61,7 +61,7 @@ def plot_long_profile(ax):
 
     # draw vertical lines symbolising the boreholes
     for bh, color in COLOURS.items():
-        base = util.tid.load('../data/processed/bowdoin.'+bh+'.inc.base.csv')
+        base = util.str.load('../data/processed/bowdoin.'+bh+'.inc.base.csv')
         base = base.iloc[0].squeeze()
         dist = dict(bh1=2, bh3=1.84)[bh]
         ax.plot([dist, dist], [base, 0.0], 'k-_')
@@ -71,7 +71,7 @@ def plot_long_profile(ax):
                 ha='center', va='top')
 
     # plot tilt unit depths
-    depth = util.tid.load_inc('dept').iloc[0]  # FIXME depth util?
+    depth = util.str.load_inc('dept').iloc[0]  # FIXME depth util?
     for i, unit in enumerate(depth.index):
         color = 'C%d' % i
         dist = dict(U=2, L=1.84)[unit[0]]
