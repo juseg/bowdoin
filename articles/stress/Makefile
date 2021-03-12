@@ -5,7 +5,7 @@
 # Variables
 # ---------
 
-PAPER = bowdoin-tides
+PAPER = bowdoin-stress
 REV = $(shell git describe --abbrev=0 --match=bowtid*)
 
 
