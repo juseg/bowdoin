@@ -8,6 +8,7 @@ Bowdoin temperature paper utils.
 
 import glob
 import pandas as pd
+import util.com
 
 # Global parameters
 # -----------------
@@ -24,21 +25,17 @@ PROFILES_DATES = dict(bh1=['20141001', '20170128'],
 # Data loading methods
 # --------------------
 
-def load(filename):
-    """Load preprocessed data file and return data with duplicates removed."""
-    data = pd.read_csv(filename, parse_dates=True, index_col='date')
-    data = data.groupby(level=0).mean()
-    return data
-
-
 def load_all(borehole):
     """Load all temperature and depths for the given borehole."""
 
     # load all data for this borehole
     prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
-    temp = pd.concat([load(f) for f in glob.glob(prefix+'*.temp.csv')], axis=1)
-    dept = pd.concat([load(f) for f in glob.glob(prefix+'*.dept.csv')], axis=1)
-    base = pd.concat([load(f) for f in glob.glob(prefix+'*.base.csv')], axis=1)
+    temp = [util.com.load_file(f) for f in glob.glob(prefix+'*.temp.csv')]
+    temp = pd.concat(temp, axis=1)
+    dept = [util.com.load_file(f) for f in glob.glob(prefix+'*.dept.csv')]
+    dept = pd.concat(dept, axis=1)
+    base = [util.com.load_file(f) for f in glob.glob(prefix+'*.base.csv')]
+    base = pd.concat(base, axis=1)
 
     # in this paper with ignore depth changes
     dept = dept.iloc[0]
@@ -67,8 +64,10 @@ def load_manual(borehole):
 
     # load all data for this borehole
     prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
-    manu = pd.concat([load(f) for f in glob.glob(prefix+'*.manu.csv')], axis=1)
-    mask = pd.concat([load(f) for f in glob.glob(prefix+'*.mask.csv')], axis=1)
+    manu = [util.com.load_file(f) for f in glob.glob(prefix+'*.manu.csv')]
+    manu = pd.concat(manu, axis=1)
+    mask = [util.com.load_file(f) for f in glob.glob(prefix+'*.mask.csv')]
+    mask = pd.concat(mask, axis=1)
 
     # segregate BH3 erratic data
     if borehole == 'bh3':

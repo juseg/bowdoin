@@ -8,7 +8,7 @@
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import pandas as pd
 import absplots as apl
-import util
+import util.str
 
 
 def main():

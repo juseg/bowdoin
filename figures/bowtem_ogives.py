@@ -16,7 +16,8 @@ import absplots as apl
 import cartowik.annotations as can
 import cartowik.decorations as cde
 import cartowik.shadedrelief as csr
-import util
+import util.com
+import util.tem
 
 
 def init_figure():
@@ -58,7 +59,7 @@ def project_borehole_locations(date, crs):
 
     # interpolate DEM date BH1 location from continuous GPS
     lonlat = ccrs.PlateCarree()
-    gps = util.tem.load('../data/processed/bowdoin.bh1.gps.csv')
+    gps = util.com.load_file('../data/processed/bowdoin.bh1.gps.csv')
     gps = gps.interpolate().loc[date].mean()
     gps['x'], gps['y'] = crs.transform_point(gps.lon, gps.lat, lonlat)
     gps = gps[['x', 'y']]

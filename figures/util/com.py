@@ -18,6 +18,13 @@ import cartopy.crs as ccrs
 # Input methods
 # -------------
 
+def load_file(filename):
+    """Load preprocessed data file and return data with duplicates removed."""
+    data = pd.read_csv(filename, parse_dates=True, index_col='date')
+    data = data.groupby(level=0).mean()
+    return data
+
+
 def read_locations(filename='../data/locations.gpx', crs=None):
     """Read waypoints dataframe from GPX file."""
 

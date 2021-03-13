@@ -9,6 +9,7 @@ Bowdoin stress paper utils.
 import glob
 import scipy.signal as sg
 import pandas as pd
+import util.com
 
 # Physical constants
 # ------------------
@@ -28,20 +29,13 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(filename):
-    """Load preprocessed data file and return data with duplicates removed."""
-    # FIXME this is a duplicate of util.tem.load
-    data = pd.read_csv(filename, parse_dates=True, index_col='date')
-    data = data.groupby(level=0).mean()
-    return data
-
-
 def load_inc(variable):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
     pattern = '../data/processed/bowdoin.*.inc.' + variable + '.csv'
-    data = pd.concat([load(f) for f in glob.glob(pattern)], axis=1)
+    data = [util.com.load_file(f) for f in glob.glob(pattern)]
+    data = pd.concat(data, axis=1)
 
     # convert water levels to pressure
     # FIXME remove water level conversion in preprocessing

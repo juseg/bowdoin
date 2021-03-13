@@ -10,7 +10,7 @@ import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
 import cartowik.decorations as cde
-import util
+import util.com
 
 COLOURS = dict(bh1='C0', bh3='C6')
 
@@ -61,7 +61,8 @@ def plot_long_profile(ax):
 
     # draw vertical lines symbolising the boreholes
     for bh, color in COLOURS.items():
-        base = util.str.load('../data/processed/bowdoin.'+bh+'.inc.base.csv')
+        base = util.com.load_file(
+            '../data/processed/bowdoin.'+bh+'.inc.base.csv')
         base = base.iloc[0].squeeze()
         dist = dict(bh1=2, bh3=1.84)[bh]
         ax.plot([dist, dist], [base, 0.0], 'k-_')
