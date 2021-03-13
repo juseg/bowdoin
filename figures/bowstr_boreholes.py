@@ -11,6 +11,8 @@ import absplots as apl
 import cartowik.annotations as can
 import cartowik.decorations as cde
 import util.com
+import util.geo
+import util.str
 
 COLOURS = dict(bh1='C0', bh3='C6')
 

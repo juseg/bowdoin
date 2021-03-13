@@ -12,7 +12,8 @@ import absplots as apl
 import cartowik.annotations as can
 import cartowik.decorations as cde
 import cartowik.naturalearth as cne
-import util
+import util.geo
+import util.tem
 
 
 def init_figure():

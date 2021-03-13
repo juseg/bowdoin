@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util
+import util.str
 import pandas as pd
 import matplotlib.dates as mdates
 import absplots as apl

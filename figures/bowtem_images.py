@@ -8,7 +8,7 @@
 import matplotlib.pyplot as plt
 import cartowik.decorations as cde
 import absplots as apl
-import util
+import util.tem
 
 
 def annotate_borehole(x, y, bh, ax=None, **kwargs):

@@ -11,7 +11,8 @@ import pandas as pd
 import cartopy.crs as ccrs
 import cartowik.decorations as cde
 import absplots as apl
-import util
+import util.inc
+import util.tem
 
 
 # Physical constants
