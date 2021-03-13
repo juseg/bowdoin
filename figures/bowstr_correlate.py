@@ -5,8 +5,17 @@
 
 import util.str
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 import absplots as apl
+
+
+def crosscorr(series, other, window=72):
+    """Return cross correlation for multiple lags."""
+    shifts = np.arange(-window/2, window/2+1)
+    df = pd.DataFrame(
+        data=[series.shift(i, freq='infer') for i in shifts],
+        index=pd.to_timedelta(shifts*series.index.freq))
+    return df.corrwith(other, axis=1)
 
 
 def main():
@@ -14,52 +23,41 @@ def main():
 
     # initialize figure
     fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw=dict(
-        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
+        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=17.5))
 
-    # for each tilt unit
-    z = util.str.load(variable='dept').iloc[0]
-#    p = util.str.load()['20140827':'20141019']  # all sensors
-#    p = util.str.load()['20140901':'20150330']  # clean signal
-    p = util.str.load()['20150401':'20150930']  # high frequency
-#    p = util.str.load()['2015-04':'2015-06']
-    p = p.resample('10T').mean().interpolate().diff()[1:]/3.6  # Pa s-1
-    for i, u in enumerate(p):
+    # load pressure data
+    depth = util.str.load(variable='dept').iloc[0]
+    pres = util.str.load()['20140916':'20141016']
+    pres = pres.resample('10T').mean().interpolate()
+    pres = util.str.filter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
+
+    # plot time series
+    offsets = 5 * (1+np.arange(len(pres.columns)))[::-1]
+    (pres+offsets).plot(ax=grid[0], legend=False)
+
+    # for each unit
+    for i, unit in enumerate(pres):
         c = 'C%d' % i
-        offset = 9-i
-        ts = p[u]
+        ts = pres[unit]
 
-        # plot filtered water level
-        ax = grid[0]
-        (ts+offset).plot(ax=ax, c=c)
-
-        # use first series as reference
-        if i == 0:
-            tsref = ts
-
-        # plot cross correlation
+        # plot (series.plot with deltas affected by #18910)
         ax = grid[1]
-        dt = (ts.index[:] - ts.index[0]).total_seconds()/3600.0
-        shift = np.concatenate([-dt[:0:-1], dt])
-        xcorr = np.correlate(ts, tsref, mode='full')
-        xcorr /= 2*xcorr.max()
-        ax.plot(shift, xcorr+offset, c=c)
+        xcorr = crosscorr(ts, pres['UI07'])
+        ax.plot(xcorr.index.total_seconds()/3600, xcorr)
 
-        # find maximum within 24 hours
-        idxmax = (xcorr*(abs(shift)<=24.0)).argmax()
-        ax.plot(shift[idxmax], xcorr[idxmax]+offset, c=c, marker='o')
+        # find maximum correlation
+        shift = xcorr.idxmax().total_seconds()/3600
+        ax.plot(shift, xcorr.max(), c=c, marker='o')
 
         # plot phase shifts
         ax = grid[2]
-        ax.plot(shift[idxmax], z[u], c=c, marker='o')
-        ax.text(shift[idxmax]+0.1, z[u]-1.0, u, color=c)
+        ax.plot(shift, depth[unit], c=c, marker='o')
+        ax.text(shift+0.1, depth[unit]-1.0, unit, color=c, clip_on=True)
 
     # set axes properties
-    grid[0].set_ylim(-1.0, 10.0)
-    grid[0].set_ylabel('pressure change ($Pa\,s^{-1}$)')
-    grid[0].legend(ncol=2, loc='lower right')
+    grid[0].set_ylim(-2.5, 47.5)
+    grid[0].set_ylabel(r'pressure change ($Pa\,s^{-1}$)')
     grid[1].axvline(0.0, ls=':')
-    grid[1].set_xlim(-12.0, 12.0)
-    grid[1].set_ylim(-1.0, 10.0)
     grid[1].set_xlabel('phase shift (h)')
     grid[1].set_ylabel('cross-correlation')
     grid[2].axvline(0.0, ls=':')
