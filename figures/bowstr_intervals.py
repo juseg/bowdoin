@@ -20,7 +20,7 @@ def main():
                          bottom=12.5, top=2.5, hspace=2.5))
 
     # for each tilt unit
-    pres = util.str.load_inc('wlev')
+    pres = util.str.load()
     for i, unit in enumerate(pres):
         color = 'C%d' % i
 

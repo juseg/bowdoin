@@ -74,7 +74,7 @@ def plot_long_profile(ax):
                 ha='center', va='top')
 
     # plot tilt unit depths
-    depth = util.str.load_inc('dept').iloc[0]  # FIXME depth util?
+    depth = util.str.load(variable='dept').iloc[0]  # FIXME depth util?
     for i, unit in enumerate(depth.index):
         color = 'C%d' % i
         dist = dict(U=2, L=1.84)[unit[0]]

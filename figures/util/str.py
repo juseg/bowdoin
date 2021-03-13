@@ -29,7 +29,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load_inc(variable):
+def load(variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable

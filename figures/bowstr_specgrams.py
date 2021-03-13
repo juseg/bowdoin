@@ -20,11 +20,11 @@ def main():
     cax = fig.add_axes_mm([180-17.5, 12.5, 2.5, 90-15])
 
     # get freezing dates
-    t = util.str.load_inc('temp')['20140717':].resample('1H').mean()
+    t = util.str.load(variable='temp')['20140717':].resample('1H').mean()
     df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
 
     # for each tilt unit
-    p = util.str.load_inc('wlev')
+    p = util.str.load()
     for i, u in enumerate(p):
         ax = grid[i]
         c = 'C%d' % i

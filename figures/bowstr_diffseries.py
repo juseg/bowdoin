@@ -19,7 +19,7 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=7.5))
 
     # plot tilt unit water level
-    pres = util.str.load_inc('wlev').resample('1H').mean()
+    pres = util.str.load().resample('1H').mean()
     pres = pres.diff()[1:]/3.6 + 9 - range(pres.shape[1])  # Pa s-1
     pres.plot(ax=ax0)
     pres.plot(ax=ax1, legend=False)
