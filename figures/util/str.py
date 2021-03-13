@@ -83,3 +83,25 @@ def load_pituffik_tides(start='2014-07', end='2017-08'):
 
     # return pressure data series
     return series
+
+
+# Signal processing
+# -----------------
+
+def filter(pres, order=4, cutoff=1/24, btype='high'):
+    """Apply butterworth filter on entire dataframe."""
+
+    # prepare filter (order, cutoff)
+    filt = sg.butter(order, cutoff, btype=btype)
+
+    # for each unit
+    for unit in pres:
+
+        # crop, filter and reindex
+        series = pres[unit].dropna()
+        series[:] = sg.filtfilt(*filt, series)
+        series = series.reindex_like(pres)
+        pres[unit] = series
+
+    # return filtered dataframe
+    return pres

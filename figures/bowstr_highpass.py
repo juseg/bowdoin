@@ -5,8 +5,8 @@
 
 """Plot Bowdoin tides highpass-filtered timeseries."""
 
-import scipy.signal as sg
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+import numpy as np
 import absplots as apl
 import util.str
 
@@ -15,61 +15,48 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, (ax0, ax1) = apl.subplots_mm(
-        figsize=(180, 90), ncols=2, sharey=True, gridspec_kw=dict(
-            left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
+    fig, axes = apl.subplots_mm(
+        figsize=(180, 120), nrows=2, sharey=True, gridspec_kw=dict(
+            left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=12.5))
 
-    # prepare filter (order, cutoff)
-    filt = sg.butter(2, 3/24.0, 'high')
+    # highpass-filter pressure series
+    depth = util.str.load(variable='dept').iloc[0]
+    pres = util.str.load().resample('1H').mean()
+    pres = util.str.filter(pres)
 
-    # for each tilt unit
-    pres = util.str.load_inc('wlev')
-    for i, unit in enumerate(pres):
+    # load tide data
+    tide = util.str.load_pituffik_tides().resample('1H').mean()  # kPa
 
-        # crop, resample, and interpolate
-        series = pres[unit].dropna().resample('1H').mean().interpolate()  # kPa
+    # apply transformation for plotting
+    tide /= 10
+    pres += 5*(1+np.arange(len(pres.columns)))[::-1]
 
-        # apply filter in both directions
-        series[:] = sg.filtfilt(*filt, series) + 5.0*(8-i)
+    # plot pressure and tide data
+    for ax in axes:
+        pres.plot(ax=ax, legend=False)
+        tide.plot(ax=ax, c='C9')
 
-        # plot
-        for ax in (ax0, ax1):
-            series.plot(ax=ax)
+        # set axes properties
+        ax.grid(which='minor')
+        ax.set_xlabel('')
+        ax.set_ylabel('pressure (kPa)')
 
-    # plot tide data
-    z = util.str.load_pituffik_tides().resample('1H').mean() - 20.0  # kPa
-    for ax in (ax0, ax1):
-        z.plot(ax=ax, c='k', label='Tide')
+        # add labels
+        kwargs = dict(fontsize=6, fontweight='bold', transform=ax.transAxes)
+        ax.text(1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9', **kwargs)
+        for i, unit in enumerate(pres):
+            ax.text(
+                1.01, 0.9-0.1*i, unit+'\n'+r'{:.0f}$\,$m'.format(depth[unit]),
+                color='C{}'.format(i), **kwargs)
 
-    # set axes properties
-    ax0.set_ylim(-35.0, 45.0)
-    ax0.set_ylabel('pressure anomaly (kPa)')
-    ax0.legend(ncol=2, loc='center right')  # bbox_to_anchor=(1.0, 0.15))
-
-    # zooming windows  # FIXME formalise presentation mode
-    zooms = dict(
-        z1=['20140901', '20141001'],  # zoom with all sensors, L3 not frozen
-        z2=['20140910', '20140915'],  # zoom on phase, L3 not frozen
-        z3=['20141120', '20141125'],  # zoom phase, U2 and U2 lost
-        z4=['20150101', '20150201'],  # zoom on 14-day modulation, 2 cycles
-        z5=['20150901', '20151101'],  # zoom on 14-day modulation, 4 cycles
-        z6=['20150601', '20150715'])  # zoom on summer, more complicated
-
-    # save without right panel
-    # ax1.set_visible(False)
-    # fig.savefig(__file__[:-3]+'_z0')
-    # ax1.set_visible(True)
+    # set axes limits
+    axes[1].set_ylim(-2.5, 47.5)
+    axes[1].set_xlim('20140816', '20141016')
 
     # mark zoom inset
-    mark_inset(ax0, ax1, loc1=2, loc2=3, ec='0.5', ls='--')
+    mark_inset(axes[0], axes[1], loc1=1, loc2=2, ec='0.75', ls='--')
 
-    # save different zooms
-    # for k, v in zooms.iteritems():
-    #     grid[1].set_xlim(*v)
-    #     fig.savefig(__file__[:-3]+'_'+k)
-
-    # save default
-    ax1.set_xlim(*zooms['z1'])
+    # save
     fig.savefig(__file__[:-3])
 
 
