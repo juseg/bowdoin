@@ -56,7 +56,7 @@ def main():
 
     # set axes properties
     grid[0].set_ylim(-2.5, 47.5)
-    grid[0].set_ylabel(r'pressure change ($Pa\,s^{-1}$)')
+    grid[0].set_ylabel('pressure (kPa)')
     grid[1].axvline(0.0, ls=':')
     grid[1].set_xlabel('phase shift (h)')
     grid[1].set_ylabel('cross-correlation')

@@ -11,7 +11,7 @@ TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
 	                        images ogives profiles timeseries)
 STR_CODE = $(addprefix bowstr_, \
     boreholes correlate diffseries fft fjordtide highpass intervals \
-    lombscargle specgrams tempseries timeseries)
+    lombscargle rollcorr specgrams tempseries timeseries)
 PAL_CODE = $(addprefix bowpal_, samplemap)
 ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(STR_CODE) $(PAL_CODE)
 
