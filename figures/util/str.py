@@ -66,7 +66,7 @@ def load_bowdoin_tides(order=2, cutoff=1/3600.0):
     return tide
 
 
-def load_pituffik_tides(start='2014-07', end='2017-08'):
+def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
     """Load UNESCO IOC 5-min Pituffik tide data."""
 
     # find non-tempy data files
@@ -79,10 +79,14 @@ def load_pituffik_tides(start='2014-07', end='2017-08'):
     series = pd.concat([pd.read_csv(f, **csvkw) for f in files])
 
     # convert tide (m) to pressure (kPa)
-    series = 1e-3 * SEA_DENSITY * GRAVITY * (series-series.mean())
+    if unit == 'm':
+        return series
+    if unit == 'kPa':
+        return 1e-3 * SEA_DENSITY * GRAVITY * (series-series.mean())
 
-    # return pressure data series
-    return series
+    # otherwise raise exception
+    raise ValueError("Invalid unit {}.".format(unit))
+
 
 
 # Signal processing
