@@ -50,6 +50,23 @@ def load(variable='wlev'):
     return data
 
 
+def load_freezing_dates(fraction=0.9):
+    """Load freezing dates."""
+
+    # load hourly temperature data
+    temp = util.str.load(variable='temp').resample('1H').mean()
+
+    # remove a long-term warming tail
+    for unit, series in temp.items():
+        temp[unit] = series.where(series.index < series.idxmin())
+
+    # compute date when temp has reached fraction of min
+    date = abs(temp-fraction*temp.min()).idxmin()
+
+    # return as freezing dates
+    return date
+
+
 def load_bowdoin_tides(order=2, cutoff=1/3600.0):
     """Return Masahiro filtered sea level in a data series."""
 
