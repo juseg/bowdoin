@@ -86,19 +86,28 @@ def main():
     ax = axes[1, -1, -1]
     ax.set_position(ax.get_position().translated(0, 15/120))
 
+    # annotate tidal modes
+    kwargs = dict(arrowprops=dict(arrowstyle='-'), ha='center',
+                  textcoords='offset points')
+    ax.annotate(r'$S_2$', xy=(12.00/24, 1e3), xytext=(-12, 20), **kwargs)
+    ax.annotate(r'$M_2$', xy=(12.42/24, 1e3), xytext=(+00, 20), **kwargs)
+    ax.annotate(r'$N_2$', xy=(12.55/24, 1e3), xytext=(+12, 20), **kwargs)
+    ax.annotate(r'$K_1$', xy=(23.93/24, 1e3), xytext=(-4, 20), **kwargs)
+    ax.annotate(r'$O_1$', xy=(25.82/24, 1e3), xytext=(+4, 20), **kwargs)
+    ax.text(16/24, 1e7, 'Tidal constituents', ha='center')
+
     # set (all) inset axes properties
     ax.set_xlim(0.4, 1.2)
     ax.set_ylim(10**-0.8, 10**3.4)
-    ax.set_xticks([0.5, 0.5*30/29, 1])
+    ax.set_xticks([12/24, 12.42/24, 23.93/24, 25.82/24])
+    ax.set_xticks([], minor=True)
     ax.set_xticklabels([])
-    ax.set_xticklabels([], minor=True)
     ax.set_yticklabels([])
 
     # set labels
-    axes[0, 2, 2].set_xlabel('period (h)', x=-1.25/40)
-    axes[0, 0, 2].set_ylabel(
-        r'amplitude of stress change after refreeze ($Pa\,s^{-1}$)',
-        y=-1.25/25)
+    axes[0, 2, 2].set_xlabel('period (days)', x=-1.25/40)
+    axes[0, 0, 2].set_ylabel(('amplitude of stress change\n'
+                              r'after refreezing ($Pa\,s^{-1}$)'), y=-1.25/25)
     axes[0, 0, 2].yaxis.set_label_position("right")
 
     # mark one inset
