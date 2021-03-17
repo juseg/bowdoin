@@ -6,12 +6,12 @@
 # ---------
 
 # python code
-DEF_CODE = $(addprefix bowdef_, strainrates)
+DEF_CODE = $(addprefix bowdef_, )
 TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
 	                        images ogives profiles timeseries)
 STR_CODE = $(addprefix bowstr_, \
-    boreholes correlate diffseries fft fjordtide highpass intervals \
-    lombscargle rollcorr specgrams tempseries timeseries)
+    boreholes correlate diffseries freezedates fft fjordtide highpass \
+    intervals lombscargle rollcorr specgrams timeseries wavelets)
 PAL_CODE = $(addprefix bowpal_, samplemap)
 ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(STR_CODE) $(PAL_CODE)
 
@@ -24,7 +24,7 @@ ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 
 # temporarily deactivated
 # (tmp off: campaign_2016 summary \
-#          $(addprefix bowdef_, profiles spectrogram \
+#          $(addprefix bowdef_, profiles spectrogram strainrate \
 #            $(addprefix fft_, gpsv tilt) \
 #            $(addprefix hist_, ls8 ls8_uv) \
 #            $(addprefix map_, gsv ls8 ls8_uv vgd vgd_uv) \

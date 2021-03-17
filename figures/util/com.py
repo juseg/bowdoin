@@ -72,4 +72,4 @@ def plot_field_campaigns(ax=None, color='C1', ytext=0.05):
         duration = pd.to_datetime(end) - pd.to_datetime(start)
         midpoint = pd.to_datetime(start) + duration / 2
         ax.text(midpoint, ytext, midpoint.year, color=color, fontweight='bold',
-                ha='center', transform=trans)
+                ha='center', transform=trans, clip_on=True)
