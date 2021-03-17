@@ -50,7 +50,7 @@ def load(variable='wlev'):
     return data
 
 
-def load_freezing_dates(fraction=0.9):
+def load_freezing_dates(fraction=0.75):
     """Load freezing dates."""
 
     # load hourly temperature data
