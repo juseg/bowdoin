@@ -7,6 +7,7 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import absplots as apl
 import util.str
@@ -40,22 +41,75 @@ def fourier(series):
     return period, amplitude
 
 
-def main():
-    """Main program called during execution."""
+def subplots():
+    """Prepare 2x10 subplots with optimized locations."""
 
-    # initialize figure
+    # initialize figure with 2x3x4 subplots grid
     fig = apl.figure_mm(figsize=(180, 120))
-    axes = np.array([fig.subplots_mm(  # 40x25 mm panels
+    axes = np.array([fig.subplots_mm(  # 40x35 mm panels
         nrows=3, ncols=4, sharex=True, sharey=True, gridspec_kw=dict(
             left=10, right=2.5, bottom=7.5, top=2.5, hspace=2.5, wspace=2.5)),
                      fig.subplots_mm(  # 20x10 mm panels
         nrows=3, ncols=4, sharex=True, sharey=False, gridspec_kw=dict(
-            left=27.5, right=5, bottom=22.5, top=7.5,
-            hspace=22.5, wspace=22.5))])
+            left=27.5, right=5, bottom=25, top=5, hspace=22.5, wspace=22.5))])
+
+    # hide 2x2x1 unused axes in the top-right corner
+    for ax in axes[:, :2, 3].flat:
+        ax.set_visible(False)
+
+    # reshape to 12x2 and delete invisible axes
+    axes = axes.reshape(2, -1).T
+    axes = np.delete(axes, [3, 7], 0)
+
+    # set log scale on all axes
+    for ax in axes.flat:
+        ax.set_xscale('log')
 
     # mark all the insets
-    for axespair in axes.reshape(2, -1).T:
+    for axespair in axes:
         mark_inset(*axespair, loc1=2, loc2=4, ec='0.75', ls='--')
+
+    # set tidal ticks, no labels on insets
+    for ax in axes[:, 1]:
+        ax.set_xlim(0.4, 1.4)
+        ax.set_xticks([12/24, 12.42/24, 23.93/24, 25.82/24])
+        ax.set_xticks([], minor=True)
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+
+    # move tide axes upwards
+    for ax in axes[-1]:
+        ax.set_position(ax.get_position().translated(0, 5/120))
+
+    # set labels on last main axes
+    ax = axes[-1, 0]
+    ax.set_xlabel('xlabel', labelpad=7)
+    ax.set_ylabel('ylabel', labelpad=0)
+    ax.yaxis.label.set_position((10, 2+(3.75-5)/35))
+    ax.yaxis.label.set_va('top')
+
+    # annotate tidal modes on last inset axes
+    ax = axes[-1, 1]
+    blended = mpl.transforms.blended_transform_factory(
+        ax.transData, ax.transAxes)
+    kwargs = dict(ha='center', xycoords=blended, textcoords='offset points')
+    ax.annotate('Tidal constituents', xy=(16/24, 1), xytext=(0, 36), **kwargs)
+    kwargs.update(arrowprops=dict(arrowstyle='-'))
+    ax.annotate(r'$S_2$', xy=(12.00/24, 1), xytext=(-12, 20), **kwargs)
+    ax.annotate(r'$M_2$', xy=(12.42/24, 1), xytext=(+00, 20), **kwargs)
+    ax.annotate(r'$N_2$', xy=(12.55/24, 1), xytext=(+12, 20), **kwargs)
+    ax.annotate(r'$K_1$', xy=(23.93/24, 1), xytext=(-4, 20), **kwargs)
+    ax.annotate(r'$O_1$', xy=(25.82/24, 1), xytext=(+4, 20), **kwargs)
+
+    # return figure and axes
+    return fig, axes
+
+
+def main():
+    """Main program called during execution."""
+
+    # initialize figure
+    fig, axes = subplots()
 
     # load pressure and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
@@ -68,65 +122,35 @@ def main():
 
         # plot amplitude spectrum
         per, amp = fourier(pres[unit][date[unit]:])
-        for ax in axes[:, :, :3].reshape(2, -1)[:, i]:
+        for ax in axes[i]:
             ax.plot(per, amp, color=color)
 
-        # add main axes properties and text label
-        ax = axes[0, :, :3].flat[i]
-        ax.set_xscale('log')
-        ax.text(0.95, 0.9, r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
-                color=color, fontsize=6, fontweight='bold',
-                transform=ax.transAxes, ha='right')
+        # add main axes text label
+        axes[i, 0].text(
+            0.95, 0.35, r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+            color=color, fontsize=6, fontweight='bold',
+            transform=axes[i, 0].transAxes, ha='right')
 
-        # set inset axes properties
-        ax = axes[1, :, :3].flat[i]
-        ax.set_xlim(0.4, 1.2)
-        ax.set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
-        ax.set_xscale('log')
-        ax.set_xticks([12/24, 12.42/24, 23.93/24, 25.82/24])
-        ax.set_xticks([], minor=True)
-        ax.set_xticklabels([])
-        ax.set_yticklabels([])
+        # set inset axes limits
+        axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
 
     # plot tide data
     tide = util.str.load_pituffik_tides().resample('1H').mean() / 10  # kPa/10
-    for ax in axes[:, -1, -1]:
+    for ax in axes[-1]:
         ax.plot(*fourier(tide), c='C9')
 
-    # add corner tag
-    ax = axes[0, -1, -1]
-    ax.text(0.95, 0.1, r'Pituffik tide$\,/\,$10', color='C9', fontsize=6,
-            fontweight='bold', ha='right', transform=ax.transAxes)
+    # add main axes corner tag
+    axes[-1, 0].text(
+        0.95, 0.1, r'Pituffik tide$\,/\,$10', color='C9', fontsize=6,
+        fontweight='bold', ha='right', transform=axes[-1, 0].transAxes)
 
-    # set inset axes properties
-    ax = axes[1, -1, -1]
-    ax.set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
-    ax.set_yticklabels([])
-
-    # annotate tidal modes
-    kwargs = dict(arrowprops=dict(arrowstyle='-'), ha='center',
-                  textcoords='offset points')
-    ax = axes[1, -1, -1]
-    ax.annotate(r'$S_2$', xy=(12.00/24, 1), xytext=(-12, 20), **kwargs)
-    ax.annotate(r'$M_2$', xy=(12.42/24, 1), xytext=(+00, 20), **kwargs)
-    ax.annotate(r'$N_2$', xy=(12.55/24, 1), xytext=(+12, 20), **kwargs)
-    ax.annotate(r'$K_1$', xy=(23.93/24, 1), xytext=(-4, 20), **kwargs)
-    ax.annotate(r'$O_1$', xy=(25.82/24, 1), xytext=(+4, 20), **kwargs)
-    ax.text(16/24, 2, 'Tidal constituents', ha='center')
-
-    # move tide axes up for label
-    for ax in axes[:, -1, -1]:
-        ax.set_position(ax.get_position().translated(0, 5/120))
+    # set inset axes limites
+    axes[-1, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
 
     # set labels
-    axes[0, -1, -1].set_xlabel('period (days)')
-    axes[0, 0, 2].set_ylabel(('amplitude of stress change\n'
-                              r'after refreezing ($kPa\,s^{-1}$)'), y=-1.25/35)
-    axes[0, 0, 2].yaxis.set_label_position("right")
-
-    # remove unused axes
-    for ax in axes[:, :2, 3].flat:
-        ax.set_visible(False)
+    axes[-1, 0].set_xlabel('period (days)')
+    axes[-1, 0].set_ylabel(
+        'amplitude of stress change\n'+r'after refreezing ($kPa\,s^{-1}$)')
 
     # save
     fig.savefig(__file__[:-3])
