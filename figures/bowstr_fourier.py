@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin stress fourier transforms."""
+"""Plot Bowdoin stress Fourier transforms."""
 
 import numpy as np
 import pandas as pd
@@ -13,12 +13,13 @@ import util.str
 
 
 def fourier(series):
-    """Compute fourier transform ready for plotting."""
+    """Compute Fourier transform ready for plotting."""
 
     # interpolate, drop nans, and differentiate
     series = series.interpolate(limit_area='inside')
     series = series.dropna()
-    series = series.diff()[1:]/3.6
+    series = series.diff() / series.index.to_series().diff().dt.total_seconds()
+    series = series[1:]  # first value is nan after diff
 
     # prepare frequencies and periods
     frequency = np.fft.rfftfreq(series.shape[-1], 1)
@@ -46,14 +47,14 @@ def main():
     fig = apl.figure_mm(figsize=(180, 120))
     axes = np.array([fig.subplots_mm(  # 40x25 mm panels
         nrows=3, ncols=4, sharex=True, sharey=True, gridspec_kw=dict(
-            left=10, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=2.5)),
+            left=10, right=2.5, bottom=7.5, top=2.5, hspace=2.5, wspace=2.5)),
                      fig.subplots_mm(  # 20x10 mm panels
         nrows=3, ncols=4, sharex=True, sharey=True, gridspec_kw=dict(
-            left=27.5, right=5, bottom=15, top=20, hspace=22.5, wspace=22.5))])
+            left=27.5, right=5, bottom=10, top=20, hspace=22.5, wspace=22.5))])
 
     # load pressure and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('1H').mean()
+    pres = util.str.load().resample('1H').mean() * 1e3  # Pa
     date = util.str.load_freezing_dates()
 
     # for each tilt unit
@@ -63,8 +64,6 @@ def main():
         # plot amplitude spectrum
         for ax in axes[:, :, :3].reshape(2, -1)[:, i]:
             ax.plot(*fourier(pres[unit][date[unit]:]), color=color)
-            ax.set_xscale('log')
-            ax.set_yscale('log')
 
         # add corner tag
         ax = axes[0, :, :3].flat[i]
@@ -73,9 +72,11 @@ def main():
                 transform=ax.transAxes, ha='right')
 
     # plot tide data
-    tide = util.str.load_pituffik_tides().resample('1H').mean() / 10
+    tide = util.str.load_pituffik_tides().resample('1H').mean() * 1e2  # Pa/10
     for ax in axes[:, -1, -1]:
         ax.plot(*fourier(tide), c='C9')
+        ax.set_xscale('log')
+        ax.set_yscale('log')
 
     # add corner tag
     ax = axes[0, -1, -1]
@@ -105,9 +106,12 @@ def main():
     ax.set_yticklabels([])
 
     # set labels
-    axes[0, 2, 2].set_xlabel('period (days)', x=-1.25/40)
+    axes[0, 2, 2].get_xticklabels()[-1].set_color('r')
+    axes[0, 2, 2].set_xlabel(
+        '      period (days)      ', bbox=dict(ec='none', fc='w'),
+        labelpad=-8, x=-1.25/40)
     axes[0, 0, 2].set_ylabel(('amplitude of stress change\n'
-                              r'after refreezing ($Pa\,s^{-1}$)'), y=-1.25/25)
+                              r'after refreezing ($Pa\,s^{-1}$)'), y=-1.25/35)
     axes[0, 0, 2].yaxis.set_label_position("right")
 
     # mark one inset
