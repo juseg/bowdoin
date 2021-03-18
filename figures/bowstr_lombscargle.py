@@ -3,59 +3,81 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util.str
+"""Plot Bowdoin stress Lomb-Scargle periodograms."""
+
 import numpy as np
-import scipy.signal as sg
-import absplots as apl
+from scipy import signal
+
+import util.str
+import bowstr_fourier
+
+
+def lombscargle(series, periods):
+    """Compute Lomb-Scargle periodogram ready for plotting."""
+
+    # interpolate, drop nans, and differentiate
+    series = series.interpolate(limit_area='inside')
+    series = series.dropna()
+    series = series.diff() / series.index.to_series().diff().dt.total_seconds()
+    series = series[1:]  # first value is nan after diff
+
+    # prepare frequencies and periods
+    frequency = 2 * np.pi / periods
+
+    # compute periodogram
+    time = (series.index-series.index[0]).total_seconds()
+    power = signal.lombscargle(time, series, frequency)
+    # amplitude = (4*power/len(periods))**0.5  # maybe
+
+    # return spectral power
+    return power
 
 
 def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 90), nrows=3, ncols=3,
-        sharex=True, sharey=True, gridspec_kw=dict(
-            left=12.5, right=2.5, bottom=12.5, top=2.5, hspace=2.5, wspace=12.5))
+    fig, axes = bowstr_fourier.subplots()
+
+    # load pressure and freezing dates
+    depth = util.str.load(variable='dept').iloc[0]
+    pres = util.str.load() * 1e3  # kPa
+    date = util.str.load_freezing_dates(fraction=0.8)
+
+    # periods in days for main and inset axes (we need many points)
+    periods = (np.logspace(-1, 3, 1001), np.logspace(-0.35, 0.1, 1001))
 
     # for each tilt unit
-    p = util.str.load()['2014-11':].diff()[1:]
-    for i, u in enumerate(p):
-        ax = grid.flat[i]
-        c = 'C%d' % i
+    for i, unit in enumerate(pres):
+        color = 'C{}'.format(i)
 
-        # crop
-        ts = p[u].dropna()
+        # subset series post-freezing
+        series = pres[unit][date[unit]:]
 
-        # only nulls, add text
-        if ts.notnull().sum() == 0:
-            ax.set_xlim(grid.flat[0].get_xlim())  # avoid reshape axes
-            ax.set_ylim(grid.flat[0].get_ylim())  # avoid reshape axes
-            ax.text(0.5, 0.5, 'no data', color='0.5', ha='center', transform=ax.transAxes)
+        # plot periodograms
+        for ax, days in zip(axes[i], periods):
+            ax.plot(days, lombscargle(series, days*24*3600), color=color)
 
-        # else compute fft
-        else:
-            x = (ts.index - ts.index[0]).total_seconds()/3600
-            y = ts.values
-            periods = np.linspace(6.0, 30.0, 1001)
-            frequencies = 1.0 / periods
-            angfreqs = 2 * np.pi * frequencies
-            pgram = sg.lombscargle(x, y, angfreqs, normalize=False)
+        # add main axes text label
+        axes[i, 0].text(
+            0.95, 0.35, r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+            color=color, fontsize=6, fontweight='bold',
+            transform=axes[i, 0].transAxes, ha='right')
 
-            # and plot
-            ax.plot(periods, pgram, c=c)  # freq[0]=0.0
-            ax.set_xticks([12.0, 24.0])
-            ax.set_yscale('log')
+    # plot tide data
+    series = util.str.load_pituffik_tides() / 10  # kPa / 10
+    for ax, days in zip(axes[-1], periods):
+        ax.plot(days, lombscargle(series, days*24*3600), color='C9')
 
-            # add vertical lines
-            for x in [12.0, 12.0*30/29, 24.0]:
-                ax.axvline(x, c='0.75', lw=0.1, zorder=1)
+    # add main axes corner tag
+    axes[-1, 0].text(
+        0.95, 0.1, r'Pituffik tide$\,/\,$10', color='C9', fontsize=6,
+        fontweight='bold', ha='right', transform=ax.transAxes)
 
-        # add corner tag
-        ax.text(0.9, 0.1, u, color=c, transform=ax.transAxes)
-
-    # set axes properties
-    grid[2, 1].set_xlabel('period (h)')
-    grid[1, 0].set_ylabel(r'spectral power ($Pa^2 s^{-2}$)', labelpad=0)
+    # set labels
+    axes[-1, 0].set_xlabel('period (days)')
+    axes[-1, 0].set_ylabel(
+        'Lomb-Scargle power\n'+r'after refreezing ($kPa^{2}\,s^{-2}$)')
 
     # save
     fig.savefig(__file__[:-3])
