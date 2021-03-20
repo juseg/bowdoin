@@ -3,82 +3,104 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util.str
+"""Plot Bowdoin stress spectrograms."""
+
 import pandas as pd
-import matplotlib.dates as mdates
+import matplotlib as mpl
 import absplots as apl
+import util.str
+
+
+def specgram(series, ax, color):
+    """Plot specgrogram from data series."""
+
+    # interpolate, drop nans, and differentiate
+    series = series.interpolate(limit_area='inside').dropna()
+    series = series.diff() / series.index.to_series().diff().dt.total_seconds()
+    series = series[1:]  # first value is nan after diff
+
+    # calculate sampling frequency in hours
+    freq = pd.to_timedelta('1D') / series.index.freq
+
+    # plot spectrogram (values range ca. -170 to -50)
+    per, freqs, bins, img = ax.specgram(
+        series, Fs=freq, NFFT=6*24*14, noverlap=6*24*12,
+        cmap='Greys', vmin=-150, vmax=-50)
+
+    # shift the image horizontally to series start date
+    # (this is all we need as long as freq is in days)
+    offset = mpl.dates.date2num(series.index[0])
+    img.set_extent((*img.get_extent()[:2]+offset, *img.get_extent()[2:]))
+
+    # power in 12 vs 24-h bands (resample needed for pandas format ticks)
+    pow12 = per[(24/14 <= freqs) & (freqs <= 24/10), :].sum(axis=0)
+    pow24 = per[(24/26 <= freqs) & (freqs <= 24/22), :].sum(axis=0)
+    ratio = pow12 / (pow12 + pow24)
+    index = pd.DatetimeIndex(mpl.dates.num2date(offset+bins))
+    ratio = pd.Series(ratio, index=index)
+    ratio = ratio.resample('1D').mean().interpolate()
+    (1+ratio).plot(ax=ax, color='w', lw=2, alpha=0.5)
+    (1+ratio).plot(ax=ax, color=color)
 
 
 def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(
-        figsize=(180, 90), nrows=10, sharex=True, sharey=True,
+    pd.plotting.register_matplotlib_converters()
+    fig, axes = apl.subplots_mm(
+        figsize=(180, 120), nrows=10, sharex=True, sharey=True,
         gridspec_kw=dict(
-            left=12.5, right=20, bottom=12.5, top=2.5, hspace=2.5))
-    cax = fig.add_axes_mm([180-17.5, 12.5, 2.5, 90-15])
+            left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=1))
 
-    # get freezing dates
-    t = util.str.load(variable='temp')['20140717':].resample('1H').mean()
-    df = abs(t-(0.1*t.max()+0.9*t.min())).idxmin()  # date of freezing
+    # show only the outside spines
+    for ax in axes:
+        ax.spines['top'].set_visible(ax.is_first_row())
+        ax.spines['bottom'].set_visible(ax.is_last_row())
+        ax.tick_params(bottom=ax.is_last_row(), which='both')
+
+    # load pressure and freezing dates
+    depth = util.str.load(variable='dept').iloc[0]
+    date = util.str.load_freezing_dates(fraction=0.75)
+    pres = util.str.load().resample('10T').mean()  # kPa
 
     # for each tilt unit
-    p = util.str.load()
-    for i, u in enumerate(p):
-        ax = grid[i]
-        c = 'C%d' % i
-
-        # crop, resample, and interpolate
-        ts = p[u][df[u]:].dropna().resample('1H').mean()
-        ts = ts.interpolate().diff()[1:]/3.6
-
-        # calculate sample frequency
-        dt = (ts.index[1]-ts.index[0])/pd.to_timedelta('1H')
-        fs = 1 / dt
-
-        # ensure same kwargs with last (tide) plot
-        kwargs = dict(
-            Fs=fs, NFFT=24*8, noverlap=0,
-            cmap='Greys', interpolation='nearest', vmin=-40, vmax=20)
+    for i, unit in enumerate(pres):
+        ax = axes[i]
+        color = 'C{}'.format(i)
+        series = pres[unit][date[unit]:]
 
         # plot spectrogram
-        _, _, _, im = ax.specgram(
-            ts, xextent=mdates.date2num([ts.index[0], ts.index[-1]]), **kwargs)
+        specgram(series, ax, color)
 
-        # add corner tag
-        ax.text(0.95, 0.2, u, color=c, transform=ax.transAxes,
-                bbox=dict(ec='none', fc='w', alpha=0.75, pad=1))
-
-        # set axes properties
-        ax.set_ylim(0.5/24, 2.5/24)
-        ax.set_yticks([1/24, 1/12])
-        ax.set_yticklabels(['24', '12'])
+        # add text label
+        ax.text(
+            1.01, 0, unit+'\n'+r'{:.0f}$\,$m'.format(depth[unit]),
+            color='C{}'.format(i), fontsize=6, fontweight='bold',
+            transform=ax.transAxes)
 
     # plot tide data
-    ax = grid.flat[-1]
-    ts = util.str.load_pituffik_tides().resample('1H').mean()
-    ts = ts.interpolate().diff()[1:]/3.6
-    _, _, _, im = ax.specgram(
-        ts, xextent=mdates.date2num([ts.index[0], ts.index[-1]]), **kwargs)
-    ax.text(0.95, 0.2, 'Tide', color='k', transform=ax.transAxes,
-            bbox=dict(ec='none', fc='w', alpha=0.75, pad=1))
+    ax = axes[-1]
+    tide = util.str.load_pituffik_tides().resample('10T').mean() / 10  # kPa/10
+    specgram(tide, ax, color='C9')
+
+    # add text label
+    ax.text(
+        1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10',
+        color='C9', fontsize=6, fontweight='bold', transform=ax.transAxes)
 
     # plot invisible timeseries to format axes as pandas
     # (the 1D frequency ensures compatibility with mdates.date2num)
-    ts.resample('1D').mean().plot(ax=ax, visible=False)
+    series.resample('1D').mean().plot(ax=ax, visible=False)
 
     # set axes properties
-    ax.set_ylim(2.5/24, 0.5/24)
-    ax.set_yticks([1/24, 1/12])
+    ax.set_xlim('20140615', '20171215')
+    ax.set_ylim(0.5, 2.5)
+    ax.set_yticks([1, 2])
     ax.set_yticklabels(['24', '12'])
 
-    # add colorbar
-    cb = fig.colorbar(im, cax=cax, extend='both')
-    cb.set_label(r'pressure change ($Pa\,s^{-1}$) power spectral density (dB)')
-
-    # set axes properties
-    grid[5].set_ylabel('period (h)')
+    # set y label
+    axes[4].set_ylabel('period (h)', y=0)
 
     # save
     fig.savefig(__file__[:-3])
