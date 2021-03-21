@@ -47,17 +47,7 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    pd.plotting.register_matplotlib_converters()
-    fig, axes = apl.subplots_mm(
-        figsize=(180, 120), nrows=10, sharex=True, sharey=True,
-        gridspec_kw=dict(
-            left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=1))
-
-    # show only the outside spines
-    for ax in axes:
-        ax.spines['top'].set_visible(ax.is_first_row())
-        ax.spines['bottom'].set_visible(ax.is_last_row())
-        ax.tick_params(bottom=ax.is_last_row(), which='both')
+    fig, axes = util.str.subplots_specgram()
 
     # load pressure and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
