@@ -61,7 +61,7 @@ def main():
     # for each unit
     for i, unit in enumerate(pres):
         ax = axes[i]
-        color = 'C{}'.format(i)
+        color = 'C{}'.format(i+2*(i > 3))
         series = pres[unit][date[unit]:]
 
         # plot wavelet transform
