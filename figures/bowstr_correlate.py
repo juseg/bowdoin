@@ -9,9 +9,9 @@ import pandas as pd
 import absplots as apl
 
 
-def crosscorr(series, other, window=72):
+def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     """Return cross correlation for multiple lags."""
-    shifts = np.arange(-window/2, window/2+1)
+    shifts = np.arange(wmin, wmax+1)
     df = pd.DataFrame(
         data=[series.shift(i, freq='infer') for i in shifts],
         index=pd.to_timedelta(shifts*series.index.freq))
@@ -27,13 +27,18 @@ def main():
 
     # load pressure data
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load()['20140916':'20141016']
-    pres = pres.resample('10T').mean().interpolate()
+    pres = util.str.load().resample('10T').mean().interpolate()  # kPa
     pres = util.str.filter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
+
+    # load tide data
+    tide = util.str.load_pituffik_tides().resample('10T').mean() / 10
+    pres = pres['20140916':'20141016']
+    tide = tide['20140916':'20141016']
 
     # plot time series
     offsets = 5 * (1+np.arange(len(pres.columns)))[::-1]
     (pres+offsets).plot(ax=grid[0], legend=False)
+    tide.plot(ax=grid[0], c='C9')
 
     # for each unit
     for i, unit in enumerate(pres):
@@ -42,29 +47,34 @@ def main():
 
         # plot (series.plot with deltas affected by #18910)
         ax = grid[1]
-        xcorr = crosscorr(ts, pres['UI07'])
-        ax.plot(xcorr.index.total_seconds()/3600, xcorr)
+        xcorr = crosscorr(ts, tide)
+        delay = -xcorr.index.total_seconds()/3600
+        ax.plot(delay, xcorr)
 
         # find maximum correlation
-        shift = xcorr.idxmax().total_seconds()/3600
-        ax.plot(shift, xcorr.max(), c=c, marker='o')
+        # (a positive shift corresponds to a negative delay)
+        shift = abs(xcorr).idxmax()
+        delay = -shift.total_seconds()/3600
+        value = xcorr[shift]
+        ax.plot(delay, value, c=c, marker='o')
 
-        # plot phase shifts
+        # plot phase delays
         ax = grid[2]
-        ax.plot(shift, depth[unit], c=c, marker='o')
-        ax.text(shift+0.1, depth[unit]-1.0, unit, color=c, clip_on=True)
+        ax.plot(delay, depth[unit], c=c, marker='o')
+        ax.text(delay+0.1, depth[unit]-1.0, unit, color=c, clip_on=True)
 
     # set axes properties
     grid[0].set_ylim(-2.5, 47.5)
     grid[0].set_ylabel('pressure (kPa)')
     grid[1].axvline(0.0, ls=':')
-    grid[1].set_xlabel('phase shift (h)')
+    grid[1].set_xticks([-12, 0, 12])
+    grid[1].set_xlabel('time delay (h)')
     grid[1].set_ylabel('cross-correlation')
     grid[2].axvline(0.0, ls=':')
-    grid[2].set_xlim(-2.0, 2.0)
+    grid[2].set_xlim(0.5, 3.5)
     grid[2].invert_yaxis()
-    grid[2].set_xlabel('phase shift (h)')
-    grid[2].set_ylabel('depth (m)')
+    grid[2].set_xlabel('phase delay (h)')
+    grid[2].set_ylabel('sensor depth (m)')
 
     # save
     fig.savefig(__file__[:-3])
