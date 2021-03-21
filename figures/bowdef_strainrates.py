@@ -6,7 +6,7 @@
 """Plot Bowdoin strain rate time series."""
 
 import absplots as apl
-import util
+import util.inc
 
 
 def main():

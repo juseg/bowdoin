@@ -11,7 +11,7 @@ import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
 import cartowik.decorations as cde
-import util
+import util.geo
 
 
 def mark_inset(ax0, ax1, text='', **kwargs):
