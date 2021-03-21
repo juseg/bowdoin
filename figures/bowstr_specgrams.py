@@ -47,17 +47,18 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = util.str.subplots_specgram()
+    fig, axes = util.str.subplots_specgram(nrows=8)
 
     # load pressure and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
     date = util.str.load_freezing_dates(fraction=0.75)
     pres = util.str.load().resample('10T').mean()  # kPa
+    pres = pres.drop(columns=['UI03', 'UI02'])
 
     # for each tilt unit
     for i, unit in enumerate(pres):
         ax = axes[i]
-        color = 'C{}'.format(i)
+        color = 'C{}'.format(i+2*(i > 3))
         series = pres[unit][date[unit]:]
 
         # plot spectrogram
@@ -84,7 +85,7 @@ def main():
     series.resample('1D').mean().plot(ax=ax, visible=False)
 
     # set axes properties
-    ax.set_xlim('20140615', '20171215')
+    ax.set_xlim('20140615', '20170815')
     ax.set_ylim(0.5, 2.5)
     ax.set_yticks([1, 2])
     ax.set_yticklabels(['24', '12'])
