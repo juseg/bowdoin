@@ -3,10 +3,11 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-import util.str
 import numpy as np
 import pandas as pd
 import absplots as apl
+import util.com
+import util.str
 
 
 def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
@@ -24,6 +25,9 @@ def main():
     # initialize figure
     fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw=dict(
         left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=17.5))
+
+    # add subfigure labels
+    util.com.add_subfig_labels(grid, loc='sw')
 
     # load pressure data
     depth = util.str.load(variable='dept').iloc[0]
@@ -64,7 +68,7 @@ def main():
         ax.text(delay+0.1, depth[unit]-1.0, unit, color=c, clip_on=True)
 
     # set axes properties
-    grid[0].set_ylim(-2.5, 47.5)
+    grid[0].set_ylim(-5, 47.5)
     grid[0].set_ylabel('pressure (kPa)')
     grid[1].axvline(0.0, ls=':')
     grid[1].set_xticks([-12, 0, 12])

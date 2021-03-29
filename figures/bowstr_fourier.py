@@ -61,6 +61,9 @@ def subplots():
     axes = axes.reshape(2, -1).T
     axes = np.delete(axes, [3, 7], 0)
 
+    # add subfigure labels on main axes
+    util.com.add_subfig_labels(axes[:, 0])
+
     # set log scale on all axes
     for ax in axes.flat:
         ax.set_xscale('log')

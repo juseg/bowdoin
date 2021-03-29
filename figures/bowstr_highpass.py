@@ -19,6 +19,9 @@ def main():
         figsize=(180, 120), nrows=2, sharey=True, gridspec_kw=dict(
             left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=12.5))
 
+    # add subfigure labels
+    util.com.add_subfig_labels(axes, bbox=dict(alpha=0.85, ec='none', fc='w'))
+
     # highpass-filter pressure series
     depth = util.str.load(variable='dept').iloc[0]
     pres = util.str.load().resample('1H').mean()

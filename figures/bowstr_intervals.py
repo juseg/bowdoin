@@ -19,6 +19,9 @@ def main():
         gridspec_kw=dict(left=12.5, right=2.5, wspace=12.5,
                          bottom=12.5, top=2.5, hspace=2.5))
 
+    # add subfigure labels
+    util.com.add_subfig_labels(grid)
+
     # for each tilt unit
     pres = util.str.load()
     for i, unit in enumerate(pres):

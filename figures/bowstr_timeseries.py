@@ -21,9 +21,10 @@ def main():
     insets = fig.subplots_mm(ncols=2, gridspec_kw=dict(
         left=52.5, right=5, bottom=85, top=5, wspace=2.5))
 
-    # add subfig labels
-    for ax, label in zip((ax0, *insets), 'abc'):
-        util.com.add_subfig_label(ax=ax, text='('+label+')')
+    # add subfigure labels
+    util.com.add_subfig_label(ax=ax0, text='(a)')
+    util.com.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
+    util.com.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
 
     # plot tilt unit water level
     depth = util.str.load(variable='dept').iloc[0]

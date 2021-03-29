@@ -142,6 +142,9 @@ def subplots_specgram(nrows=10):
         gridspec_kw=dict(
             left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=1))
 
+    # add subfigure labels
+    util.com.add_subfig_labels(axes)
+
     # show only the outside spines
     for ax in axes:
         ax.spines['top'].set_visible(ax.is_first_row())

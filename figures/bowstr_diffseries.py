@@ -7,6 +7,7 @@
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import absplots as apl
+import util.com
 import util.str
 
 
@@ -17,6 +18,9 @@ def main():
     fig, (ax0, ax1) = apl.subplots_mm(
         figsize=(180, 90), ncols=2, sharey=True, gridspec_kw=dict(
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=7.5))
+
+    # add subfigure labels
+    util.com.add_subfig_labels((ax0, ax1))
 
     # plot tilt unit water level
     pres = util.str.load().resample('1H').mean()
