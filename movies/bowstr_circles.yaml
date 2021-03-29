@@ -1,0 +1,38 @@
+---  # Bowdoin stress circules animation metadata
+# Copyright (c) 2021, Julien Seguinot (juseg.github.io)
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
+
+Title: |-  # |- means formatted text
+   Bowdoin Glacier tidal stress anomalies
+
+Author:
+   J. Seguinot, 2021
+
+Credit: |-
+   After: an idea from E. Podolskiy.
+
+Abstract:
+   Bowdoin Glacier englacial stress record, after applying a fourth-order
+   Butterworth high-pass filter with a cut-off period of one day. Tidal
+   gauge record from Pituffik (ca.~150 km distant).
+
+References:
+   Software:
+      - Python, matplotlib, pandas, ffmpeg, etc.
+   Field work:
+      - Swiss Federal Institute of Technology in Zurich  (ETHZ)
+      - Hokkaido University                              (HU)
+   Tidal data:
+      - Intergovernmental Oceanographic Commission       (IOC)
+      - Technical University of Denmark                  (DTU space)
+
+Disclaimer: |-
+   This animation is independent work.
+   It was not reviewed or endorsed by academic institutions.
+
+License text:
+   This work is licensed under
+
+License link:
+   http://creativecommons.org/licenses/by-sa/4.0/
