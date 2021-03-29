@@ -78,7 +78,7 @@ class CustomAnimation():
 
         # add sea level
         self.sealevel = ax.axhline(
-            0, color='tab:blue', ls='--', label='Pituffik tide x10')
+            0, color='tab:blue', label='Pituffik tide x10')
 
         # add date tag
         self.datetag = ax.text(
@@ -94,8 +94,8 @@ class CustomAnimation():
         ax.set_xlim(1.78, 2.18)
         ax.set_xticks([1.84, 2.0])
         ax.set_xticklabels(['BH3', 'BH1'])
-        ax.set_ylabel('initial altitude (m)')
-        ax.set_title('Bowdoin Glacier filtered stress')
+        ax.set_ylabel('initial altitude (m)', labelpad=2)
+        ax.set_title('Bowdoin Glacier stress anomalies')
         ax.legend()
         ax.grid(False, axis='x')
 
