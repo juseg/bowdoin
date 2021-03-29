@@ -18,9 +18,10 @@
 
 # Animations
 *.gif
-*.png
 *.mp4
 *.ogg
+*.png
+*.svg
 
 # Data
 data/processed
