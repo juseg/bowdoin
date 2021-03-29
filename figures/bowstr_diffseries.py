@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot bowdoin tides pressure change time series."""
+"""Plot Bowdoin stress derivative time series."""
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import absplots as apl
@@ -35,7 +35,7 @@ def main():
 
     # set axes properties
     ax0.set_ylim(-1.0, 10.0)
-    ax0.set_ylabel(r'pressure change ($Pa\,s^{-1}$)')
+    ax0.set_ylabel(r'stress change ($Pa\,s^{-1}$)')
     ax0.legend(ncol=2, loc='lower right')
 
     # zooming windows

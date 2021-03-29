@@ -22,7 +22,7 @@ def main():
     # add subfigure labels
     util.com.add_subfig_labels(axes, bbox=dict(alpha=0.85, ec='none', fc='w'))
 
-    # highpass-filter pressure series
+    # highpass-filter stress series
     depth = util.str.load(variable='dept').iloc[0]
     pres = util.str.load().resample('1H').mean()
     pres = util.str.filter(pres)
@@ -34,7 +34,7 @@ def main():
     tide /= 10
     pres += 5*(1+np.arange(len(pres.columns)))[::-1]
 
-    # plot pressure and tide data
+    # plot stress and tide data
     for ax in axes:
         pres.plot(ax=ax, legend=False)
         tide.plot(ax=ax, c='C9')
@@ -42,7 +42,7 @@ def main():
         # set axes properties
         ax.grid(which='minor')
         ax.set_xlabel('')
-        ax.set_ylabel('pressure (kPa)')
+        ax.set_ylabel('stress (kPa)')
 
         # add labels
         kwargs = dict(fontsize=6, fontweight='bold', transform=ax.transAxes)

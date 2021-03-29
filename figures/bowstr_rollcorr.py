@@ -39,7 +39,7 @@ def main():
     # initialize figure
     fig, axes = util.str.subplots_specgram(nrows=7)
 
-    # load pressure data
+    # load stress data
     depth = util.str.load(variable='dept').iloc[0]
     pres = util.str.load().resample('10T').mean()  # kPa
     pres = pres.interpolate(limit_area='inside')

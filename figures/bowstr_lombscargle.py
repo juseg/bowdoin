@@ -39,7 +39,7 @@ def main():
     # initialize figure
     fig, axes = bowstr_fourier.subplots()
 
-    # load pressure and freezing dates
+    # load stress and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
     pres = util.str.load() * 1e3  # kPa
     date = util.str.load_freezing_dates(fraction=0.8)

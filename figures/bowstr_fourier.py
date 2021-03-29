@@ -114,7 +114,7 @@ def main():
     # initialize figure
     fig, axes = subplots()
 
-    # load pressure and freezing dates
+    # load stress and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
     pres = util.str.load().resample('1H').mean()  # kPa
     date = util.str.load_freezing_dates()

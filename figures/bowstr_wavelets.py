@@ -44,7 +44,7 @@ def main():
     # initialize figure
     fig, axes = util.str.subplots_specgram(nrows=8)
 
-    # load pressure data
+    # load stress data
     depth = util.str.load(variable='dept').iloc[0]
     date = util.str.load_freezing_dates()
     pres = util.str.load().resample('10T').mean()  # kPa

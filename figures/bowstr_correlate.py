@@ -29,7 +29,7 @@ def main():
     # add subfigure labels
     util.com.add_subfig_labels(grid, loc='sw')
 
-    # load pressure data
+    # load stress data
     depth = util.str.load(variable='dept').iloc[0]
     pres = util.str.load().resample('10T').mean().interpolate()  # kPa
     pres = util.str.filter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
@@ -69,7 +69,7 @@ def main():
 
     # set axes properties
     grid[0].set_ylim(-5, 47.5)
-    grid[0].set_ylabel('pressure (kPa)')
+    grid[0].set_ylabel('stress (kPa)')
     grid[1].axvline(0.0, ls=':')
     grid[1].set_xticks([-12, 0, 12])
     grid[1].set_xlabel('time delay (h)')

@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin tides pressure time series."""
+"""Plot Bowdoin stress time series."""
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import pandas as pd
@@ -54,7 +54,7 @@ def main():
 
     # set main axes properties
     ax0.set_xlabel('')
-    ax0.set_ylabel('pressure (MPa)')
+    ax0.set_ylabel('stress (MPa)')
     ax0.set_xlim('20140615', '20171215')
 
     # set inset axes limits
