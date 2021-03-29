@@ -9,7 +9,6 @@ import numpy as np
 from scipy import signal
 
 import util.str
-import bowstr_fourier
 
 
 def lombscargle(series, periods):
@@ -37,7 +36,7 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = bowstr_fourier.subplots()
+    fig, axes = util.str.subplots_fourier()
 
     # load stress and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
