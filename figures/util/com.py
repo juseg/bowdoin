@@ -6,16 +6,17 @@
 Bowdoin common utils.
 """
 
-import os
-import sys
 import gpxpy
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import cartopy.crs as ccrs
+import cartowik.decorations as cde
 
 # local aliases
-from cartowik.decorations import add_scale_bar, add_subfig_label
+add_scale_bar = cde.add_scale_bar
+add_subfig_label = cde.add_subfig_label
 
 
 # Input methods
@@ -52,6 +53,25 @@ def read_locations(filename='../data/locations.gpx', crs=None):
 
 # Plotting methods
 # ----------------
+
+def add_subfig_labels(axes=None, colors=None, **kwargs):
+    """Add automatic subfigure labels (a), (b), (c), etc."""
+    # NOTE: this could become part of absplots
+
+    # get the figure axes by default, else convert to flat array
+    if axes is None:
+        axes = plt.gcf().axes
+    else:
+        axes = np.array(axes).flatten()
+
+    # convert colors to list if it is a non-string sequence
+    if isinstance(colors, str) or not hasattr(colors, '__iter__'):
+        colors = [colors] * len(axes)
+
+    # add subfigure labels
+    for ax, color, label in zip( axes, colors, 'abcdefghijklmnopqrstuvwxyz'):
+        add_subfig_label('('+label+')', ax=ax, color=color, **kwargs)
+
 
 def plot_field_campaigns(ax=None, color='C1', ytext=0.05):
     """Mark 2014--2017 summer field campaigns."""
