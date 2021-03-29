@@ -67,8 +67,7 @@ def main():
         # add text label
         ax.text(
             1.01, 0, unit+'\n'+r'{:.0f}$\,$m'.format(depth[unit]),
-            color='C{}'.format(i), fontsize=6, fontweight='bold',
-            transform=ax.transAxes)
+            color=color, fontsize=6, fontweight='bold', transform=ax.transAxes)
 
     # plot tide data
     ax = axes[-1]
