@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
-import cartowik.decorations as cde
+import util.com
 import cartowik.naturalearth as cne
 import util.geo
 import util.tem
@@ -25,8 +25,8 @@ def init_figure():
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
-    cde.add_subfig_label(ax=ax0, text='(a)', color='k')
-    cde.add_subfig_label(ax=ax1, text='(b)')
+    util.com.add_subfig_label(ax=ax0, text='(a)', color='k')
+    util.com.add_subfig_label(ax=ax1, text='(b)')
 
     # return figure and axes
     return fig, (ax0, ax1)
@@ -54,7 +54,7 @@ def plot_location_map(ax):
                           marker='^', text='Camp')
 
     # add scale
-    cde.add_scale_bar(ax=ax, color='k', label='1km', length=1000)
+    util.com.add_scale_bar(ax=ax, color='k', label='1km', length=1000)
 
     # add invisible axes
     # FIXME add minimap util, and maybe cartowik example

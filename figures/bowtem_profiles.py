@@ -9,7 +9,7 @@ import numpy as np
 import scipy.interpolate as sinterp
 import pandas as pd
 import cartopy.crs as ccrs
-import cartowik.decorations as cde
+import util.com
 import absplots as apl
 import util.inc
 import util.tem
@@ -164,8 +164,8 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
 
     # add subfigure labels
-    cde.add_subfig_label(ax=ax0, text='(a)')
-    cde.add_subfig_label(ax=ax1, text='(b)')
+    util.com.add_subfig_label(ax=ax0, text='(a)')
+    util.com.add_subfig_label(ax=ax1, text='(b)')
 
     # for each borehole
     for bh, color in util.tem.COLOURS.items():

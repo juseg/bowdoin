@@ -14,7 +14,6 @@ import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import absplots as apl
 import cartowik.annotations as can
-import cartowik.decorations as cde
 import cartowik.shadedrelief as csr
 import util.com
 import util.tem
@@ -39,7 +38,7 @@ def init_figure():
 
     # add subfigure labels
     for ax, label in zip(list(grid) + [pfax], 'abcd'):
-        cde.add_subfig_label(ax=ax, text='('+label+')')
+        util.com.add_subfig_label(ax=ax, text='('+label+')')
 
     # return figure and axes
     return fig, grid, cax, pfax
@@ -189,8 +188,8 @@ def main():
         grid[2].plot(*projected.loc[bh], color=color, marker='o')
 
     # add scales
-    cde.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
-    cde.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
+    util.com.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
+    util.com.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
 
     # open profile coordinates
     x, y = open_shp_coords('../data/native/flowline.shp',

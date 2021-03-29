@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import cartopy.crs as ccrs
 
+# local aliases
+from cartowik.decorations import add_scale_bar, add_subfig_label
+
 
 # Input methods
 # -------------

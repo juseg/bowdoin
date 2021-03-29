@@ -8,6 +8,7 @@
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import pandas as pd
 import absplots as apl
+import util.com
 import util.str
 
 
@@ -19,6 +20,10 @@ def main():
         left=12.5, right=2.5, bottom=12.5, top=2.5))
     insets = fig.subplots_mm(ncols=2, gridspec_kw=dict(
         left=52.5, right=5, bottom=85, top=5, wspace=2.5))
+
+    # add subfig labels
+    for ax, label in zip((ax0, *insets), 'abc'):
+        util.com.add_subfig_label(ax=ax, text='('+label+')')
 
     # plot tilt unit water level
     depth = util.str.load(variable='dept').iloc[0]

@@ -6,7 +6,7 @@
 """Plot Bowdoin temperature profiles."""
 
 import matplotlib.pyplot as plt
-import cartowik.decorations as cde
+import util.com
 import absplots as apl
 import util.tem
 
@@ -29,9 +29,9 @@ def main():
     ax0 = fig.add_axes_mm([2.5, 60.5, 175, 175/3])
 
     # add subfigure labels
-    cde.add_subfig_label(ax=ax0, text='(a)', c='k')
-    cde.add_subfig_label(ax=grid[0], text='(b)', c='w')
-    cde.add_subfig_label(ax=grid[1], text='(c)', c='w')
+    util.com.add_subfig_label(ax=ax0, text='(a)', c='k')
+    util.com.add_subfig_label(ax=grid[0], text='(b)', c='w')
+    util.com.add_subfig_label(ax=grid[1], text='(c)', c='w')
     for ax in [ax0]+list(grid):
         ax.set_xticks([])
         ax.set_yticks([])
