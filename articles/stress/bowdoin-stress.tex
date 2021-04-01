@@ -174,7 +174,7 @@
       \caption{%
         \textbf{(a)}
           Bowdoin borehole locations from drilling in July 2014 to dismantling
-          in July 2017 and background satellite image from 2017 Mars 10,
+          in July 2017 and background satellite image from 2017 March 10,
           17:41:29 UTC. Contains modified Copernicus Sentinel data, processed
           with Sentinelflow.
         \textbf{(b)}
@@ -193,7 +193,7 @@
           measurements. Sharp peaks in the early part of the record correspond
           to the freezing phase recorded by thermistors.
         \textbf{(b, c)}
-          Insets displaying an example of semi-diurnal and 14-day periodicities
+          Insets displaying an example of semi-diurnal periodic oscillations
           observed in the stress record after refreezing.}
       \label{fig:timeseries}
     \end{figure}
@@ -212,7 +212,12 @@
           was not yet refrozen. Other sensors record a transition from
           high-amplitude, daily stress oscillations (correlated with glacier
           speed) to semi-diurnal oscillations anti-correlated with, and an
-          order of magnitude lower than, the tide.}
+          order of magnitude lower than, the tide.
+        \note{
+          maybe add a separate figure with borehole temp and stress during
+          refreezing.}
+        \todo{
+          fix year label, add GPS and tilts, and highlight the freezing dates?}}
       \label{fig:highpass}
     \end{figure}
 
@@ -222,7 +227,7 @@
         \textbf{(a--i)}
           Fast-fourier transforms of the (non-filtered) series of stress
           derivative over time (kPa$\,$s$^{-1}$) after refreezing. The
-          Refreezing date was computed independently for each unit as the date
+          refreezing date is computed independently for each unit as the date
           when temperatures reach $75\%$ of their minumum value relative to
           0$\,$C$^\circ$. \todo{ensure this is consistent among plots.}
         \textbf{(j)}
@@ -242,9 +247,11 @@
           Fourier transforms are computed on 14-day windows with a 12-day
           overlap. Some of the vertical bands result from interpolating the
           signal from solar-power-adaptive to a constant, ten-minute time step.
-          Color curves indicate the relative ratio of spectral power in the
-          10--14 and 22--26\,h bands. UI03 and UI02 are omitted due to the
-          short length of the post-refreezing solid stress record.}
+          Colour curves indicate the relative ratio of spectral power between
+          the 10--14 and 22--26\,h bands, rescaled between 12 and 24\,h for
+          visualization, showing that semi-diurnal oscillations dominate the
+          record outside the melt season. UI03 and UI02 are omitted due to the
+          short length of their solid stress record after refreezing.}
       \label{fig:specgrams}
     \end{figure}
 
@@ -255,8 +262,17 @@
           Continuous wavelet transforms of glacier stress and tidal pressure
           temporal derivatives after applying a fourth-order Butterworth
           high-pass filter with a cut-off period of one day \todo{maybe
-          filtering is not needed here}, covering available records during the
-          2015 melt season.}
+          filtering is not needed here}, showing the emergence of a diurnal
+          signal during the 2015 melt season, in addition to the persistent
+          semi-diurnal signal.
+          \todo{%
+            try and extend upwards to 14-days periods.}
+          \note{%
+            I do not yet master this. I tried to plot the CWT for longer
+            record, but the magnitude of 12 and 24-h oscillations appears to
+            diminish as I extend the time period. On the other hand the CWT
+            seems to be good at picking the changes in frequency at the
+            beginning and the end of the melt season.}}
       \label{fig:wavelets}
     \end{figure}
 
@@ -266,17 +282,17 @@
         \textbf{(a)}
           Extract of the piezometer record and tidal pressure for October 2014,
           after applying a fourth-order Butterworth band-pass filter with
-          cut-off periods of 2 and 12\,h \todo{maybe use the same filter in all
-          plots?}.
+          cut-off periods of 0.5 and 12\,h.
+          \todo{try 15\,h, or maybe even use the same filter in all plots.}
         \textbf{(b)}
           Cross-correlation of the ice stress (and water pressure) time series
           against tidal pressure. Coloured dots indicate the maximum absolute
           correlation, which corresponds to an anti-correlation with a phase
           delay of ca.~1--2\,h.
         \textbf{(c)}
-          Optimal phase delay as a function of sensor depth.
+          Corresponding phase delay as a function of sensor depth.
         \todo{
-          I need to check that the clocks are on-time (at least UI* should be
+          fix labels, check that the clocks are on-time (at least UI* should be
           OK, but I'm not sure about LI*).}}
       \label{fig:correlate}
     \end{figure}
@@ -290,9 +306,12 @@
           fourth-order Butterworth band-pass filter with cut-off periods of 2
           and 12\,h. Colour curves show the optimal phase delay of stress
           records relative to tides when absolute maximum (anti)correlation is
-          above 0.75.}
+          above 0.75.
+          \note{no idea what happens after 2016.}
+          \todo{add colorbar (grey=anticorrelation), try 1-bit normalization}.}
       \label{fig:rollcorr}
     \end{figure}
+
 % ----------------------------------------------------------------------
 % Tables
 %\clearpage
