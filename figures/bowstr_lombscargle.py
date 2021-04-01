@@ -41,7 +41,7 @@ def main():
     # load stress and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
     pres = util.str.load() * 1e3  # kPa
-    date = util.str.load_freezing_dates(fraction=0.8)
+    date = util.str.load_freezing_dates()
 
     # periods in days for main and inset axes (we need many points)
     periods = (np.logspace(-1, 3, 1001), np.logspace(-0.35, 0.1, 1001))

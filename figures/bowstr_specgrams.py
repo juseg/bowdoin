@@ -51,7 +51,7 @@ def main():
 
     # load stress and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
-    date = util.str.load_freezing_dates(fraction=0.75)
+    date = util.str.load_freezing_dates()
     pres = util.str.load().resample('10T').mean()  # kPa
     pres = pres.drop(columns=['UI03', 'UI02'])
 
