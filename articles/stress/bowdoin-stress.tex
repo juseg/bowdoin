@@ -6,7 +6,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[pdftex]{xcolor}
 \usepackage[pdftex]{graphicx}
-%\usepackage[authoryear,round]{natbib}
+\usepackage[authoryear,round]{natbib}
 
 % review mode
 \usepackage{geometry}
@@ -160,8 +160,8 @@
 % References
 % ----------------------------------------------------------------------
 
-%\bibliographystyle{frontiersinSCNS_ENG_HUMS}
-%\bibliography{../../references/references}
+\bibliographystyle{frontiersinSCNS_ENG_HUMS}
+\bibliography{../../../references/references}
 
 
 % ----------------------------------------------------------------------
@@ -190,12 +190,29 @@
         \textbf{(a)}
           Complete piezometer record, including the initial borehole water
           pressure measurements, and the transition to solid ice stress
-          measurements. Sharp peaks in the early part of the record correspond
-          to the freezing phase recorded by thermistors.
+          measurements.
         \textbf{(b, c)}
           Insets displaying an example of semi-diurnal periodic oscillations
           observed in the stress record after refreezing.}
       \label{fig:timeseries}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowstr_freezedates}}
+      \caption{%
+        \textbf{(a)}
+          Same as Fig.~\ref{fig:timeseries} but with split axes. Sharp peaks in
+          the early part of the record correspond to the hotwater-drilled
+          borehole refreezing phase.
+        \textbf{(b)}
+          Corresponding temperature record, showing the initial refreezing
+          phase and long-term warming \citep[cf.][]{Seguinot.etal.2020}.
+          Full circles denote refreezing dates estimated
+          Insets displaying an example of semi-diurnal periodic oscillations
+          observed in the stress record after refreezing.
+        \note{%
+          Maybe this can be merged with Fig.~\ref{fig:timeseries}.}}
+      \label{fig:freezedates}
     \end{figure}
 
     \begin{figure}
