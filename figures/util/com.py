@@ -58,11 +58,11 @@ def add_subfig_labels(axes=None, colors=None, **kwargs):
     """Add automatic subfigure labels (a), (b), (c), etc."""
     # NOTE: this could become part of absplots
 
-    # get the figure axes by default, else convert to flat array
+    # get the figure axes by default, flatten arrays
     if axes is None:
         axes = plt.gcf().axes
-    else:
-        axes = np.array(axes).flatten()
+    elif isinstance(axes, np.ndarray):
+        axes = axes.flatten()
 
     # convert colors to list if it is a non-string sequence
     if isinstance(colors, str) or not hasattr(colors, '__iter__'):
