@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -9,7 +9,8 @@
 # ---------
 
 PAPER = bowdoin-temperature
-REV = $(shell git describe --abbrev=0 --match=bowtem*)
+BIB = ../../../references/references.bib
+REV = $(shell git describe --abbrev=0 --match=bowstr*)
 
 
 # Named rules
@@ -30,20 +31,23 @@ txt: $(PAPER).txt
 # default diff
 diff: $(PAPER)-diff.pdf
 
+# figures zip file
+figs: $(PAPER)-figs.zip
+
 
 # Patterned rules
 # ---------------
 
-# stripped bib patterned rule
-%.bib: %.aux ../../references/references.bib
-	bibtool ../../references/references.bib -x $< > $@
+#stripped bib patterned rule
+%.bib: %.aux $(BIB)
+	bibtool $(BIB) -d -q -x $< > $@
 
 # latex pdf patterned rule
-%.pdf: %.tex ../../references/references.bib
-	latexmk -pdf -dvi- -ps- $<
+%.pdf: %.tex $(BIB)
+	latexmk -pdf $<
 
 # latex rtf patterned rule (no eqs, no fields)
-%.rtf: %.tex ../../references/references.bib
+%.rtf: %.tex $(BIB)
 	latex2rtf -E0 -f0 $<
 
 # libreoffice txt patterned rule (preserve special characters)
@@ -53,10 +57,27 @@ diff: $(PAPER)-diff.pdf
 
 # latex diff patterned rule
 %-diff.tex: %.tex
-	latexdiff-vc --math-markup=3 --append-textcmd=centerline --force --git -r $(REV) $<
+	latexdiff-vc --disable-citation-markup --force --git -r $(REV) $<
 	mv $(basename $@)$(REV).tex $@
 
-# clean up
+# figures zip patterned rule
+# %-figs.zip: SHELL:=/bin/bash
+%-figs.zip: %.tex
+	i=01; \
+	grep includegraphics $< | while read line; \
+	do \
+	   fig=$${line:27:-2}; \
+	   cp -v ../../figures/$$fig.pdf fig$$i.pdf; \
+	   sed -i "s/\includegraphics{$$fig}/\includegraphics{fig$$i}/" $<; \
+	   i="$$(printf '%02d' $$((10#$$i+1)))"; \
+	done; \
+	zip $@ fig??.pdf; \
+	rm fig??.pdf
+
+
+# Clean up
+# --------
+
 .PHONY: clean
 clean:
-	latexmk -pdf -CA
+	latexmk -pdf -CA && rm $(PAPER).{bbl,bib,rtf,txt}
