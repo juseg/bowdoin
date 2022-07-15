@@ -4,6 +4,7 @@
 
 import os
 import gpxpy
+import datetime
 import numpy as np
 import pandas as pd
 import cartopy.crs as ccrs
@@ -59,10 +60,10 @@ def borehole_distances(upper='bh1', lower='bh3'):
     utm = ccrs.UTM(19)
 
     # initialize empty data series
-    upper_x = pd.Series()
-    upper_y = pd.Series()
-    lower_x = pd.Series()
-    lower_y = pd.Series()
+    upper_x = pd.Series(dtype='float64')
+    upper_y = pd.Series(dtype='float64')
+    lower_x = pd.Series(dtype='float64')
+    lower_y = pd.Series(dtype='float64')
 
     # read GPX file
     with open('../data/locations.gpx', 'r') as gpx_file:
@@ -333,13 +334,13 @@ def read_tide_data(order=2, cutoff=1/300.0):
     """Return Masahiro unfiltered tidal pressure in a data series."""
 
     # load data from two pressure sensors
-    def parser(s): return pd.datetime.strptime(s, '%y/%m/%d %H:%M:%S')
+    def parser(s): return datetime.datetime.strptime(s, '%y/%m/%d %H:%M:%S')
     files = os.listdir('original/tide')
     props = dict(index_col=0, parse_dates=True, date_parser=parser)
     ls1 = ['original/tide/'+f for f in files if f.endswith('_4m.csv')]
     ls2 = ['original/tide/'+f for f in files if f.endswith('_76m.csv')]
-    ts1 = pd.concat([pd.read_csv(f, **props, squeeze=True) for f in ls1])
-    ts2 = pd.concat([pd.read_csv(f, **props, squeeze=True) for f in ls2])
+    ts1 = pd.concat([pd.read_csv(f, **props).squeeze('columns') for f in ls1])
+    ts2 = pd.concat([pd.read_csv(f, **props).squeeze('columns') for f in ls2])
 
     # correct shifts of ts2 on a daily basis
     # FIXME it looks like ts1 has internal shifts
@@ -430,18 +431,17 @@ def read_inclinometer_data(site, gravity=9.80665):
 def read_piezometer_data(site):
     """Return upper (BH2) or lower (BH3) piezometer data in a data frame."""
 
-    # date parser
-    def parser(year, day, time):
-        datestring = year + day.zfill(3) + time.zfill(4)
-        return pd.datetime.strptime(datestring, '%Y%j%H%M')
-
     # read original file
     logger = PIEZOMETER_LOGGERS[site]
     names = ['id', 'year', 'day', 'time', 'temp', 'pres', 'wlev']
     df = pd.read_csv('original/pressure/%s_final_storage_1.dat' % logger,
-                     names=names, index_col='date',
-                     na_values=[-99999], date_parser=parser,
-                     parse_dates={'date': ['year', 'day', 'time']})
+                     names=names, na_values=[-99999])
+
+    # parse datetimes with strange year-day-time format
+    date = df[['year', 'day', 'time']].astype(str)
+    df.index = pd.to_datetime(
+        date.year + date.day.str.zfill(3) + date.time.str.zfill(4),
+        format='%Y%j%H%M')
 
     # the lower sensor recorded crap after Feb. 3, 2017
     if site == 'lower':
@@ -546,7 +546,7 @@ def main():
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
     # read all data except pre-field
-    bh1_inc = read_inclinometer_data('upper')['2014-07':]
+    bh1_inc = read_inclinometer_data('upper')
     bh3_inc = read_inclinometer_data('lower')['2014-07':]
     bh2_pzm = read_piezometer_data('upper')['2014-07':]
     bh3_pzm = read_piezometer_data('lower')['2014-07':]
