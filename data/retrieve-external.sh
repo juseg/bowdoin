@@ -42,7 +42,9 @@ done
 
 # Sentinel-2A (S2A) Bowdoin 20x20 km images
 # (for Qaanaaq 60x60 km use --extent 465000,8595000,525000,8655000)
-for date in 20160410 20160808 20170301
+# NOTE: these products are now "offline"; request manually from Copernicus Hub,
+# and run script again a few hours later. Or should I include jpegs in repo?
+for date in 20160410 20160808 20170310
 do
     if [ ! -f "composite/bowdoin/$date*.jpg" ]
     then
