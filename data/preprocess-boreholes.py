@@ -545,8 +545,8 @@ def main():
     tts = read_tide_data().rename('Tide')
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
-    # read all data except pre-field
-    bh1_inc = read_inclinometer_data('upper')
+    # read all data except pre-field (bh1_inc is non-monotonic)
+    bh1_inc = read_inclinometer_data('upper')[bh1_inc.index > '2014-07']
     bh3_inc = read_inclinometer_data('lower')['2014-07':]
     bh2_pzm = read_piezometer_data('upper')['2014-07':]
     bh3_pzm = read_piezometer_data('lower')['2014-07':]
