@@ -49,6 +49,8 @@ def main():
             true_scale_latitude=70)))
     cax0, cax1 = fig.subplots_mm(nrows=2, gridspec_kw=dict(
         left=165, right=12.5, bottom=2.5, top=5, hspace=5))
+    cax0.grid(False)  # see discussion of mpl issue #21723
+    cax1.grid(False)  # see discussion of mpl issue #21723
 
     # loop on data strips
     for i, strip in enumerate(datastrips):
