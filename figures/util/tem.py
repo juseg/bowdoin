@@ -67,7 +67,7 @@ def load_manual(borehole):
     manu = [util.com.load_file(f) for f in glob.glob(prefix+'*.manu.csv')]
     manu = pd.concat(manu, axis=1)
     mask = [util.com.load_file(f) for f in glob.glob(prefix+'*.mask.csv')]
-    mask = pd.concat(mask, axis=1)
+    mask = pd.concat(mask, axis=1).astype('bool')
 
     # segregate BH3 erratic data
     if borehole == 'bh3':
