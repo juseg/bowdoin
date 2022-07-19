@@ -76,7 +76,7 @@ def load_bowdoin_tides(order=2, cutoff=1/3600.0):
 
     # open postprocessed data series
     tide = pd.read_csv('../data/processed/bowdoin.tide.csv', index_col=0,
-                       parse_dates=True, squeeze=True)
+                       parse_dates=True).squeeze('columns')
 
     # apply two-way lowpass filter
     tide = tide.asfreq('2s').interpolate()
@@ -96,8 +96,9 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
     files = [f for f in files if is_multiline(f)]
 
     # open in a data series
-    csvkw = dict(index_col=0, parse_dates=True, header=1, squeeze=True)
-    series = pd.concat([pd.read_csv(f, **csvkw) for f in files])
+    csvkw = dict(index_col=0, parse_dates=True, header=1)
+    series = pd.concat([pd.read_csv(f, **csvkw).squeeze('columns')
+                        for f in files])
 
     # convert tide (m) to pressure (kPa)
     if unit == 'm':
