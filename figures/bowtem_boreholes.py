@@ -40,7 +40,9 @@ def plot_location_map(ax):
 
     # plot Sentinel image data
     filename = '../data/external/20170310_174129_456_S2A_RGB.jpg'
-    xr.open_rasterio(filename).plot.imshow(ax=ax, interpolation='bilinear')
+    img = xr.open_dataarray(filename).astype(int)
+    img = img.clip(0, None)  # replace no data with black
+    img.plot.imshow(ax=ax, interpolation='bilinear')
 
     # add boreholes and camp waypoints for each borehole
     locations = util.geo.read_locations('../data/locations.gpx')

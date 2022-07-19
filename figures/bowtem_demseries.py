@@ -57,7 +57,7 @@ def main():
         ax.set_title(strip[11:19])
 
         # load elevation data
-        elev = xr.open_rasterio('../data/external/%s.tif' % strip)[0]
+        elev = xr.open_dataarray('../data/external/%s.tif' % strip).squeeze()
         elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
 
         # plot reference elevation map
@@ -69,7 +69,7 @@ def main():
         # plot normalized elevation using mode as zero
         else:
             diff = elev - ref
-            diff = diff - stats.mode(diff, axis=None)[0]
+            diff = diff - stats.mode(diff, axis=None, nan_policy='omit')[0]
             im1 = diff.plot.imshow(ax=ax, add_colorbar=False, add_labels=False,
                                    cmap='RdBu', vmin=-30, vmax=30)
 

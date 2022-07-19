@@ -81,7 +81,8 @@ def main():
     fig, grid = init_figure()
 
     # plot Sentinel image
-    img = xr.open_rasterio('../data/external/20160410_180125_659_S2A_RGB.jpg')
+    img = xr.open_dataarray('../data/external/20160410_180125_659_S2A_RGB.jpg')
+    img = img.astype(int)  # tell imshow to interpret RGB values as 0 to 256
     for ax in grid.values():
         img.plot.imshow(ax=ax)
 

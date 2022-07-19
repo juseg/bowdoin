@@ -134,17 +134,15 @@ def main():
     st1 = 'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0'
 
     # load reference elevation data
-    elev = xr.open_rasterio('../data/external/%s.tif' % st0)
-    elev = elev.squeeze(drop=True)
+    elev = xr.open_dataarray('../data/external/%s.tif' % st0).squeeze()
     elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
     zoom = elev.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
 
     # load elevation difference data
-    diff = xr.open_rasterio('../data/external/%s.tif' % st1)
-    diff = diff.squeeze(drop=True)
+    diff = xr.open_dataarray('../data/external/%s.tif' % st1).squeeze()
     diff = diff.loc[-1224000:-1229000, -537500:-532500].where(diff > -9999)
     diff = diff - elev
-    diff = diff - stats.mode(diff, axis=None)[0]
+    diff = diff - stats.mode(diff, axis=None, nan_policy='omit')[0]
 
     # plot zoomed-in elevation map
     ax = grid[0]
