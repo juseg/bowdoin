@@ -102,8 +102,8 @@ def open_shp_coords(filename, crs=None, **kwargs):
 
     # read profile from shapefile
     shp = shpreader.Reader(filename)
-    geom = next(shp.geometries())#[0]
-    points = np.asarray(geom)
+    geom = next(shp.geometries())
+    points = np.asarray(geom.coords)
     if crs is not None:
         points = crs.transform_points(ccrs.PlateCarree(), *points.T)[:, :2]
     x, y = build_profile_coords(points, **kwargs)
