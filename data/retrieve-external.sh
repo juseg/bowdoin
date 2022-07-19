@@ -54,7 +54,7 @@ do
                         --maxrows 1 --daterange $date..$date $*
     fi
 done
-for img in composite/bowdoin/*.jp?
+for img in composite/bowdoin/*.jpg{,.aux.xml}
 do
     ln -sf $img $(basename $img)
 done
