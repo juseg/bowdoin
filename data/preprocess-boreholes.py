@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# Copyright (c) 2015-2021, Julien Seguinot (juseg.github.io)
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 """Preprocess Bowdoin 2014 to 2017 borehole data."""
 
@@ -441,7 +444,7 @@ def read_piezometer_data(site):
     date = df[['year', 'day', 'time']].astype(str)
     df.index = pd.to_datetime(
         date.year + date.day.str.zfill(3) + date.time.str.zfill(4),
-        format='%Y%j%H%M')
+        format='%Y%j%H%M').rename('date')
 
     # the lower sensor recorded crap after Feb. 3, 2017
     if site == 'lower':
@@ -546,7 +549,8 @@ def main():
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
     # read all data except pre-field (bh1_inc is non-monotonic)
-    bh1_inc = read_inclinometer_data('upper')[bh1_inc.index > '2014-07']
+    bh1_inc = read_inclinometer_data('upper')
+    bh1_inc = bh1_inc[bh1_inc.index > '2014-07']
     bh3_inc = read_inclinometer_data('lower')['2014-07':]
     bh2_pzm = read_piezometer_data('upper')['2014-07':]
     bh3_pzm = read_piezometer_data('lower')['2014-07':]
