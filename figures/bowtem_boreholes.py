@@ -72,6 +72,9 @@ def plot_location_map(ax):
                       subject='Greenland', subject_edgecolor='k',
                       subject_facecolor='none')
 
+    # remove title
+    ax.set_title("")
+
 
 def plot_long_profile(ax):
     """Draw boreholes long profile with intrumental setup."""

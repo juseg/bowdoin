@@ -57,6 +57,9 @@ def plot_location_map(ax):
     # add scale
     util.com.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
 
+    # remove title
+    ax.set_title("")
+
 
 def plot_long_profile(ax):
     """Draw boreholes long profile with intrumental setup."""
