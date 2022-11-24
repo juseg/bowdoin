@@ -1,0 +1,174 @@
+% Postdoc development plan due 2022.07.01.
+
+% # Fast Track Initiative
+%
+% Do you have a good idea that might lead to a new project?
+%
+% The Fast-track initiatives (FTI) support focused, short-term research
+% activities with the aim of achieving concise result(s).
+%
+% The call goes out every autumn, and deadline for submission is usually
+% December 1. Calls for FTI will be announced by email to BCCR members in due
+% time before the deadline.
+%
+% The Fast Track Initiative is set up to support pilot studies, proposals,
+% synergy works and other intitiatives. We have several large projects today
+% that started out as a fast track initiative.
+%
+% Limits to application: Maximum 500 kNOK
+%
+% Who can apply: Anyone affiliated with the Bjerknes Centre for Climate
+% Research, resident in Bergen
+%
+% ## Criteria
+%
+% - Must target at least one of Bjerknes strategic research areas
+% - Promote the integration of the Bjerknes consortium
+% - Must have clearly identifiable outcome
+% - Must be short-lived and completed within 1 year of the grant´s commencement
+% - Proposals should not exceed one A4 page including a description of the
+%   activity, objective(s), budget, timeline and outcome(s). If salaries are
+%   applied for, the person shall be identified and an estimate of the salary
+%   costs must be given by an economy consultant at one of the partner
+%   institutions and according to the agreement on cost per hour for the SKD
+%   period 2021-2026.
+%
+% ## Some examples of eligible activities
+%
+% Note that this list is not exhaustive:
+%
+% - Blue-sky research: identify or conduct exploratory activities including
+%   laboratory work, for new, cross-cutting research relevant to Bjerknes
+% - Preparation of synthesis/integration research articles or large research
+%   proposals
+% - Up to 3 month´s salary for a recently graduated master student to complete
+%   a manuscript for publication at salary rate 42
+%
+% Non-eligible activities or expenses:
+%
+% - Running costs such as travels, conference fees, publication costs, etc.
+% - Salaries of non-Bjerknes personnel
+% - Salaries for PhD students before thesis is submitted
+% - Research visits to Bergen. These must be applied to the Bjerknes Visiting
+%   Fellow programme
+
+% vanilla article for latex2rtf
+\newif\iflatextortf
+\iflatextortf
+  \documentclass{article}
+  \renewcommand{\cvdoubleitem}[4]{#1: #2; #3: #4}
+  \renewcommand{\href}[2]{\htmladdnormallink{\color{blue}\underline{#2}}{#1}}
+
+% else moderncv just looks cool
+\else
+  \documentclass[11pt,a4paper,sans,colorlinks]{moderncv}
+  \name{Julien}{Seguinot}  % only used in metadata
+  \moderncvstyle[left]{casual}  % casual (default), classic, oldstyle or banking
+  \moderncvcolor{blue} % blue (default), orange, green, red, purple, grey or black
+
+\fi
+
+% latex packages
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[bottom=0.08\paperheight,top=0.08\paperheight]{geometry}
+
+% moderncv section numbers
+% \newcounter{secnumber}
+% \renewcommand\sectionstyle[1]{{
+%   \refstepcounter{secnumber}\sectionfont\textcolor{color1}{\thesecnumber.~#1}}}
+
+% custom commands
+\newcommand{\todo}[1]{{\color{red}\emph{Todo}: #1}}
+
+% document properties
+\title{Development plan for Postdoctoral Research Fellow}
+
+% ======================================================================
+\begin{document}
+\setlength{\parskip}{0.5\baselineskip}
+% ======================================================================
+
+    \begin{center}
+      \textbf{Development plan for Postdoctoral Research Fellow}\\
+      Julien~Seguinot \\
+      Department of Biological Sciences and
+      Bjerknes Centre for Climate Research
+    \end{center}
+
+    Most glaciers lead lives of constant stress, so they relax by slowly
+    gliding on their beds.
+
+    A critical glaciologic variable, stress is almost never measured directly.
+    Empirical glacier mechanics instead rely on controlled laboratory
+    experiments on ice and indirect measurements of the stress response in
+    glacier surface velocities and englacial tilt rates. Nevertheless, there is
+    no lack of observational evidence that crystal orientation, ice water
+    content and impurities may complicate laboratory-derived laws in nature.
+    Direct stress measurements in glacier may sound more like a theoretician's
+    dream than reality, but if feasible, they could be a drastic accelerator in
+    understanding glacier hazards and ice-ocean interactions.
+
+    I have preliminary data that hints at their possibility. I hereby apply for
+    funds to analyse and publish these data: an accidental, three-year record
+    of englacial stress from water-pressure sensors frozen into a Greenlandic
+    tidewater glacier.
+
+% ----------------------------------------------------------------------
+\section{Existing results}
+% ----------------------------------------------------------------------
+
+    Between summers 2014 and 2017, I was part of a Swiss-Japanese team of that
+    deployed and maintained ice-borehole instruments on Bowdoin Glacier, a
+    tidewater glacier in north-western Greenland. These instruments included
+    multi-sensor digital units, each equipped with a piezometer to measure
+    overhead water depth and thus its location in the hotwater-drilled
+    borehole. While these water-pressure sensors were not intended for solid
+    stress measurements, they continued to record pressure changes after the
+    complete refreezing of the boreholes and the stabilisation of ice
+    temperatures well below the pressure melting point. Unexpectedly, that
+    record is not just noise.
+
+    During Spring 2021 (then unemployed), and with guidance from my field
+    colleague and glacier seismologist Evgeniy Podolskiy, I analysed the stress
+    timeseries via fourier transform, rolling window spectrograms, wavelet
+    transforms, cross-correlation and rolling cross-correlation.
+    All sensors recorded in-phase pressure changes with 12-hour, 24-hour and
+    14-day periodicities, corresponding to the local tidal signature.
+    The amplitude of these pressure variations is only an order of magnitude
+    lower than the tidal amplitude measured at sea. However, the pressure is
+    anticorrelated with the tides, and shows a delay of one to two hours, so
+    that maximum stress occurs a little after low tide.
+
+% ----------------------------------------------------------------------
+\section{Proposed work}
+% ----------------------------------------------------------------------
+
+    While we have enough figures for a paper, we still lack a solid
+    interpretation for the phase relationship between oceanic tides and stress
+    oscillations. We aim to seek an explanation in Bowdoin Glacier's surface
+    velocity record. During the same observation period, Shin Sugiyama and
+    colleagues collected GPS timeseries from several parts of the glacier. At
+    least some of these records have a subtle tidal signature (overprinted by
+    diurnal summer speed-ups).
+
+    I hereby apply for funds to travel to Sapporo to analyze the spectral
+    content of Bowdoin GPS signals, interpret the englacial stress timeseries,
+    and compile the results in a publication.
+
+    TODO: add ref to paper, blog.
+
+% ----------------------------------------------------------------------
+\section{Budget}
+% ----------------------------------------------------------------------
+
+    \begin{itemize}
+        \item Three months of my own salary (135000 NOK?)
+        \item Return travels to Sapporo (20000 NOK)
+        \item Three months university accomodation (15000 NOK?)
+        \item Funding for an open-access publication (20000 NOK)
+    \end{itemize}
+
+% ======================================================================
+\end{document}
+% ======================================================================
