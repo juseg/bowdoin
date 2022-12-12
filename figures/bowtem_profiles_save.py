@@ -7,7 +7,10 @@
 
 import pandas as pd
 import absplots as apl
+import cartopy.crs as ccrs
 import util.tem
+
+from bowtem_ogives import project_borehole_locations
 
 
 def main():
@@ -26,6 +29,7 @@ def main():
 
         # take only the first date
         temp = temp.iloc[:, 0]
+        date = temp.name
 
         # plot profile
         ax.plot(temp, depth)
@@ -34,7 +38,12 @@ def main():
         profile = pd.DataFrame({'d': depth, 't': temp})
 
         # save dropping the index (sensor name)
-        profile.to_csv(f'{__file__[:-3]}_{bh}_{temp.name}.csv', index=False)
+        profile.to_csv(f'{__file__[:-3]}_{bh}_{date}.csv', index=False)
+
+        # print borehole location
+        _, projected = project_borehole_locations(date, crs=ccrs.PlateCarree())
+        pos = projected.loc[bh]
+        print(bh, date, pos.x, pos.y)
 
     # set axes properties
     ax.invert_yaxis()
