@@ -78,6 +78,12 @@ def borehole_distances(upper='bh1', lower='bh3'):
                 lower_x[wpt.time], lower_y[wpt.time] = \
                     utm.transform_point(wpt.longitude, wpt.latitude, lonlat)
 
+    # assume UTC timezone when missing
+    lower_x.index = pd.to_datetime(lower_x.index, utc=True)
+    lower_y.index = pd.to_datetime(lower_y.index, utc=True)
+    upper_x.index = pd.to_datetime(upper_x.index, utc=True)
+    upper_y.index = pd.to_datetime(upper_y.index, utc=True)
+
     # sort by date
     for series in upper_x, upper_y, lower_x, lower_y:
         series.sort_index(inplace=True)
@@ -524,8 +530,9 @@ def temperature_correction(borehole, temp, depth, clapeyron=CLAPEYRON,
     """
     start, end = RECALIB_INTERVALS[borehole]
     melting_point = -clapeyron * density * gravity * depth
-    initial_temp = temp[start:end].mean()
-    stable_cond = temp[start:end].std() < 0.01
+    calibration_temp = temp[(start < temp.index) & (temp.index < end)]
+    initial_temp = calibration_temp.mean()
+    stable_cond = calibration_temp.std() < 0.01
     melt_offset = stable_cond * (melting_point - initial_temp).fillna(0.0)
     return melt_offset.squeeze()
 
@@ -548,10 +555,11 @@ def main():
     tts = read_tide_data().rename('Tide')
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
-    # read all data except pre-field (bh1_inc is non-monotonic)
+    # read all data except pre-field (bh*_inc are non-regular)
     bh1_inc = read_inclinometer_data('upper')
     bh1_inc = bh1_inc[bh1_inc.index > '2014-07']
-    bh3_inc = read_inclinometer_data('lower')['2014-07':]
+    bh3_inc = read_inclinometer_data('lower')
+    bh3_inc = bh3_inc[bh3_inc.index > '2014-07']
     bh2_pzm = read_piezometer_data('upper')['2014-07':]
     bh3_pzm = read_piezometer_data('lower')['2014-07':]
     bh2_thr_temp = read_thermistor_data('upper')['2014-07':]
