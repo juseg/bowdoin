@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 """Extract velocity time series at the boreholes location."""
 
@@ -38,7 +38,7 @@ for row, basename in enumerate(namelist):
     x0, dx, dxdy, y0, dydx, dy = ds.GetGeoTransform()
     assert dxdy == dydx == 0.0  # rotation parameters should be zero
     ds = None
-    
+
     # find index of borehole location
     i = int((xb-x0)/dx)
     j = int((yb-y0)/dy)
