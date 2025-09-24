@@ -172,21 +172,22 @@ def main():
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*projected.loc[bh], color=color, marker='+')
+        loc = projected.loc[bh].values
         can.annotate_by_compass(
             bh.upper(), ax=ax, bbox=dict(alpha=0.75, ec=color, fc='w', pad=2),
-            color=color, fontweight='bold', xy=projected.loc[bh], offset=12,
+            color=color, fontweight='bold', xy=loc, offset=12,
             point=('se' if bh == 'bh1' else 'nw'), zorder=10)
 
         # add arrows and uncertainty circles
         if bh != 'bh1':
-            ax.annotate('', xy=projected.loc[bh], xytext=initial.loc[bh],
+            ax.annotate('', xy=loc, xytext=initial.loc[bh],
                         arrowprops=dict(arrowstyle='->', color=color))
-            ax.add_patch(plt.Circle(projected.loc[bh], radius=10.0, fc='w',
+            ax.add_patch(plt.Circle(projected.loc[bh].values, radius=10.0, fc='w',
                                     ec=color, alpha=0.75))
 
         # on other maps too
-        grid[1].plot(*projected.loc[bh], color=color, marker='o')
-        grid[2].plot(*projected.loc[bh], color=color, marker='o')
+        grid[1].plot(*loc, color=color, marker='o')
+        grid[2].plot(*loc, color=color, marker='o')
 
     # add scales
     util.com.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)

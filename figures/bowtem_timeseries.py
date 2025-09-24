@@ -80,9 +80,10 @@ def main():
         for unit in temp:
             last = temp[unit].dropna().tail(1)
             ax.annotate(
-                '{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+                r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
                 color=color, clip_on=True, fontsize=6, fontweight='bold',
-                xy=(last.index, last), xytext=(6, offsets.get(unit, 0)),
+                xy=(last.index, last.iloc[0]),
+                xytext=(6, offsets.get(unit, 0)),
                 textcoords='offset points', ha='left', va='center')
 
 

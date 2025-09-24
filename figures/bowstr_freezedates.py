@@ -55,7 +55,7 @@ def main():
             ax.annotate(
                 r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
                 color='C{}'.format(i), fontsize=6, fontweight='bold',
-                xy=(last.index[0], last), xytext=(4, 0),
+                xy=(last.index[0], last.iloc[0]), xytext=(4, 0),
                 textcoords='offset points', ha='left', va='center')
 
     # add campaigns (only on large format plot)
