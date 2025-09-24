@@ -67,7 +67,8 @@ def main():
                     *-corr.index[[-1, 0]].total_seconds()/3600))
 
         # find maximum (anti)correlation
-        delay = -np.abs(corr).idxmax().dt.total_seconds()/3600
+        delay = -np.abs(corr).dropna(axis=1, how='all').idxmax()
+        delay = delay.dt.total_seconds()/3600
         delay = delay.where(np.abs(corr).max() >= 0.5)
         delay = delay.resample('1D').nearest()  # for compat with mpl.dates
         delay.plot(ax=ax, drawstyle='steps-mid', color='w', lw=2, alpha=0.5)
