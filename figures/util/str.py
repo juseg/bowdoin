@@ -218,9 +218,9 @@ def subplots_specgram(nrows=10):
 
     # show only the outside spines
     for ax in axes:
-        ax.spines['top'].set_visible(ax.is_first_row())
-        ax.spines['bottom'].set_visible(ax.is_last_row())
-        ax.tick_params(bottom=ax.is_last_row(), which='both')
+        ax.spines['top'].set_visible(ax.get_subplotspec().is_first_row())
+        ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
+        ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
 
     # return figure and axes
     return fig, axes
