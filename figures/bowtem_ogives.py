@@ -132,6 +132,9 @@ def main():
     st0 = 'SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m_v3.0'
     st1 = 'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0'
     st1 = 'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0'
+    st0 = 'SETSM_s2s041_WV01_20140906_10200100318E9F00_1020010033454500_2m_lsf_seg2'
+    st1 = 'SETSM_s2s041_WV01_20170318_10200100602AB700_102001005FDC9000_2m_lsf_seg1'
+    st1 = 'SETSM_s2s041_WV02_20160424_10300100566BCD00_103001005682C900_2m_lsf_seg1'
 
     # load reference elevation data
     elev = xr.open_dataarray('../data/external/%s.tif' % st0).squeeze()
@@ -163,7 +166,7 @@ def main():
 
     # plot borehole locations on the map
     ax = grid[0]
-    initial, projected = project_borehole_locations(st0[11:19], ax.projection)
+    initial, projected = project_borehole_locations(st0[18:26], ax.projection)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = util.tem.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
