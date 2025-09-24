@@ -78,6 +78,12 @@ def borehole_distances(upper='bh1', lower='bh3'):
                 lower_x[wpt.time], lower_y[wpt.time] = \
                     utm.transform_point(wpt.longitude, wpt.latitude, lonlat)
 
+    # assume UTC timezone when missing
+    lower_x.index = pd.to_datetime(lower_x.index, utc=True)
+    lower_y.index = pd.to_datetime(lower_y.index, utc=True)
+    upper_x.index = pd.to_datetime(upper_x.index, utc=True)
+    upper_y.index = pd.to_datetime(upper_y.index, utc=True)
+
     # sort by date
     for series in upper_x, upper_y, lower_x, lower_y:
         series.sort_index(inplace=True)
@@ -102,7 +108,7 @@ def borehole_thinning(uz, lz, distances):
     """Estimate thinning based on distance between boreholes."""
     # FIXME: In practice this area conservation approach is not working.
     # FIXME: Besides one should include ice melt in the computation.
-    dz = (uz+lz) / 2 * (distances[0]/distances-1)
+    dz = (uz+lz) / 2 * (distances.iloc[0]/distances-1)
     return dz
 
 
@@ -310,7 +316,7 @@ def read_gps_data(method='backward'):
     df['y'] = points[:, 1]
 
     # resample with 15 minute frequency and fill with NaN
-    df = df.resample('15T').mean()
+    df = df.resample('15min').mean()
 
     # compute cartesian velocity in meters per year
     v = df[['x', 'y', 'z']]
@@ -337,9 +343,8 @@ def read_tide_data(order=2, cutoff=1/300.0):
     """Return Masahiro unfiltered tidal pressure in a data series."""
 
     # load data from two pressure sensors
-    def parser(s): return datetime.datetime.strptime(s, '%y/%m/%d %H:%M:%S')
     files = os.listdir('original/tide')
-    props = dict(index_col=0, parse_dates=True, date_parser=parser)
+    props = dict(index_col=0, parse_dates=True, date_format='%y/%m/%d %H:%M:%S')
     ls1 = ['original/tide/'+f for f in files if f.endswith('_4m.csv')]
     ls2 = ['original/tide/'+f for f in files if f.endswith('_76m.csv')]
     ts1 = pd.concat([pd.read_csv(f, **props).squeeze('columns') for f in ls1])
@@ -377,7 +382,7 @@ def read_inclinometer_data(site, gravity=9.80665):
         """Split series of data strings into multi-column data frame."""
 
         # split data strings into new multi-column dataframe and fill with NaN
-        df = ts.str.split(',', expand=True).applymap(floatornan)
+        df = ts.str.split(',', expand=True).map(floatornan)
 
         # replace null values by nan
         df = df.replace([-99.199996, 2499.0, 4999.0, 7499.0, 9999.0], np.nan)
@@ -524,8 +529,9 @@ def temperature_correction(borehole, temp, depth, clapeyron=CLAPEYRON,
     """
     start, end = RECALIB_INTERVALS[borehole]
     melting_point = -clapeyron * density * gravity * depth
-    initial_temp = temp[start:end].mean()
-    stable_cond = temp[start:end].std() < 0.01
+    calibration_temp = temp[(start < temp.index) & (temp.index < end)]
+    initial_temp = calibration_temp.mean()
+    stable_cond = calibration_temp.std() < 0.01
     melt_offset = stable_cond * (melting_point - initial_temp).fillna(0.0)
     return melt_offset.squeeze()
 
@@ -548,10 +554,11 @@ def main():
     tts = read_tide_data().rename('Tide')
     tts.to_csv('processed/bowdoin.tide.csv', header=True)
 
-    # read all data except pre-field (bh1_inc is non-monotonic)
+    # read all data except pre-field (bh*_inc are non-regular)
     bh1_inc = read_inclinometer_data('upper')
     bh1_inc = bh1_inc[bh1_inc.index > '2014-07']
-    bh3_inc = read_inclinometer_data('lower')['2014-07':]
+    bh3_inc = read_inclinometer_data('lower')
+    bh3_inc = bh3_inc[bh3_inc.index > '2014-07']
     bh2_pzm = read_piezometer_data('upper')['2014-07':]
     bh3_pzm = read_piezometer_data('lower')['2014-07':]
     bh2_thr_temp = read_thermistor_data('upper')['2014-07':]

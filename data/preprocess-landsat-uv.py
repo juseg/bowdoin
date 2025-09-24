@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 """Extract velocity time series at the boreholes location."""
 
@@ -47,7 +47,7 @@ for ufile, vfile in zip(ulist, vlist):
     c = (u**2+v**2)**0.5
 
     # count
-    print (c>0).count(), ufile
+    print((c>0).count(), ufile)
 
     # find index of borehole location
     i = np.argmin(np.abs(x-xb))
