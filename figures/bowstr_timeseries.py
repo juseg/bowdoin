@@ -34,7 +34,7 @@ def main():
         pres.plot(ax=ax, legend=False)
 
     # plot freezing dates
-    # temp = util.str.load(variable='temp')['20140717':].resample('1H').mean()
+    # temp = util.str.load(variable='temp')['20140717':].resample('1h').mean()
     # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
     # for ax in (ax0, ax1):
     #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')

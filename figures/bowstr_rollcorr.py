@@ -41,12 +41,12 @@ def main():
 
     # load stress data
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('10T').mean()  # kPa
+    pres = util.str.load().resample('10min').mean()  # kPa
     pres = pres.interpolate(limit_area='inside')
     pres = util.str.filter(pres, cutoff=(1/6/12, 1/6), btype='bandpass')
 
     # load tide data
-    tide = util.str.load_pituffik_tides().resample('10T').mean() / 10  # kPa/10
+    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
 
     # subset
     pres = pres.drop(columns=['UI03', 'UI02'])

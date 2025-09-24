@@ -13,7 +13,7 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 
 # plot ice cap air temp
 c = '0.25'
-ts = ut.io.load_temp_sigma()[start:end].resample('3H').mean()
+ts = ut.io.load_temp_sigma()[start:end].resample('3h').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and legend
@@ -27,7 +27,7 @@ bh = 'upper'
 c = ut.colors[bh]
 
 # load data
-exz = ut.io.load_strain_rate(bh, '3H')[start:end]
+exz = ut.io.load_strain_rate(bh, '3h')[start:end]
 depth = ut.io.load_depth('tiltunit', bh).squeeze()
 depth_base = ut.io.load_depth('pressure', bh).squeeze()
 

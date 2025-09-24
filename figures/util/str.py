@@ -58,7 +58,7 @@ def load_freezing_dates(fraction=0.8):
     """Load freezing dates."""
 
     # load hourly temperature data
-    temp = util.str.load(variable='temp').resample('1H').mean()
+    temp = util.str.load(variable='temp').resample('1h').mean()
 
     # remove a long-term warming tail
     for unit, series in temp.items():
@@ -91,7 +91,7 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
     """Load UNESCO IOC 5-min Pituffik tide data."""
 
     # find non-tempy data files
-    dates = pd.date_range(start=start, end=end, freq='M')
+    dates = pd.date_range(start=start, end=end, freq='ME')
     files = dates.strftime('../data/external/tide-thul-%Y%m.csv')
     files = [f for f in files if is_multiline(f)]
 

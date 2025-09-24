@@ -27,7 +27,7 @@ def main():
 
         # load daily means
         temp, depth, base = util.tem.load_all(bh)
-        temp = temp.resample('6H').mean()
+        temp = temp.resample('6h').mean()
 
         # estimate closure times
         closure_times = util.tem.estimate_closure_state(bh, temp).time

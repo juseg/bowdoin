@@ -22,7 +22,7 @@ def wavelets(series, ax):
     # width = omega*samplefreq / (2*waveletfreq*np.pi)
     # width = omega*waveletperiod/timestep / (2*np.pi)
     periods = np.arange(1, 36)  # periods in hours
-    widths = 5*periods*pd.to_timedelta('1H')/series.index.freq / (2*np.pi)
+    widths = 5*periods*pd.to_timedelta('1h')/series.index.freq / (2*np.pi)
 
     # compute wavelet transform
     scales = periods  # FIXME not sure about that
@@ -47,7 +47,7 @@ def main():
     # load stress data
     depth = util.str.load(variable='dept').iloc[0]
     date = util.str.load_freezing_dates()
-    pres = util.str.load().resample('10T').mean()  # kPa
+    pres = util.str.load().resample('10min').mean()  # kPa
     pres = pres.drop(columns=['UI03', 'UI02'])
     pres = pres['20150501':'20151101']
 
@@ -74,7 +74,7 @@ def main():
 
     # plot tide data (diff but no filter)
     ax = axes[-1]
-    tide = util.str.load_pituffik_tides().resample('10T').mean() / 10  # kPa/10
+    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
     tide = tide.interpolate(limit_area='inside').dropna()
     tide = tide.diff()
     tide = tide.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)

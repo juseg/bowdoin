@@ -106,7 +106,7 @@ ax.set_title(r'ice deformation (m a$^{-1}$)')
 ax = tsax
 bh = ut.boreholes[0]
 c = ut.colors[bh]
-ts = ut.io.load_data('pressure', 'wlev', bh).resample('12H').mean()[1:]
+ts = ut.io.load_data('pressure', 'wlev', bh).resample('12h').mean()[1:]
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label
@@ -116,7 +116,7 @@ ax.locator_params(axis='y', nbins=6)
 # plot GPS velocity
 ax = ax.twinx()
 c = ut.colors['dgps']
-ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('12H').mean()
+ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('12h').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and set limits

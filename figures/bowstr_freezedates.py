@@ -32,8 +32,8 @@ def main():
 
     # load stress, temperature and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load(variable='wlev').resample('1H').mean() / 1e3
-    temp = util.str.load(variable='temp').resample('1H').mean()
+    pres = util.str.load(variable='wlev').resample('1h').mean() / 1e3
+    temp = util.str.load(variable='temp').resample('1h').mean()
     date = util.str.load_freezing_dates()
 
     # plot stress and temperature

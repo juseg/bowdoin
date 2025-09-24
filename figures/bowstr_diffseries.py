@@ -23,13 +23,13 @@ def main():
     util.com.add_subfig_labels((ax0, ax1))
 
     # plot tilt unit water level
-    pres = util.str.load().resample('1H').mean()
+    pres = util.str.load().resample('1h').mean()
     pres = pres.diff()[1:]/3.6 + 9 - range(pres.shape[1])  # Pa s-1
     pres.plot(ax=ax0)
     pres.plot(ax=ax1, legend=False)
 
     # plot tide data
-    tide = util.str.load_pituffik_tides().resample('1H').mean()
+    tide = util.str.load_pituffik_tides().resample('1h').mean()
     tide = tide.diff()[1:]/3.6  # Pa s-1
     tide.plot(ax=ax1, c='k', label='Tide')
 

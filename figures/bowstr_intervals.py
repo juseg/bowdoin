@@ -30,7 +30,7 @@ def main():
         # extract time steps
         step = pres[unit].dropna()
         step = step.index.to_series().diff().dt.total_seconds()/3600.0
-        step = step[1:].resample('1H').mean()  # resample to get nice date axis
+        step = step[1:].resample('1h').mean()  # resample to get nice date axis
 
         # plot
         for ax in grid[i]:

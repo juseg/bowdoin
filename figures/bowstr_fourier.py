@@ -46,7 +46,7 @@ def main():
 
     # load stress and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('1H').mean()  # kPa
+    pres = util.str.load().resample('1h').mean()  # kPa
     date = util.str.load_freezing_dates()
 
     # for each tilt unit
@@ -68,7 +68,7 @@ def main():
         axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
 
     # plot tide data
-    tide = util.str.load_pituffik_tides().resample('1H').mean() / 10  # kPa/10
+    tide = util.str.load_pituffik_tides().resample('1h').mean() / 10  # kPa/10
     for ax in axes[-1]:
         ax.plot(*fourier(tide), c='C9')
 
