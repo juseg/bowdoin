@@ -47,11 +47,6 @@ done
 # Bowdoin pressure paper data
 # ---------------------------
 
-# Global Sea Level Observing System (GLOSS) Pituffik tide data
-orig="http://ilikai.soest.hawaii.edu/woce/h808.dat"
-dest=$(basename $orig)
-[ -f "$dest" ] || wget $orig
-
 # Intergovernmental Oceanographic Commission (IOC) Pituffik tide data
 for date in 2014{07..12} 20{15..16}{01..12} 2017{01..07}
 do
