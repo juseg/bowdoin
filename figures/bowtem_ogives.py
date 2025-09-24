@@ -65,7 +65,7 @@ def project_borehole_locations(date, crs):
 
     # compute DEM date positions from BH1 displacement with time mutliplier
     displacement = gps - initial.loc['bh1']
-    date = pd.to_datetime(date)
+    date = pd.to_datetime(date, utc=True)
     multiplier = (date-locs.time.bh1) / (date-locs.time)
     displacement = displacement.apply(lambda x: x*multiplier).T
     projected = initial + displacement

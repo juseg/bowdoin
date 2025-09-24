@@ -45,7 +45,12 @@ def read_locations(filename='../data/locations.gpx', crs=None):
         data['x'], data['y'], data['z'] = xyz
 
     # remove timezone information (see gpxpy issue #182)
-    data.time = data.time.dt.tz_localize(None)
+    # data.time = data.time.dt.tz_localize(None)
+    # FIXME this should be fixed by gpxpy PR227, and indeed locations for
+    # B17BH* now have zone-unaware times. However this creates a new issue,
+    # where pandas cannot mix tz-aware and tz-unaware times. So we're going
+    # to assume UTC time zone for points missing timezone information.
+    data.time = pd.to_datetime(data.time, utc=True)
 
     # return locations dataframe
     return data
