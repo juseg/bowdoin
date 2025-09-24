@@ -58,7 +58,7 @@ uz = ut.io.load_data('pressure', 'depth', 'upper')
 ax = ax1
 
 # plot image data
-filename = '../data/external/S2A_20160808_175915_456_RGB.jpg'
+filename = '../data/native/S2A_20160808_175915_456_RGB.jpg'
 data, extent = ut.io.open_gtif(filename)
 data = np.moveaxis(data, 0, 2)
 ax.imshow(data, extent=extent, transform=utm, cmap='Blues')

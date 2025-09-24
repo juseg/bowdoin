@@ -27,7 +27,7 @@ if __name__ == '__main__':
     ax.set_extent(extent, crs=utm)
 
     # plot image data
-    filename = '../data/external/S2A_20160808_175915_456_RGB.jpg'
+    filename = '../data/native/S2A_20160808_175915_456_RGB.jpg'
     data, extent = ut.io.open_gtif(filename)
     data = np.moveaxis(data, 0, 2)
     ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
