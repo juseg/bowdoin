@@ -8,7 +8,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
-from scipy import signal
+import pywt
 import util.str
 
 
@@ -25,8 +25,8 @@ def wavelets(series, ax):
     widths = 5*periods*pd.to_timedelta('1H')/series.index.freq / (2*np.pi)
 
     # compute wavelet transform
-    cwt = signal.cwt(series, signal.morlet2, widths, dtype='complex128')
-    cwt = np.real(cwt)  # imag part seem to be zero anyway
+    scales = periods  # FIXME not sure about that
+    cwt, frequencies = pywt.cwt(series, scales, 'morl')
 
     # plot wavelet transform
     extent = (
