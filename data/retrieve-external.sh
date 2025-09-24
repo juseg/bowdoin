@@ -43,24 +43,6 @@ do
     fi
 done
 
-# Sentinel-2A (S2A) Bowdoin 20x20 km images
-# (for Qaanaaq 60x60 km use --extent 465000,8595000,525000,8655000)
-# NOTE: these products are now "offline"; request manually from Copernicus Hub,
-# and run script again a few hours later. Or should I include jpegs in repo?
-for date in 20160410 20160808 20170310
-do
-    if [ ! -f "composite/bowdoin/$date*.jpg" ]
-    then
-        sentinelflow.sh --name bowdoin --intersect 77.7,-68.5 --tiles 19XEG \
-                        --extent 500000,8615000,520000,8645000 \
-                        --maxrows 1 --daterange $date..$date $*
-    fi
-done
-for img in composite/bowdoin/*.jpg{,.aux.xml}
-do
-    ln -sf $img $(basename $img)
-done
-
 
 # Bowdoin pressure paper data
 # ---------------------------

@@ -1,0 +1,1 @@
+sentinelflow.sh --name bowdoin --intersect 77.7,-68.5 --tiles 19XEG --extent 500000,8615000,520000,8645000 --maxrows 1 --daterange 20160808..20160808
