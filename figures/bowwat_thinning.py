@@ -1,4 +1,7 @@
 #!/usr/bin/env python2
+# Copyright (c) 2018-2025, Julien Seguinot (juseg.dev)
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 # coding: utf-8
 
 import util as ut
