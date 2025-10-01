@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -30,14 +30,15 @@ def main():
 
     # Arctic DEM strips with small data gaps
     datastrips = [
-        'SETSM_WV01_20120730_102001001C3CA200_102001001C997D00_seg2_2m_v3.0',
-        'SETSM_WV02_20130404_1030010020AC5E00_1030010021347000_seg1_2m_v3.0',
-        'SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m_v3.0',
-        'SETSM_WV02_20140906_103001003766BC00_1030010036B2F000_seg1_2m_v3.0',
-        'SETSM_WV02_20150419_10300100403C2300_1030010041149700_seg1_2m_v3.0',
-        'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0',
-        'SETSM_WV02_20160504_10300100557E8400_1030010055147100_seg1_2m_v3.0',
-        'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0']
+        'SETSM_s2s041_WV01_20120730_102001001C3CA200_102001001C997D00_2m_lsf_seg2',
+        'SETSM_s2s041_WV02_20130404_1030010020AC5E00_1030010021347000_2m_lsf_seg1',
+        # 'SETSM_s2s041_WV02_20140906_103001003766BC00_1030010036B2F000_2m_lsf_seg1',
+        'SETSM_s2s041_WV02_20150419_10300100403C2300_1030010041149700_2m_lsf_seg1',
+        # 'SETSM_s2s041_W1W2_20150425_102001003DA28D00_10300100419E5700_2m_lsf_seg1',
+        'SETSM_s2s041_W1W1_20150427_102001003C04A300_102001003ECD7100_2m_lsf_seg1',
+        'SETSM_s2s041_W2W2_20150530_10300100421BB000_103001004254F700_2m_lsf_seg1',
+        'SETSM_s2s041_WV02_20160504_10300100557E8400_1030010055147100_2m_lsf_seg1',
+        'SETSM_s2s041_WV01_20170318_10200100602AB700_102001005FDC9000_2m_lsf_seg1']
 
     # initialize figure
     fig, grid = apl.subplots_mm(
@@ -56,7 +57,7 @@ def main():
     for i, strip in enumerate(datastrips):
         ax = grid.flat[i]
         ax.set_rasterization_zorder(2.5)
-        ax.set_title(strip[11:19])
+        ax.set_title(strip[18:26])
 
         # load elevation data
         elev = xr.open_dataarray('../data/external/%s.tif' % strip).squeeze()

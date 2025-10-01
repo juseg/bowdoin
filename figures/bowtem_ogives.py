@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -65,7 +65,7 @@ def project_borehole_locations(date, crs):
 
     # compute DEM date positions from BH1 displacement with time mutliplier
     displacement = gps - initial.loc['bh1']
-    date = pd.to_datetime(date)
+    date = pd.to_datetime(date, utc=True)
     multiplier = (date-locs.time.bh1) / (date-locs.time)
     displacement = displacement.apply(lambda x: x*multiplier).T
     projected = initial + displacement
@@ -132,6 +132,9 @@ def main():
     st0 = 'SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m_v3.0'
     st1 = 'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0'
     st1 = 'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0'
+    st0 = 'SETSM_s2s041_WV01_20140906_10200100318E9F00_1020010033454500_2m_lsf_seg2'
+    st1 = 'SETSM_s2s041_WV01_20170318_10200100602AB700_102001005FDC9000_2m_lsf_seg1'
+    st1 = 'SETSM_s2s041_WV02_20160424_10300100566BCD00_103001005682C900_2m_lsf_seg1'
 
     # load reference elevation data
     elev = xr.open_dataarray('../data/external/%s.tif' % st0).squeeze()
@@ -163,27 +166,28 @@ def main():
 
     # plot borehole locations on the map
     ax = grid[0]
-    initial, projected = project_borehole_locations(st0[11:19], ax.projection)
+    initial, projected = project_borehole_locations(st0[18:26], ax.projection)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = util.tem.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*projected.loc[bh], color=color, marker='+')
+        loc = projected.loc[bh].values
         can.annotate_by_compass(
             bh.upper(), ax=ax, bbox=dict(alpha=0.75, ec=color, fc='w', pad=2),
-            color=color, fontweight='bold', xy=projected.loc[bh], offset=12,
+            color=color, fontweight='bold', xy=loc, offset=12,
             point=('se' if bh == 'bh1' else 'nw'), zorder=10)
 
         # add arrows and uncertainty circles
         if bh != 'bh1':
-            ax.annotate('', xy=projected.loc[bh], xytext=initial.loc[bh],
+            ax.annotate('', xy=loc, xytext=initial.loc[bh],
                         arrowprops=dict(arrowstyle='->', color=color))
-            ax.add_patch(plt.Circle(projected.loc[bh], radius=10.0, fc='w',
+            ax.add_patch(plt.Circle(projected.loc[bh].values, radius=10.0, fc='w',
                                     ec=color, alpha=0.75))
 
         # on other maps too
-        grid[1].plot(*projected.loc[bh], color=color, marker='o')
-        grid[2].plot(*projected.loc[bh], color=color, marker='o')
+        grid[1].plot(*loc, color=color, marker='o')
+        grid[2].plot(*loc, color=color, marker='o')
 
     # add scales
     util.com.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)

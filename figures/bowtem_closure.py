@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -27,7 +27,7 @@ def main():
 
         # load daily means
         temp, depth, base = util.tem.load_all(bh)
-        temp = temp.resample('6H').mean()
+        temp = temp.resample('6h').mean()
 
         # estimate closure times
         closure_times = util.tem.estimate_closure_state(bh, temp).time

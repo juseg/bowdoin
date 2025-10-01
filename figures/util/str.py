@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -58,7 +58,7 @@ def load_freezing_dates(fraction=0.8):
     """Load freezing dates."""
 
     # load hourly temperature data
-    temp = util.str.load(variable='temp').resample('1H').mean()
+    temp = util.str.load(variable='temp').resample('1h').mean()
 
     # remove a long-term warming tail
     for unit, series in temp.items():
@@ -91,7 +91,7 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
     """Load UNESCO IOC 5-min Pituffik tide data."""
 
     # find non-tempy data files
-    dates = pd.date_range(start=start, end=end, freq='M')
+    dates = pd.date_range(start=start, end=end, freq='ME')
     files = dates.strftime('../data/external/tide-thul-%Y%m.csv')
     files = [f for f in files if is_multiline(f)]
 
@@ -218,9 +218,9 @@ def subplots_specgram(nrows=10):
 
     # show only the outside spines
     for ax in axes:
-        ax.spines['top'].set_visible(ax.is_first_row())
-        ax.spines['bottom'].set_visible(ax.is_last_row())
-        ax.tick_params(bottom=ax.is_last_row(), which='both')
+        ax.spines['top'].set_visible(ax.get_subplotspec().is_first_row())
+        ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
+        ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
 
     # return figure and axes
     return fig, axes

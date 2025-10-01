@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -34,7 +34,7 @@ def main():
         pres.plot(ax=ax, legend=False)
 
     # plot freezing dates
-    # temp = util.str.load(variable='temp')['20140717':].resample('1H').mean()
+    # temp = util.str.load(variable='temp')['20140717':].resample('1h').mean()
     # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
     # for ax in (ax0, ax1):
     #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')
@@ -46,7 +46,7 @@ def main():
         ax0.annotate(
             r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
             color='C{}'.format(i), fontsize=6, fontweight='bold',
-            xy=(last.index[0], last), xytext=(4, offsets.get(unit, 0)),
+            xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)),
             textcoords='offset points', ha='left', va='center')
 
     # add campaigns

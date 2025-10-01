@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -81,7 +81,7 @@ def main():
     fig, grid = init_figure()
 
     # plot Sentinel image
-    img = xr.open_dataarray('../data/external/20160410_180125_659_S2A_RGB.jpg')
+    img = xr.open_dataarray('../data/native/20160410_180125_659_S2A_RGB.jpg')
     img = img.astype(int)  # tell imshow to interpret RGB values as 0 to 256
     for ax in grid.values():
         img.plot.imshow(ax=ax)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -32,8 +32,8 @@ def main():
 
     # load stress, temperature and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load(variable='wlev').resample('1H').mean() / 1e3
-    temp = util.str.load(variable='temp').resample('1H').mean()
+    pres = util.str.load(variable='wlev').resample('1h').mean() / 1e3
+    temp = util.str.load(variable='temp').resample('1h').mean()
     date = util.str.load_freezing_dates()
 
     # plot stress and temperature
@@ -55,7 +55,7 @@ def main():
             ax.annotate(
                 r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
                 color='C{}'.format(i), fontsize=6, fontweight='bold',
-                xy=(last.index[0], last), xytext=(4, 0),
+                xy=(last.index[0], last.iloc[0]), xytext=(4, 0),
                 textcoords='offset points', ha='left', va='center')
 
     # add campaigns (only on large format plot)

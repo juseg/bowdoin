@@ -18,7 +18,7 @@ bh = 'upper'
 c = ut.colors[bh]
 
 # load data
-exz = ut.io.load_strain_rate(bh, '2H')[start:end]
+exz = ut.io.load_strain_rate(bh, '2h')[start:end]
 depth = ut.io.load_depth('tiltunit', bh).squeeze()
 depth_base = ut.io.load_depth('pressure', bh).squeeze()
 

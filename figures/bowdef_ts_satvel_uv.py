@@ -63,7 +63,7 @@ for i, bh in enumerate(ut.boreholes):
 
 # plot GPS velocity
 c = ut.colors['dgps']
-ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('15T').mean()
+ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('15min').mean()
 ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5, alpha=0.25)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 

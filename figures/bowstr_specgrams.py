@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -52,7 +52,7 @@ def main():
     # load stress and freezing dates
     depth = util.str.load(variable='dept').iloc[0]
     date = util.str.load_freezing_dates()
-    pres = util.str.load().resample('10T').mean()  # kPa
+    pres = util.str.load().resample('10min').mean()  # kPa
     pres = pres.drop(columns=['UI03', 'UI02'])
 
     # for each tilt unit
@@ -71,7 +71,7 @@ def main():
 
     # plot tide data
     ax = axes[-1]
-    tide = util.str.load_pituffik_tides().resample('10T').mean() / 10  # kPa/10
+    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
     specgram(tide, ax, color='C9')
 
     # add text label

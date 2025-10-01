@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -39,7 +39,7 @@ def plot_location_map(ax):
     ax.set_extent([508e3, 512e3, 8621e3, 8626e3+2e3/3], crs=ax.projection)
 
     # plot Sentinel image data
-    filename = '../data/external/20170310_174129_456_S2A_RGB.jpg'
+    filename = '../data/native/20170310_174129_456_S2A_RGB.jpg'
     img = xr.open_dataarray(filename).astype(int)
     img = img.clip(0, None)  # replace no data with black
     img.plot.imshow(ax=ax, interpolation='bilinear')

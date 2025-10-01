@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -24,11 +24,11 @@ def main():
 
     # highpass-filter stress series
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('1H').mean()
+    pres = util.str.load().resample('1h').mean()
     pres = util.str.filter(pres)
 
     # load tide data
-    tide = util.str.load_pituffik_tides().resample('1H').mean()  # kPa
+    tide = util.str.load_pituffik_tides().resample('1h').mean()  # kPa
 
     # apply transformation for plotting
     tide /= 10

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -139,7 +139,7 @@ def plot_interp(ax, depth, temp, **kwargs):
     depth = depth[temp.index]
 
     # interpolate temps to a 1 meter resolution
-    depth_new = np.arange(depth[0], depth[-1], 1)
+    depth_new = np.arange(depth.iloc[0], depth.iloc[-1], 1)
     temp_new = sinterp.interp1d(depth, temp, kind='cubic')(depth_new)
 
     # plot the result

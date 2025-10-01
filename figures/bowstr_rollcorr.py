@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -41,12 +41,12 @@ def main():
 
     # load stress data
     depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('10T').mean()  # kPa
+    pres = util.str.load().resample('10min').mean()  # kPa
     pres = pres.interpolate(limit_area='inside')
     pres = util.str.filter(pres, cutoff=(1/6/12, 1/6), btype='bandpass')
 
     # load tide data
-    tide = util.str.load_pituffik_tides().resample('10T').mean() / 10  # kPa/10
+    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
 
     # subset
     pres = pres.drop(columns=['UI03', 'UI02'])
@@ -67,7 +67,8 @@ def main():
                     *-corr.index[[-1, 0]].total_seconds()/3600))
 
         # find maximum (anti)correlation
-        delay = -np.abs(corr).idxmax().dt.total_seconds()/3600
+        delay = -np.abs(corr).dropna(axis=1, how='all').idxmax()
+        delay = delay.dt.total_seconds()/3600
         delay = delay.where(np.abs(corr).max() >= 0.5)
         delay = delay.resample('1D').nearest()  # for compat with mpl.dates
         delay.plot(ax=ax, drawstyle='steps-mid', color='w', lw=2, alpha=0.5)

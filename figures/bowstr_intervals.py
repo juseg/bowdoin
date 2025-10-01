@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -30,7 +30,7 @@ def main():
         # extract time steps
         step = pres[unit].dropna()
         step = step.index.to_series().diff().dt.total_seconds()/3600.0
-        step = step[1:].resample('1H').mean()  # resample to get nice date axis
+        step = step[1:].resample('1h').mean()  # resample to get nice date axis
 
         # plot
         for ax in grid[i]:
