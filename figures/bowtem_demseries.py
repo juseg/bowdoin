@@ -9,7 +9,6 @@ from scipy import stats
 import xarray as xr
 import cartopy.crs as ccrs
 import absplots as apl
-import util.tem
 
 
 def main():
