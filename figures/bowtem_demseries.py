@@ -106,13 +106,11 @@ def main():
     # loop on data strips
     for i, strip in enumerate(datastrips):
         ax = grid.flat[i]
-        ax.set_rasterization_zorder(2.5)
-        ax.set_title(strip[18:26])
 
         # load elevation data
         elev = xr.open_dataarray(f'../data/external/SETSM_s2s041_{strip}.tif')
         elev = elev.squeeze()
-        elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
+        elev = elev.where(elev > -9999)
 
         # plot reference elevation map
         if i == 0:
@@ -125,7 +123,13 @@ def main():
             diff = elev - ref
             diff = diff - stats.mode(diff, axis=None, nan_policy='omit')[0]
             im1 = diff.plot.imshow(ax=ax, add_colorbar=False, add_labels=False,
-                                   cmap='RdBu', vmin=-30, vmax=30)
+                                   cmap='RdBu', vmin=-60, vmax=60)
+
+        # set axes properties
+        ax.set_rasterization_zorder(2.5)
+        ax.set_title(strip[5:13])
+        ax.set_xlim(-537500, -532500)
+        ax.set_ylim(-1229000, -1224000)
 
     # add colorbar
     cbar = fig.colorbar(im0, cax=cax0, extend='both')
