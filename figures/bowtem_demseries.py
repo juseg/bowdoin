@@ -92,7 +92,7 @@ def main():
 
     # initialize figure
     fig, grid = apl.subplots_mm(
-        figsize=(180, 90), nrows=2, ncols=4, sharex=True, sharey=True,
+        figsize=(180, 90+130), nrows=2+3, ncols=4, sharex=True, sharey=True,
         gridspec_kw=dict(
             left=2.5, right=17.5, wspace=2.5, bottom=2.5, top=5, hspace=5),
         subplot_kw=dict(projection=ccrs.Stereographic(
