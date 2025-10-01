@@ -129,20 +129,17 @@ def main():
     fig, grid, cax, pfax = init_figure()
 
     # selected Arctic DEM data strips
-    st0 = 'SETSM_WV01_20140906_10200100318E9F00_1020010033454500_seg4_2m_v3.0'
-    st1 = 'SETSM_WV01_20170318_10200100602AB700_102001005FDC9000_seg1_2m_v3.0'
-    st1 = 'SETSM_WV02_20160424_10300100566BCD00_103001005682C900_seg6_2m_v3.0'
-    st0 = 'SETSM_s2s041_WV01_20140906_10200100318E9F00_1020010033454500_2m_lsf_seg2'
-    st1 = 'SETSM_s2s041_WV01_20170318_10200100602AB700_102001005FDC9000_2m_lsf_seg1'
-    st1 = 'SETSM_s2s041_WV02_20160424_10300100566BCD00_103001005682C900_2m_lsf_seg1'
+    st0 = 'WV01_20140906_10200100318E9F00_1020010033454500_2m_lsf_seg2'  # 0.71
+    st1 = 'WV01_20170318_10200100602AB700_102001005FDC9000_2m_lsf_seg1'  # 1.00
+    st1 = 'WV02_20160424_10300100566BCD00_103001005682C900_2m_lsf_seg1'  # 0.95
 
     # load reference elevation data
-    elev = xr.open_dataarray('../data/external/%s.tif' % st0).squeeze()
+    elev = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st0}.tif').squeeze()
     elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
     zoom = elev.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
 
     # load elevation difference data
-    diff = xr.open_dataarray('../data/external/%s.tif' % st1).squeeze()
+    diff = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st1}.tif').squeeze()
     diff = diff.loc[-1224000:-1229000, -537500:-532500].where(diff > -9999)
     diff = diff - elev
     diff = diff - stats.mode(diff, axis=None, nan_policy='omit')[0]
@@ -166,7 +163,8 @@ def main():
 
     # plot borehole locations on the map
     ax = grid[0]
-    initial, projected = project_borehole_locations(st0[18:26], ax.projection)
+
+    initial, projected = project_borehole_locations(st0[5:13], ax.projection)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = util.tem.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
@@ -215,10 +213,11 @@ def main():
                   ha=('left' if bh == 'bh2' else 'right'))
 
     # set axes properties
-    grid[0].set_title(st0[11:15]+'-'+st0[15:17]+'-'+st0[17:19])
-    grid[1].set_title(st0[11:15]+'-'+st0[15:17]+'-'+st0[17:19])
-    grid[2].set_title(st1[11:15]+'-'+st1[15:17]+'-'+st1[17:19]+' - '+
-                      st0[11:15]+'-'+st0[15:17]+'-'+st0[17:19])
+    grid[0].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
+    grid[1].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
+    grid[2].set_title(st1[5:9]+'-'+st1[9:11]+'-'+st1[11:13]+' - '+
+                      st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
+    pfax.set_title('')
     pfax.set_xlabel('distance from the calving front (m)')
     pfax.set_ylabel('surface elevation (m)')
 
