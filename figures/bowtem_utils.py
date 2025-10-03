@@ -170,6 +170,12 @@ def load_profiles(borehole):
     return temp, depth, base
 
 
+def read_locations_dict(filename='../data/locations.gpx'):
+    """Read waypoints dictionary from GPX file."""
+    with open(filename, 'r') as gpx:
+        return {wpt.name: wpt for wpt in gpxpy.parse(gpx).waypoints}
+
+
 def read_locations(filename='../data/locations.gpx', crs=None):
     """Read waypoints dataframe from GPX file."""
 
