@@ -80,16 +80,23 @@ def add_subfig_labels(axes=None, colors=None, **kwargs):
 # Data loading methods
 # --------------------
 
+def load(filename):
+    """Load preprocessed data file and return data with duplicates removed."""
+    data = pd.read_csv(filename, parse_dates=True, index_col='date')
+    data = data.groupby(level=0).mean()
+    return data
+
+
 def load_all(borehole):
     """Load all temperature and depths for the given borehole."""
 
     # load all data for this borehole
     prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
-    temp = [util.com.load_file(f) for f in glob.glob(prefix+'*.temp.csv')]
+    temp = [load(f) for f in glob.glob(prefix+'*.temp.csv')]
     temp = pd.concat(temp, axis=1)
-    dept = [util.com.load_file(f) for f in glob.glob(prefix+'*.dept.csv')]
+    dept = [load(f) for f in glob.glob(prefix+'*.dept.csv')]
     dept = pd.concat(dept, axis=1)
-    base = [util.com.load_file(f) for f in glob.glob(prefix+'*.base.csv')]
+    base = [load(f) for f in glob.glob(prefix+'*.base.csv')]
     base = pd.concat(base, axis=1)
 
     # in this paper with ignore depth changes
@@ -114,21 +121,14 @@ def load_all(borehole):
     return temp, dept, base
 
 
-def load_file(filename):
-    """Load preprocessed data file and return data with duplicates removed."""
-    data = pd.read_csv(filename, parse_dates=True, index_col='date')
-    data = data.groupby(level=0).mean()
-    return data
-
-
 def load_manual(borehole):
     """Load manual temperature readings and mask for the given borehole."""
 
     # load all data for this borehole
     prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
-    manu = [util.com.load_file(f) for f in glob.glob(prefix+'*.manu.csv')]
+    manu = [load(f) for f in glob.glob(prefix+'*.manu.csv')]
     manu = pd.concat(manu, axis=1)
-    mask = [util.com.load_file(f) for f in glob.glob(prefix+'*.mask.csv')]
+    mask = [load(f) for f in glob.glob(prefix+'*.mask.csv')]
     mask = pd.concat(mask, axis=1).astype('bool')
 
     # segregate BH3 erratic data

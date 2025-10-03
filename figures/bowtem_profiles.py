@@ -9,7 +9,7 @@ import numpy as np
 import scipy.interpolate as sinterp
 import pandas as pd
 import cartopy.crs as ccrs
-import util.com
+import bowtem_utils
 import absplots as apl
 import util.inc
 import bowtem_utils
@@ -105,7 +105,7 @@ def estimate_longitudinal_strain_rate():
     """
 
     # load borehole positions
-    locs = util.com.read_locations(crs=ccrs.UTM(19))
+    locs = bowtem_utils.read_locations(crs=ccrs.UTM(19))
     d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
             (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5
     d_14 = ((locs.x.B14BH3-locs.x.B14BH1)**2 +
@@ -164,8 +164,8 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=ax1, text='(b)')
+    bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
+    bowtem_utils.add_subfig_label(ax=ax1, text='(b)')
 
     # for each borehole
     for bh, color in bowtem_utils.COLOURS.items():

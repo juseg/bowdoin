@@ -11,7 +11,7 @@ import pandas as pd
 import brokenaxes as bax
 import absplots as apl
 import bowtem_utils
-import util.com
+import bowtem_utils
 
 # Pandas plot methods do not work on brokenaxes (issue #40)
 pd.plotting.register_matplotlib_converters()
@@ -89,8 +89,8 @@ def main():
 
 
     # add campaigns
-    util.com.plot_field_campaigns(ax=ax.axs[0], ytext=-1)
-    util.com.plot_field_campaigns(ax=ax.axs[1])
+    bowtem_utils.add_field_campaigns(ax=ax.axs[0], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=ax.axs[1])
 
     # set axes properties
     ax.set_ylabel(u'temperature (°C)', labelpad=24)

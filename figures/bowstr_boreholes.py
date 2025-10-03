@@ -9,7 +9,7 @@ import xarray as xr
 import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
-import util.com
+import bowtem_utils
 import util.geo
 import bowstr_utils
 
@@ -25,7 +25,7 @@ def init_figure():
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
-    util.com.add_subfig_labels(fig.axes, colors=('w', 'k'))
+    bowtem_utils.add_subfig_labels(fig.axes, colors=('w', 'k'))
 
     # return figure and axes
     return fig, (ax0, ax1)
@@ -55,7 +55,7 @@ def plot_location_map(ax):
                           marker='^', text='Camp')
 
     # add scale
-    util.com.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
+    bowtem_utils.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
 
     # remove title
     ax.set_title("")
@@ -66,7 +66,7 @@ def plot_long_profile(ax):
 
     # draw vertical lines symbolising the boreholes
     for bh, color in COLOURS.items():
-        base = util.com.load_file(
+        base = bowtem_utils.load(
             '../data/processed/bowdoin.'+bh+'.inc.base.csv')
         base = base.iloc[0].squeeze()
         dist = dict(bh1=2, bh3=1.84)[bh]

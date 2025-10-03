@@ -45,10 +45,11 @@ all: $(ALL_FIGS)
 # project dependencies
 $(DEF_FIGS): util/inc.py
 $(TEM_FIGS): bowtem_utils.py
-$(STR_FIGS): bowstr_utils.py
+$(PAL_FIGS): bowtem_utils.py
+$(STR_FIGS): bowtem_utils.py bowstr_utils.py
 
 # make python figures (alt use LC_ALL=en_GB.utf8 python)
-$(ALL_FIGS): %.pdf : %.py matplotlibrc util/com.py util/geo.py
+$(ALL_FIGS): %.pdf : %.py matplotlibrc util/geo.py
 	python $<
 
 # lint python code

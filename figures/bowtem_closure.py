@@ -5,7 +5,7 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
-import util.com
+import bowtem_utils
 import absplots as apl
 import bowtem_utils
 
@@ -19,8 +19,8 @@ def main():
                                       gridspec_kw=gridspec_kw)
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=ax1, text='(b)')
+    bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
+    bowtem_utils.add_subfig_label(ax=ax1, text='(b)')
 
     # for each boreholes
     for bh, color in bowtem_utils.COLOURS.items():

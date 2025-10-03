@@ -15,7 +15,7 @@ import cartopy.io.shapereader as shpreader
 import absplots as apl
 import cartowik.annotations as can
 import cartowik.shadedrelief as csr
-import util.com
+import bowtem_utils
 import bowtem_utils
 
 
@@ -38,7 +38,7 @@ def init_figure():
 
     # add subfigure labels
     for ax, label in zip(list(grid) + [pfax], 'abcd'):
-        util.com.add_subfig_label(ax=ax, text='('+label+')')
+        bowtem_utils.add_subfig_label(ax=ax, text='('+label+')')
 
     # return figure and axes
     return fig, grid, cax, pfax
@@ -51,14 +51,14 @@ def project_borehole_locations(date, crs):
     """
 
     # read initial positions from GPX file
-    locs = util.com.read_locations(crs=crs)
+    locs = bowtem_utils.read_locations(crs=crs)
     locs = locs[locs.index.str.startswith('B14')]
     locs.index = locs.index.str[3:].str.lower()
     initial = locs[['x', 'y']]
 
     # interpolate DEM date BH1 location from continuous GPS
     lonlat = ccrs.PlateCarree()
-    gps = util.com.load_file('../data/processed/bowdoin.bh1.gps.csv')
+    gps = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
     gps = gps.interpolate().loc[date].mean()
     gps['x'], gps['y'] = crs.transform_point(gps.lon, gps.lat, lonlat)
     gps = gps[['x', 'y']]
@@ -188,8 +188,8 @@ def main():
         grid[2].plot(*loc, color=color, marker='o')
 
     # add scales
-    util.com.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
-    util.com.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
+    bowtem_utils.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
+    bowtem_utils.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
 
     # open profile coordinates
     x, y = open_shp_coords('../data/native/flowline.shp',

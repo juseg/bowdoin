@@ -7,7 +7,7 @@
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import absplots as apl
-import util.com
+import bowtem_utils
 import bowstr_utils
 
 
@@ -20,7 +20,7 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=7.5))
 
     # add subfigure labels
-    util.com.add_subfig_labels((ax0, ax1))
+    bowtem_utils.add_subfig_labels((ax0, ax1))
 
     # plot tilt unit water level
     pres = bowstr_utils.load().resample('1h').mean()

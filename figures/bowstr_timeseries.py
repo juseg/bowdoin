@@ -8,7 +8,7 @@
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import pandas as pd
 import absplots as apl
-import util.com
+import bowtem_utils
 import bowstr_utils
 
 
@@ -22,9 +22,9 @@ def main():
         left=52.5, right=5, bottom=85, top=5, wspace=2.5))
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
-    util.com.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
+    bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
+    bowtem_utils.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
+    bowtem_utils.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
 
     # plot tilt unit water level
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -50,7 +50,7 @@ def main():
             textcoords='offset points', ha='left', va='center')
 
     # add campaigns
-    util.com.plot_field_campaigns(ax=ax0, ytext=0.01)
+    bowtem_utils.add_field_campaigns(ax=ax0, ytext=0.01)
 
     # set main axes properties
     ax0.set_xlabel('')

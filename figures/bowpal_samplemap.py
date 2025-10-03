@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
-import util.com
+import bowtem_utils
 import util.geo
 
 
@@ -67,7 +67,7 @@ def init_figure():
         ax.spines['geo'].set_edgecolor('k')
 
         # add subfigure label and mark inset
-        util.com.add_subfig_label(region, ax=ax)
+        bowtem_utils.add_subfig_label(region, ax=ax)
         mark_inset(ax0=fig.axes[0], ax1=ax, text=region[:3], fc='none', ec='k')
 
     # return figure and axes

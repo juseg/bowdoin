@@ -11,7 +11,7 @@ import matplotlib.dates as mdates
 import brokenaxes as bax
 import absplots as apl
 import bowstr_utils
-import util.com
+import bowtem_utils
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
                pd.to_datetime(('20140908', '20171216')))) for subspec in spec]
 
     # add subfigure labels
-    util.com.add_subfig_labels([ax.axs[0] for ax in axes])
+    bowtem_utils.add_subfig_labels([ax.axs[0] for ax in axes])
 
     # load stress, temperature and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -60,10 +60,10 @@ def main():
                 textcoords='offset points', ha='left', va='center')
 
     # add campaigns (only on large format plot)
-    util.com.plot_field_campaigns(ax=axes[0].axs[0], ytext=-1)
-    util.com.plot_field_campaigns(ax=axes[0].axs[1], ytext=-1)
-    util.com.plot_field_campaigns(ax=axes[1].axs[0], ytext=0.02)
-    util.com.plot_field_campaigns(ax=axes[1].axs[1], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[0].axs[0], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=axes[0].axs[1], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=axes[1].axs[0], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[1].axs[1], ytext=0.02)
 
     # set axes properties
     axes[1].set_ylim(-6.5, 0.5)

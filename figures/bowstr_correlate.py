@@ -6,7 +6,7 @@
 import numpy as np
 import pandas as pd
 import absplots as apl
-import util.com
+import bowtem_utils
 import bowstr_utils
 
 
@@ -27,7 +27,7 @@ def main():
         left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=17.5))
 
     # add subfigure labels
-    util.com.add_subfig_labels(grid, loc='sw')
+    bowtem_utils.add_subfig_labels(grid, loc='sw')
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
