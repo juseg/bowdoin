@@ -6,7 +6,7 @@
 """Plot Bowdoin strain rate time series."""
 
 import absplots as apl
-import util.inc
+import bowtem_utils
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
     for bh in ('bh1', 'bh3'):
 
         # load strain rate
-        exz = util.inc.load_strain_rate(bh)*60*60*24*365.25
+        exz = bowtem_utils.load_strain_rate(bh)*60*60*24*365.25
 
         # plot strain rate
         exz.plot(ax=ax)

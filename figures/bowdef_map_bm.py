@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-import util as ut
+import bowdef_utils
 import numpy as np
 import netCDF4 as nc4
 import matplotlib.pyplot as plt
@@ -34,13 +34,13 @@ b = ds.variables['bed'][jmin:jmax, imin:imax]
 h = ds.variables['thickness'][jmin:jmax, imin:imax]
 s = ds.variables['surface'][jmin:jmax, imin:imax]
 ds.close()
-extent = ut.pl.extent_from_coords(x, y[::-1])
+extent = bowdef_utils.extent_from_coords(x, y[::-1])
 
 # shades colormap
 cmap = mcolors.LinearSegmentedColormap.from_list('shades', [(0.0, (0,0,0,0)), (1.0, (0,0,0,1))])
 
 # plot shaded relief
-shade = ut.pl.shading(b, extent=extent, transparent=True)
+shade = bowdef_utils.shading(b, extent=extent, transparent=True)
 ax.imshow(b[::-1], extent=extent, cmap='Greys', vmin=-3e3, vmax=3e3)
 ax.imshow(shade[::-1], extent=extent, cmap=cmap, vmin=0.0, vmax=1.0)
 
@@ -66,8 +66,8 @@ cb.set_label('ice thickness (m)')
 # plot waypoints
 kwa = dict(ax=ax, color='k', marker='o', offset=15,
            bbox=dict(boxstyle='square,pad=0.5', fc='w'))
-ut.pl.add_waypoint('Qaanaaq', text='Qaanaaq', textpos='cl', **kwa)
-ut.pl.add_waypoint('Tent Swiss', text='Camp', textpos='cr', **kwa)
+bowdef_utils.add_waypoint('Qaanaaq', text='Qaanaaq', textpos='cl', **kwa)
+bowdef_utils.add_waypoint('Tent Swiss', text='Camp', textpos='cr', **kwa)
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

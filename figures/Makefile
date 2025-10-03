@@ -43,7 +43,7 @@ ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 all: $(ALL_FIGS)
 
 # project dependencies
-$(DEF_FIGS): util/inc.py
+$(DEF_FIGS): bowdef_utils.py
 $(TEM_FIGS): bowtem_utils.py
 $(PAL_FIGS): bowtem_utils.py
 $(STR_FIGS): bowtem_utils.py bowstr_utils.py

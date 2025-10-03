@@ -92,14 +92,14 @@ def load_data(sensor, variable, borehole):
     assert borehole in ('both', 'lower', 'upper')
 
     # read data
-    if borehole in ut.boreholes:
+    if borehole in bowdef_utils.boreholes:
         filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
                     % (sensor, variable, borehole))
         df = pd.read_csv(filename, parse_dates=True, index_col='date')
         df = df.groupby(level=0).mean()
     elif borehole == 'both':
-        dfu = ut.io.load_data(sensor, variable, 'upper')
-        dfl = ut.io.load_data(sensor, variable, 'lower')
+        dfu = bowdef_utils.load_data(sensor, variable, 'upper')
+        dfl = bowdef_utils.load_data(sensor, variable, 'lower')
         df = pd.concat([dfu, dfl], axis=1)
     return df
 
@@ -114,7 +114,7 @@ def load_depth(sensor, borehole):
 
 
 def load_bowtid_depth():
-    ts = ut.io.load_depth('tiltunit', 'both')
+    ts = bowdef_utils.load_depth('tiltunit', 'both')
     ts = ts.sort_index(ascending=False)
     ts.index = [c[0::3] for c in ts.index]
     ts = ts.drop(['L1', 'L2', 'U1'])
@@ -126,7 +126,7 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
     or between two dates."""
 
     # check argument validity
-    assert borehole in ut.boreholes
+    assert borehole in bowdef_utils.boreholes
 
     # load tilt data
     tiltx = load_data('tiltunit', 'tiltx', borehole)

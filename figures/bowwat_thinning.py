@@ -49,10 +49,10 @@ for y in years:
     distances[y] = ((ux-lx)**2 + (uy-ly)**2)**0.5
 
 # load time-dependent base and sensor depths
-lb = ut.io.load_data('pressure', 'base', 'lower')
-ub = ut.io.load_data('pressure', 'base', 'upper')
-lz = ut.io.load_data('pressure', 'depth', 'lower')
-uz = ut.io.load_data('pressure', 'depth', 'upper')
+lb = bowdef_utils.load_data('pressure', 'base', 'lower')
+ub = bowdef_utils.load_data('pressure', 'base', 'upper')
+lz = bowdef_utils.load_data('pressure', 'depth', 'lower')
+uz = bowdef_utils.load_data('pressure', 'depth', 'upper')
 
 
 # Map axes
@@ -62,19 +62,19 @@ ax = ax1
 
 # plot image data
 filename = '../data/native/S2A_20160808_175915_456_RGB.jpg'
-data, extent = ut.io.open_gtif(filename)
+data, extent = bowdef_utils.open_gtif(filename)
 data = np.moveaxis(data, 0, 2)
 ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 
 # plot borehole locations
 for y, c in zip(years, colors):
     kwa = dict(ax=ax, color=c, marker='o')
-    ut.pl.add_waypoint('B%2dBH2' % (y-2000), text=y, **kwa)
-    ut.pl.add_waypoint('B%2dBH3' % (y-2000), **kwa)
+    bowdef_utils.add_waypoint('B%2dBH2' % (y-2000), text=y, **kwa)
+    bowdef_utils.add_waypoint('B%2dBH3' % (y-2000), **kwa)
 
 # plot camp location
 kwa = dict(ax=ax, color='C3', marker='^')
-ut.pl.add_waypoint('Tent Swiss', text='Camp', **kwa)
+bowdef_utils.add_waypoint('Tent Swiss', text='Camp', **kwa)
 
 # add scale
 ax.plot([508.25e3, 509.25e3], [8620.25e3]*2, 'w|-')
@@ -113,4 +113,4 @@ ax.set_xlabel('distance from lower borehole (m)')
 ax.set_ylabel('depth (m)')
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

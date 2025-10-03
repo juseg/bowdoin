@@ -5,22 +5,22 @@ import numpy as np
 import pandas as pd
 import scipy.signal as sg
 import matplotlib.pyplot as plt
-import util as ut
+import bowdef_utils
 
 start = '2015-06'
 end = '2015-09'
 
 # initialize figure
-fig, grid = ut.pl.subplots_mm(2, 1, right=15.0, sharex=True)
+fig, grid = bowdef_utils.subplots_mm(2, 1, right=15.0, sharex=True)
 
 # select one borehole
 bh = 'upper'
-c = ut.colors[bh]
+c = bowdef_utils.colors[bh]
 
 # load data
-exz = ut.io.load_strain_rate(bh, '2h')[start:end]
-depth = ut.io.load_depth('tiltunit', bh).squeeze()
-depth_base = ut.io.load_depth('pressure', bh).squeeze()
+exz = bowdef_utils.load_strain_rate(bh, '2h')[start:end]
+depth = bowdef_utils.load_depth('tiltunit', bh).squeeze()
+depth_base = bowdef_utils.load_depth('pressure', bh).squeeze()
 
 # ignore two lowest units on upper borehole
 if bh == 'upper':
@@ -29,10 +29,10 @@ if bh == 'upper':
     exz.drop(broken, axis='columns', inplace=True)
 
 # fit to a Glen's law
-n, A = ut.al.glenfit(depth, exz.T)
+n, A = bowdef_utils.glenfit(depth, exz.T)
 
 # calc deformation velocity
-vdef = ut.al.vsia(0.0, depth_base, n, A)
+vdef = bowdef_utils.vsia(0.0, depth_base, n, A)
 vdef = pd.Series(index=exz.index, data=vdef)
 time = vdef.index.values
 vals = vdef.values
@@ -74,4 +74,4 @@ cbar = fig.colorbar(im, cax=cax)
 cbar.set_label('Amplitude', labelpad=2)
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

@@ -3,17 +3,17 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import util as ut
+import bowdef_utils
 
 # initialize figure
 fig, ax = plt.subplots(1, 1, sharex=True)
-c = ut.colors['dgps']
+c = bowdef_utils.colors['dgps']
 
 # read GPS velocity data
-ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('15min').mean()
+ts = bowdef_utils.load_data('dgps', 'velocity', 'upper')['vh'].resample('15min').mean()
 
 # get longest continuous segment
-ts = ut.al.longest_continuous(ts)
+ts = bowdef_utils.longest_continuous(ts)
 
 # compute fft
 freq = np.fft.rfftfreq(ts.shape[-1], 15.0/60)
@@ -30,4 +30,4 @@ ax.set_ylabel('power (dB)')
 # save
 ax.set_title('GPS velocity FFT')
 ax.set_xlabel(r'frequency (h$^{-1}$)')
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

@@ -11,7 +11,6 @@ import pandas as pd
 import cartopy.crs as ccrs
 import bowtem_utils
 import absplots as apl
-import util.inc
 import bowtem_utils
 
 
@@ -124,7 +123,7 @@ def estimate_shear_strain_rate(bh):
     in BH1 and BH3.
     """
     bh = bh.replace('bh2', 'bh1').replace('err', 'bh3')
-    e_xz = util.inc.load_strain_rate(bh)['2014-10':].mean()
+    e_xz = bowtem_utils.load_strain_rate(bh)['2014-10':].mean()
     e_xz = e_xz.mean()
     return e_xz
 

@@ -8,7 +8,7 @@ import cartopy.crs as ccrs
 import cartopy.io.img_tiles as cimgt
 import gpxpy
 
-import util as ut
+import bowdef_utils
 
 
 if __name__ == '__main__':
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     for ax, reg in zip(grid, regions):
         ax.set_rasterization_zorder(2.5)
         ax.set_extent(reg, crs=ax.projection)
-        data, extent = ut.io.open_gtif(filename, extent=reg)
+        data, extent = bowdef_utils.open_gtif(filename, extent=reg)
         im = ax.imshow(data, extent=extent, cmap='Blues', norm=norm)
 
     # add coastlines
@@ -63,19 +63,19 @@ if __name__ == '__main__':
     c = 'k'
     ax = grid[1]
     kwa = dict(ha='center', fontweight='bold')
-    ut.pl.add_waypoint('Qaanaaq', ax=ax, color=c)
+    bowdef_utils.add_waypoint('Qaanaaq', ax=ax, color=c)
     ax.text(-605000, -1250000, 'Qaanaaq', color=c, **kwa)
 
     # plot borehole locations
-    c = ut.colors['upper']
+    c = bowdef_utils.colors['upper']
     ax = grid[2]
-    ut.pl.add_waypoint('B14BH3', ax=ax, color=c)
-    ut.pl.add_waypoint('B16BH3', ax=ax, color=c)
+    bowdef_utils.add_waypoint('B14BH3', ax=ax, color=c)
+    bowdef_utils.add_waypoint('B16BH3', ax=ax, color=c)
     ax.text(-535000, -1225500, 'boreholes', color=c, **kwa)
 
     # plot camp locations
-    c = ut.palette['darkgreen']
-    ut.pl.add_waypoint('Tent Swiss', ax=ax, color=c, marker='^')
+    c = bowdef_utils.palette['darkgreen']
+    bowdef_utils.add_waypoint('Tent Swiss', ax=ax, color=c, marker='^')
     ax.text(-530000, -1230000, 'camp', color=c, **kwa)
 
     # add scale
@@ -83,4 +83,4 @@ if __name__ == '__main__':
     grid[2].text(-522.5e3, -1234e3, '5km', ha='center')
 
     # save third frame
-    ut.pl.savefig(fig)
+    bowdef_utils.savefig(fig)
