@@ -49,7 +49,7 @@ $(PAL_FIGS): bowtem_utils.py
 $(STR_FIGS): bowtem_utils.py bowstr_utils.py
 
 # make python figures (alt use LC_ALL=en_GB.utf8 python)
-$(ALL_FIGS): %.pdf : %.py matplotlibrc util/geo.py
+$(ALL_FIGS): %.pdf : %.py matplotlibrc
 	python $<
 
 # lint python code

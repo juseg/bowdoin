@@ -56,7 +56,7 @@ class CustomAnimation():
         fig, ax = apl.subplots_mm(figsize=(96, 54), dpi=508)
 
         # plot vertical lines symbolising the boreholes
-        locations = util.geo.read_locations('../data/locations.gpx')
+        locations = util.geo.read_locations_dict('../data/locations.gpx')
         for bh in ('bh1', 'bh3'):
             surf = locations['B14'+bh.upper()].elevation
             base = surf - util.com.load_file(

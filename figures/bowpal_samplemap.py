@@ -11,7 +11,7 @@ import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
 import bowtem_utils
-import util.geo
+import bowtem_utils
 
 
 def mark_inset(ax0, ax1, text='', **kwargs):
@@ -87,7 +87,7 @@ def main():
         img.plot.imshow(ax=ax)
 
     # read sample locations
-    locs = util.geo.read_locations('../data/locations.gpx')
+    locs = bowtem_utils.read_locations_dict('../data/locations.gpx')
 
     # plot all sample locations on the main panel
     ax = grid['(a) Bowdoin Glacier']

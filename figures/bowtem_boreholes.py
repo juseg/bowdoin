@@ -12,7 +12,7 @@ import absplots as apl
 import cartowik.annotations as can
 import bowtem_utils
 import cartowik.naturalearth as cne
-import util.geo
+import bowtem_utils
 import bowtem_utils
 
 
@@ -45,7 +45,7 @@ def plot_location_map(ax):
     img.plot.imshow(ax=ax, interpolation='bilinear')
 
     # add boreholes and camp waypoints for each borehole
-    locations = util.geo.read_locations('../data/locations.gpx')
+    locations = bowtem_utils.read_locations_dict('../data/locations.gpx')
     for bh in ('bh1', 'bh2', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=bowtem_utils.COLOURS[bh], point=point)
