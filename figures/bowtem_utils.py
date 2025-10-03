@@ -170,6 +170,41 @@ def load_profiles(borehole):
     return temp, depth, base
 
 
+def load_strain_rate(borehole, freq='1D'):
+    """
+    Return horizontal shear strain rate from tilt relative to a start date
+    or between two dates.
+
+    Parameters
+    ----------
+    borehole: string
+        Borehole name bh1 or bh3.
+    freq: string
+        Frequency to resample average tilts before time differentiation.
+
+    Returns
+    -------
+    exz: series
+        Strain rates in s-1.
+    """
+
+    # load borehole data
+    prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
+    tilx = load(prefix+'.inc.tilx.csv').resample(freq).mean()
+    tily = load(prefix+'.inc.tily.csv').resample(freq).mean()
+
+    # compute near horizontal shear strain
+    exz_x = np.sin(tilx).diff()
+    exz_y = np.sin(tily).diff()
+    exz = np.sqrt(exz_x**2+exz_y**2)
+
+    # convert to strain rate in a-1
+    exz /= pd.to_timedelta(freq).total_seconds()
+
+    # return strain rate
+    return exz
+
+
 def read_locations_dict(filename='../data/locations.gpx'):
     """Read waypoints dictionary from GPX file."""
     with open(filename, 'r') as gpx:

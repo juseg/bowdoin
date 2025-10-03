@@ -64,50 +64,6 @@ def vsia(depth, depth_base, n, A, g=9.80665, rhoi=910.0, slope=0.03):
     v = 2*C/(n+1) * (depth_base**(n+1) - depth**(n+1))
     return v
 
-# Data loading methods
-# --------------------
-
-def load(filename):
-    """Load preprocessed data file and return data with duplicates removed."""
-    data = pd.read_csv(filename, parse_dates=True, index_col='date')
-    data = data.groupby(level=0).mean()
-    return data
-
-
-def load_strain_rate(borehole, freq='1D'):
-    """
-    Return horizontal shear strain rate from tilt relative to a start date
-    or between two dates.
-
-    Parameters
-    ----------
-    borehole: string
-        Borehole name bh1 or bh3.
-    freq: string
-        Frequency to resample average tilts before time differentiation.
-
-    Returns
-    -------
-    exz: series
-        Strain rates in s-1.
-    """
-
-    # load borehole data
-    prefix = '../data/processed/bowdoin.' + borehole.replace('err', 'bh3')
-    tilx = load(prefix+'.inc.tilx.csv').resample(freq).mean()
-    tily = load(prefix+'.inc.tily.csv').resample(freq).mean()
-
-    # compute near horizontal shear strain
-    exz_x = np.sin(tilx).diff()
-    exz_y = np.sin(tily).diff()
-    exz = np.sqrt(exz_x**2+exz_y**2)
-
-    # convert to strain rate in a-1
-    exz /= pd.to_timedelta(freq).total_seconds()
-
-    # return strain rate
-    return exz
-
 
 # Methods to load borehole data
 # -----------------------------
