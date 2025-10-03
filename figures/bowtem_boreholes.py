@@ -13,7 +13,7 @@ import cartowik.annotations as can
 import util.com
 import cartowik.naturalearth as cne
 import util.geo
-import util.tem
+import bowtem_utils
 
 
 def init_figure():
@@ -48,7 +48,7 @@ def plot_location_map(ax):
     locations = util.geo.read_locations('../data/locations.gpx')
     for bh in ('bh1', 'bh2', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
-        kwa = dict(ax=ax, color=util.tem.COLOURS[bh], point=point)
+        kwa = dict(ax=ax, color=bowtem_utils.COLOURS[bh], point=point)
         can.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
         can.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
         can.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
@@ -83,10 +83,10 @@ def plot_long_profile(ax):
     distances = dict(bh1=2.015, bh2=1.985, bh3=1.84, err=1.84)
 
     # for each borehole
-    for bh, color in util.tem.COLOURS.items():
+    for bh, color in bowtem_utils.COLOURS.items():
 
         # draw a vertical line symbolising the borehole
-        _, dept, base = util.tem.load_all(bh)
+        _, dept, base = bowtem_utils.load_all(bh)
         dist = distances[bh]
         if bh != 'err':
             ax.plot([dist, dist], [base, 0.0], 'k-_')
@@ -98,7 +98,7 @@ def plot_long_profile(ax):
         # locate the different units along that line
         for unit, dept in dept.items():
             sensor = unit[1]
-            marker = util.tem.MARKERS[sensor]
+            marker = bowtem_utils.MARKERS[sensor]
             offset = 0.01 if sensor == 'I' else -0.01
             ax.plot(dist+1*offset, dept, color=color, marker=marker,
                     label='', ls='')
@@ -116,7 +116,7 @@ def plot_long_profile(ax):
 
     # add standalone legend
     labels = ['Inclinometers', 'Thermistors', 'Piezometers']
-    markers = [util.tem.MARKERS[l[0]] for l in labels]
+    markers = [bowtem_utils.MARKERS[l[0]] for l in labels]
     handles = [plt.Line2D([], [], ls='none', marker=m) for m in markers]
     ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.90), loc='upper right')
 

@@ -8,7 +8,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import absplots as apl
-import util.tem
+import bowtem_utils
 
 
 def main():

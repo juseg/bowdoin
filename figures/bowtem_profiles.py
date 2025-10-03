@@ -12,7 +12,7 @@ import cartopy.crs as ccrs
 import util.com
 import absplots as apl
 import util.inc
-import util.tem
+import bowtem_utils
 
 
 # Physical constants
@@ -150,7 +150,7 @@ def plot_markers(ax, depth, temp, **kwargs):
     """
     Plot markers profile based on sensor type.
     """
-    for sensor, marker in util.tem.MARKERS.items():
+    for sensor, marker in bowtem_utils.MARKERS.items():
         mask = depth.index.str[1] == sensor
         ax.plot(temp[mask], depth[mask], marker=marker, ls='', **kwargs)
 
@@ -168,10 +168,10 @@ def main():
     util.com.add_subfig_label(ax=ax1, text='(b)')
 
     # for each borehole
-    for bh, color in util.tem.COLOURS.items():
+    for bh, color in bowtem_utils.COLOURS.items():
 
         # load temperature profiles
-        temp, depth, base = util.tem.load_profiles(bh)
+        temp, depth, base = bowtem_utils.load_profiles(bh)
         temp0 = temp.iloc[:, 0]
         temp1 = temp.iloc[:, 1]
 
@@ -199,7 +199,7 @@ def main():
         # annotate maximum observed warming below
         sensor = change.idxmax()
         ax1.plot(change[sensor], depth[sensor], c=color,
-                 marker=util.tem.MARKERS[sensor[1]])
+                 marker=bowtem_utils.MARKERS[sensor[1]])
         ax1.text(change[sensor], depth[sensor],
                  r'  +%.2f$°C\,a^{-1}$' % (change)[sensor], color=color,
                  ha='left', va='bottom')

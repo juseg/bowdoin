@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import brokenaxes as bax
 import absplots as apl
-import util.tem
+import bowtem_utils
+import util.com
 
 # Pandas plot methods do not work on brokenaxes (issue #40)
 pd.plotting.register_matplotlib_converters()
@@ -40,17 +41,17 @@ def main():
                         ylims=[(-15.5, -6.5), (-6.5, 0.5)])
 
     # for each borehole
-    for bh, color in util.tem.COLOURS.items():
+    for bh, color in bowtem_utils.COLOURS.items():
 
         # plot daily means
-        temp, depth, _ = util.tem.load_all(bh)
+        temp, depth, _ = bowtem_utils.load_all(bh)
         temp = temp.resample('1D').mean()
         ax.plot(temp.index, temp.values, c=color)
         # temp.plot(ax=ax, c=color, legend=False)  # fails (issue #40)
 
         # plot manual readings
         if bh != 'bh1':
-            manu, mask = util.tem.load_manual(bh)
+            manu, mask = bowtem_utils.load_manual(bh)
 
             # for bh2 draw dotted line across 2016 data gap
             if bh == 'bh2':
@@ -68,7 +69,7 @@ def main():
             # manu.mask(mask).plot(ax=ax, c=color, marker='o')  # fails (#40)
 
         # add profile dates
-        for date in util.tem.PROFILES_DATES[bh]:
+        for date in bowtem_utils.PROFILES_DATES[bh]:
             offset = (0 if bh in ('bh1', 'bh3') else 3)
             ax.axvline(date, color=color, ls=(offset, [2, 4]))
 
@@ -105,7 +106,7 @@ def main():
     # add standalone legend
     ax.axs[0].legend(*zip(*[
         (plt.Line2D([], [], c=c, marker='o'*(bh != 'bh1')),
-         bh.upper()) for bh, c in util.tem.COLOURS.items()]))
+         bh.upper()) for bh, c in bowtem_utils.COLOURS.items()]))
 
     # save
     fig.savefig(__file__[:-3])

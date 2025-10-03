@@ -16,7 +16,7 @@ import absplots as apl
 import cartowik.annotations as can
 import cartowik.shadedrelief as csr
 import util.com
-import util.tem
+import bowtem_utils
 
 
 def init_figure():
@@ -166,7 +166,7 @@ def main():
 
     initial, projected = project_borehole_locations(st0[5:13], ax.projection)
     for bh in ('bh1', 'bh2', 'bh3'):
-        color = util.tem.COLOURS[bh]
+        color = bowtem_utils.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*projected.loc[bh], color=color, marker='+')
@@ -206,7 +206,7 @@ def main():
 
     # mark borehole locations along profile
     for bh in ['bh2', 'bh3']:
-        color = util.tem.COLOURS[bh]
+        color = bowtem_utils.COLOURS[bh]
         dist = project_location(x, y, projected.loc[bh])
         pfax.axvline(dist, color=color)
         pfax.text(dist, 40, ' '+bh.upper()+' ', color=color, fontweight='bold',

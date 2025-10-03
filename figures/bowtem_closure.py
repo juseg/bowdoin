@@ -7,7 +7,7 @@
 
 import util.com
 import absplots as apl
-import util.tem
+import bowtem_utils
 
 
 def main():
@@ -23,18 +23,18 @@ def main():
     util.com.add_subfig_label(ax=ax1, text='(b)')
 
     # for each boreholes
-    for bh, color in util.tem.COLOURS.items():
+    for bh, color in bowtem_utils.COLOURS.items():
 
         # load daily means
-        temp, depth, base = util.tem.load_all(bh)
+        temp, depth, base = bowtem_utils.load_all(bh)
         temp = temp.resample('6h').mean()
 
         # estimate closure times
-        closure_times = util.tem.estimate_closure_state(bh, temp).time
+        closure_times = bowtem_utils.estimate_closure_state(bh, temp).time
         closure_times = closure_times.dt.total_seconds()/(24*3600)
 
         # for each sensor type
-        for sensor, marker in util.tem.MARKERS.items():
+        for sensor, marker in bowtem_utils.MARKERS.items():
             cols = closure_times.index.str[1] == sensor
             ax0.plot(closure_times[cols], temp.min(axis=0)[cols], color=color,
                      marker=marker, ls='', label=bh.upper()+sensor)

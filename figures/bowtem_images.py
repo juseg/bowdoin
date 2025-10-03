@@ -8,13 +8,13 @@
 import matplotlib.pyplot as plt
 import util.com
 import absplots as apl
-import util.tem
+import bowtem_utils
 
 
 def annotate_borehole(x, y, bh, ax=None, **kwargs):
     """Annotate a borehole with an empty circle."""
     ax = ax or plt.gca()
-    color = util.tem.COLOURS[bh]
+    color = bowtem_utils.COLOURS[bh]
     ax.plot(x, y, color='none', marker='o', ms=6, mec=color)
     ax.text(x, y-50, bh.upper(), color=color, fontweight='bold', va='bottom',
             **kwargs)
