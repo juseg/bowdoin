@@ -10,7 +10,8 @@ import matplotlib as mpl
 import matplotlib.dates as mdates
 import brokenaxes as bax
 import absplots as apl
-import util.str
+import bowstr_utils
+import util.com
 
 
 def main():
@@ -31,10 +32,10 @@ def main():
     util.com.add_subfig_labels([ax.axs[0] for ax in axes])
 
     # load stress, temperature and freezing dates
-    depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load(variable='wlev').resample('1h').mean() / 1e3
-    temp = util.str.load(variable='temp').resample('1h').mean()
-    date = util.str.load_freezing_dates()
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    pres = bowstr_utils.load(variable='wlev').resample('1h').mean() / 1e3
+    temp = bowstr_utils.load(variable='temp').resample('1h').mean()
+    date = bowstr_utils.load_freezing_dates()
 
     # plot stress and temperature
     # data.plot(ax=ax, legend=False)  # fails (#40)

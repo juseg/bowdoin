@@ -7,7 +7,7 @@
 
 import absplots as apl
 import util.com
-import util.str
+import bowstr_utils
 
 
 def main():
@@ -19,8 +19,8 @@ def main():
     util.com.add_subfig_labels(grid)
 
     # load Thule and Bowdoin tide data
-    thul = util.str.load_pituffik_tides(start='2015-07', end='2015-08')
-    bowd = util.str.load_bowdoin_tides()
+    thul = bowstr_utils.load_pituffik_tides(start='2015-07', end='2015-08')
+    bowd = bowstr_utils.load_bowdoin_tides()
 
     # crop Thule data and downsample Bowdoin
     thul = thul[bowd.index[0]:bowd.index[-1]]

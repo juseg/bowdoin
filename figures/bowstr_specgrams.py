@@ -8,7 +8,7 @@
 import pandas as pd
 import matplotlib as mpl
 import absplots as apl
-import util.str
+import bowstr_utils
 
 
 def specgram(series, ax, color):
@@ -47,12 +47,12 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = util.str.subplots_specgram(nrows=8)
+    fig, axes = bowstr_utils.subplots_specgram(nrows=8)
 
     # load stress and freezing dates
-    depth = util.str.load(variable='dept').iloc[0]
-    date = util.str.load_freezing_dates()
-    pres = util.str.load().resample('10min').mean()  # kPa
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    date = bowstr_utils.load_freezing_dates()
+    pres = bowstr_utils.load().resample('10min').mean()  # kPa
     pres = pres.drop(columns=['UI03', 'UI02'])
 
     # for each tilt unit
@@ -71,7 +71,7 @@ def main():
 
     # plot tide data
     ax = axes[-1]
-    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
     specgram(tide, ax, color='C9')
 
     # add text label

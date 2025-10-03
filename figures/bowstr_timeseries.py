@@ -9,7 +9,7 @@ from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import pandas as pd
 import absplots as apl
 import util.com
-import util.str
+import bowstr_utils
 
 
 def main():
@@ -27,14 +27,14 @@ def main():
     util.com.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
 
     # plot tilt unit water level
-    depth = util.str.load(variable='dept').iloc[0]
+    depth = bowstr_utils.load(variable='dept').iloc[0]
     freq = pd.to_timedelta('1D')/24  # needed for x-axis alignment
-    pres = util.str.load().resample(freq).mean()/1e3
+    pres = bowstr_utils.load().resample(freq).mean()/1e3
     for ax in (ax0, *insets):
         pres.plot(ax=ax, legend=False)
 
     # plot freezing dates
-    # temp = util.str.load(variable='temp')['20140717':].resample('1h').mean()
+    # temp = bowstr_utils.load(variable='temp')['20140717':].resample('1h').mean()
     # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
     # for ax in (ax0, ax1):
     #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')

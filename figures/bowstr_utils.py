@@ -58,7 +58,7 @@ def load_freezing_dates(fraction=0.8):
     """Load freezing dates."""
 
     # load hourly temperature data
-    temp = util.str.load(variable='temp').resample('1h').mean()
+    temp = load(variable='temp').resample('1h').mean()
 
     # remove a long-term warming tail
     for unit, series in temp.items():

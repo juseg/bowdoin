@@ -8,7 +8,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
-import util.str
+import bowstr_utils
 
 
 def crosscorr(series, other, wmin=-30, wmax=6):
@@ -37,16 +37,16 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = util.str.subplots_specgram(nrows=7)
+    fig, axes = bowstr_utils.subplots_specgram(nrows=7)
 
     # load stress data
-    depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('10min').mean()  # kPa
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    pres = bowstr_utils.load().resample('10min').mean()  # kPa
     pres = pres.interpolate(limit_area='inside')
-    pres = util.str.filter(pres, cutoff=(1/6/12, 1/6), btype='bandpass')
+    pres = bowstr_utils.filter(pres, cutoff=(1/6/12, 1/6), btype='bandpass')
 
     # load tide data
-    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
 
     # subset
     pres = pres.drop(columns=['UI03', 'UI02'])

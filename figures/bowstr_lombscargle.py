@@ -8,7 +8,7 @@
 import numpy as np
 from scipy import signal
 
-import util.str
+import bowstr_utils
 
 
 def lombscargle(series, periods):
@@ -36,12 +36,12 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = util.str.subplots_fourier()
+    fig, axes = bowstr_utils.subplots_fourier()
 
     # load stress and freezing dates
-    depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load() * 1e3  # kPa
-    date = util.str.load_freezing_dates()
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    pres = bowstr_utils.load() * 1e3  # kPa
+    date = bowstr_utils.load_freezing_dates()
 
     # periods in days for main and inset axes (we need many points)
     periods = (np.logspace(-1, 3, 1001), np.logspace(-0.35, 0.1, 1001))
@@ -64,7 +64,7 @@ def main():
             transform=axes[i, 0].transAxes, ha='right')
 
     # plot tide data
-    series = util.str.load_pituffik_tides() / 10  # kPa / 10
+    series = bowstr_utils.load_pituffik_tides() / 10  # kPa / 10
     for ax, days in zip(axes[-1], periods):
         ax.plot(days, lombscargle(series, days*24*3600), color='C9')
 

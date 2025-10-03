@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import pywt
-import util.str
+import bowstr_utils
 
 
 def wavelets(series, ax):
@@ -42,12 +42,12 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = util.str.subplots_specgram(nrows=8)
+    fig, axes = bowstr_utils.subplots_specgram(nrows=8)
 
     # load stress data
-    depth = util.str.load(variable='dept').iloc[0]
-    date = util.str.load_freezing_dates()
-    pres = util.str.load().resample('10min').mean()  # kPa
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    date = bowstr_utils.load_freezing_dates()
+    pres = bowstr_utils.load().resample('10min').mean()  # kPa
     pres = pres.drop(columns=['UI03', 'UI02'])
     pres = pres['20150501':'20151101']
 
@@ -56,7 +56,7 @@ def main():
     pres = pres.interpolate(limit_area='inside').dropna()
     pres = pres.diff()
     pres = pres.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)
-    pres = util.str.filter(pres, cutoff=1/6/24)
+    pres = bowstr_utils.filter(pres, cutoff=1/6/24)
 
     # for each unit
     for i, unit in enumerate(pres):
@@ -74,7 +74,7 @@ def main():
 
     # plot tide data (diff but no filter)
     ax = axes[-1]
-    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
     tide = tide.interpolate(limit_area='inside').dropna()
     tide = tide.diff()
     tide = tide.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)

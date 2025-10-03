@@ -11,7 +11,7 @@ import absplots as apl
 import cartowik.annotations as can
 import util.com
 import util.geo
-import util.str
+import bowstr_utils
 
 COLOURS = dict(bh1='C0', bh3='C6')
 
@@ -77,7 +77,7 @@ def plot_long_profile(ax):
                 ha='center', va='top')
 
     # plot tilt unit depths
-    depth = util.str.load(variable='dept').iloc[0]  # FIXME depth util?
+    depth = bowstr_utils.load(variable='dept').iloc[0]  # FIXME depth util?
     for i, unit in enumerate(depth.index):
         color = 'C%d' % i
         dist = dict(U=2, L=1.84)[unit[0]]
