@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -6,9 +6,18 @@
 Bowdoin temperature paper utils.
 """
 
+import cartopy.crs as ccrs  # FIXME replace with pyproj
+import cartowik.decorations as cde  # FIXME replace with hyoga
 import glob
+import gpxpy
+import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
+import numpy as np
 import pandas as pd
-import util.com
+
+# local aliases
+add_scale_bar = cde.add_scale_bar
+add_subfig_label = cde.add_subfig_label
 
 # Global parameters
 # -----------------
@@ -20,6 +29,52 @@ PROFILES_DATES = dict(bh1=['20141001', '20170128'],
                       bh2=['20141001', '20160712'],
                       bh3=['20150101', '20151112', '20160719'],
                       err=['20150101', '20160719'])
+
+# Plotting methods
+# ----------------
+
+def add_field_campaigns(ax=None, color='C1', ytext=0.05):
+    """Mark 2014--2017 summer field campaigns."""
+
+    # get axes if None provided
+    ax = ax or plt.gca()
+
+    # prepare blended transform
+    trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
+
+    # for dates when people were on Bowdoin
+    for start, end in [('2014-07-15', '2014-07-29'),
+                       ('2015-07-06', '2015-07-20'),
+                       ('2016-07-04', '2016-07-21'),
+                       ('2017-07-04', '2017-07-17')]:
+
+        # add rectangular spans
+        ax.axvspan(start, end, ec='none', fc=color, alpha=0.25)
+
+        # add text annotations
+        duration = pd.to_datetime(end) - pd.to_datetime(start)
+        midpoint = pd.to_datetime(start) + duration / 2
+        ax.text(midpoint, ytext, midpoint.year, color=color, fontweight='bold',
+                ha='center', transform=trans, clip_on=True)
+
+
+def add_subfig_labels(axes=None, colors=None, **kwargs):
+    """Add automatic subfigure labels (a), (b), (c), etc."""
+    # NOTE: this could become part of absplots
+
+    # get the figure axes by default, flatten arrays
+    if axes is None:
+        axes = plt.gcf().axes
+    elif isinstance(axes, np.ndarray):
+        axes = axes.flatten()
+
+    # convert colors to list if it is a non-string sequence
+    if isinstance(colors, str) or not hasattr(colors, '__iter__'):
+        colors = [colors] * len(axes)
+
+    # add subfigure labels
+    for ax, color, label in zip( axes, colors, 'abcdefghijklmnopqrstuvwxyz'):
+        add_subfig_label('('+label+')', ax=ax, color=color, **kwargs)
 
 
 # Data loading methods
@@ -57,6 +112,13 @@ def load_all(borehole):
 
     # return temperature and depth
     return temp, dept, base
+
+
+def load_file(filename):
+    """Load preprocessed data file and return data with duplicates removed."""
+    data = pd.read_csv(filename, parse_dates=True, index_col='date')
+    data = data.groupby(level=0).mean()
+    return data
 
 
 def load_manual(borehole):
@@ -106,6 +168,34 @@ def load_profiles(borehole):
     # remove depths with no data
     depth = depth[temp.index]
     return temp, depth, base
+
+
+def read_locations(filename='../data/locations.gpx', crs=None):
+    """Read waypoints dataframe from GPX file."""
+
+    # read locations in geographic coordinates
+    with open(filename, 'r') as gpx:
+        attributes = [{attr: getattr(wpt, attr) for attr in wpt.__slots__}
+                      for wpt in gpxpy.parse(gpx).waypoints]
+    data = pd.DataFrame(attributes).dropna(axis=1, how='all').set_index('name')
+
+    # if crs is given, append coordinates in given crs
+    if crs is not None:
+        xyz = data[['longitude', 'latitude', 'elevation']].values
+        xyz = crs.transform_points(ccrs.PlateCarree(), *xyz.T).T
+        data['x'], data['y'], data['z'] = xyz
+
+    # remove timezone information (see gpxpy issue #182)
+    # data.time = data.time.dt.tz_localize(None)
+    # FIXME this should be fixed by gpxpy PR227, and indeed locations for
+    # B17BH* now have zone-unaware times. However this creates a new issue,
+    # where pandas cannot mix tz-aware and tz-unaware times. So we're going
+    # to assume UTC time zone for points missing timezone information.
+    data.time = pd.to_datetime(data.time, utc=True)
+
+    # return locations dataframe
+    return data
+
 
 
 # Data processing methods
