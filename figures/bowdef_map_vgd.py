@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-import util as ut
+import bowdef_utils
 import gpxpy
 
 if __name__ == '__main__':
@@ -27,15 +27,15 @@ if __name__ == '__main__':
 
     # plot image data
     filename = '../data/native/S2A_20160808_175915_456_RGB.jpg'
-    data, extent = ut.io.open_gtif(filename)
+    data, extent = bowdef_utils.open_gtif(filename)
     data = np.moveaxis(data, 0, 2)
     ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 
     # plot velocity gradient
     filename = '../data/satellite/bowdoin-landsat/16072015_17082015.tif'
-    data, extent = ut.io.open_gtif(filename)
+    data, extent = bowdef_utils.open_gtif(filename)
     data = np.ma.masked_equal(data, 65535).astype(np.float)
-    grad = ut.pl.slope(data, extent=extent)
+    grad = bowdef_utils.slope(data, extent=extent)
     cs = ax.imshow(grad, extent=extent, cmap='Reds', vmin=0.0, vmax=0.5, alpha=0.75)
 
     # add colorbar
@@ -44,4 +44,4 @@ if __name__ == '__main__':
     cb.set_label('velocity gradient (a$^{-1}$)', labelpad=2)
 
     # save
-    ut.pl.savefig(fig)
+    bowdef_utils.savefig(fig)

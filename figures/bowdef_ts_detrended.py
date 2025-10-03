@@ -4,7 +4,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import util as ut
+import bowdef_utils
 
 
 def seriesfit(ts, deg, imin=None, imax=None, **kwargs):
@@ -60,13 +60,13 @@ d1 = '2015-11-01'
 fig, grid = plt.subplots(2, 1, sharex=True)
 
 # for each borehole
-for i, bh in enumerate(ut.boreholes):
+for i, bh in enumerate(bowdef_utils.boreholes):
     ax = grid[i]
-    c = ut.colors[bh]
+    c = bowdef_utils.colors[bh]
 
     # plot tilt unit temperature
-    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh)[d0:]
-    tilty = ut.io.load_data('tiltunit', 'tilty', bh)[d0:]
+    tiltx = bowdef_utils.load_data('tiltunit', 'tiltx', bh)[d0:]
+    tilty = bowdef_utils.load_data('tiltunit', 'tilty', bh)[d0:]
 
     # compute reference values
     tx0 = tiltx[d0].mean()
@@ -86,4 +86,4 @@ for i, bh in enumerate(ut.boreholes):
     ax.set_ylabel('detrended tilt ' + bh)
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

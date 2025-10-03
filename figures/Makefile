@@ -1,6 +1,9 @@
+# Copyright (c) 2015-2025, Julien Seguinot (juseg.dev)
+# Creative Commons Attribution-ShareAlike 4.0 International License
+# (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
+
 # Figures Makefile
 # ================
-
 
 # Variables
 # ---------
@@ -40,12 +43,13 @@ ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
 all: $(ALL_FIGS)
 
 # project dependencies
-$(DEF_FIGS): util/inc.py
-$(TEM_FIGS): util/tem.py
-$(STR_FIGS): util/str.py
+$(DEF_FIGS): bowdef_utils.py
+$(TEM_FIGS): bowtem_utils.py
+$(PAL_FIGS): bowtem_utils.py
+$(STR_FIGS): bowtem_utils.py bowstr_utils.py
 
 # make python figures (alt use LC_ALL=en_GB.utf8 python)
-$(ALL_FIGS): %.pdf : %.py matplotlibrc util/com.py util/geo.py
+$(ALL_FIGS): %.pdf : %.py matplotlibrc
 	python $<
 
 # lint python code

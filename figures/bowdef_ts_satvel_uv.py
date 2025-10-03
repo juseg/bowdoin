@@ -3,10 +3,10 @@
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import util as ut
+import bowdef_utils
 
 # initialize figure
-fig, ax = ut.pl.subplots_mm(figsize=(135.0, 80.0),
+fig, ax = bowdef_utils.subplots_mm(figsize=(135.0, 80.0),
                             left=10.0, right=2.5, bottom=10.0, top=2.5)
 
 # plot new sentinel velocity
@@ -19,9 +19,9 @@ vel = df['vel (m/a)']
 err = df['vel_error (m/a)']
 mask = (dt <= pd.to_timedelta('12D'))
 ax.errorbar(mid[mask], vel[mask], xerr=dt[mask]/2, yerr=err[mask],
-            c=ut.palette['lightpurple'], ls='', lw=0.5, zorder=4, alpha=0.75)
+            c=bowdef_utils.palette['lightpurple'], ls='', lw=0.5, zorder=4, alpha=0.75)
 ax.errorbar(mid[-mask], vel[-mask], xerr=dt[-mask]/2, yerr=err[-mask],
-            c=ut.palette['darkpurple'], ls='', lw=0.5, zorder=4, alpha=0.75)
+            c=bowdef_utils.palette['darkpurple'], ls='', lw=0.5, zorder=4, alpha=0.75)
 
 # plot landsat velocity
 df = pd.read_csv('../data/satellite/bowdoin-landsat-uv.csv',
@@ -32,16 +32,16 @@ vel = df['vel']
 err = df['err']
 mid = pd.DatetimeIndex(mid)
 ax.errorbar(mid, vel, xerr=dt/2, yerr=err,
-            c=ut.palette['darkorange'], lw=0.5, ls='', zorder=3, alpha=0.75)
+            c=bowdef_utils.palette['darkorange'], lw=0.5, ls='', zorder=3, alpha=0.75)
 
 # plot deformation velocity
-for i, bh in enumerate(ut.boreholes):
-    c = ut.colors[bh]
+for i, bh in enumerate(bowdef_utils.boreholes):
+    c = bowdef_utils.colors[bh]
 
     # load data
-    exz = ut.io.load_strain_rate(bh, '1D')['2014-11':]
-    depth = ut.io.load_depth('tiltunit', bh).squeeze()
-    depth_base = ut.io.load_depth('pressure', bh).squeeze()
+    exz = bowdef_utils.load_strain_rate(bh, '1D')['2014-11':]
+    depth = bowdef_utils.load_depth('tiltunit', bh).squeeze()
+    depth_base = bowdef_utils.load_depth('pressure', bh).squeeze()
 
     # ignore broken units
     if bh == 'upper':
@@ -52,30 +52,30 @@ for i, bh in enumerate(ut.boreholes):
     exz.drop(broken, axis='columns', inplace=True)
 
     # fit to a Glen's law
-    n, A = ut.al.glenfit(depth, exz.T)
+    n, A = bowdef_utils.glenfit(depth, exz.T)
 
     # calc deformation velocity
-    vdef = ut.al.vsia(0.0, depth_base, n, A)
+    vdef = bowdef_utils.vsia(0.0, depth_base, n, A)
     vdef = pd.Series(index=exz.index, data=vdef)
 
     # plot
     vdef.plot(ax=ax, c=c, label=bh)
 
 # plot GPS velocity
-c = ut.colors['dgps']
-ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('15min').mean()
+c = bowdef_utils.colors['dgps']
+ts = bowdef_utils.load_data('dgps', 'velocity', 'upper')['vh'].resample('15min').mean()
 ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5, alpha=0.25)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 
 # add annotations
 kwa = dict(fontweight='bold', ha='center', va='center')
-ax.text('20150801', 600, 'GPS', color=ut.colors['dgps'], **kwa)
-ax.text('20150501', 250, 'Landsat', color=ut.palette['darkorange'], **kwa)
-ax.text('20160201', 450, 'Sentinel-1', color=ut.palette['darkpurple'], **kwa)
-ax.text('20150201', 100, 'Boreholes', color=ut.colors['upper'], **kwa)
+ax.text('20150801', 600, 'GPS', color=bowdef_utils.colors['dgps'], **kwa)
+ax.text('20150501', 250, 'Landsat', color=bowdef_utils.palette['darkorange'], **kwa)
+ax.text('20160201', 450, 'Sentinel-1', color=bowdef_utils.palette['darkpurple'], **kwa)
+ax.text('20150201', 100, 'Boreholes', color=bowdef_utils.colors['upper'], **kwa)
 
 # add field campaigns
-ut.pl.plot_campaigns(ax)
+bowdef_utils.plot_campaigns(ax)
 
 # add label
 ax.set_ylabel(r'horizontal velocity ($m\,a^{-1}$)')
@@ -84,4 +84,4 @@ ax.set_ylim(0.0, 800.0)
 #fig.autofmt_xdate()
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

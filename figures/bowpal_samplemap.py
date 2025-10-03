@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
-import util.com
-import util.geo
+import bowtem_utils
+import bowtem_utils
 
 
 def mark_inset(ax0, ax1, text='', **kwargs):
@@ -67,7 +67,7 @@ def init_figure():
         ax.spines['geo'].set_edgecolor('k')
 
         # add subfigure label and mark inset
-        util.com.add_subfig_label(region, ax=ax)
+        bowtem_utils.add_subfig_label(region, ax=ax)
         mark_inset(ax0=fig.axes[0], ax1=ax, text=region[:3], fc='none', ec='k')
 
     # return figure and axes
@@ -87,7 +87,7 @@ def main():
         img.plot.imshow(ax=ax)
 
     # read sample locations
-    locs = util.geo.read_locations('../data/locations.gpx')
+    locs = bowtem_utils.read_locations_dict('../data/locations.gpx')
 
     # plot all sample locations on the main panel
     ax = grid['(a) Bowdoin Glacier']

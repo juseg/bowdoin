@@ -3,7 +3,7 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import util as ut
+import bowdef_utils
 
 refdate = '2014-11-01'
 
@@ -11,13 +11,13 @@ refdate = '2014-11-01'
 fig, ax = plt.subplots(1, 1, sharex=True)
 
 # for each borehole
-for i, bh in enumerate(ut.boreholes):
-    c = ut.colors[bh]
+for i, bh in enumerate(bowdef_utils.boreholes):
+    c = bowdef_utils.colors[bh]
 
     # load data
-    exz = ut.io.load_strain_rate(bh, '1D')[refdate:]
-    depth = ut.io.load_depth('tiltunit', bh).squeeze()
-    depth_base = ut.io.load_depth('pressure', bh).squeeze()
+    exz = bowdef_utils.load_strain_rate(bh, '1D')[refdate:]
+    depth = bowdef_utils.load_depth('tiltunit', bh).squeeze()
+    depth_base = bowdef_utils.load_depth('pressure', bh).squeeze()
 
     # ignore broken units
     if bh == 'upper':
@@ -28,10 +28,10 @@ for i, bh in enumerate(ut.boreholes):
     exz.drop(broken, axis='columns', inplace=True)
 
     # fit to a Glen's law
-    n, A = ut.al.glenfit(depth, exz.T)
+    n, A = bowdef_utils.glenfit(depth, exz.T)
 
     # calc deformation velocity
-    vdef = ut.al.vsia(0.0, depth_base, n, A)
+    vdef = bowdef_utils.vsia(0.0, depth_base, n, A)
     vdef = pd.Series(index=exz.index, data=vdef)
 
     # plot
@@ -42,4 +42,4 @@ ax.set_ylabel(r'deformation velocity ($m\,a^{-1}$)')
 ax.legend()
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

@@ -3,19 +3,19 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import util as ut
+import bowdef_utils
 
 # initialize figure
 fig, grid = plt.subplots(2, 1, sharex=True)
 
 # for each borehole
-for i, bh in enumerate(ut.boreholes):
+for i, bh in enumerate(bowdef_utils.boreholes):
     ax = grid[i]
-    c = ut.colors[bh]
+    c = bowdef_utils.colors[bh]
 
     # read tilt unit tilt
-    tiltx = ut.io.load_data('tiltunit', 'tiltx', bh).resample('1h').mean()
-    tilty = ut.io.load_data('tiltunit', 'tilty', bh).resample('1h').mean()
+    tiltx = bowdef_utils.load_data('tiltunit', 'tiltx', bh).resample('1h').mean()
+    tilty = bowdef_utils.load_data('tiltunit', 'tilty', bh).resample('1h').mean()
 
     # remove empty columns
     tiltx = tiltx.dropna(axis='columns', how='all').iloc[:,-1]
@@ -27,7 +27,7 @@ for i, bh in enumerate(ut.boreholes):
                              (np.sin(tilty).diff()[1:])**2))*180/np.pi/dt
 
     # get longest continuous segment
-    tilt = ut.al.longest_continuous(tilt)
+    tilt = bowdef_utils.longest_continuous(tilt)
 
     # compute fft
     freq = np.fft.rfftfreq(tilt.shape[-1], 10.0/60)
@@ -44,4 +44,4 @@ for i, bh in enumerate(ut.boreholes):
 # save
 grid[0].set_title('tilt velocity FFT')
 grid[1].set_xlabel(r'frequency (h$^{-1}$)')
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

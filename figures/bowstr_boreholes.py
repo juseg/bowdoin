@@ -9,9 +9,9 @@ import xarray as xr
 import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
-import util.com
-import util.geo
-import util.str
+import bowtem_utils
+import bowtem_utils
+import bowstr_utils
 
 COLOURS = dict(bh1='C0', bh3='C6')
 
@@ -25,7 +25,7 @@ def init_figure():
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
-    util.com.add_subfig_labels(fig.axes, colors=('w', 'k'))
+    bowtem_utils.add_subfig_labels(fig.axes, colors=('w', 'k'))
 
     # return figure and axes
     return fig, (ax0, ax1)
@@ -44,7 +44,7 @@ def plot_location_map(ax):
     img.plot.imshow(ax=ax, interpolation='bilinear')
 
     # add boreholes and camp waypoints for each borehole
-    locations = util.geo.read_locations('../data/locations.gpx')
+    locations = bowtem_utils.read_locations_dict('../data/locations.gpx')
     for bh in ('bh1', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=COLOURS[bh], point=point)
@@ -55,7 +55,7 @@ def plot_location_map(ax):
                           marker='^', text='Camp')
 
     # add scale
-    util.com.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
+    bowtem_utils.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
 
     # remove title
     ax.set_title("")
@@ -66,7 +66,7 @@ def plot_long_profile(ax):
 
     # draw vertical lines symbolising the boreholes
     for bh, color in COLOURS.items():
-        base = util.com.load_file(
+        base = bowtem_utils.load(
             '../data/processed/bowdoin.'+bh+'.inc.base.csv')
         base = base.iloc[0].squeeze()
         dist = dict(bh1=2, bh3=1.84)[bh]
@@ -77,7 +77,7 @@ def plot_long_profile(ax):
                 ha='center', va='top')
 
     # plot tilt unit depths
-    depth = util.str.load(variable='dept').iloc[0]  # FIXME depth util?
+    depth = bowstr_utils.load(variable='dept').iloc[0]  # FIXME depth util?
     for i, unit in enumerate(depth.index):
         color = 'C%d' % i
         dist = dict(U=2, L=1.84)[unit[0]]

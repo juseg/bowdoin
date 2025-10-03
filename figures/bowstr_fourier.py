@@ -7,7 +7,7 @@
 
 import numpy as np
 import pandas as pd
-import util.str
+import bowstr_utils
 
 
 def fourier(series):
@@ -42,12 +42,12 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = util.str.subplots_fourier()
+    fig, axes = bowstr_utils.subplots_fourier()
 
     # load stress and freezing dates
-    depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('1h').mean()  # kPa
-    date = util.str.load_freezing_dates()
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    pres = bowstr_utils.load().resample('1h').mean()  # kPa
+    date = bowstr_utils.load_freezing_dates()
 
     # for each tilt unit
     for i, unit in enumerate(pres):
@@ -68,7 +68,7 @@ def main():
         axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
 
     # plot tide data
-    tide = util.str.load_pituffik_tides().resample('1h').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean() / 10  # kPa/10
     for ax in axes[-1]:
         ax.plot(*fourier(tide), c='C9')
 

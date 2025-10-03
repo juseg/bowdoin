@@ -6,8 +6,8 @@
 import numpy as np
 import pandas as pd
 import absplots as apl
-import util.com
-import util.str
+import bowtem_utils
+import bowstr_utils
 
 
 def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
@@ -27,15 +27,15 @@ def main():
         left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=17.5))
 
     # add subfigure labels
-    util.com.add_subfig_labels(grid, loc='sw')
+    bowtem_utils.add_subfig_labels(grid, loc='sw')
 
     # load stress data
-    depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('10min').mean().interpolate()  # kPa
-    pres = util.str.filter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    pres = bowstr_utils.load().resample('10min').mean().interpolate()  # kPa
+    pres = bowstr_utils.filter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
 
     # load tide data
-    tide = util.str.load_pituffik_tides().resample('10min').mean() / 10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
     pres = pres['20140916':'20141016']
     tide = tide['20140916':'20141016']
 

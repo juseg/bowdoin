@@ -6,8 +6,8 @@
 """Plot Bowdoin tides in fjord and Pituffik."""
 
 import absplots as apl
-import util.com
-import util.str
+import bowtem_utils
+import bowstr_utils
 
 
 def main():
@@ -16,11 +16,11 @@ def main():
     # initialize figure
     fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=2, gridspec_kw=dict(
         left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=12.5))
-    util.com.add_subfig_labels(grid)
+    bowtem_utils.add_subfig_labels(grid)
 
     # load Thule and Bowdoin tide data
-    thul = util.str.load_pituffik_tides(start='2015-07', end='2015-08')
-    bowd = util.str.load_bowdoin_tides()
+    thul = bowstr_utils.load_pituffik_tides(start='2015-07', end='2015-08')
+    bowd = bowstr_utils.load_bowdoin_tides()
 
     # crop Thule data and downsample Bowdoin
     thul = thul[bowd.index[0]:bowd.index[-1]]

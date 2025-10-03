@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import netCDF4 as nc4
-import util as ut
+import bowdef_utils
 import gpxpy
 
 if __name__ == '__main__':
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     # plot image data
     filename = '../data/native/S2A_20160808_175915_456_RGB.jpg'
-    data, extent = ut.io.open_gtif(filename)
+    data, extent = bowdef_utils.open_gtif(filename)
     data = np.moveaxis(data, 0, 2)
     ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 
@@ -55,4 +55,4 @@ if __name__ == '__main__':
     cb.set_label('ice velocity (m a$^{-1}$)', labelpad=2)
 
     # save
-    ut.pl.savefig(fig)
+    bowdef_utils.savefig(fig)

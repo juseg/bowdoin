@@ -16,8 +16,8 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 bh = 'upper'
 
 # plot water pressure
-c = ut.palette['darkblue']
-ts = ut.io.load_data('pressure', 'wlev', 'lower')[start:end].resample('1h').mean()
+c = bowdef_utils.palette['darkblue']
+ts = bowdef_utils.load_data('pressure', 'wlev', 'lower')[start:end].resample('1h').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and legend
@@ -28,12 +28,12 @@ ax.grid(axis='x', which='minor', ls=':', lw=0.1)
 
 # plot upper deformation velocity
 ax = ax.twinx()
-c = ut.palette['darkred']
+c = bowdef_utils.palette['darkred']
 
 # load data
-exz = ut.io.load_strain_rate(bh, '2h')[start:end]
-depth = ut.io.load_depth('tiltunit', bh).squeeze()
-depth_base = ut.io.load_depth('pressure', bh).squeeze()
+exz = bowdef_utils.load_strain_rate(bh, '2h')[start:end]
+depth = bowdef_utils.load_depth('tiltunit', bh).squeeze()
+depth_base = bowdef_utils.load_depth('pressure', bh).squeeze()
 
 # ignore two lowest units on upper borehole
 broken = ['UI01', 'UI02', 'UI03']
@@ -41,10 +41,10 @@ depth.drop(broken, inplace=True)
 exz.drop(broken, axis='columns', inplace=True)
 
 # fit to a Glen's law
-n, A = ut.al.glenfit(depth, exz.T)
+n, A = bowdef_utils.glenfit(depth, exz.T)
 
 # calc deformation velocity
-vdef = ut.al.vsia(0.0, depth_base, n, A)
+vdef = bowdef_utils.vsia(0.0, depth_base, n, A)
 vdef = pd.Series(index=exz.index, data=vdef)
 
 # plot
@@ -56,4 +56,4 @@ ax.set_ylim(-20.0, 80.0)
 ax.set_xlim(start, end)
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

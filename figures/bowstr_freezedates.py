@@ -10,7 +10,8 @@ import matplotlib as mpl
 import matplotlib.dates as mdates
 import brokenaxes as bax
 import absplots as apl
-import util.str
+import bowstr_utils
+import bowtem_utils
 
 
 def main():
@@ -28,13 +29,13 @@ def main():
                pd.to_datetime(('20140908', '20171216')))) for subspec in spec]
 
     # add subfigure labels
-    util.com.add_subfig_labels([ax.axs[0] for ax in axes])
+    bowtem_utils.add_subfig_labels([ax.axs[0] for ax in axes])
 
     # load stress, temperature and freezing dates
-    depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load(variable='wlev').resample('1h').mean() / 1e3
-    temp = util.str.load(variable='temp').resample('1h').mean()
-    date = util.str.load_freezing_dates()
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    pres = bowstr_utils.load(variable='wlev').resample('1h').mean() / 1e3
+    temp = bowstr_utils.load(variable='temp').resample('1h').mean()
+    date = bowstr_utils.load_freezing_dates()
 
     # plot stress and temperature
     # data.plot(ax=ax, legend=False)  # fails (#40)
@@ -59,10 +60,10 @@ def main():
                 textcoords='offset points', ha='left', va='center')
 
     # add campaigns (only on large format plot)
-    util.com.plot_field_campaigns(ax=axes[0].axs[0], ytext=-1)
-    util.com.plot_field_campaigns(ax=axes[0].axs[1], ytext=-1)
-    util.com.plot_field_campaigns(ax=axes[1].axs[0], ytext=0.02)
-    util.com.plot_field_campaigns(ax=axes[1].axs[1], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[0].axs[0], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=axes[0].axs[1], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=axes[1].axs[0], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[1].axs[1], ytext=0.02)
 
     # set axes properties
     axes[1].set_ylim(-6.5, 0.5)

@@ -13,7 +13,7 @@ import pandas as pd
 import absplots as apl
 import matplotlib as mpl
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-import util.com
+import bowtem_utils
 
 # Physical constants
 # ------------------
@@ -38,7 +38,7 @@ def load(variable='wlev'):
 
     # load all inclinometer data for this variable
     pattern = '../data/processed/bowdoin.*.inc.' + variable + '.csv'
-    data = [util.com.load_file(f) for f in glob.glob(pattern)]
+    data = [bowtem_utils.load(f) for f in glob.glob(pattern)]
     data = pd.concat(data, axis=1)
 
     # convert water levels to pressure
@@ -58,7 +58,7 @@ def load_freezing_dates(fraction=0.8):
     """Load freezing dates."""
 
     # load hourly temperature data
-    temp = util.str.load(variable='temp').resample('1h').mean()
+    temp = load(variable='temp').resample('1h').mean()
 
     # remove a long-term warming tail
     for unit, series in temp.items():
@@ -157,7 +157,7 @@ def subplots_fourier():
     axes = np.delete(axes, [3, 7], 0)
 
     # add subfigure labels on main axes
-    util.com.add_subfig_labels(axes[:, 0])
+    bowtem_utils.add_subfig_labels(axes[:, 0])
 
     # set log scale on all axes
     for ax in axes.flat:
@@ -214,7 +214,7 @@ def subplots_specgram(nrows=10):
             left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=1))
 
     # add subfigure labels
-    util.com.add_subfig_labels(axes)
+    bowtem_utils.add_subfig_labels(axes)
 
     # show only the outside spines
     for ax in axes:

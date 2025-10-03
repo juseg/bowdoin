@@ -30,7 +30,7 @@ def get_profiles(depth, temp):
 
 # initialize figure
 figw, figh = 135.0, 120.0
-fig, grid = ut.pl.subplots_mm(nrows=1, ncols=2, figsize=(figw, figh),
+fig, grid = bowdef_utils.subplots_mm(nrows=1, ncols=2, figsize=(figw, figh),
                               left=10.0, bottom=45.0, right=10.0, top=5.0,
                               wspace=5.0, hspace=5.0, sharey=True)
 tsax = fig.add_axes([10.0/figw, 10.0/figh, 1-20.0/figw, 30.0/figh])
@@ -46,17 +46,17 @@ end = '2015-11-01'
 
 # plot upper temperature profile
 ax = grid[0]
-bh = ut.boreholes[0]
-c = ut.colors[bh]
+bh = bowdef_utils.boreholes[0]
+c = bowdef_utils.colors[bh]
 
 # read temperature values
-temp_temp = ut.io.load_data('thstring', 'temp', bh).resample('1D').mean()[start:end]
-tilt_temp = ut.io.load_data('tiltunit', 'temp', bh).resample('1D').mean()[start:end]
+temp_temp = bowdef_utils.load_data('thstring', 'temp', bh).resample('1D').mean()[start:end]
+tilt_temp = bowdef_utils.load_data('tiltunit', 'temp', bh).resample('1D').mean()[start:end]
 
 # read depths
-temp_depth = ut.io.load_depth('thstring', bh).squeeze()
-tilt_depth = ut.io.load_depth('tiltunit', bh).squeeze()
-base_depth = ut.io.load_depth('pressure', bh).squeeze()
+temp_depth = bowdef_utils.load_depth('thstring', bh).squeeze()
+tilt_depth = bowdef_utils.load_depth('tiltunit', bh).squeeze()
+base_depth = bowdef_utils.load_depth('pressure', bh).squeeze()
 
 # sensors can't be lower than the base
 temp_depth = np.minimum(temp_depth, base_depth)
@@ -93,13 +93,13 @@ ax.set_title(u'ice temperature (°C)')
 ax = grid[1]
 
 # read data values
-exz = ut.io.load_total_strain(bh, start, end)
+exz = bowdef_utils.load_total_strain(bh, start, end)
 notnull = exz.notnull()
 tilt_depth = tilt_depth[notnull]
 exz = exz[notnull]
 
 # plot velocity profile
-ut.pl.plot_vsia_profile(tilt_depth, exz, base_depth, ax=ax, c=c, annotate=False)
+bowdef_utils.plot_vsia_profile(tilt_depth, exz, base_depth, ax=ax, c=c, annotate=False)
 
 # set axes properties
 ax.set_xlim(32.5, 0.0)
@@ -107,9 +107,9 @@ ax.set_title(r'ice deformation (m a$^{-1}$)')
 
 # plot lower water level time series
 ax = tsax
-bh = ut.boreholes[0]
-c = ut.colors[bh]
-ts = ut.io.load_data('pressure', 'wlev', bh).resample('12h').mean()[1:]
+bh = bowdef_utils.boreholes[0]
+c = bowdef_utils.colors[bh]
+ts = bowdef_utils.load_data('pressure', 'wlev', bh).resample('12h').mean()[1:]
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label
@@ -118,8 +118,8 @@ ax.locator_params(axis='y', nbins=6)
 
 # plot GPS velocity
 ax = ax.twinx()
-c = ut.colors['dgps']
-ts = ut.io.load_data('dgps', 'velocity', 'upper')['vh'].resample('12h').mean()
+c = bowdef_utils.colors['dgps']
+ts = bowdef_utils.load_data('dgps', 'velocity', 'upper')['vh'].resample('12h').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and set limits
@@ -129,7 +129,7 @@ ax.set_ylim(0, 800)
 ax.locator_params(axis='y', nbins=6)
 
 # add field campaigns
-ut.pl.plot_campaigns(ax)
+bowdef_utils.plot_campaigns(ax)
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

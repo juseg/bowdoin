@@ -9,10 +9,9 @@ import numpy as np
 import scipy.interpolate as sinterp
 import pandas as pd
 import cartopy.crs as ccrs
-import util.com
+import bowtem_utils
 import absplots as apl
-import util.inc
-import util.tem
+import bowtem_utils
 
 
 # Physical constants
@@ -105,7 +104,7 @@ def estimate_longitudinal_strain_rate():
     """
 
     # load borehole positions
-    locs = util.com.read_locations(crs=ccrs.UTM(19))
+    locs = bowtem_utils.read_locations(crs=ccrs.UTM(19))
     d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
             (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5
     d_14 = ((locs.x.B14BH3-locs.x.B14BH1)**2 +
@@ -124,7 +123,7 @@ def estimate_shear_strain_rate(bh):
     in BH1 and BH3.
     """
     bh = bh.replace('bh2', 'bh1').replace('err', 'bh3')
-    e_xz = util.inc.load_strain_rate(bh)['2014-10':].mean()
+    e_xz = bowtem_utils.load_strain_rate(bh)['2014-10':].mean()
     e_xz = e_xz.mean()
     return e_xz
 
@@ -150,7 +149,7 @@ def plot_markers(ax, depth, temp, **kwargs):
     """
     Plot markers profile based on sensor type.
     """
-    for sensor, marker in util.tem.MARKERS.items():
+    for sensor, marker in bowtem_utils.MARKERS.items():
         mask = depth.index.str[1] == sensor
         ax.plot(temp[mask], depth[mask], marker=marker, ls='', **kwargs)
 
@@ -164,14 +163,14 @@ def main():
             left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=ax1, text='(b)')
+    bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
+    bowtem_utils.add_subfig_label(ax=ax1, text='(b)')
 
     # for each borehole
-    for bh, color in util.tem.COLOURS.items():
+    for bh, color in bowtem_utils.COLOURS.items():
 
         # load temperature profiles
-        temp, depth, base = util.tem.load_profiles(bh)
+        temp, depth, base = bowtem_utils.load_profiles(bh)
         temp0 = temp.iloc[:, 0]
         temp1 = temp.iloc[:, 1]
 
@@ -199,7 +198,7 @@ def main():
         # annotate maximum observed warming below
         sensor = change.idxmax()
         ax1.plot(change[sensor], depth[sensor], c=color,
-                 marker=util.tem.MARKERS[sensor[1]])
+                 marker=bowtem_utils.MARKERS[sensor[1]])
         ax1.text(change[sensor], depth[sensor],
                  r'  +%.2f$°C\,a^{-1}$' % (change)[sensor], color=color,
                  ha='left', va='bottom')

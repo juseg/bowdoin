@@ -2,7 +2,7 @@
 
 import matplotlib.pyplot as plt
 import netCDF4 as nc4
-import util as ut
+import bowdef_utils
 
 if __name__ == '__main__':
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     unc.close()
     vnc.close()
     c = (u**2+v**2)**0.5
-    ax.hist(c.compressed(), bins=range(0,451,1), ec='none', fc=ut.palette['darkorange'])
+    ax.hist(c.compressed(), bins=range(0,451,1), ec='none', fc=bowdef_utils.palette['darkorange'])
 
     # save
-    ut.pl.savefig(fig)
+    bowdef_utils.savefig(fig)

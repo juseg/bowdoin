@@ -7,7 +7,8 @@
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import absplots as apl
-import util.str
+import bowstr_utils
+import bowtem_utils
 
 
 def main():
@@ -20,10 +21,10 @@ def main():
                          bottom=12.5, top=2.5, hspace=2.5))
 
     # add subfigure labels
-    util.com.add_subfig_labels(grid)
+    bowtem_utils.add_subfig_labels(grid)
 
     # for each tilt unit
-    pres = util.str.load()
+    pres = bowstr_utils.load()
     for i, unit in enumerate(pres):
         color = 'C%d' % i
 

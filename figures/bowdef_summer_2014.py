@@ -3,7 +3,7 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
-import util as ut
+import bowdef_utils
 
 start = '2014-07-15'
 end = '2014-09-01'
@@ -13,7 +13,7 @@ fig, ax = plt.subplots(1, 1, sharex=True)
 
 # plot ice cap air temp
 c = '0.25'
-ts = ut.io.load_temp_sigma()[start:end].resample('3h').mean()
+ts = bowdef_utils.load_temp_sigma()[start:end].resample('3h').mean()
 ts.plot(ax=ax, c=c, legend=False)
 
 # add label and legend
@@ -24,12 +24,12 @@ ax.set_ylim(-10.0, 40.0)
 # plot upper deformation velocity
 ax = ax.twinx()
 bh = 'upper'
-c = ut.colors[bh]
+c = bowdef_utils.colors[bh]
 
 # load data
-exz = ut.io.load_strain_rate(bh, '3h')[start:end]
-depth = ut.io.load_depth('tiltunit', bh).squeeze()
-depth_base = ut.io.load_depth('pressure', bh).squeeze()
+exz = bowdef_utils.load_strain_rate(bh, '3h')[start:end]
+depth = bowdef_utils.load_depth('tiltunit', bh).squeeze()
+depth_base = bowdef_utils.load_depth('pressure', bh).squeeze()
 
 # ignore two lowest units on upper borehole
 broken = ['UI01', 'UI02', 'UI03']
@@ -37,10 +37,10 @@ depth.drop(broken, inplace=True)
 exz.drop(broken, axis='columns', inplace=True)
 
 # fit to a Glen's law
-n, A = ut.al.glenfit(depth, exz.T)
+n, A = bowdef_utils.glenfit(depth, exz.T)
 
 # calc deformation velocity
-vdef = ut.al.vsia(0.0, depth_base, n, A)
+vdef = bowdef_utils.vsia(0.0, depth_base, n, A)
 vdef = pd.Series(index=exz.index, data=vdef)
 
 # plot
@@ -52,4 +52,4 @@ ax.set_ylim(-20.0, 80.0)
 ax.set_xlim(start, end)
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

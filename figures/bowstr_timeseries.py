@@ -8,8 +8,8 @@
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import pandas as pd
 import absplots as apl
-import util.com
-import util.str
+import bowtem_utils
+import bowstr_utils
 
 
 def main():
@@ -22,19 +22,19 @@ def main():
         left=52.5, right=5, bottom=85, top=5, wspace=2.5))
 
     # add subfigure labels
-    util.com.add_subfig_label(ax=ax0, text='(a)')
-    util.com.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
-    util.com.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
+    bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
+    bowtem_utils.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
+    bowtem_utils.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
 
     # plot tilt unit water level
-    depth = util.str.load(variable='dept').iloc[0]
+    depth = bowstr_utils.load(variable='dept').iloc[0]
     freq = pd.to_timedelta('1D')/24  # needed for x-axis alignment
-    pres = util.str.load().resample(freq).mean()/1e3
+    pres = bowstr_utils.load().resample(freq).mean()/1e3
     for ax in (ax0, *insets):
         pres.plot(ax=ax, legend=False)
 
     # plot freezing dates
-    # temp = util.str.load(variable='temp')['20140717':].resample('1h').mean()
+    # temp = bowstr_utils.load(variable='temp')['20140717':].resample('1h').mean()
     # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
     # for ax in (ax0, ax1):
     #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')
@@ -50,7 +50,7 @@ def main():
             textcoords='offset points', ha='left', va='center')
 
     # add campaigns
-    util.com.plot_field_campaigns(ax=ax0, ytext=0.01)
+    bowtem_utils.add_field_campaigns(ax=ax0, ytext=0.01)
 
     # set main axes properties
     ax0.set_xlabel('')

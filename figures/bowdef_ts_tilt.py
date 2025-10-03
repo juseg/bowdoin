@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import matplotlib.pyplot as plt
-import util as ut
+import bowdef_utils
 
 refdate = '2014-11-01'
 
@@ -11,12 +11,12 @@ fig, grid = plt.subplots(2, 1, sharex=True, sharey=True)
 grid[0].set_title('tilt angle ($^{\circ}$)')
 
 # for each borehole
-for i, bh in enumerate(ut.boreholes):
+for i, bh in enumerate(bowdef_utils.boreholes):
     ax = grid[i]
-    c = ut.colors[bh]
+    c = bowdef_utils.colors[bh]
 
     # plot tilt angle
-    tilt = ut.io.load_total_strain(bh, refdate, as_angle=True).resample('1D').mean()
+    tilt = bowdef_utils.load_total_strain(bh, refdate, as_angle=True).resample('1D').mean()
     tilt.plot(ax=ax, c=c, legend=False)
 
     # set title
@@ -25,4 +25,4 @@ for i, bh in enumerate(ut.boreholes):
     ax.set_ylabel(bh)
 
 # save
-ut.pl.savefig(fig)
+bowdef_utils.savefig(fig)

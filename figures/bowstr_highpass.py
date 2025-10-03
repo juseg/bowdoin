@@ -8,7 +8,8 @@
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import numpy as np
 import absplots as apl
-import util.str
+import bowstr_utils
+import bowtem_utils
 
 
 def main():
@@ -20,15 +21,15 @@ def main():
             left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=12.5))
 
     # add subfigure labels
-    util.com.add_subfig_labels(axes, bbox=dict(alpha=0.85, ec='none', fc='w'))
+    bowtem_utils.add_subfig_labels(axes, bbox=dict(alpha=0.85, ec='none', fc='w'))
 
     # highpass-filter stress series
-    depth = util.str.load(variable='dept').iloc[0]
-    pres = util.str.load().resample('1h').mean()
-    pres = util.str.filter(pres)
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    pres = bowstr_utils.load().resample('1h').mean()
+    pres = bowstr_utils.filter(pres)
 
     # load tide data
-    tide = util.str.load_pituffik_tides().resample('1h').mean()  # kPa
+    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean()  # kPa
 
     # apply transformation for plotting
     tide /= 10
