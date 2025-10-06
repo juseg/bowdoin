@@ -8,9 +8,7 @@
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
-import brokenaxes as bax
 import absplots as apl
-import bowtem_utils
 import bowtem_utils
 
 # Pandas plot methods do not work on brokenaxes (issue #40)
@@ -33,12 +31,10 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig = apl.figure_mm(figsize=(180, 120))
-    gridspec_kw = dict(left=12.5, right=2.5, bottom=12.5, top=2.5)
-    subplotspec = fig.add_gridspec_mm(nrows=1, ncols=1, **gridspec_kw)[:]
-    ax = bax.brokenaxes(despine=False, height_ratios=[4, 1], hspace=0.02,
-                        subplot_spec=subplotspec, tilt=15,
-                        ylims=[(-15.5, -6.5), (-6.5, 0.5)])
+    fig, axes = apl.subplots_mm(
+        nrows=2, figsize=(180, 120), sharex=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'hspace': 1, 'height_ratios': [4, 1]})
 
     # for each borehole
     for bh, color in bowtem_utils.COLOURS.items():
@@ -46,7 +42,8 @@ def main():
         # plot daily means
         temp, depth, _ = bowtem_utils.load_all(bh)
         temp = temp.resample('1D').mean()
-        ax.plot(temp.index, temp.values, c=color)
+        for ax in axes:
+            ax.plot(temp.index, temp.values, c=color)
         # temp.plot(ax=ax, c=color, legend=False)  # fails (issue #40)
 
         # plot manual readings
@@ -55,23 +52,26 @@ def main():
 
             # for bh2 draw dotted line across 2016 data gap
             if bh == 'bh2':
-                ax.plot(manu[:3].index, manu[:3], c=color, ls=':', lw=0.5)
+                for ax in axes:
+                    ax.plot(manu[:3].index, manu[:3], c=color, ls=':', lw=0.5)
                 # manu[1:3].plot(ax=ax, c=color, ls=':', lw=0.5)  # fails (#40)
 
             # for all boreholes draw filled and empty markers
             manu = manu.resample('1D').mean()
             mask = mask.resample('1D').prod() > 0
-            ax.plot(manu.where(mask).index, manu.where(mask).values,
-                    c='none', marker='o', mec=color)
-            ax.plot(manu.mask(mask).index, manu.mask(mask).values,
-                    c=color, marker='o')
+            for ax in axes:
+                ax.plot(manu.where(mask).index, manu.where(mask).values,
+                        c='none', marker='o', mec=color)
+                ax.plot(manu.mask(mask).index, manu.mask(mask).values,
+                        c=color, marker='o')
             # manu.where(mask).plot(ax=ax, c='none', marker='o', mec=color)
             # manu.mask(mask).plot(ax=ax, c=color, marker='o')  # fails (#40)
 
         # add profile dates
         for date in bowtem_utils.PROFILES_DATES[bh]:
             offset = (0 if bh in ('bh1', 'bh3') else 3)
-            ax.axvline(date, color=color, ls=(offset, [2, 4]))
+            for ax in axes:
+                ax.axvline(date, color=color, ls=(offset, [2, 4]))
 
         # add unit labels
         offsets = dict(
@@ -80,31 +80,44 @@ def main():
             UT08=-4, UT09=0, UT10=-8, UT11=6, UT12=0, UT13=-2, UT14=-2)
         for unit in temp:
             last = temp[unit].dropna().tail(1)
-            ax.annotate(
-                r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
-                color=color, clip_on=True, fontsize=6, fontweight='bold',
-                xy=(last.index, last.iloc[0]),
-                xytext=(6, offsets.get(unit, 0)),
-                textcoords='offset points', ha='left', va='center')
+            for ax in axes:
+                ax.annotate(
+                    r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+                    color=color, clip_on=True, fontsize=6, fontweight='bold',
+                    xy=(last.index, last.iloc[0]),
+                    xytext=(6, offsets.get(unit, 0)),
+                    textcoords='offset points', ha='left', va='center')
 
 
     # add campaigns
-    bowtem_utils.add_field_campaigns(ax=ax.axs[0], ytext=-1)
-    bowtem_utils.add_field_campaigns(ax=ax.axs[1])
+    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=axes[1])
 
     # set axes properties
-    ax.set_ylabel(u'temperature (°C)', labelpad=24)
-    ax.set_xlim('20140615', '20171215')
+    axes[0].set_ylabel('temperature (°C)', y=3/8)
+    axes[0].set_xlim('20140615', '20171215')
+    axes[0].set_ylim(-6.5, 0.5)
+    axes[1].set_ylim(-15.5, -6.5)
+
+    # emulate broken axes
+    for ax in axes.flat:
+        gs = ax.get_subplotspec()
+        ax.spines['top'].set_visible(gs.is_first_row())
+        ax.spines['bottom'].set_visible(gs.is_last_row())
+        ax.tick_params(labelleft=True, bottom=gs.is_last_row())
+        ax.plot(
+            [0, 1], [1*gs.is_last_row()]*2, clip_on=False, ls='',
+            marker=[(-2, -1), (2, 1)], mec='k', ms=6, transform=ax.transAxes)
 
     # set better ticks (pandas would do it if #40 is fixed)
-    format_date_axis(ax.axs[0].xaxis)
-    format_date_axis(ax.axs[1].xaxis)
-    ax.axs[0].xaxis.set_tick_params(which='both', length=0)
-    ax.axs[0].set_yticks(range(-6, 1))
-    ax.axs[1].set_yticks(range(-14, -6, 2))
+    format_date_axis(axes[0].xaxis)
+    format_date_axis(axes[1].xaxis)
+    axes[0].xaxis.set_tick_params(which='both', length=0)
+    axes[0].set_yticks(range(-6, 1))
+    axes[1].set_yticks(range(-14, -6, 2))
 
     # add standalone legend
-    ax.axs[0].legend(*zip(*[
+    axes[0].legend(*zip(*[
         (plt.Line2D([], [], c=c, marker='o'*(bh != 'bh1')),
          bh.upper()) for bh, c in bowtem_utils.COLOURS.items()]))
 
