@@ -37,15 +37,17 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        nrows=2, figsize=(180, 120), sharex=True, gridspec_kw={
+        ncols=2, nrows=2, figsize=(180, 120), sharex='col', sharey='row',
+        gridspec_kw={
             'left': 12.5, 'right': 2.5, 'bottom': 10, 'top': 2.5,
-            'height_ratios': (3, 1), 'hspace': 2.5})
+            'height_ratios': (3, 1), 'hspace': 2.5,
+            'width_ratios': [1, 3], 'wspace': 1})
     insets = fig.subplots_mm(ncols=2, gridspec_kw={
         'left': 52.5, 'right': 5, 'bottom': 95, 'top': 5, 'wspace': 2.5})
 
     # add subfigure labels
-    bowtem_utils.add_subfig_label(ax=axes[0], text='(a)')
-    bowtem_utils.add_subfig_label(ax=axes[1], text='(d)')
+    bowtem_utils.add_subfig_label(ax=axes[0, 0], text='(a)')
+    bowtem_utils.add_subfig_label(ax=axes[1, 0], text='(d)')
     bowtem_utils.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
     bowtem_utils.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
 
@@ -56,30 +58,38 @@ def main():
     date = bowstr_utils.load_freezing_dates()
 
     # plot stress and temperature data
-    pres.plot(ax=axes[0], legend=False)
-    temp.plot(ax=axes[1], legend=False)
+    pres.plot(ax=axes[0, 0], legend=False)
+    pres.plot(ax=axes[0, 1], legend=False)
+    temp.plot(ax=axes[1, 0], legend=False)
+    temp.plot(ax=axes[1, 1], legend=False)
     pres.plot(ax=insets[0], legend=False)
     pres.plot(ax=insets[1], legend=False)
 
     # add closure dates
-    add_closure_dates(axes[0], pres, date)
-    add_closure_dates(axes[1], temp, date)
+    add_closure_dates(axes[0, 0], pres, date)
+    add_closure_dates(axes[0, 1], temp, date)
+    add_closure_dates(axes[1, 0], temp, date)
+    add_closure_dates(axes[1, 1], temp, date)
 
     # add unit labels
-    add_unit_labels(axes[0], pres, depth, {'LI05': -4, 'UI02': 4, 'UI03': -12})
-    add_unit_labels(axes[1], temp, depth)
+    add_unit_labels(axes[0, 1], pres, depth, offsets={
+        'LI05': -4, 'UI02': 4, 'UI03': -12})
+    add_unit_labels(axes[1, 1], temp, depth)
 
     # add campaigns
-    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=0.02)
-    bowtem_utils.add_field_campaigns(ax=axes[1])
+    bowtem_utils.add_field_campaigns(ax=axes[0, 0], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[0, 1], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[1, 0])
+    bowtem_utils.add_field_campaigns(ax=axes[1, 1])
 
     # set main axes properties
-    axes[1].set_xlabel('')
-    axes[0].set_ylabel('stress (MPa)')
-    axes[1].set_ylabel('temperature (°C)')
-    axes[0].set_xlim('20140615', '20171215')
-    axes[0].set_ylim(-1/12, 4-1/12)
-    axes[1].set_ylim(-6.5, 0.5)
+    axes[1, 0].set_xlabel('')
+    axes[0, 0].set_ylabel('stress (MPa)')
+    axes[1, 0].set_ylabel('temperature (°C)')
+    axes[0, 0].set_xlim('20140708', '20140908')
+    axes[0, 1].set_xlim('20140908', '20171216')
+    axes[0, 0].set_ylim(-1/12, 4-1/12)
+    axes[1, 0].set_ylim(-6.5, 0.5)
 
     # set inset axes limits
     insets[0].set_xlim('20140901', '20141001')
@@ -89,6 +99,17 @@ def main():
     insets[1].set_xlim('20140922', '20140930')
     insets[1].set_ylim(1.42, 1.50)
 
+    # emulate broken axes
+    for ax in axes.flat:
+        gs = ax.get_subplotspec()
+        ax.spines['left'].set_visible(gs.is_first_col())
+        ax.spines['right'].set_visible(gs.is_last_col())
+        ax.tick_params(
+            labelbottom=gs.is_last_row(), left=gs.is_first_col())
+        ax.plot(
+            [1*gs.is_first_col()]*2, [0, 1], clip_on=False, ls='',
+            marker=[(-1, -2), (1, 2)], mec='k', ms=6, transform=ax.transAxes)
+
     # remove ticks, add grid
     for ax in insets:
         ax.set_xticklabels([])
@@ -97,7 +118,7 @@ def main():
         ax.grid(which='minor')
 
     # mark insets
-    mark_inset(axes[0], insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
+    mark_inset(axes[0, 0], insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
     mark_inset(insets[0], insets[1], loc1=2, loc2=3, ec='0.75', ls='--')
 
     # save default
