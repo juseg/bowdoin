@@ -5,7 +5,6 @@
 
 """Plot Bowdoin stress time series."""
 
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import absplots as apl
 import bowtem_utils
 import bowstr_utils
@@ -127,6 +126,13 @@ def main():
     add_inset_indicator(axes[0, 0], insets[0], connectors=(1,))
     add_inset_indicator(axes[0, 1], insets[0], connectors=(2,))
     add_inset_indicator(insets[0], insets[1], connectors=(0, 1))
+
+    # fix mysterious behaviour of pandas private ticker
+    axes[1, 0].set_xticks([], minor=True)
+    axes[1, 0].set_xticks(axes[1, 0].get_xticks()[1:-1])
+    axes[1, 0].set_xticklabels([
+        label.get_text().lstrip('\n')
+        for label in axes[1, 0].get_xticklabels()])
 
     # save default
     fig.savefig(__file__[:-3])
