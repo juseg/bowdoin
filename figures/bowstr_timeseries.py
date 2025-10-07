@@ -70,7 +70,8 @@ def main():
     add_unit_labels(axes[1], temp, depth)
 
     # add campaigns
-    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=0.01)
+    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=axes[1], ytext=0.02)
 
     # set main axes properties
     axes[0].set_xlabel('')
