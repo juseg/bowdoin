@@ -6,7 +6,6 @@
 """Plot Bowdoin stress time series."""
 
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-import pandas as pd
 import absplots as apl
 import bowtem_utils
 import bowstr_utils
@@ -41,7 +40,7 @@ def main():
         gridspec_kw={
             'left': 12.5, 'right': 2.5, 'bottom': 10, 'top': 2.5,
             'height_ratios': (3, 1), 'hspace': 2.5,
-            'width_ratios': [1, 3], 'wspace': 1})
+            'width_ratios': (1, 5), 'wspace': 1})
     insets = fig.subplots_mm(ncols=2, gridspec_kw={
         'left': 52.5, 'right': 5, 'bottom': 95, 'top': 5, 'wspace': 2.5})
 
@@ -83,7 +82,7 @@ def main():
     axes[0, 0].set_ylabel('stress (MPa)')
     axes[1, 0].set_ylabel('temperature (°C)')
     axes[0, 0].set_xlim('20140708', '20140908')
-    axes[0, 1].set_xlim('20140908', '20171216')
+    axes[0, 1].set_xlim('20140908', '20171201')
     axes[0, 0].set_ylim(-1/12, 4-1/12)
     axes[1, 0].set_ylim(-6.5, 0.5)
 
@@ -100,8 +99,7 @@ def main():
         gs = ax.get_subplotspec()
         ax.spines['left'].set_visible(gs.is_first_col())
         ax.spines['right'].set_visible(gs.is_last_col())
-        ax.tick_params(
-            labelbottom=gs.is_last_row(), left=gs.is_first_col())
+        ax.tick_params(labelbottom=gs.is_last_row(), left=gs.is_first_col())
         ax.plot(
             [1*gs.is_first_col()]*2, [0, 1], clip_on=False, ls='',
             marker=[(-1, -2), (1, 2)], mec='k', ms=6, transform=ax.transAxes)
@@ -115,6 +113,7 @@ def main():
 
     # mark insets
     mark_inset(axes[0, 0], insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
+    mark_inset(axes[0, 1], insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
     mark_inset(insets[0], insets[1], loc1=2, loc2=3, ec='0.75', ls='--')
 
     # save default
