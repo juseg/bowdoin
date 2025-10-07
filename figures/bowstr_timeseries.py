@@ -16,22 +16,30 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, ax0 = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
-        'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5})
+    fig, axes = apl.subplots_mm(
+        nrows=2, figsize=(180, 120), sharex=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'hspace': 2.5})
     insets = fig.subplots_mm(ncols=2, gridspec_kw={
         'left': 52.5, 'right': 5, 'bottom': 85, 'top': 5, 'wspace': 2.5})
 
     # add subfigure labels
-    bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
+    bowtem_utils.add_subfig_label(ax=axes[0], text='(a)')
+    bowtem_utils.add_subfig_label(ax=axes[1], text='(d)')
     bowtem_utils.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
     bowtem_utils.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
 
-    # plot tilt unit water level
+    # load stress, temperature and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    freq = pd.to_timedelta('1D')/24  # needed for x-axis alignment
-    pres = bowstr_utils.load().resample(freq).mean()/1e3
-    for ax in (ax0, *insets):
-        pres.plot(ax=ax, legend=False)
+    pres = bowstr_utils.load(variable='wlev').resample('1h').mean() / 1e3
+    temp = bowstr_utils.load(variable='temp').resample('1h').mean()
+    date = bowstr_utils.load_freezing_dates()
+
+    # plot stress and temperature data
+    pres.plot(ax=axes[0], legend=False)
+    temp.plot(ax=axes[1], legend=False)
+    pres.plot(ax=insets[0], legend=False)
+    pres.plot(ax=insets[1], legend=False)
 
     # plot freezing dates
     # temp = bowstr_utils.load(variable='temp')['20140717':]
@@ -44,19 +52,19 @@ def main():
     offsets = {'LI05': -4, 'UI02': 4, 'UI03': -12}
     for i, unit in enumerate(pres):
         last = pres[unit].dropna().tail(1)
-        ax0.annotate(
+        axes[0].annotate(
             fr'{unit}, {depth[unit]:.0f}$\,$m',
             color=f'C{i}', fontsize=6, fontweight='bold',
             xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)),
             textcoords='offset points', ha='left', va='center')
 
     # add campaigns
-    bowtem_utils.add_field_campaigns(ax=ax0, ytext=0.01)
+    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=0.01)
 
     # set main axes properties
-    ax0.set_xlabel('')
-    ax0.set_ylabel('stress (MPa)')
-    ax0.set_xlim('20140615', '20171215')
+    axes[0].set_xlabel('')
+    axes[0].set_ylabel('stress (MPa)')
+    axes[0].set_xlim('20140615', '20171215')
 
     # set inset axes limits
     insets[0].set_xlim('20140901', '20141001')
@@ -74,7 +82,7 @@ def main():
         ax.grid(which='minor')
 
     # mark insets
-    mark_inset(ax0, insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
+    mark_inset(axes[0], insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
     mark_inset(insets[0], insets[1], loc1=2, loc2=3, ec='0.75', ls='--')
 
     # save default
