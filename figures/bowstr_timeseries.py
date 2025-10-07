@@ -16,10 +16,10 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, ax0 = apl.subplots_mm(figsize=(180, 120), gridspec_kw=dict(
-        left=12.5, right=2.5, bottom=12.5, top=2.5))
-    insets = fig.subplots_mm(ncols=2, gridspec_kw=dict(
-        left=52.5, right=5, bottom=85, top=5, wspace=2.5))
+    fig, ax0 = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
+        'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5})
+    insets = fig.subplots_mm(ncols=2, gridspec_kw={
+        'left': 52.5, 'right': 5, 'bottom': 85, 'top': 5, 'wspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
@@ -34,18 +34,19 @@ def main():
         pres.plot(ax=ax, legend=False)
 
     # plot freezing dates
-    # temp = bowstr_utils.load(variable='temp')['20140717':].resample('1h').mean()
+    # temp = bowstr_utils.load(variable='temp')['20140717':]
+    # temp = temp.resample('1h').mean()
     # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
     # for ax in (ax0, ax1):
     #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')
 
     # add unit labels
-    offsets = dict(LI05=-4, UI02=4, UI03=-12)
+    offsets = {'LI05': -4, 'UI02': 4, 'UI03': -12}
     for i, unit in enumerate(pres):
         last = pres[unit].dropna().tail(1)
         ax0.annotate(
-            r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
-            color='C{}'.format(i), fontsize=6, fontweight='bold',
+            fr'{unit}, {depth[unit]:.0f}$\,$m',
+            color=f'C{i}', fontsize=6, fontweight='bold',
             xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)),
             textcoords='offset points', ha='left', va='center')
 
