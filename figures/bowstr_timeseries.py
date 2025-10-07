@@ -12,6 +12,15 @@ import bowtem_utils
 import bowstr_utils
 
 
+def add_closure_dates(ax, data, date):
+    """Add borehole closure dates."""
+    for i, unit in enumerate(data):
+        ax.plot(
+            date[[unit]].astype('int') // 1e9 // 3600,
+            data[unit][date[unit]], color=f'C{i}', marker='o')
+        ax.axvline(date[unit], color=f'C{i}', lw=0.5)
+
+
 def add_unit_labels(ax, data, depth, offsets=None):
     """Add unit labels at the end of each line."""
     offsets = offsets or {}
@@ -52,12 +61,9 @@ def main():
     pres.plot(ax=insets[0], legend=False)
     pres.plot(ax=insets[1], legend=False)
 
-    # plot freezing dates
-    # temp = bowstr_utils.load(variable='temp')['20140717':]
-    # temp = temp.resample('1h').mean()
-    # date = abs(temp-(0.1*temp.max()+0.9*temp.min())).idxmin()
-    # for ax in (ax0, ax1):
-    #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')
+    # add closure dates
+    add_closure_dates(axes[0], pres, date)
+    add_closure_dates(axes[1], temp, date)
 
     # add unit labels
     add_unit_labels(axes[0], pres, depth, {'LI05': -4, 'UI02': 4, 'UI03': -12})
