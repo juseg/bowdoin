@@ -38,10 +38,10 @@ def main():
     # initialize figure
     fig, axes = apl.subplots_mm(
         nrows=2, figsize=(180, 120), sharex=True, gridspec_kw={
-            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
-            'hspace': 2.5})
+            'left': 12.5, 'right': 2.5, 'bottom': 10, 'top': 2.5,
+            'height_ratios': (3, 1), 'hspace': 2.5})
     insets = fig.subplots_mm(ncols=2, gridspec_kw={
-        'left': 52.5, 'right': 5, 'bottom': 85, 'top': 5, 'wspace': 2.5})
+        'left': 52.5, 'right': 5, 'bottom': 95, 'top': 5, 'wspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_label(ax=axes[0], text='(a)')
@@ -70,13 +70,16 @@ def main():
     add_unit_labels(axes[1], temp, depth)
 
     # add campaigns
-    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=-1)
-    bowtem_utils.add_field_campaigns(ax=axes[1], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[1])
 
     # set main axes properties
-    axes[0].set_xlabel('')
+    axes[1].set_xlabel('')
     axes[0].set_ylabel('stress (MPa)')
+    axes[1].set_ylabel('temperature (°C)')
     axes[0].set_xlim('20140615', '20171215')
+    axes[0].set_ylim(-1/12, 4-1/12)
+    axes[1].set_ylim(-6.5, 0.5)
 
     # set inset axes limits
     insets[0].set_xlim('20140901', '20141001')
