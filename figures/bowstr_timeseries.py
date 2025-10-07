@@ -12,6 +12,17 @@ import bowtem_utils
 import bowstr_utils
 
 
+def add_unit_labels(ax, data, depth, offsets=None):
+    """Add unit labels at the end of each line."""
+    offsets = offsets or {}
+    for i, unit in enumerate(data):
+        last = data[unit].dropna().tail(1)
+        ax.annotate(
+            fr'{unit}, {depth[unit]:.0f}$\,$m', color=f'C{i}', fontsize=6,
+            fontweight='bold', textcoords='offset points', va='center',
+            xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)))
+
+
 def main():
     """Main program called during execution."""
 
@@ -49,14 +60,8 @@ def main():
     #     ax.plot(date, [pres.loc[date[k], k] for k in date.index], 'k+')
 
     # add unit labels
-    offsets = {'LI05': -4, 'UI02': 4, 'UI03': -12}
-    for i, unit in enumerate(pres):
-        last = pres[unit].dropna().tail(1)
-        axes[0].annotate(
-            fr'{unit}, {depth[unit]:.0f}$\,$m',
-            color=f'C{i}', fontsize=6, fontweight='bold',
-            xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)),
-            textcoords='offset points', ha='left', va='center')
+    add_unit_labels(axes[0], pres, depth, {'LI05': -4, 'UI02': 4, 'UI03': -12})
+    add_unit_labels(axes[1], temp, depth)
 
     # add campaigns
     bowtem_utils.add_field_campaigns(ax=axes[0], ytext=0.01)
