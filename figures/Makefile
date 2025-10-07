@@ -13,7 +13,7 @@ DEF_CODE = $(addprefix bowdef_, )
 TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
 	                        images ogives profiles timeseries)
 STR_CODE = $(addprefix bowstr_, \
-    boreholes correlate diffseries freezedates fourier fjordtide highpass \
+    boreholes correlate diffseries fourier fjordtide highpass \
     intervals lombscargle rollcorr specgrams timeseries wavelets)
 PAL_CODE = $(addprefix bowpal_, samplemap)
 ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(STR_CODE) $(PAL_CODE)
