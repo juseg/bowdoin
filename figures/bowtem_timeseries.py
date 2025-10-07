@@ -90,8 +90,8 @@ def main():
 
 
     # add campaigns
-    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=-1)
-    bowtem_utils.add_field_campaigns(ax=axes[1])
+    bowtem_utils.add_field_campaigns(ax=axes[0])
+    bowtem_utils.add_field_campaigns(ax=axes[1], ytext=0.05)
 
     # set axes properties
     axes[0].set_ylabel('temperature (°C)', y=3/8)

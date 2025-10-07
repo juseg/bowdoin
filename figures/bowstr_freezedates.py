@@ -56,8 +56,8 @@ def main():
                 textcoords='offset points', ha='left', va='center')
 
     # add campaigns (only on large format plot)
-    bowtem_utils.add_field_campaigns(ax=axes[0, 0], ytext=-1)
-    bowtem_utils.add_field_campaigns(ax=axes[0, 1], ytext=-1)
+    bowtem_utils.add_field_campaigns(ax=axes[0, 0])
+    bowtem_utils.add_field_campaigns(ax=axes[0, 1])
     bowtem_utils.add_field_campaigns(ax=axes[1, 0], ytext=0.02)
     bowtem_utils.add_field_campaigns(ax=axes[1, 1], ytext=0.02)
 
