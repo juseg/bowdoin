@@ -30,10 +30,11 @@ PROFILES_DATES = dict(bh1=['20141001', '20170128'],
                       bh3=['20150101', '20151112', '20160719'],
                       err=['20150101', '20160719'])
 
+
 # Plotting methods
 # ----------------
 
-def add_field_campaigns(ax=None, color='C1', ytext=0.05):
+def add_field_campaigns(ax=None, color='C1', ytext=None):
     """Mark 2014--2017 summer field campaigns."""
 
     # get axes if None provided
@@ -52,9 +53,11 @@ def add_field_campaigns(ax=None, color='C1', ytext=0.05):
         ax.axvspan(start, end, ec='none', fc=color, alpha=0.25)
 
         # add text annotations
-        duration = pd.to_datetime(end) - pd.to_datetime(start)
-        midpoint = pd.to_datetime(start) + duration / 2
-        ax.text(midpoint, ytext, midpoint.year, color=color, fontweight='bold',
+        if ytext is not None:
+            duration = pd.to_datetime(end) - pd.to_datetime(start)
+            midpoint = pd.to_datetime(start) + duration / 2
+            ax.text(
+                midpoint, ytext, midpoint.year, color=color, fontweight='bold',
                 ha='center', transform=trans, clip_on=True)
 
 
