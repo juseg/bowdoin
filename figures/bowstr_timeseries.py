@@ -57,30 +57,26 @@ def main():
     temp = bowstr_utils.load(variable='temp').resample('1h').mean()
     date = bowstr_utils.load_freezing_dates()
 
-    # plot stress and temperature data
-    pres.plot(ax=axes[0, 0], legend=False)
-    pres.plot(ax=axes[0, 1], legend=False)
-    temp.plot(ax=axes[1, 0], legend=False)
-    temp.plot(ax=axes[1, 1], legend=False)
-    pres.plot(ax=insets[0], legend=False)
-    pres.plot(ax=insets[1], legend=False)
+    # plot pressure data in top panels
+    for ax in axes[0]:
+        pres.plot(ax=ax, legend=False)
+        add_closure_dates(ax, pres, date)
+        bowtem_utils.add_field_campaigns(ax=ax, ytext=0.02)
 
-    # add closure dates
-    add_closure_dates(axes[0, 0], pres, date)
-    add_closure_dates(axes[0, 1], temp, date)
-    add_closure_dates(axes[1, 0], temp, date)
-    add_closure_dates(axes[1, 1], temp, date)
+    # plot temperature data in bottom panels
+    for ax in axes[1]:
+        temp.plot(ax=ax, legend=False)
+        add_closure_dates(ax, temp, date)
+        bowtem_utils.add_field_campaigns(ax=ax, ytext=None)
+
+    # plot pressure data in insets
+    for ax in insets:
+        pres.plot(ax=ax, legend=False)
 
     # add unit labels
     add_unit_labels(axes[0, 1], pres, depth, offsets={
         'LI05': -4, 'UI02': 4, 'UI03': -12})
     add_unit_labels(axes[1, 1], temp, depth)
-
-    # add campaigns
-    bowtem_utils.add_field_campaigns(ax=axes[0, 0], ytext=0.02)
-    bowtem_utils.add_field_campaigns(ax=axes[0, 1], ytext=0.02)
-    bowtem_utils.add_field_campaigns(ax=axes[1, 0])
-    bowtem_utils.add_field_campaigns(ax=axes[1, 1])
 
     # set main axes properties
     axes[1, 0].set_xlabel('')
