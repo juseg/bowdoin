@@ -31,6 +31,17 @@ def add_unit_labels(ax, data, depth, offsets=None):
             xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)))
 
 
+def add_inset_indicator(ax, inset, connectors=None):
+    """Add inset indicator with custom connector visibility."""
+    indicator = ax.indicate_inset(inset_ax=inset)
+    indicator.rectangle.set_clip_on(True)
+    indicator.rectangle.set_clip_box(ax.bbox)
+    if connectors is not None:
+        for i, connector in enumerate(indicator.connectors):
+            connector.set_visible(i in connectors)
+            connector.set_linestyle('dashed')
+
+
 def main():
     """Main program called during execution."""
 
@@ -112,9 +123,10 @@ def main():
         ax.grid(which='minor')
 
     # mark insets
-    mark_inset(axes[0, 0], insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
-    mark_inset(axes[0, 1], insets[0], loc1=2, loc2=4, ec='0.75', ls='--')
-    mark_inset(insets[0], insets[1], loc1=2, loc2=3, ec='0.75', ls='--')
+    axes[0, 0].set_zorder(axes[0, 1].get_zorder()+1)
+    add_inset_indicator(axes[0, 0], insets[0], connectors=(1,))
+    add_inset_indicator(axes[0, 1], insets[0], connectors=(2,))
+    add_inset_indicator(insets[0], insets[1], connectors=(0, 1))
 
     # save default
     fig.savefig(__file__[:-3])
