@@ -15,7 +15,6 @@ import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import absplots as apl
 import cartowik.annotations as can
-import cartowik.shadedrelief as csr
 import bowtem_utils
 import bowtem_utils
 
@@ -154,9 +153,9 @@ def main():
                       linewidths=0.25).clabel(fmt='%d')
 
     # plot reference elevation map
-    # FIXME add xarray-centric cartowik methods
-    csr._compute_multishade(elev, altitudes=[30]*4).plot.imshow(
-        ax=grid[1], add_colorbar=False, cmap='Greys', vmin=-1, vmax=1)
+    ds = elev.assign_attrs(standard_name='bedrock_altitude').to_dataset()
+    ds.hyoga.plot.bedrock_hillshade(
+        ax=grid[1], add_colorbar=False, altitude=[15]*3, cmap='Greys')
 
     # plot elevation difference map
     diff.plot.imshow(ax=grid[2], cbar_ax=cax, cmap='RdBu', vmin=-20, vmax=20,
