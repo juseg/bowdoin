@@ -31,14 +31,25 @@ def add_unit_labels(ax, data, depth, offsets=None):
 
 
 def add_inset_indicator(ax, inset, connectors=None):
-    """Add inset indicator with custom connector visibility."""
-    indicator = ax.indicate_inset(inset_ax=inset)
+    """Add inset indicator with custom connector visibility.
+
+    The clip_on property is overriden by matplotlib if it detects that some
+    other styling properties are the same for the indicator rectangle as for
+    the connectors, so we trick matplotlib into believing that the rectangle
+    has a different linestyle by using the 'dashed' style for the connectors
+    and the matching dashed pattern tuple for the rectangle; this works
+    (https://github.com/matplotlib/matplotlib/issues/30642).
+    """
+    dashes = mpl.rcParams['lines.dashed_pattern']
+    indicator = ax.indicate_inset(inset_ax=inset, ls='dashed')
     indicator.rectangle.set_clip_on(True)
     indicator.rectangle.set_clip_box(ax.bbox)
+    indicator.rectangle.set_linestyle((0, dashes))
     if connectors is not None:
         for i, connector in enumerate(indicator.connectors):
+            connector.set_clip_on(False)
+            connector.set_clip_box(ax.figure.bbox)
             connector.set_visible(i in connectors)
-            connector.set_linestyle('dashed')
 
 
 def main():
