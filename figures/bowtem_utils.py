@@ -7,16 +7,12 @@ Bowdoin temperature paper utils.
 """
 
 import cartopy.crs as ccrs  # FIXME replace with pyproj
-import cartowik.decorations as cde  # FIXME replace with hyoga
 import glob
 import gpxpy
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 import pandas as pd
-
-# local aliases
-add_subfig_label = cde.add_subfig_label
 
 # Global parameters
 # -----------------
@@ -58,6 +54,52 @@ def add_field_campaigns(ax=None, color='C1', ytext=None):
             ax.text(
                 midpoint, ytext, midpoint.year, color=color, fontweight='bold',
                 ha='center', transform=trans, clip_on=True)
+
+
+def add_subfig_label(*args, ax=None, loc='nw', offset=8, **kwargs):
+    """Add a subfigure label positioned by compass point. Defaults to an upper
+    left (nw) corner in bold font.
+
+    Parameters
+    ----------
+    text: string
+        Subfigure label text.
+    ax: Axes
+        Axes to draw on, defaults to the current axes.
+    loc: 'n', 'e', 's', 'w', 'ne', 'nw', 'se', or 'sw'.
+        Compass point giving the label position.
+    offset: scalar, optional
+        Distance between the data point and text label.
+    **kwargs:
+        Additional keyword arguments are passed to annotate.
+    """
+
+    # get axes if None provided
+    ax = ax or plt.gca()
+
+    # check location keyword validity
+    valid_locs = 'n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'
+    if loc not in valid_locs:
+        raise ValueError('Unrecognized location {!r} not in {}.'
+                         .format(loc, valid_locs))
+
+    # text label position and offset relative to axes corner
+    xpos = 1 if 'e' in loc else 0 if 'w' in loc else 0.5
+    ypos = 1 if 'n' in loc else 0 if 's' in loc else 0.5
+    xshift = 1-2*xpos
+    yshift = 1-2*ypos
+    offset = offset / (xshift*xshift+yshift*yshift)**0.5
+    xytext = xshift*offset, yshift*offset
+
+    # text alignement (opposite from annotations)
+    halign = 'left' if 'w' in loc else 'right' if 'e' in loc else 'center'
+    valign = 'bottom' if 's' in loc else 'top' if 'n' in loc else 'center'
+
+    # add annotation
+    return ax.annotate(fontweight=kwargs.pop('fontweight', 'bold'),
+                       xy=(xpos, ypos), xytext=xytext,
+                       textcoords='offset points', xycoords='axes fraction',
+                       ha=halign, va=valign, *args, **kwargs)
 
 
 def add_subfig_labels(axes=None, colors=None, **kwargs):
