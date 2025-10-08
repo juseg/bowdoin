@@ -9,7 +9,7 @@ import xarray as xr
 import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
-import bowtem_utils
+import hyoga
 import bowtem_utils
 import bowstr_utils
 
@@ -55,7 +55,7 @@ def plot_location_map(ax):
                           marker='^', text='Camp')
 
     # add scale
-    bowtem_utils.add_scale_bar(ax=ax, color='w', label='1km', length=1000)
+    img.to_dataset().hyoga.plot.scale_bar(ax=ax, color='w')
 
     # remove title
     ax.set_title("")

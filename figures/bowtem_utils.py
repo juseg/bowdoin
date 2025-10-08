@@ -16,7 +16,6 @@ import numpy as np
 import pandas as pd
 
 # local aliases
-add_scale_bar = cde.add_scale_bar
 add_subfig_label = cde.add_subfig_label
 
 # Global parameters

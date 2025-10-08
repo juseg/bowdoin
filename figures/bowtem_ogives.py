@@ -6,6 +6,7 @@
 """Plot Bowdoin temperature Arctic DEM map and profile."""
 
 from scipy import stats
+import hyoga
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -188,8 +189,8 @@ def main():
         grid[2].plot(*loc, color=color, marker='o')
 
     # add scales
-    bowtem_utils.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
-    bowtem_utils.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
+    zoom.to_dataset().hyoga.plot.scale_bar(ax=grid[0], label=r'50$\,$m')
+    elev.to_dataset().hyoga.plot.scale_bar(ax=grid[1])
 
     # open profile coordinates
     x, y = open_shp_coords('../data/native/flowline.shp',

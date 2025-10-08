@@ -5,6 +5,7 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
+import hyoga
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
@@ -56,7 +57,7 @@ def plot_location_map(ax):
                           marker='^', text='Camp')
 
     # add scale
-    bowtem_utils.add_scale_bar(ax=ax, color='k', label='1km', length=1000)
+    img.to_dataset().hyoga.plot.scale_bar(ax=ax)
 
     # add invisible axes
     # FIXME add minimap util, and maybe cartowik example
