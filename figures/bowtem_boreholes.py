@@ -12,9 +12,6 @@ import cartopy.crs as ccrs
 import absplots as apl
 import cartowik.annotations as can
 import bowtem_utils
-import cartowik.naturalearth as cne
-import bowtem_utils
-import bowtem_utils
 
 
 def init_figure():
@@ -60,18 +57,20 @@ def plot_location_map(ax):
     img.to_dataset().hyoga.plot.scale_bar(ax=ax)
 
     # add invisible axes
-    # FIXME add minimap util, and maybe cartowik example
     ax = ax.figure.add_axes_mm([5, 5, 10, 15], projection=ccrs.Stereographic(
         central_latitude=90, central_longitude=-45, true_scale_latitude=70))
-    ax.set_extent([-1000e3, 1000e3, -3500e3, -500e3], crs=ax.projection)
     ax.patch.set_visible(False)
     ax.spines['geo'].set_visible(False)
+    ax.set_xlim(-1000e3, 1000e3)
+    ax.set_ylim(-3500e3, -500e3)
 
     # draw minimap
     can.annotate_location(locations['B16BH1'], ax=ax, color='k')
-    cne.add_countries(ax=ax, facecolor='none', scale='110m',
-                      subject='Greenland', subject_edgecolor='k',
-                      subject_facecolor='none')
+    countries = hyoga.open.natural_earth(
+        'admin_0_countries', 'cultural', '110m')
+    greenland = countries[countries.NAME == 'Greenland']
+    greenland = greenland.to_crs('+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45')
+    greenland.plot(ax=ax, facecolor='none', edgecolor='k')
 
     # remove title
     ax.set_title("")
