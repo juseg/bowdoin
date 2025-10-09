@@ -48,11 +48,16 @@ def plot_location_map(ax):
     for bh in ('bh1', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=COLOURS[bh], point=point)
-        bowtem_utils.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
-        bowtem_utils.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
-        bowtem_utils.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
-    bowtem_utils.annotate_location(locations['Tent Swiss'], ax=ax, color='w', point='s',
-                          marker='^', text='Camp')
+        crs = '+proj=utm +zone=19'
+        bowtem_utils.annotate_location(
+            locations['B14'+bh.upper()], crs, text='2014', **kwa)
+        bowtem_utils.annotate_location(
+            locations['B16'+bh.upper()], crs, text='2016', **kwa)
+        bowtem_utils.annotate_location(
+            locations['B17'+bh.upper()], crs, text='2017', **kwa)
+    bowtem_utils.annotate_location(
+        locations['Tent Swiss'], crs, ax=ax, color='w', point='s',
+        marker='^', text='Camp')
 
     # add scale
     img.to_dataset().hyoga.plot.scale_bar(ax=ax, color='w')

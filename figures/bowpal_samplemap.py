@@ -27,9 +27,9 @@ def annotate_sample(location,
     """Annotate a sample and label with name and altitude."""
     color = dict(bedrock='C0', boulder='C3', organic='k')[location.type]
     marker = dict(bedrock='s', boulder='o', organic='^')[location.type]
-    return bowtem_utils.annotate_location(location, color=color, marker=marker,
-                                 bbox=dict(ec=color, fc='w', pad=2),
-                                 offset=12, text=text, **kwargs)
+    return bowtem_utils.annotate_location(
+        location, '+proj=utm +zone=19', color=color, marker=marker,
+        bbox=dict(ec=color, fc='w', pad=2), offset=12, text=text, **kwargs)
 
 
 def init_figure():
