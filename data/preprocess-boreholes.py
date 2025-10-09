@@ -7,10 +7,9 @@
 
 import os
 import gpxpy
-import datetime
 import numpy as np
 import pandas as pd
-import cartopy.crs as ccrs
+import pyproj
 
 
 # Global data
@@ -58,10 +57,6 @@ def borehole_distances(upper='bh1', lower='bh3'):
     """
     # FIXME: Borehole distances will become unnecessary when using RADAR data.
 
-    # projections used to compute distances
-    lonlat = ccrs.PlateCarree()
-    utm = ccrs.UTM(19)
-
     # initialize empty data series
     upper_x = pd.Series(dtype='float64')
     upper_y = pd.Series(dtype='float64')
@@ -69,14 +64,15 @@ def borehole_distances(upper='bh1', lower='bh3'):
     lower_y = pd.Series(dtype='float64')
 
     # read GPX file
+    trans = pyproj.Transformer.from_crs('+proj=lonlat', '+proj=utm +zone=19')
     with open('../data/locations.gpx', 'r') as gpx_file:
         for wpt in gpxpy.parse(gpx_file).waypoints:
             if upper.upper() in wpt.name:
                 upper_x[wpt.time], upper_y[wpt.time] = \
-                    utm.transform_point(wpt.longitude, wpt.latitude, lonlat)
+                    trans.transform(wpt.longitude, wpt.latitude)
             elif lower.upper() in wpt.name:
                 lower_x[wpt.time], lower_y[wpt.time] = \
-                    utm.transform_point(wpt.longitude, wpt.latitude, lonlat)
+                    trans.transform(wpt.longitude, wpt.latitude)
 
     # assume UTC timezone when missing
     lower_x.index = pd.to_datetime(lower_x.index, utc=True)
@@ -309,11 +305,8 @@ def read_gps_data(method='backward'):
     df = df[inpace]
 
     # convert lon/lat to UTM 19 meters
-    ll = ccrs.PlateCarree()
-    proj = ccrs.UTM(19)
-    points = proj.transform_points(ll, df['lon'].values, df['lat'].values)
-    df['x'] = points[:, 0]
-    df['y'] = points[:, 1]
+    trans = pyproj.Transformer.from_crs('+proj=lonlat', '+proj=utm +zone=19')
+    df['x'], df['y'] = trans.transform(df['lon'].values, df['lat'].values)
 
     # resample with 15 minute frequency and fill with NaN
     df = df.resample('15min').mean()

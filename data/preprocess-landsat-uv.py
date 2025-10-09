@@ -10,7 +10,7 @@ import zipfile
 import numpy as np
 import pandas as pd
 import netCDF4 as nc4
-import cartopy.crs as ccrs
+import pyproj
 
 # extract archive
 with zipfile.ZipFile('satellite/bowdoin-landsat-uv.zip') as archive:
@@ -18,10 +18,9 @@ with zipfile.ZipFile('satellite/bowdoin-landsat-uv.zip') as archive:
     archive.extractall('satellite')
 
 # GPS coordinates on 2015/07/01 00:00
-ll = ccrs.PlateCarree()
-utm = ccrs.UTM(19)
 # FIXME: it looks like the point is slightly misplaced
-xb, yb = utm.transform_point(-68.560813961, 77.688492104, ll)
+trans = pyproj.Transformer.from_crs('+proj=lonlat', '+proj=utm +zone=19')
+xb, yb = trans.transform(-68.560813961, 77.688492104)
 
 # initialize data dictionary
 dd = []
