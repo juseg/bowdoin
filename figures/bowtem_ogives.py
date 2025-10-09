@@ -14,8 +14,6 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import absplots as apl
-import cartowik.annotations as can
-import bowtem_utils
 import bowtem_utils
 
 
@@ -171,7 +169,7 @@ def main():
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*projected.loc[bh], color=color, marker='+')
         loc = projected.loc[bh].values
-        can.annotate_by_compass(
+        bowtem_utils.annotate_by_compass(
             bh.upper(), ax=ax, bbox=dict(alpha=0.75, ec=color, fc='w', pad=2),
             color=color, fontweight='bold', xy=loc, offset=12,
             point=('se' if bh == 'bh1' else 'nw'), zorder=10)

@@ -8,7 +8,6 @@
 import xarray as xr
 import cartopy.crs as ccrs
 import absplots as apl
-import cartowik.annotations as can
 import hyoga
 import bowtem_utils
 import bowstr_utils
@@ -48,10 +47,10 @@ def plot_location_map(ax):
     for bh in ('bh1', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=COLOURS[bh], point=point)
-        can.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
-        can.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
-        can.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
-    can.annotate_location(locations['Tent Swiss'], ax=ax, color='w', point='s',
+        bowtem_utils.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
+        bowtem_utils.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
+        bowtem_utils.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
+    bowtem_utils.annotate_location(locations['Tent Swiss'], ax=ax, color='w', point='s',
                           marker='^', text='Camp')
 
     # add scale

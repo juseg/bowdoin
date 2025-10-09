@@ -10,7 +10,6 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import absplots as apl
-import cartowik.annotations as can
 import bowtem_utils
 
 
@@ -47,10 +46,10 @@ def plot_location_map(ax):
     for bh in ('bh1', 'bh2', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=bowtem_utils.COLOURS[bh], point=point)
-        can.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
-        can.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
-        can.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
-    can.annotate_location(locations['Tent Swiss'], ax=ax, color='k', point='s',
+        bowtem_utils.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
+        bowtem_utils.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
+        bowtem_utils.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
+    bowtem_utils.annotate_location(locations['Tent Swiss'], ax=ax, color='k', point='s',
                           marker='^', text='Camp')
 
     # add scale
@@ -65,7 +64,7 @@ def plot_location_map(ax):
     ax.set_ylim(-3500e3, -500e3)
 
     # draw minimap
-    can.annotate_location(locations['B16BH1'], ax=ax, color='k')
+    bowtem_utils.annotate_location(locations['B16BH1'], ax=ax, color='k')
     countries = hyoga.open.natural_earth(
         'admin_0_countries', 'cultural', '110m')
     greenland = countries[countries.NAME == 'Greenland']
