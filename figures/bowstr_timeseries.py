@@ -6,6 +6,7 @@
 """Plot Bowdoin stress time series."""
 
 import absplots as apl
+import matplotlib as mpl
 import bowtem_utils
 import bowstr_utils
 

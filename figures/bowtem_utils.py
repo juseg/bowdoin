@@ -7,17 +7,12 @@ Bowdoin temperature paper utils.
 """
 
 import cartopy.crs as ccrs  # FIXME replace with pyproj
-import cartowik.decorations as cde  # FIXME replace with hyoga
 import glob
 import gpxpy
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 import pandas as pd
-
-# local aliases
-add_scale_bar = cde.add_scale_bar
-add_subfig_label = cde.add_subfig_label
 
 # Global parameters
 # -----------------
@@ -61,6 +56,52 @@ def add_field_campaigns(ax=None, color='C1', ytext=None):
                 ha='center', transform=trans, clip_on=True)
 
 
+def add_subfig_label(*args, ax=None, loc='nw', offset=8, **kwargs):
+    """Add a subfigure label positioned by compass point. Defaults to an upper
+    left (nw) corner in bold font.
+
+    Parameters
+    ----------
+    text: string
+        Subfigure label text.
+    ax: Axes
+        Axes to draw on, defaults to the current axes.
+    loc: 'n', 'e', 's', 'w', 'ne', 'nw', 'se', or 'sw'.
+        Compass point giving the label position.
+    offset: scalar, optional
+        Distance between the data point and text label.
+    **kwargs:
+        Additional keyword arguments are passed to annotate.
+    """
+
+    # get axes if None provided
+    ax = ax or plt.gca()
+
+    # check location keyword validity
+    valid_locs = 'n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'
+    if loc not in valid_locs:
+        raise ValueError('Unrecognized location {!r} not in {}.'
+                         .format(loc, valid_locs))
+
+    # text label position and offset relative to axes corner
+    xpos = 1 if 'e' in loc else 0 if 'w' in loc else 0.5
+    ypos = 1 if 'n' in loc else 0 if 's' in loc else 0.5
+    xshift = 1-2*xpos
+    yshift = 1-2*ypos
+    offset = offset / (xshift*xshift+yshift*yshift)**0.5
+    xytext = xshift*offset, yshift*offset
+
+    # text alignement (opposite from annotations)
+    halign = 'left' if 'w' in loc else 'right' if 'e' in loc else 'center'
+    valign = 'bottom' if 's' in loc else 'top' if 'n' in loc else 'center'
+
+    # add annotation
+    return ax.annotate(fontweight=kwargs.pop('fontweight', 'bold'),
+                       xy=(xpos, ypos), xytext=xytext,
+                       textcoords='offset points', xycoords='axes fraction',
+                       ha=halign, va=valign, *args, **kwargs)
+
+
 def add_subfig_labels(axes=None, colors=None, **kwargs):
     """Add automatic subfigure labels (a), (b), (c), etc."""
     # NOTE: this could become part of absplots
@@ -78,6 +119,102 @@ def add_subfig_labels(axes=None, colors=None, **kwargs):
     # add subfigure labels
     for ax, color, label in zip( axes, colors, 'abcdefghijklmnopqrstuvwxyz'):
         add_subfig_label('('+label+')', ax=ax, color=color, **kwargs)
+
+
+# Annotation methods
+# ------------------
+
+def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
+                        **kwargs):
+    """
+    Annotate by compass point and offset.
+
+    Parameters
+    ----------
+    text: string
+        Annotation label text.
+    xy: (scalar, scalar)
+        Coordinates of the point to annotate.
+    ax: Axes
+        Axes to draw on, defaults to the current axes.
+    point: 'n', 'e', 's', 'w', 'ne', 'nw', 'se', or 'sw'.
+        Compass point giving the annotation direction.
+    offset: scalar, optional
+        Distance between the data point and text label.
+    **kwargs:
+        Additional keyword arguments are passed to annotate.
+    """
+
+    # get axes if None provided
+    ax = ax or plt.gca()
+
+    # check location keyword validity
+    valid_points = 'n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'
+    if point not in valid_points:
+        raise ValueError('Unrecognized compass point {!r} not in {}.'
+                         .format(point, valid_points))
+
+    # text label position and relative anchor for the text box
+    xpos = 1 if 'e' in point else -1 if 'w' in point else 0
+    ypos = 1 if 'n' in point else -1 if 's' in point else 0
+    offset = offset / (xpos*xpos+ypos*ypos)**0.5
+    xytext = xpos*offset, ypos*offset
+    relpos = (1-xpos)/2, (1-ypos)/2
+
+    # text alignement
+    halign = 'left' if 'e' in point else 'right' if 'w' in point else 'center'
+    valign = 'bottom' if 'n' in point else 'top' if 's' in point else 'center'
+
+    # default style; use transparent bbox for positioning
+    arrowprops = {**dict(arrowstyle='-', color=color, relpos=relpos),
+                  **kwargs.pop('arrowprops', {})}
+    bbox = {**dict(pad=0, ec='none', fc='none'), **kwargs.pop('bbox', {})}
+
+    # plot annotated waypoint
+    return ax.annotate(arrowprops=arrowprops, bbox=bbox, color=color,
+                       textcoords='offset points', xytext=xytext,
+                       ha=halign, va=valign, *args, **kwargs)
+
+
+def annotate_location(location, ax=None, color=None, marker='o', text='',
+                      **kwargs):
+    """
+    Mark and annotate a geographic location.
+
+    Parameters
+    ----------
+    location: object
+        A location object with longitude and latitude attributes, and by
+        default a name (see text). This could be a waypoint from a GPX file.
+    ax: GeoAxes, optional
+        Axes used for plotting. Default to current axes.
+    color:
+        Color for plot and annotation.
+    marker:
+        Marker for plot.
+    text: string, optional.
+        Label text. Can be a format string with custom location object
+        attribute in curly brackets, for isntance '{location.name}'.
+    **kwargs:
+        Additional keyword arguments are passed to annotate_by_compass.
+    """
+
+    # get axes if None provided
+    ax = ax or plt.gca()
+
+    # reproject waypoint coordinates
+    crs = ccrs.PlateCarree()
+    coords = location.longitude, location.latitude
+    coords = ax.projection.transform_point(*coords, crs)
+
+    # plot annotated waypoint and stop here if text is empty or (still) None
+    line = ax.plot(*coords, color=color, marker=marker)
+    if not text:
+        return line
+
+    # otherwise format text against location attributes and add annotation
+    text = text.format(location=location)
+    return annotate_by_compass(text, coords, ax=ax, color=color, **kwargs)
 
 
 # Data loading methods

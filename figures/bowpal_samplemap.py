@@ -9,8 +9,6 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import absplots as apl
-import cartowik.annotations as can
-import bowtem_utils
 import bowtem_utils
 
 
@@ -28,7 +26,7 @@ def annotate_sample(location,
     """Annotate a sample and label with name and altitude."""
     color = dict(bedrock='C0', boulder='C3', organic='k')[location.type]
     marker = dict(bedrock='s', boulder='o', organic='^')[location.type]
-    return can.annotate_location(location, color=color, marker=marker,
+    return bowtem_utils.annotate_location(location, color=color, marker=marker,
                                  bbox=dict(ec=color, fc='w', pad=2),
                                  offset=12, text=text, **kwargs)
 

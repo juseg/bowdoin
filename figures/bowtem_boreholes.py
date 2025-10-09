@@ -5,14 +5,11 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
+import hyoga
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import absplots as apl
-import cartowik.annotations as can
-import bowtem_utils
-import cartowik.naturalearth as cne
-import bowtem_utils
 import bowtem_utils
 
 
@@ -49,28 +46,30 @@ def plot_location_map(ax):
     for bh in ('bh1', 'bh2', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=bowtem_utils.COLOURS[bh], point=point)
-        can.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
-        can.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
-        can.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
-    can.annotate_location(locations['Tent Swiss'], ax=ax, color='k', point='s',
+        bowtem_utils.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
+        bowtem_utils.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
+        bowtem_utils.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
+    bowtem_utils.annotate_location(locations['Tent Swiss'], ax=ax, color='k', point='s',
                           marker='^', text='Camp')
 
     # add scale
-    bowtem_utils.add_scale_bar(ax=ax, color='k', label='1km', length=1000)
+    img.to_dataset().hyoga.plot.scale_bar(ax=ax)
 
     # add invisible axes
-    # FIXME add minimap util, and maybe cartowik example
     ax = ax.figure.add_axes_mm([5, 5, 10, 15], projection=ccrs.Stereographic(
         central_latitude=90, central_longitude=-45, true_scale_latitude=70))
-    ax.set_extent([-1000e3, 1000e3, -3500e3, -500e3], crs=ax.projection)
     ax.patch.set_visible(False)
     ax.spines['geo'].set_visible(False)
+    ax.set_xlim(-1000e3, 1000e3)
+    ax.set_ylim(-3500e3, -500e3)
 
     # draw minimap
-    can.annotate_location(locations['B16BH1'], ax=ax, color='k')
-    cne.add_countries(ax=ax, facecolor='none', scale='110m',
-                      subject='Greenland', subject_edgecolor='k',
-                      subject_facecolor='none')
+    bowtem_utils.annotate_location(locations['B16BH1'], ax=ax, color='k')
+    countries = hyoga.open.natural_earth(
+        'admin_0_countries', 'cultural', '110m')
+    greenland = countries[countries.NAME == 'Greenland']
+    greenland = greenland.to_crs('+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45')
+    greenland.plot(ax=ax, facecolor='none', edgecolor='k')
 
     # remove title
     ax.set_title("")

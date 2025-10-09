@@ -6,6 +6,7 @@
 """Plot Bowdoin temperature Arctic DEM map and profile."""
 
 from scipy import stats
+import hyoga
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -13,9 +14,6 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import absplots as apl
-import cartowik.annotations as can
-import cartowik.shadedrelief as csr
-import bowtem_utils
 import bowtem_utils
 
 
@@ -153,9 +151,9 @@ def main():
                       linewidths=0.25).clabel(fmt='%d')
 
     # plot reference elevation map
-    # FIXME add xarray-centric cartowik methods
-    csr._compute_multishade(elev, altitudes=[30]*4).plot.imshow(
-        ax=grid[1], add_colorbar=False, cmap='Greys', vmin=-1, vmax=1)
+    ds = elev.assign_attrs(standard_name='bedrock_altitude').to_dataset()
+    ds.hyoga.plot.bedrock_hillshade(
+        ax=grid[1], add_colorbar=False, altitude=[15]*3, cmap='Greys')
 
     # plot elevation difference map
     diff.plot.imshow(ax=grid[2], cbar_ax=cax, cmap='RdBu', vmin=-20, vmax=20,
@@ -171,7 +169,7 @@ def main():
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
         ax.plot(*projected.loc[bh], color=color, marker='+')
         loc = projected.loc[bh].values
-        can.annotate_by_compass(
+        bowtem_utils.annotate_by_compass(
             bh.upper(), ax=ax, bbox=dict(alpha=0.75, ec=color, fc='w', pad=2),
             color=color, fontweight='bold', xy=loc, offset=12,
             point=('se' if bh == 'bh1' else 'nw'), zorder=10)
@@ -188,8 +186,8 @@ def main():
         grid[2].plot(*loc, color=color, marker='o')
 
     # add scales
-    bowtem_utils.add_scale_bar(ax=grid[0], color='k', label='50 m', length=50)
-    bowtem_utils.add_scale_bar(ax=grid[1], color='k', label='1 km', length=1000)
+    zoom.to_dataset().hyoga.plot.scale_bar(ax=grid[0], label=r'50$\,$m')
+    elev.to_dataset().hyoga.plot.scale_bar(ax=grid[1])
 
     # open profile coordinates
     x, y = open_shp_coords('../data/native/flowline.shp',
