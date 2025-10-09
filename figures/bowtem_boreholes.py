@@ -33,7 +33,8 @@ def plot_location_map(ax):
     """Draw boreholes location map with Sentinel image background."""
 
     # prepare map axes
-    ax.set_extent([508e3, 512e3, 8621e3, 8626e3+2e3/3], crs=ax.projection)
+    ax.set_xlim(508e3, 512e3)
+    ax.set_ylim(8621e3, 8626e3+2e3/3)
 
     # plot Sentinel image data
     filename = '../data/native/20170310_174129_456_S2A_RGB.jpg'

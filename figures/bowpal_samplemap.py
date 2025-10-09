@@ -14,7 +14,8 @@ import bowtem_utils
 
 def mark_inset(ax0, ax1, text='', **kwargs):
     """Custom method to mark inset on geoaxes."""
-    west, east, south, north = ax1.get_extent()
+    west, east = ax1.get_xlim()
+    south, north = ax1.get_ylim()
     rectangle = plt.Rectangle((west, north), east-west, south-north, **kwargs)
     ax0.add_patch(rectangle)
     ax0.text(west, north+100, text, fontweight='bold')
@@ -60,7 +61,8 @@ def init_figure():
         # add axes
         ax = grid[region] = fig.add_axes_mm(axposition[region],
                                             projection=proj)
-        ax.set_extent(extent, crs=ax.projection)
+        ax.set_xlim(extent[:2])
+        ax.set_ylim(extent[2:])
         ax.spines['geo'].set_linewidth(2.0)
         ax.spines['geo'].set_edgecolor('k')
 
