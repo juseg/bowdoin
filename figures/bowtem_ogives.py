@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import absplots as apl
+import pyproj
 import bowtem_utils
 
 
@@ -55,10 +56,10 @@ def project_borehole_locations(date, crs):
     initial = locs[['x', 'y']]
 
     # interpolate DEM date BH1 location from continuous GPS
-    lonlat = ccrs.PlateCarree()
+    trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
     gps = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
     gps = gps.interpolate().loc[date].mean()
-    gps['x'], gps['y'] = crs.transform_point(gps.lon, gps.lat, lonlat)
+    gps['x'], gps['y'] = trans.transform(gps.lon, gps.lat)
     gps = gps[['x', 'y']]
 
     # compute DEM date positions from BH1 displacement with time mutliplier
@@ -103,7 +104,9 @@ def open_shp_coords(filename, crs=None, **kwargs):
     geom = next(shp.geometries())
     points = np.asarray(geom.coords)
     if crs is not None:
-        points = crs.transform_points(ccrs.PlateCarree(), *points.T)[:, :2]
+        trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
+        x, y = trans.transform(*points.T)
+        points = np.vstack((x, y)).T
     x, y = build_profile_coords(points, **kwargs)
 
     # return coordinates
@@ -161,8 +164,8 @@ def main():
 
     # plot borehole locations on the map
     ax = grid[0]
-
-    initial, projected = project_borehole_locations(st0[5:13], ax.projection)
+    crs = '+proj=stere +lat_0=90 +lon_0=-45 +lat_ts=70'
+    initial, projected = project_borehole_locations(st0[5:13], crs=crs)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = bowtem_utils.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
@@ -191,7 +194,7 @@ def main():
 
     # open profile coordinates
     x, y = open_shp_coords('../data/native/flowline.shp',
-                           crs=grid[1].projection, interval=1)
+                           crs=crs, interval=1)
     x = x[x.d < 5000]
     y = y[y.d < 5000]
 

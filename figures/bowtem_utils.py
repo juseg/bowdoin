@@ -6,7 +6,6 @@
 Bowdoin temperature paper utils.
 """
 
-import cartopy.crs as ccrs  # FIXME replace with pyproj
 import glob
 import gpxpy
 import matplotlib.pyplot as plt
@@ -364,8 +363,9 @@ def read_locations(filename='../data/locations.gpx', crs=None):
 
     # if crs is given, append coordinates in given crs
     if crs is not None:
+        trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
         xyz = data[['longitude', 'latitude', 'elevation']].values
-        xyz = crs.transform_points(ccrs.PlateCarree(), *xyz.T).T
+        xyz = trans.transform(*xyz.T)
         data['x'], data['y'], data['z'] = xyz
 
     # remove timezone information (see gpxpy issue #182)
