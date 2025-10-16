@@ -6,7 +6,6 @@
 """Plot Bowdoin tides borehole setup."""
 
 import xarray as xr
-import cartopy.crs as ccrs
 import absplots as apl
 import hyoga
 import bowtem_utils
@@ -20,7 +19,7 @@ def init_figure():
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.UTM(19))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85])
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels

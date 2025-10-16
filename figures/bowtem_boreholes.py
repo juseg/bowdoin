@@ -8,7 +8,6 @@
 import hyoga
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 import absplots as apl
 import bowtem_utils
 
@@ -18,7 +17,7 @@ def init_figure():
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.UTM(19))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85])
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
@@ -66,10 +65,8 @@ def plot_location_map(ax):
     img.to_dataset().hyoga.plot.scale_bar(ax=ax)
 
     # add invisible axes
-    ax = ax.figure.add_axes_mm([5, 5, 10, 15], projection=ccrs.Stereographic(
-        central_latitude=90, central_longitude=-45, true_scale_latitude=70))
+    ax = ax.figure.add_axes_mm([5, 5, 10, 15])
     ax.patch.set_visible(False)
-    ax.spines['geo'].set_visible(False)
     ax.set_xlim(-1000e3, 1000e3)
     ax.set_ylim(-3500e3, -500e3)
 

@@ -7,7 +7,6 @@
 
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 import absplots as apl
 import bowtem_utils
 
@@ -52,19 +51,15 @@ def init_figure():
 
     # initialize figure
     fig = apl.figure_mm(figsize=(figw, figh))
-    proj = ccrs.UTM(19)
     grid = dict()
 
     # for each region
     for region, extent in subregions.items():
 
         # add axes
-        ax = grid[region] = fig.add_axes_mm(axposition[region],
-                                            projection=proj)
+        ax = grid[region] = fig.add_axes_mm(axposition[region])
         ax.set_xlim(extent[:2])
         ax.set_ylim(extent[2:])
-        ax.spines['geo'].set_linewidth(2.0)
-        ax.spines['geo'].set_edgecolor('k')
 
         # add subfigure label and mark inset
         bowtem_utils.add_subfig_label(region, ax=ax)

@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import absplots as apl
 import pyproj
@@ -24,10 +23,7 @@ def init_figure():
     # initialize figure
     fig, grid = apl.subplots_mm(
         figsize=(180, 120), ncols=3, gridspec_kw=dict(
-            left=2.5, right=22.5, bottom=65, top=5, wspace=2.5),
-        subplot_kw=dict(projection=ccrs.Stereographic(
-            central_latitude=90, central_longitude=-45,
-            true_scale_latitude=70)))
+            left=2.5, right=22.5, bottom=65, top=5, wspace=2.5))
 
     # add colorbar and profile axes
     cax = fig.add_axes_mm([160, 65, 5, 50])

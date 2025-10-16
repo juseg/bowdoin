@@ -8,7 +8,6 @@
 import numpy as np
 import scipy.interpolate as sinterp
 import pandas as pd
-import cartopy.crs as ccrs
 import bowtem_utils
 import absplots as apl
 import bowtem_utils
