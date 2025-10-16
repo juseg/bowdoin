@@ -125,6 +125,8 @@ def main():
         ax.set_title(strip[5:13])
         ax.set_xlim(-537500, -532500)
         ax.set_ylim(-1229000, -1224000)
+        ax.set_xticks([])
+        ax.set_yticks([])
 
     # add colorbar
     cbar = fig.colorbar(im0, cax=cax0, extend='both')

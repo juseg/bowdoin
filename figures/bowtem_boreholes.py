@@ -66,7 +66,7 @@ def plot_location_map(ax):
 
     # add invisible axes
     ax = ax.figure.add_axes_mm([5, 5, 10, 15])
-    ax.patch.set_visible(False)
+    ax.set_axis_off()
     ax.set_xlim(-1000e3, 1000e3)
     ax.set_ylim(-3500e3, -500e3)
 
@@ -77,9 +77,6 @@ def plot_location_map(ax):
         'admin_0_countries', 'cultural', '110m')
     greenland = countries[countries.NAME == 'Greenland'].to_crs(crs)
     greenland.plot(ax=ax, facecolor='none', edgecolor='k')
-
-    # remove title
-    ax.set_title("")
 
 
 def plot_long_profile(ax):

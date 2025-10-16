@@ -61,8 +61,12 @@ def plot_location_map(ax):
     # add scale
     img.to_dataset().hyoga.plot.scale_bar(ax=ax, color='w')
 
-    # remove title
-    ax.set_title("")
+    # set axes properties
+    ax.set_title('')
+    ax.set_xlabel('')
+    ax.set_xticks([])
+    ax.set_ylabel('')
+    ax.set_yticks([])
 
 
 def plot_long_profile(ax):

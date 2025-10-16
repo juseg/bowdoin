@@ -143,11 +143,14 @@ def main():
 
     # plot zoomed-in elevation map
     ax = grid[0]
-    zoom.plot.imshow(ax=ax, add_colorbar=False, cmap='Blues_r')
-    zoom.plot.contour(ax=ax, colors='0.25', levels=range(70, 100),
-                      linewidths=0.1)
-    zoom.plot.contour(ax=ax, colors='0.25', levels=range(70, 100, 5),
-                      linewidths=0.25).clabel(fmt='%d')
+    zoom.plot.imshow(
+        ax=ax, add_colorbar=False, add_labels=False,cmap='Blues_r')
+    zoom.plot.contour(
+        ax=ax, add_labels=False, colors='0.25', levels=range(70, 100),
+        linewidths=0.1)
+    zoom.plot.contour(
+        ax=ax, add_labels=False, colors='0.25', levels=range(70, 100, 5),
+        linewidths=0.25).clabel(fmt='%d')
 
     # plot reference elevation map
     ds = elev.assign_attrs(standard_name='bedrock_altitude').to_dataset()
@@ -155,8 +158,9 @@ def main():
         ax=grid[1], add_colorbar=False, altitude=[15]*3, cmap='Greys')
 
     # plot elevation difference map
-    diff.plot.imshow(ax=grid[2], cbar_ax=cax, cmap='RdBu', vmin=-20, vmax=20,
-                     cbar_kwargs=dict(label='elevation change (m)'))
+    diff.plot.imshow(
+        ax=grid[2], add_labels=False, cbar_ax=cax, cmap='RdBu',
+        vmin=-20, vmax=20, cbar_kwargs=dict(label='elevation change (m)'))
 
     # plot borehole locations on the map
     ax = grid[0]
@@ -210,6 +214,9 @@ def main():
                   ha=('left' if bh == 'bh2' else 'right'))
 
     # set axes properties
+    for ax in grid:
+        ax.set_xticks([])
+        ax.set_yticks([])
     grid[0].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     grid[1].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     grid[2].set_title(st1[5:9]+'-'+st1[9:11]+'-'+st1[11:13]+' - '+

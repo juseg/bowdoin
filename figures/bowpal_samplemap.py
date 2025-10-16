@@ -65,6 +65,15 @@ def init_figure():
         bowtem_utils.add_subfig_label(region, ax=ax)
         mark_inset(ax0=fig.axes[0], ax1=ax, text=region[:3], fc='none', ec='k')
 
+        # set axes properties
+        ax.set_title('')
+        ax.set_xlabel('')
+        ax.set_xticks([])
+        ax.set_ylabel('')
+        ax.set_yticks([])
+        for spine in ax.spines.values():
+            spine.set_linewidth(2)
+
     # return figure and axes
     return fig, grid
 
@@ -79,7 +88,7 @@ def main():
     img = xr.open_dataarray('../data/native/20160410_180125_659_S2A_RGB.jpg')
     img = img.astype(int)  # tell imshow to interpret RGB values as 0 to 256
     for ax in grid.values():
-        img.plot.imshow(ax=ax)
+        img.plot.imshow(ax=ax, add_labels=False)
 
     # read sample locations
     locs = bowtem_utils.read_locations_dict('../data/locations.gpx')
