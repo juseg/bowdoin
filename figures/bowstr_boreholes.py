@@ -6,7 +6,6 @@
 """Plot Bowdoin tides borehole setup."""
 
 import xarray as xr
-import cartopy.crs as ccrs
 import absplots as apl
 import hyoga
 import bowtem_utils
@@ -20,7 +19,7 @@ def init_figure():
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.UTM(19))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85])
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
@@ -34,7 +33,8 @@ def plot_location_map(ax):
     """Draw boreholes location map with Sentinel image background."""
 
     # prepare map axes
-    ax.set_extent([508e3, 512e3, 8621e3, 8626e3+2e3/3], crs=ax.projection)
+    ax.set_xlim(508e3, 512e3)
+    ax.set_ylim(8621e3, 8626e3+2e3/3)
 
     # plot Sentinel image data
     filename = '../data/native/20160808_175915_456_S2A_RGB.jpg'
@@ -47,17 +47,26 @@ def plot_location_map(ax):
     for bh in ('bh1', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=COLOURS[bh], point=point)
-        bowtem_utils.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
-        bowtem_utils.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
-        bowtem_utils.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
-    bowtem_utils.annotate_location(locations['Tent Swiss'], ax=ax, color='w', point='s',
-                          marker='^', text='Camp')
+        crs = '+proj=utm +zone=19'
+        bowtem_utils.annotate_location(
+            locations['B14'+bh.upper()], crs, text='2014', **kwa)
+        bowtem_utils.annotate_location(
+            locations['B16'+bh.upper()], crs, text='2016', **kwa)
+        bowtem_utils.annotate_location(
+            locations['B17'+bh.upper()], crs, text='2017', **kwa)
+    bowtem_utils.annotate_location(
+        locations['Tent Swiss'], crs, ax=ax, color='w', point='s',
+        marker='^', text='Camp')
 
     # add scale
     img.to_dataset().hyoga.plot.scale_bar(ax=ax, color='w')
 
-    # remove title
-    ax.set_title("")
+    # set axes properties
+    ax.set_title('')
+    ax.set_xlabel('')
+    ax.set_xticks([])
+    ax.set_ylabel('')
+    ax.set_yticks([])
 
 
 def plot_long_profile(ax):

@@ -10,7 +10,7 @@ import zipfile
 import numpy as np
 import pandas as pd
 from osgeo import gdal
-import cartopy.crs as ccrs
+import pyproj
 
 # extract archive
 with zipfile.ZipFile('satellite/bowdoin-landsat.zip') as archive:
@@ -18,9 +18,8 @@ with zipfile.ZipFile('satellite/bowdoin-landsat.zip') as archive:
     archive.extractall('satellite')
 
 # GPS coordinates on 2015/07/01 00:00
-ll = ccrs.PlateCarree()
-utm = ccrs.UTM(19)
-xb, yb = utm.transform_point(-68.560813961, 77.688492104, ll)
+trans = pyproj.Transformer.from_crs('+proj=lonlat', '+proj=utm +zone=19')
+xb, yb = trans.transform(-68.560813961, 77.688492104)
 
 # initialize data dictionary
 dd = []

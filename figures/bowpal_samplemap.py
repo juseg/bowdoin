@@ -7,14 +7,14 @@
 
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 import absplots as apl
 import bowtem_utils
 
 
 def mark_inset(ax0, ax1, text='', **kwargs):
     """Custom method to mark inset on geoaxes."""
-    west, east, south, north = ax1.get_extent()
+    west, east = ax1.get_xlim()
+    south, north = ax1.get_ylim()
     rectangle = plt.Rectangle((west, north), east-west, south-north, **kwargs)
     ax0.add_patch(rectangle)
     ax0.text(west, north+100, text, fontweight='bold')
@@ -26,9 +26,9 @@ def annotate_sample(location,
     """Annotate a sample and label with name and altitude."""
     color = dict(bedrock='C0', boulder='C3', organic='k')[location.type]
     marker = dict(bedrock='s', boulder='o', organic='^')[location.type]
-    return bowtem_utils.annotate_location(location, color=color, marker=marker,
-                                 bbox=dict(ec=color, fc='w', pad=2),
-                                 offset=12, text=text, **kwargs)
+    return bowtem_utils.annotate_location(
+        location, '+proj=utm +zone=19', color=color, marker=marker,
+        bbox=dict(ec=color, fc='w', pad=2), offset=12, text=text, **kwargs)
 
 
 def init_figure():
@@ -51,22 +51,28 @@ def init_figure():
 
     # initialize figure
     fig = apl.figure_mm(figsize=(figw, figh))
-    proj = ccrs.UTM(19)
     grid = dict()
 
     # for each region
     for region, extent in subregions.items():
 
         # add axes
-        ax = grid[region] = fig.add_axes_mm(axposition[region],
-                                            projection=proj)
-        ax.set_extent(extent, crs=ax.projection)
-        ax.spines['geo'].set_linewidth(2.0)
-        ax.spines['geo'].set_edgecolor('k')
+        ax = grid[region] = fig.add_axes_mm(axposition[region])
+        ax.set_xlim(extent[:2])
+        ax.set_ylim(extent[2:])
 
         # add subfigure label and mark inset
         bowtem_utils.add_subfig_label(region, ax=ax)
         mark_inset(ax0=fig.axes[0], ax1=ax, text=region[:3], fc='none', ec='k')
+
+        # set axes properties
+        ax.set_title('')
+        ax.set_xlabel('')
+        ax.set_xticks([])
+        ax.set_ylabel('')
+        ax.set_yticks([])
+        for spine in ax.spines.values():
+            spine.set_linewidth(2)
 
     # return figure and axes
     return fig, grid
@@ -82,7 +88,7 @@ def main():
     img = xr.open_dataarray('../data/native/20160410_180125_659_S2A_RGB.jpg')
     img = img.astype(int)  # tell imshow to interpret RGB values as 0 to 256
     for ax in grid.values():
-        img.plot.imshow(ax=ax)
+        img.plot.imshow(ax=ax, add_labels=False)
 
     # read sample locations
     locs = bowtem_utils.read_locations_dict('../data/locations.gpx')

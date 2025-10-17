@@ -41,7 +41,8 @@ def main():
         profile.to_csv(f'{__file__[:-3]}_{bh}_{date}.csv', index=False)
 
         # print borehole location
-        _, projected = project_borehole_locations(date, crs=ccrs.PlateCarree())
+        # FIXME move project_borehole_locations() to utils
+        _, projected = project_borehole_locations(date, '+proj=lonlat')
         pos = projected.loc[bh]
         print(bh, date, pos.x, pos.y)
 

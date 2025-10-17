@@ -6,14 +6,13 @@
 """Plot Bowdoin temperature Arctic DEM map and profile."""
 
 from scipy import stats
-import hyoga
-import numpy as np
+import hyoga  # pylint: disable=unused-import
+import geopandas as gpd
 import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
-import cartopy.io.shapereader as shpreader
 import absplots as apl
+import pyproj
 import bowtem_utils
 
 
@@ -23,10 +22,7 @@ def init_figure():
     # initialize figure
     fig, grid = apl.subplots_mm(
         figsize=(180, 120), ncols=3, gridspec_kw=dict(
-            left=2.5, right=22.5, bottom=65, top=5, wspace=2.5),
-        subplot_kw=dict(projection=ccrs.Stereographic(
-            central_latitude=90, central_longitude=-45,
-            true_scale_latitude=70)))
+            left=2.5, right=22.5, bottom=65, top=5, wspace=2.5))
 
     # add colorbar and profile axes
     cax = fig.add_axes_mm([160, 65, 5, 50])
@@ -55,10 +51,10 @@ def project_borehole_locations(date, crs):
     initial = locs[['x', 'y']]
 
     # interpolate DEM date BH1 location from continuous GPS
-    lonlat = ccrs.PlateCarree()
+    trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
     gps = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
     gps = gps.interpolate().loc[date].mean()
-    gps['x'], gps['y'] = crs.transform_point(gps.lon, gps.lat, lonlat)
+    gps['x'], gps['y'] = trans.transform(gps.lon, gps.lat)
     gps = gps[['x', 'y']]
 
     # compute DEM date positions from BH1 displacement with time mutliplier
@@ -70,44 +66,6 @@ def project_borehole_locations(date, crs):
 
     # return initial and projected locations
     return initial, projected
-
-
-def build_profile_coords(points, interval=None, method='linear'):
-    """Interpolate coordinates along profile through given points."""
-    # FIXME move profile functionality to cratowik.
-
-    # compute distance along profile
-    x, y = np.asarray(points).T
-    dist = ((np.diff(x)**2+np.diff(y)**2)**0.5).cumsum()
-    dist = np.insert(dist, 0, 0)
-
-    # build coordinate xarrays
-    x = xr.DataArray(x, coords=[dist], dims='d')
-    y = xr.DataArray(y, coords=[dist], dims='d')
-
-    # if interval was given, interpolate coordinates
-    if interval is not None:
-        dist = np.arange(0, dist[-1], interval)
-        x = x.interp(d=dist, method=method)
-        y = y.interp(d=dist, method=method)
-
-    # return coordinates
-    return x, y
-
-
-def open_shp_coords(filename, crs=None, **kwargs):
-    """Spline-interpolate coordinates along profile from shapefile."""
-
-    # read profile from shapefile
-    shp = shpreader.Reader(filename)
-    geom = next(shp.geometries())
-    points = np.asarray(geom.coords)
-    if crs is not None:
-        points = crs.transform_points(ccrs.PlateCarree(), *points.T)[:, :2]
-    x, y = build_profile_coords(points, **kwargs)
-
-    # return coordinates
-    return x, y
 
 
 def project_location(x, y, loc):
@@ -144,11 +102,14 @@ def main():
 
     # plot zoomed-in elevation map
     ax = grid[0]
-    zoom.plot.imshow(ax=ax, add_colorbar=False, cmap='Blues_r')
-    zoom.plot.contour(ax=ax, colors='0.25', levels=range(70, 100),
-                      linewidths=0.1)
-    zoom.plot.contour(ax=ax, colors='0.25', levels=range(70, 100, 5),
-                      linewidths=0.25).clabel(fmt='%d')
+    zoom.plot.imshow(
+        ax=ax, add_colorbar=False, add_labels=False,cmap='Blues_r')
+    zoom.plot.contour(
+        ax=ax, add_labels=False, colors='0.25', levels=range(70, 100),
+        linewidths=0.1)
+    zoom.plot.contour(
+        ax=ax, add_labels=False, colors='0.25', levels=range(70, 100, 5),
+        linewidths=0.25).clabel(fmt='%d')
 
     # plot reference elevation map
     ds = elev.assign_attrs(standard_name='bedrock_altitude').to_dataset()
@@ -156,13 +117,14 @@ def main():
         ax=grid[1], add_colorbar=False, altitude=[15]*3, cmap='Greys')
 
     # plot elevation difference map
-    diff.plot.imshow(ax=grid[2], cbar_ax=cax, cmap='RdBu', vmin=-20, vmax=20,
-                     cbar_kwargs=dict(label='elevation change (m)'))
+    diff.plot.imshow(
+        ax=grid[2], add_labels=False, cbar_ax=cax, cmap='RdBu',
+        vmin=-20, vmax=20, cbar_kwargs=dict(label='elevation change (m)'))
 
     # plot borehole locations on the map
     ax = grid[0]
-
-    initial, projected = project_borehole_locations(st0[5:13], ax.projection)
+    crs = '+proj=stere +lat_0=90 +lon_0=-45 +lat_ts=70'
+    initial, projected = project_borehole_locations(st0[5:13], crs=crs)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = bowtem_utils.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
@@ -189,28 +151,28 @@ def main():
     zoom.to_dataset().hyoga.plot.scale_bar(ax=grid[0], label=r'50$\,$m')
     elev.to_dataset().hyoga.plot.scale_bar(ax=grid[1])
 
-    # open profile coordinates
-    x, y = open_shp_coords('../data/native/flowline.shp',
-                           crs=grid[1].projection, interval=1)
-    x = x[x.d < 5000]
-    y = y[y.d < 5000]
+    # interpolate along profile
+    flowline = gpd.read_file('../data/native/flowline.shp').to_crs(crs)
+    elev = elev.isel(y=slice(None, None, -1))  # work around hyoga issue #117
+    elev = elev.to_dataset().hyoga.profile(flowline, interval=10).band_data
+    elev = elev[elev.d < 5000]
 
-    # plot profile on shaded relief map
-    ax = grid[1]
-    ax.plot(x, y, color='w', linestyle='--')
-
-    # plot Arctic DEM topographic profile
-    elev.interp(x=x, y=y, method='linear').plot(ax=pfax, color='0.25')
+    # plot map-view and topographic profiles
+    grid[1].plot(elev.x, elev.y, color='w', linestyle='--')
+    elev.plot(ax=pfax, color='0.25')
 
     # mark borehole locations along profile
     for bh in ['bh2', 'bh3']:
         color = bowtem_utils.COLOURS[bh]
-        dist = project_location(x, y, projected.loc[bh])
+        dist = project_location(elev.x, elev.y, projected.loc[bh])
         pfax.axvline(dist, color=color)
         pfax.text(dist, 40, ' '+bh.upper()+' ', color=color, fontweight='bold',
                   ha=('left' if bh == 'bh2' else 'right'))
 
     # set axes properties
+    for ax in grid:
+        ax.set_xticks([])
+        ax.set_yticks([])
     grid[0].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     grid[1].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     grid[2].set_title(st1[5:9]+'-'+st1[9:11]+'-'+st1[11:13]+' - '+

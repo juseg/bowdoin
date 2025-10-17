@@ -8,7 +8,6 @@
 import numpy as np
 import scipy.interpolate as sinterp
 import pandas as pd
-import cartopy.crs as ccrs
 import bowtem_utils
 import absplots as apl
 import bowtem_utils
@@ -104,7 +103,7 @@ def estimate_longitudinal_strain_rate():
     """
 
     # load borehole positions
-    locs = bowtem_utils.read_locations(crs=ccrs.UTM(19))
+    locs = bowtem_utils.read_locations(crs='+proj=utm +zone=19')
     d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
             (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5
     d_14 = ((locs.x.B14BH3-locs.x.B14BH1)**2 +

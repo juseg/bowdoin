@@ -8,7 +8,6 @@
 import hyoga
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy.crs as ccrs
 import absplots as apl
 import bowtem_utils
 
@@ -18,7 +17,7 @@ def init_figure():
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85], projection=ccrs.UTM(19))
+    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85])
     ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
@@ -33,46 +32,51 @@ def plot_location_map(ax):
     """Draw boreholes location map with Sentinel image background."""
 
     # prepare map axes
-    ax.set_extent([508e3, 512e3, 8621e3, 8626e3+2e3/3], crs=ax.projection)
+    ax.set_xlim(508e3, 512e3)
+    ax.set_ylim(8621e3, 8626e3+2e3/3)
+    ax.set_xlabel('')
+    ax.set_ylabel('')
+    ax.set_xticks([])
+    ax.set_yticks([])
 
     # plot Sentinel image data
     filename = '../data/native/20170310_174129_456_S2A_RGB.jpg'
     img = xr.open_dataarray(filename).astype(int)
     img = img.clip(0, None)  # replace no data with black
-    img.plot.imshow(ax=ax, interpolation='bilinear')
+    img.plot.imshow(ax=ax, add_labels=False, interpolation='bilinear')
 
     # add boreholes and camp waypoints for each borehole
     locations = bowtem_utils.read_locations_dict('../data/locations.gpx')
     for bh in ('bh1', 'bh2', 'bh3'):
         point = 'se' if bh == 'bh1' else 'nw'
         kwa = dict(ax=ax, color=bowtem_utils.COLOURS[bh], point=point)
-        bowtem_utils.annotate_location(locations['B14'+bh.upper()], text='2014', **kwa)
-        bowtem_utils.annotate_location(locations['B16'+bh.upper()], text='2016', **kwa)
-        bowtem_utils.annotate_location(locations['B17'+bh.upper()], text='2017', **kwa)
-    bowtem_utils.annotate_location(locations['Tent Swiss'], ax=ax, color='k', point='s',
-                          marker='^', text='Camp')
+        crs = '+proj=utm +zone=19'
+        bowtem_utils.annotate_location(
+            locations['B14'+bh.upper()], crs, text='2014', **kwa)
+        bowtem_utils.annotate_location(
+            locations['B16'+bh.upper()], crs, text='2016', **kwa)
+        bowtem_utils.annotate_location(
+            locations['B17'+bh.upper()], crs, text='2017', **kwa)
+    bowtem_utils.annotate_location(
+        locations['Tent Swiss'], crs, ax=ax, color='k', point='s', marker='^',
+        text='Camp')
 
     # add scale
     img.to_dataset().hyoga.plot.scale_bar(ax=ax)
 
     # add invisible axes
-    ax = ax.figure.add_axes_mm([5, 5, 10, 15], projection=ccrs.Stereographic(
-        central_latitude=90, central_longitude=-45, true_scale_latitude=70))
-    ax.patch.set_visible(False)
-    ax.spines['geo'].set_visible(False)
+    ax = ax.figure.add_axes_mm([5, 5, 10, 15])
+    ax.set_axis_off()
     ax.set_xlim(-1000e3, 1000e3)
     ax.set_ylim(-3500e3, -500e3)
 
     # draw minimap
-    bowtem_utils.annotate_location(locations['B16BH1'], ax=ax, color='k')
+    crs = '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45'
+    bowtem_utils.annotate_location(locations['B16BH1'], crs, ax=ax, color='k')
     countries = hyoga.open.natural_earth(
         'admin_0_countries', 'cultural', '110m')
-    greenland = countries[countries.NAME == 'Greenland']
-    greenland = greenland.to_crs('+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45')
+    greenland = countries[countries.NAME == 'Greenland'].to_crs(crs)
     greenland.plot(ax=ax, facecolor='none', edgecolor='k')
-
-    # remove title
-    ax.set_title("")
 
 
 def plot_long_profile(ax):

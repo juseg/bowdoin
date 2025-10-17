@@ -6,13 +6,13 @@
 Bowdoin temperature paper utils.
 """
 
-import cartopy.crs as ccrs  # FIXME replace with pyproj
 import glob
 import gpxpy
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 import pandas as pd
+import pyproj
 
 # Global parameters
 # -----------------
@@ -176,8 +176,8 @@ def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
                        ha=halign, va=valign, *args, **kwargs)
 
 
-def annotate_location(location, ax=None, color=None, marker='o', text='',
-                      **kwargs):
+def annotate_location(
+        location, crs, ax=None, color=None, marker='o', text='', **kwargs):
     """
     Mark and annotate a geographic location.
 
@@ -203,9 +203,9 @@ def annotate_location(location, ax=None, color=None, marker='o', text='',
     ax = ax or plt.gca()
 
     # reproject waypoint coordinates
-    crs = ccrs.PlateCarree()
-    coords = location.longitude, location.latitude
-    coords = ax.projection.transform_point(*coords, crs)
+    # FIXME remove gpxpy dependency and use geopandas.GeoDataFrame.to_crs()
+    coords = pyproj.Transformer.from_crs('+proj=lonlat', crs).transform(
+        location.longitude, location.latitude)
 
     # plot annotated waypoint and stop here if text is empty or (still) None
     line = ax.plot(*coords, color=color, marker=marker)
@@ -347,6 +347,7 @@ def load_strain_rate(borehole, freq='1D'):
 
 def read_locations_dict(filename='../data/locations.gpx'):
     """Read waypoints dictionary from GPX file."""
+    # FIXME replace gpxpy dependency with geopandas.read_file()
     with open(filename, 'r') as gpx:
         return {wpt.name: wpt for wpt in gpxpy.parse(gpx).waypoints}
 
@@ -362,8 +363,9 @@ def read_locations(filename='../data/locations.gpx', crs=None):
 
     # if crs is given, append coordinates in given crs
     if crs is not None:
+        trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
         xyz = data[['longitude', 'latitude', 'elevation']].values
-        xyz = crs.transform_points(ccrs.PlateCarree(), *xyz.T).T
+        xyz = trans.transform(*xyz.T)
         data['x'], data['y'], data['z'] = xyz
 
     # remove timezone information (see gpxpy issue #182)

@@ -7,7 +7,6 @@
 
 from scipy import stats
 import xarray as xr
-import cartopy.crs as ccrs
 import absplots as apl
 
 
@@ -93,10 +92,7 @@ def main():
     fig, grid = apl.subplots_mm(
         figsize=(180, 90+130), nrows=2+3, ncols=4, sharex=True, sharey=True,
         gridspec_kw=dict(
-            left=2.5, right=17.5, wspace=2.5, bottom=2.5, top=5, hspace=5),
-        subplot_kw=dict(projection=ccrs.Stereographic(
-            central_latitude=90, central_longitude=-45,
-            true_scale_latitude=70)))
+            left=2.5, right=17.5, wspace=2.5, bottom=2.5, top=5, hspace=5))
     cax0, cax1 = fig.subplots_mm(nrows=2, gridspec_kw=dict(
         left=165, right=12.5, bottom=2.5, top=5, hspace=5))
     cax0.grid(False)  # see discussion of mpl issue #21723
@@ -129,6 +125,8 @@ def main():
         ax.set_title(strip[5:13])
         ax.set_xlim(-537500, -532500)
         ax.set_ylim(-1229000, -1224000)
+        ax.set_xticks([])
+        ax.set_yticks([])
 
     # add colorbar
     cbar = fig.colorbar(im0, cax=cax0, extend='both')
