@@ -5,10 +5,12 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
-import hyoga
-import xarray as xr
-import matplotlib.pyplot as plt
 import absplots as apl
+import geopandas as gpd
+import hyoga
+import matplotlib.pyplot as plt
+import xarray as xr
+
 import bowtem_utils
 
 
@@ -45,21 +47,15 @@ def plot_location_map(ax):
     img = img.clip(0, None)  # replace no data with black
     img.plot.imshow(ax=ax, add_labels=False, interpolation='bilinear')
 
-    # add boreholes and camp waypoints for each borehole
-    locations = bowtem_utils.read_locations_dict('../data/locations.gpx')
-    for bh in ('bh1', 'bh2', 'bh3'):
-        point = 'se' if bh == 'bh1' else 'nw'
-        kwa = dict(ax=ax, color=bowtem_utils.COLOURS[bh], point=point)
-        crs = '+proj=utm +zone=19'
-        bowtem_utils.annotate_location(
-            locations['B14'+bh.upper()], crs, text='2014', **kwa)
-        bowtem_utils.annotate_location(
-            locations['B16'+bh.upper()], crs, text='2016', **kwa)
-        bowtem_utils.annotate_location(
-            locations['B17'+bh.upper()], crs, text='2017', **kwa)
+    # add camp and boreholes locations
+    crs = '+proj=utm +zone=19'
     bowtem_utils.annotate_location(
-        locations['Tent Swiss'], crs, ax=ax, color='k', point='s', marker='^',
-        text='Camp')
+        'Tent Swiss', ax=ax, color='k', crs=crs, point='s', marker='^', text='Camp')
+    for bh in ('bh1', 'bh2', 'bh3'):
+        for year in (14, 16, 17):
+            bowtem_utils.annotate_location(
+                f'B{year}{bh.upper()}', ax=ax, color=bowtem_utils.COLOURS[bh],
+                crs=crs, text=f'20{year}', point='se' if bh == 'bh1' else 'nw')
 
     # add scale
     img.to_dataset().hyoga.plot.scale_bar(ax=ax)
@@ -72,11 +68,11 @@ def plot_location_map(ax):
 
     # draw minimap
     crs = '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45'
-    bowtem_utils.annotate_location(locations['B16BH1'], crs, ax=ax, color='k')
     countries = hyoga.open.natural_earth(
         'admin_0_countries', 'cultural', '110m')
     greenland = countries[countries.NAME == 'Greenland'].to_crs(crs)
     greenland.plot(ax=ax, facecolor='none', edgecolor='k')
+    bowtem_utils.annotate_location('Tent Swiss', crs=crs, ax=ax, color='k')
 
 
 def plot_long_profile(ax):
