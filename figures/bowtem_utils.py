@@ -7,6 +7,7 @@ Bowdoin temperature paper utils.
 """
 
 import glob
+import geopandas as gpd
 import gpxpy
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
@@ -177,44 +178,14 @@ def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
 
 
 def annotate_location(
-        location, crs, ax=None, color=None, marker='o', text='', **kwargs):
-    """
-    Mark and annotate a geographic location.
-
-    Parameters
-    ----------
-    location: object
-        A location object with longitude and latitude attributes, and by
-        default a name (see text). This could be a waypoint from a GPX file.
-    ax: GeoAxes, optional
-        Axes used for plotting. Default to current axes.
-    color:
-        Color for plot and annotation.
-    marker:
-        Marker for plot.
-    text: string, optional.
-        Label text. Can be a format string with custom location object
-        attribute in curly brackets, for isntance '{location.name}'.
-    **kwargs:
-        Additional keyword arguments are passed to annotate_by_compass.
-    """
-
-    # get axes if None provided
-    ax = ax or plt.gca()
-
-    # reproject waypoint coordinates
-    # FIXME remove gpxpy dependency and use geopandas.GeoDataFrame.to_crs()
-    coords = pyproj.Transformer.from_crs('+proj=lonlat', crs).transform(
-        location.longitude, location.latitude)
-
-    # plot annotated waypoint and stop here if text is empty or (still) None
-    line = ax.plot(*coords, color=color, marker=marker)
-    if not text:
-        return line
-
-    # otherwise format text against location attributes and add annotation
-    text = text.format(location=location)
-    return annotate_by_compass(text, coords, ax=ax, color=color, **kwargs)
+        name, ax=None, color=None, crs=None, marker='o', text=None, **kwargs):
+    """Plot and annotate a geographic location."""
+    gdf = gpd.read_file('../data/locations.gpx').set_index('name').loc[[name]]
+    gdf = gdf.to_crs(crs)
+    gdf.plot(ax=ax, color=color, marker=marker)
+    if text is not None:
+        coords = gdf.loc[name].geometry.coords[0]
+        annotate_by_compass(text, coords, ax=ax, color=color, **kwargs)
 
 
 # Data loading methods
