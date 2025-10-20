@@ -47,8 +47,9 @@ def load(variable='wlev'):
         data = GRAVITY*data['20140701':]  # kPa
 
     # order data and drop useless records
-    data = data.sort_index(axis=1, ascending=False)
-    data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
+    if variable != 'base':
+        data = data.sort_index(axis=1, ascending=False)
+        data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
 
     # return dataframe
     return data

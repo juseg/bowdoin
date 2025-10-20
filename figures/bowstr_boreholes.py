@@ -68,14 +68,13 @@ def plot_location_map(ax):
 def plot_long_profile(ax):
     """Draw boreholes long profile with intrumental setup."""
 
-    # draw vertical lines symbolising the boreholes
-    for bh, color in COLOURS.items():
-        base = bowtem_utils.load(
-            '../data/processed/bowdoin.'+bh+'.inc.base.csv')
-        base = base.iloc[0].squeeze()
-        dist = dict(bh1=2, bh3=1.84)[bh]
+    # same thing with new util
+    bases = bowstr_utils.load(variable='base').iloc[0]
+    for var, base in bases.items():
+        color = {'BH1B': 'tab:blue', 'BH3B': 'tab:pink'}[var]
+        dist = {'BH1B': 2, 'BH3B': 1.84}[var]
         ax.plot([dist, dist], [base, 0.0], 'k-_')
-        ax.text(dist, -5.0, bh.upper(), color=color, fontweight='bold',
+        ax.text(dist, -5.0, var[:3], color=color, fontweight='bold',
                 ha='center', va='bottom')
         ax.text(dist, base+5.0, '{:.0f} m'.format(base),
                 ha='center', va='top')
