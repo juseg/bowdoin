@@ -5,11 +5,12 @@
 
 """Plot Bowdoin temperature profiles."""
 
-import numpy as np
-import scipy.interpolate as sinterp
-import pandas as pd
-import bowtem_utils
 import absplots as apl
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import scipy.interpolate as sinterp
+
 import bowtem_utils
 
 
@@ -102,17 +103,22 @@ def estimate_longitudinal_strain_rate():
     between BH1 and BH3.
     """
 
-    # load borehole positions
-    locs = bowtem_utils.read_locations(crs='+proj=utm +zone=19')
-    d_17 = ((locs.x.B17BH3-locs.x.B17BH1)**2 +
-            (locs.y.B17BH3-locs.y.B17BH1)**2)**0.5
-    d_14 = ((locs.x.B14BH3-locs.x.B14BH1)**2 +
-            (locs.y.B14BH3-locs.y.B14BH1)**2)**0.5
-    time = (locs.time.B17BH1 - locs.time.B14BH1 +
-            locs.time.B17BH3 - locs.time.B14BH3)/2
+    # open borehole locations
+    gdf = gpd.read_file('../data/locations.gpx').set_index('name')
+    gdf = gdf.to_crs('+proj=utm +zone=19')
+
+    # compute distance between boreholes
+    x = gdf.geometry.x
+    y = gdf.geometry.y
+    dist_17 = ((x.B17BH3 - x.B17BH1)**2 + (y.B17BH3 - y.B17BH1)**2)**0.5
+    dist_14 = ((x.B14BH3 - x.B14BH1)**2 + (y.B14BH3 - y.B14BH1)**2)**0.5
+
+    # compute average time interval
+    time = pd.to_datetime(gdf.time, format='mixed', utc=True)
+    span = (time.B17BH1 - time.B14BH1 + time.B17BH3 - time.B14BH3)/2
 
     # estimate longitudinal strain rate
-    e_xx = 2*(d_17-d_14)/(d_17+d_14)/time.total_seconds()
+    e_xx = 2 * (dist_17 - dist_14) / (dist_17 + dist_14) / span.total_seconds()
     return e_xx
 
 

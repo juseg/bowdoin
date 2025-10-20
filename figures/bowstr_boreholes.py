@@ -5,11 +5,12 @@
 
 """Plot Bowdoin tides borehole setup."""
 
-import xarray as xr
 import absplots as apl
 import hyoga
-import bowtem_utils
+import xarray as xr
+
 import bowstr_utils
+import bowtem_utils
 
 COLOURS = dict(bh1='C0', bh3='C6')
 
@@ -42,21 +43,16 @@ def plot_location_map(ax):
     img = img.clip(0, None)  # replace no data with black
     img.plot.imshow(ax=ax, interpolation='bilinear')
 
-    # add boreholes and camp waypoints for each borehole
-    locations = bowtem_utils.read_locations_dict('../data/locations.gpx')
-    for bh in ('bh1', 'bh3'):
-        point = 'se' if bh == 'bh1' else 'nw'
-        kwa = dict(ax=ax, color=COLOURS[bh], point=point)
-        crs = '+proj=utm +zone=19'
-        bowtem_utils.annotate_location(
-            locations['B14'+bh.upper()], crs, text='2014', **kwa)
-        bowtem_utils.annotate_location(
-            locations['B16'+bh.upper()], crs, text='2016', **kwa)
-        bowtem_utils.annotate_location(
-            locations['B17'+bh.upper()], crs, text='2017', **kwa)
+    # add camp and boreholes locations
+    crs = '+proj=utm +zone=19'
     bowtem_utils.annotate_location(
-        locations['Tent Swiss'], crs, ax=ax, color='w', point='s',
-        marker='^', text='Camp')
+        'Tent Swiss', ax=ax, color='w', crs=crs, point='s', marker='^',
+        text='Camp')
+    for bh in ('bh1', 'bh3'):
+        for year in (14, 16, 17):
+            bowtem_utils.annotate_location(
+                f'B{year}{bh.upper()}', ax=ax, color=COLOURS[bh],
+                crs=crs, text=f'20{year}', point='se' if bh == 'bh1' else 'nw')
 
     # add scale
     img.to_dataset().hyoga.plot.scale_bar(ax=ax, color='w')

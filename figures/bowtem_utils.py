@@ -7,12 +7,11 @@ Bowdoin temperature paper utils.
 """
 
 import glob
-import gpxpy
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 import pandas as pd
-import pyproj
 
 # Global parameters
 # -----------------
@@ -177,44 +176,14 @@ def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
 
 
 def annotate_location(
-        location, crs, ax=None, color=None, marker='o', text='', **kwargs):
-    """
-    Mark and annotate a geographic location.
-
-    Parameters
-    ----------
-    location: object
-        A location object with longitude and latitude attributes, and by
-        default a name (see text). This could be a waypoint from a GPX file.
-    ax: GeoAxes, optional
-        Axes used for plotting. Default to current axes.
-    color:
-        Color for plot and annotation.
-    marker:
-        Marker for plot.
-    text: string, optional.
-        Label text. Can be a format string with custom location object
-        attribute in curly brackets, for isntance '{location.name}'.
-    **kwargs:
-        Additional keyword arguments are passed to annotate_by_compass.
-    """
-
-    # get axes if None provided
-    ax = ax or plt.gca()
-
-    # reproject waypoint coordinates
-    # FIXME remove gpxpy dependency and use geopandas.GeoDataFrame.to_crs()
-    coords = pyproj.Transformer.from_crs('+proj=lonlat', crs).transform(
-        location.longitude, location.latitude)
-
-    # plot annotated waypoint and stop here if text is empty or (still) None
-    line = ax.plot(*coords, color=color, marker=marker)
-    if not text:
-        return line
-
-    # otherwise format text against location attributes and add annotation
-    text = text.format(location=location)
-    return annotate_by_compass(text, coords, ax=ax, color=color, **kwargs)
+        name, ax=None, color=None, crs=None, marker='o', text=None, **kwargs):
+    """Plot and annotate a geographic location."""
+    gdf = gpd.read_file('../data/locations.gpx').set_index('name').loc[[name]]
+    gdf = gdf.to_crs(crs)
+    gdf.plot(ax=ax, color=color, marker=marker)
+    if text is not None:
+        coords = gdf.loc[name].geometry.coords[0]
+        annotate_by_compass(text, coords, ax=ax, color=color, **kwargs)
 
 
 # Data loading methods
@@ -343,42 +312,6 @@ def load_strain_rate(borehole, freq='1D'):
 
     # return strain rate
     return exz
-
-
-def read_locations_dict(filename='../data/locations.gpx'):
-    """Read waypoints dictionary from GPX file."""
-    # FIXME replace gpxpy dependency with geopandas.read_file()
-    with open(filename, 'r') as gpx:
-        return {wpt.name: wpt for wpt in gpxpy.parse(gpx).waypoints}
-
-
-def read_locations(filename='../data/locations.gpx', crs=None):
-    """Read waypoints dataframe from GPX file."""
-
-    # read locations in geographic coordinates
-    with open(filename, 'r') as gpx:
-        attributes = [{attr: getattr(wpt, attr) for attr in wpt.__slots__}
-                      for wpt in gpxpy.parse(gpx).waypoints]
-    data = pd.DataFrame(attributes).dropna(axis=1, how='all').set_index('name')
-
-    # if crs is given, append coordinates in given crs
-    if crs is not None:
-        trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
-        xyz = data[['longitude', 'latitude', 'elevation']].values
-        xyz = trans.transform(*xyz.T)
-        data['x'], data['y'], data['z'] = xyz
-
-    # remove timezone information (see gpxpy issue #182)
-    # data.time = data.time.dt.tz_localize(None)
-    # FIXME this should be fixed by gpxpy PR227, and indeed locations for
-    # B17BH* now have zone-unaware times. However this creates a new issue,
-    # where pandas cannot mix tz-aware and tz-unaware times. So we're going
-    # to assume UTC time zone for points missing timezone information.
-    data.time = pd.to_datetime(data.time, utc=True)
-
-    # return locations dataframe
-    return data
-
 
 
 # Data processing methods

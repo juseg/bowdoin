@@ -45,10 +45,10 @@ def project_borehole_locations(date, crs):
     """
 
     # read initial positions from GPX file
-    locs = bowtem_utils.read_locations(crs=crs)
-    locs = locs[locs.index.str.startswith('B14')]
-    locs.index = locs.index.str[3:].str.lower()
-    initial = locs[['x', 'y']]
+    gdf = gpd.read_file('../data/locations.gpx').set_index('name').to_crs(crs)
+    gdf = gdf[gdf.index.str.startswith('B14')]
+    gdf = gdf.set_index(gdf.index.str[3:].str.lower())
+    initial = gdf.geometry.get_coordinates()
 
     # interpolate DEM date BH1 location from continuous GPS
     trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
@@ -60,7 +60,8 @@ def project_borehole_locations(date, crs):
     # compute DEM date positions from BH1 displacement with time mutliplier
     displacement = gps - initial.loc['bh1']
     date = pd.to_datetime(date, utc=True)
-    multiplier = (date-locs.time.bh1) / (date-locs.time)
+    date_init = pd.to_datetime(gdf.time)
+    multiplier = (date - date_init.bh1) / (date - date_init)
     displacement = displacement.apply(lambda x: x*multiplier).T
     projected = initial + displacement
 
