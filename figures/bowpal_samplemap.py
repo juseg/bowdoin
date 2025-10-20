@@ -5,9 +5,11 @@
 
 """Plot Bowdoin paleo sample map."""
 
-import xarray as xr
-import matplotlib.pyplot as plt
 import absplots as apl
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import xarray as xr
+
 import bowtem_utils
 
 
@@ -20,15 +22,22 @@ def mark_inset(ax0, ax1, text='', **kwargs):
     ax0.text(west, north+100, text, fontweight='bold')
 
 
-def annotate_sample(location,
-                    text='{location.name:s}\n{location.elevation:.0f} m',
-                    **kwargs):
+def annotate_sample(
+        name, ax=None, color=None, marker='o', text=None, **kwargs):
     """Annotate a sample and label with name and altitude."""
-    color = dict(bedrock='C0', boulder='C3', organic='k')[location.type]
-    marker = dict(bedrock='s', boulder='o', organic='^')[location.type]
-    return bowtem_utils.annotate_location(
-        location, '+proj=utm +zone=19', color=color, marker=marker,
-        bbox=dict(ec=color, fc='w', pad=2), offset=12, text=text, **kwargs)
+    gdf = gpd.read_file('../data/locations.gpx').set_index('name').loc[[name]]
+    gdf = gdf.to_crs('+proj=utm +zone=19')
+    color, marker = {
+        'bedrock': ('tab:blue', 's'),
+        'boulder': ('tab:red', 'o'),
+        'organic': ('k', '^')}[gdf.loc[name, 'type']]
+    gdf.plot(ax=ax, color=color, marker=marker)
+    if text is None:
+        bowtem_utils.annotate_by_compass(
+            f'{name}\n{gdf.loc[name, 'ele']:.0f}'+r'$\,$m',
+            gdf.loc[name].geometry.coords[0],
+            ax=ax, bbox={'ec': color, 'fc': 'w', 'pad': 2},
+            color=color, offset=12, **kwargs)
 
 
 def init_figure():
@@ -97,52 +106,52 @@ def main():
     ax = grid['(a) Bowdoin Glacier']
     for name, loc in locs.items():
         if name.startswith('BOW1'):
-            annotate_sample(loc, ax=ax, text='')
+            annotate_sample(name, ax=ax, text='')
 
     # plot Sentinel hill sample locations
     ax = grid['(b) Sentinel hill']
-    annotate_sample(locs['BOW16-MF-BED1'], ax=ax, point='nw')
-    annotate_sample(locs['BOW16-MF-BED2'], ax=ax, point='se')
-    annotate_sample(locs['BOW16-MF-BED3'], ax=ax, point='sw')
-    annotate_sample(locs['BOW16-MF-BOU1'], ax=ax, point='sw')
-    annotate_sample(locs['BOW16-MF-BOU2'], ax=ax, point='e')
-    annotate_sample(locs['BOW16-MF-BOU3'], ax=ax, point='ne')
+    annotate_sample('BOW16-MF-BED1', ax=ax, point='nw')
+    annotate_sample('BOW16-MF-BED2', ax=ax, point='se')
+    annotate_sample('BOW16-MF-BED3', ax=ax, point='sw')
+    annotate_sample('BOW16-MF-BOU1', ax=ax, point='sw')
+    annotate_sample('BOW16-MF-BOU2', ax=ax, point='e')
+    annotate_sample('BOW16-MF-BOU3', ax=ax, point='ne')
 
     # plot Bartlett hill sample locations
     ax = grid['(c) Bartlett hill']
-    annotate_sample(locs['BOW15-01'], ax=ax, point='ne')
-    annotate_sample(locs['BOW15-02'], ax=ax, point='e')
-    annotate_sample(locs['BOW15-03'], ax=ax, point='w')
-    annotate_sample(locs['BOW15-04'], ax=ax, point='ne')
-    annotate_sample(locs['BOW15-05'], ax=ax, point='nw')
-    annotate_sample(locs['BOW15-06'], ax=ax, point='e')
-    annotate_sample(locs['BOW15-07'], ax=ax, point='se')
-    annotate_sample(locs['BOW15-08'], ax=ax, point='sw')
-    annotate_sample(locs['BOW15-09'], ax=ax, point='w')
-    annotate_sample(locs['BOW16-JS-12'], ax=ax, point='w')
-    annotate_sample(locs['BOW16-JS-13'], ax=ax, point='nw')
+    annotate_sample('BOW15-01', ax=ax, point='ne')
+    annotate_sample('BOW15-02', ax=ax, point='e')
+    annotate_sample('BOW15-03', ax=ax, point='w')
+    annotate_sample('BOW15-04', ax=ax, point='ne')
+    annotate_sample('BOW15-05', ax=ax, point='nw')
+    annotate_sample('BOW15-06', ax=ax, point='e')
+    annotate_sample('BOW15-07', ax=ax, point='se')
+    annotate_sample('BOW15-08', ax=ax, point='sw')
+    annotate_sample('BOW15-09', ax=ax, point='w')
+    annotate_sample('BOW16-JS-12', ax=ax, point='w')
+    annotate_sample('BOW16-JS-13', ax=ax, point='nw')
 
     # plot Camp carbon sample locations
     ax = grid['(d) Upper cam. hill']
-    annotate_sample(locs['BOW16-CA-02'], ax=ax, point='se')
-    annotate_sample(locs['BOW16-CA-03'], ax=ax, point='e')
-    annotate_sample(locs['BOW16-CA-04'], ax=ax, point='ne')
+    annotate_sample('BOW16-CA-02', ax=ax, point='se')
+    annotate_sample('BOW16-CA-03', ax=ax, point='e')
+    annotate_sample('BOW16-CA-04', ax=ax, point='ne')
 
     # plot Upper cam hill sample locations
-    annotate_sample(locs['BOW16-JS-01'], ax=ax, point='e')
-    annotate_sample(locs['BOW16-JS-02'], ax=ax, point='w')
-    annotate_sample(locs['BOW16-JS-03'], ax=ax, point='sw')
-    annotate_sample(locs['BOW16-JS-04'], ax=ax, point='nw')
-    annotate_sample(locs['BOW16-JS-05'], ax=ax, point='ne')
-    annotate_sample(locs['BOW16-JS-06'], ax=ax, point='se')
+    annotate_sample('BOW16-JS-01', ax=ax, point='e')
+    annotate_sample('BOW16-JS-02', ax=ax, point='w')
+    annotate_sample('BOW16-JS-03', ax=ax, point='sw')
+    annotate_sample('BOW16-JS-04', ax=ax, point='nw')
+    annotate_sample('BOW16-JS-05', ax=ax, point='ne')
+    annotate_sample('BOW16-JS-06', ax=ax, point='se')
 
     # plot East Branch moraine sample locations
     ax = grid['(e) East Branch moraine']
-    annotate_sample(locs['BOW16-JS-07'], ax=ax, point='e')
-    annotate_sample(locs['BOW16-JS-08'], ax=ax, point='se')
-    annotate_sample(locs['BOW16-JS-09'], ax=ax, point='sw')
-    annotate_sample(locs['BOW16-JS-10'], ax=ax, point='nw')
-    annotate_sample(locs['BOW16-JS-11'], ax=ax, point='ne')
+    annotate_sample('BOW16-JS-07', ax=ax, point='e')
+    annotate_sample('BOW16-JS-08', ax=ax, point='se')
+    annotate_sample('BOW16-JS-09', ax=ax, point='sw')
+    annotate_sample('BOW16-JS-10', ax=ax, point='nw')
+    annotate_sample('BOW16-JS-11', ax=ax, point='ne')
 
     # save
     fig.savefig(__file__[:-3])
