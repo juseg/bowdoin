@@ -8,12 +8,10 @@ Bowdoin temperature paper utils.
 
 import glob
 import geopandas as gpd
-import gpxpy
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 import pandas as pd
-import pyproj
 
 # Global parameters
 # -----------------
@@ -314,42 +312,6 @@ def load_strain_rate(borehole, freq='1D'):
 
     # return strain rate
     return exz
-
-
-def read_locations_dict(filename='../data/locations.gpx'):
-    """Read waypoints dictionary from GPX file."""
-    # FIXME replace gpxpy dependency with geopandas.read_file()
-    with open(filename, 'r') as gpx:
-        return {wpt.name: wpt for wpt in gpxpy.parse(gpx).waypoints}
-
-
-def read_locations(filename='../data/locations.gpx', crs=None):
-    """Read waypoints dataframe from GPX file."""
-
-    # read locations in geographic coordinates
-    with open(filename, 'r') as gpx:
-        attributes = [{attr: getattr(wpt, attr) for attr in wpt.__slots__}
-                      for wpt in gpxpy.parse(gpx).waypoints]
-    data = pd.DataFrame(attributes).dropna(axis=1, how='all').set_index('name')
-
-    # if crs is given, append coordinates in given crs
-    if crs is not None:
-        trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
-        xyz = data[['longitude', 'latitude', 'elevation']].values
-        xyz = trans.transform(*xyz.T)
-        data['x'], data['y'], data['z'] = xyz
-
-    # remove timezone information (see gpxpy issue #182)
-    # data.time = data.time.dt.tz_localize(None)
-    # FIXME this should be fixed by gpxpy PR227, and indeed locations for
-    # B17BH* now have zone-unaware times. However this creates a new issue,
-    # where pandas cannot mix tz-aware and tz-unaware times. So we're going
-    # to assume UTC time zone for points missing timezone information.
-    data.time = pd.to_datetime(data.time, utc=True)
-
-    # return locations dataframe
-    return data
-
 
 
 # Data processing methods
