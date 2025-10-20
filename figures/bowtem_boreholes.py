@@ -6,7 +6,6 @@
 """Plot Bowdoin temperature borehole setup."""
 
 import absplots as apl
-import geopandas as gpd
 import hyoga
 import matplotlib.pyplot as plt
 import xarray as xr
@@ -50,7 +49,8 @@ def plot_location_map(ax):
     # add camp and boreholes locations
     crs = '+proj=utm +zone=19'
     bowtem_utils.annotate_location(
-        'Tent Swiss', ax=ax, color='k', crs=crs, point='s', marker='^', text='Camp')
+        'Tent Swiss', ax=ax, color='k', crs=crs, point='s', marker='^',
+        text='Camp')
     for bh in ('bh1', 'bh2', 'bh3'):
         for year in (14, 16, 17):
             bowtem_utils.annotate_location(
