@@ -32,7 +32,7 @@ def plot_long_profile(ax):
     """Draw boreholes long profile with intrumental setup."""
 
     # borehole plot properties
-    distances = dict(bh1=2.015, bh2=1.985, bh3=1.84, err=1.84)
+    distances = {'bh1': 2.015, 'bh2': 1.985, 'bh3': 1.84, 'err': 1.84}
 
     # for each borehole
     for bh, color in bowtem_utils.COLOURS.items():
@@ -44,7 +44,7 @@ def plot_long_profile(ax):
             ax.plot([dist, dist], [base, 0.0], 'k-_')
             ax.text(dist, -5.0, bh.upper(), color=color, fontweight='bold',
                     ha='center', va='bottom')
-            ax.text(dist, base+5.0, '{:.0f} m'.format(base),
+            ax.text(dist, base+5.0, fr'{base:.0f}$\,$m',
                     ha='center', va='top')
 
         # locate the different units along that line
@@ -64,7 +64,7 @@ def plot_long_profile(ax):
     ax.text(0.9, 0.55, 'ice flow', ha='center', transform=ax.transAxes)
     ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
                 xycoords=ax.transAxes, textcoords=ax.transAxes,
-                arrowprops=dict(arrowstyle='->', lw=1.0))
+                arrowprops={'arrowstyle': '->', 'lw': 1})
 
     # add standalone legend
     labels = ['Inclinometers', 'Thermistors', 'Piezometers']
