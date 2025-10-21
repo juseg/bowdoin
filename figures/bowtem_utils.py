@@ -374,7 +374,6 @@ def plot_bowdoin_map(ax, boreholes=None, colors=None, season='spring'):
         point='s', marker='^',
         text='Camp')
     for bh, c in zip(boreholes, colors):
-        print(bh, c)
         for year in (14, 16, 17):
             annotate_location(
                 f'B{year}{bh.upper()}', ax=ax, color=c, crs=crs,
