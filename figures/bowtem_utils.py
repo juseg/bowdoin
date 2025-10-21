@@ -19,13 +19,14 @@ import xarray as xr
 # Global parameters
 # -----------------
 
-COLOURS = dict(bh1='C0', bh2='C1', bh3='C2', err='0.75')
-MARKERS = dict(I='^', P='s', T='o')
-DRILLING_DATES = dict(bh1='20140716', bh2='20140717', bh3='20140722')
-PROFILES_DATES = dict(bh1=['20141001', '20170128'],
-                      bh2=['20141001', '20160712'],
-                      bh3=['20150101', '20151112', '20160719'],
-                      err=['20150101', '20160719'])
+COLOURS = {'bh1': 'C0', 'bh2': 'C1', 'bh3': 'C2', 'err': '0.75'}
+MARKERS = {'I': '^', 'P': 's', 'T': 'o'}
+DRILLING_DATES = {'bh1': '20140716', 'bh2': '20140717', 'bh3': '20140722'}
+PROFILES_DATES = {
+    'bh1': ['20141001', '20170128'],
+    'bh2': ['20141001', '20160712'],
+    'bh3': ['20150101', '20151112', '20160719'],
+    'err': ['20150101', '20160719']}
 
 
 # Plotting methods
@@ -82,8 +83,8 @@ def add_subfig_label(*args, ax=None, loc='nw', offset=8, **kwargs):
     # check location keyword validity
     valid_locs = 'n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'
     if loc not in valid_locs:
-        raise ValueError('Unrecognized location {!r} not in {}.'
-                         .format(loc, valid_locs))
+        raise ValueError(
+            f'Unrecognized location {loc} not in {valid_locs}.')
 
     # text label position and offset relative to axes corner
     xpos = 1 if 'e' in loc else 0 if 'w' in loc else 0.5
@@ -153,8 +154,8 @@ def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
     # check location keyword validity
     valid_points = 'n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'
     if point not in valid_points:
-        raise ValueError('Unrecognized compass point {!r} not in {}.'
-                         .format(point, valid_points))
+        raise ValueError(
+            f'Unrecognized compass point {point} not in {valid_points}.')
 
     # text label position and relative anchor for the text box
     xpos = 1 if 'e' in point else -1 if 'w' in point else 0
@@ -168,9 +169,9 @@ def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
     valign = 'bottom' if 'n' in point else 'top' if 's' in point else 'center'
 
     # default style; use transparent bbox for positioning
-    arrowprops = {**dict(arrowstyle='-', color=color, relpos=relpos),
-                  **kwargs.pop('arrowprops', {})}
-    bbox = {**dict(pad=0, ec='none', fc='none'), **kwargs.pop('bbox', {})}
+    arrowprops = {'arrowstyle': '-', 'color': color, 'relpos': relpos}
+    arrowprops = arrowprops | kwargs.pop('arrowprops', {})
+    bbox = {'pad': 0, 'ec': 'none', 'fc': 'none'} | kwargs.pop('bbox', {})
 
     # plot annotated waypoint
     return ax.annotate(arrowprops=arrowprops, bbox=bbox, color=color,
@@ -179,14 +180,14 @@ def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
 
 
 def annotate_location(
-        name, ax=None, color=None, crs=None, marker='o', text=None, **kwargs):
+        name, crs=None, marker='o', point=None, text=None, **kwargs):
     """Plot and annotate a geographic location."""
     gdf = gpd.read_file('../data/locations.gpx').set_index('name').loc[[name]]
     gdf = gdf.to_crs(crs)
-    gdf.plot(ax=ax, color=color, marker=marker)
+    gdf.plot(marker=marker, **kwargs)
     if text is not None:
         coords = gdf.loc[name].geometry.coords[0]
-        annotate_by_compass(text, coords, ax=ax, color=color, **kwargs)
+        annotate_by_compass(text, coords, point=point, **kwargs)
 
 
 # Data loading methods
@@ -342,8 +343,9 @@ def estimate_closure_state(borehole, temp):
     closure_dates = temp[drilling_date+pd.to_timedelta('1D'):].diff().idxmin()
     closure_dates = closure_dates.mask(closure_dates == temp.index[1])
     closure_temps = [temp.loc[closure_dates[k], k] for k in temp]
-    return pd.DataFrame(dict(date=closure_dates, temp=closure_temps,
-                             time=closure_dates-drilling_date))
+    return pd.DataFrame({
+        'date': closure_dates, 'temp': closure_temps,
+        'time': closure_dates - drilling_date})
 
 
 # Complete plot methods
@@ -356,13 +358,10 @@ def plot_bowdoin_map(ax, boreholes=None, colors=None, season='spring'):
     boreholes = boreholes or list(COLOURS.keys())[:-1]
     colors = colors or list(COLOURS.values())[:-1]
 
-    # select seasonal image and main color
-    if season == 'spring':
-        color = 'k'
-        image = '20170310_174129_456_S2A_RGB'
-    elif season == 'summer':
-        color = 'w'
-        image = '20160808_175915_456_S2A_RGB'
+    # select default color and seasonal image
+    color, image = {
+        'summer': ('w', '20160808_175915_456_S2A_RGB'),
+        'spring': ('k', '20170310_174129_456_S2A_RGB')}[season]
 
     # plot Sentinel image data
     img = xr.open_dataarray(f'../data/native/{image}.jpg').astype(int)
