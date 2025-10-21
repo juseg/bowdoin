@@ -15,15 +15,29 @@ import bowtem_utils
 def main():
     """Main program called during execution."""
 
-    # initialize figure
+    # initialize figure (keep main axes for labels and inset)
     fig, axes = apl.subplots_mm(
         figsize=(180, 120), nrows=2, sharey=True, gridspec_kw={
             'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
             'hspace': 12.5})
+    subaxes = np.array([ax.get_subplotspec().subgridspec(
+        ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
+        ).subplots() for ax in axes])
+
+    # hide main axes spines
+    for ax in axes:
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+    # only show subaxes outer spines
+    for ax in subaxes.flat:
+        ax.spines['top'].set_visible(ax.get_subplotspec().is_first_row())
+        ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
+        ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(
-        axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+        subaxes[:, 0], bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # highpass-filter stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -38,7 +52,7 @@ def main():
     pres += 5*(1+np.arange(len(pres.columns)))[::-1]
 
     # plot stress and tide data
-    for ax in axes:
+    for ax in subaxes[:, -1]:
         pres.plot(ax=ax, legend=False)
         tide.plot(ax=ax, c='C9')
 
@@ -57,11 +71,11 @@ def main():
                 color=f'C{i}', **kwargs)
 
     # set axes limits
-    axes[1].set_ylim(-2.5, 47.5)
-    axes[1].set_xlim('20140816', '20141016')
+    subaxes[1, -1].set_ylim(-2.5, 47.5)
+    subaxes[1, -1].set_xlim('20140816', '20141016')
 
     # mark zoom inset
-    mark_inset(axes[0], axes[1], loc1=1, loc2=2, ec='0.75', ls='--')
+    mark_inset(subaxes[0, 0], subaxes[1, 0], loc1=1, loc2=2, ec='0.75', ls='--')
 
     # save
     fig.savefig(__file__[:-3])
