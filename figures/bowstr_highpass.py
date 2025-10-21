@@ -17,11 +17,13 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 120), nrows=2, sharey=True, gridspec_kw=dict(
-            left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=12.5))
+        figsize=(180, 120), nrows=2, sharey=True, gridspec_kw={
+            'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
+            'hspace': 12.5})
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(axes, bbox=dict(alpha=0.85, ec='none', fc='w'))
+    bowtem_utils.add_subfig_labels(
+        axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # highpass-filter stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -46,12 +48,13 @@ def main():
         ax.set_ylabel('stress (kPa)')
 
         # add labels
-        kwargs = dict(fontsize=6, fontweight='bold', transform=ax.transAxes)
+        kwargs = {
+            'fontsize': 6, 'fontweight': 'bold', 'transform': ax.transAxes}
         ax.text(1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9', **kwargs)
         for i, unit in enumerate(pres):
             ax.text(
-                1.01, 0.9-0.1*i, unit+'\n'+r'{:.0f}$\,$m'.format(depth[unit]),
-                color='C{}'.format(i), **kwargs)
+                1.01, 0.9-0.1*i, f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
+                color=f'C{i}', **kwargs)
 
     # set axes limits
     axes[1].set_ylim(-2.5, 47.5)
