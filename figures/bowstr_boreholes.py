@@ -7,6 +7,7 @@
 
 import absplots as apl
 import hyoga
+import matplotlib.pyplot as plt
 import xarray as xr
 
 import bowstr_utils
@@ -121,12 +122,42 @@ def plot_long_profile(ax):
     ax.grid(False, axis='x')
 
 
+def plot_unit_casing(ax):
+    """Plot rendering of tilt unit casing and electronics."""
+
+    # plot image and text
+    ax.imshow(plt.imread('bowstr_casing.png'))
+    ax.text(0.5, 0.05, 'top view', ha='center', transform=ax.transAxes)
+
+    # set axes properties
+    ax.margins(0.2)
+    ax.use_sticky_edges = False
+    ax.set_title('digital sensor unit')
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # lighten the spines
+    for spine in ax.spines.values():
+        spine.set_edgecolor('0.75')
+
+
+def mark_inset(ax, inset):
+    """Indicate tilt casing inset on profile axes."""
+    indicator = ax.indicate_inset(bounds=[1.985, 110, 0.1, 25], inset_ax=inset)
+    indicator.connectors[0].set_visible(True)
+    indicator.connectors[1].set_visible(True)
+    indicator.connectors[2].set_visible(False)
+    indicator.connectors[3].set_visible(False)
+
+
 def main():
     """Main program called during execution."""
     fig = subplots()
     plot_bowdoin_map(fig.axes[0])
     plot_greenland_map(fig.axes[1], color='w')
     plot_long_profile(fig.axes[2])
+    plot_unit_casing(fig.axes[3])
+    mark_inset(fig.axes[2], fig.axes[3])
     fig.savefig(__file__[:-3])
 
 
