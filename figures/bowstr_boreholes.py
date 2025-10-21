@@ -34,7 +34,7 @@ def subplots():
     return fig
 
 
-def plot_location_map(ax):
+def plot_bowdoin_map(ax):
     """Draw boreholes location map with Sentinel image background."""
 
     # prepare map axes
@@ -63,10 +63,25 @@ def plot_location_map(ax):
 
     # set axes properties
     ax.set_title('')
-    ax.set_xlabel('')
     ax.set_xticks([])
-    ax.set_ylabel('')
     ax.set_yticks([])
+
+
+def plot_greenland_map(ax, color='k'):
+    """Plot Greenland minimap with Bowdoin Glacier location."""
+
+    # draw minimap
+    crs = '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45'
+    countries = hyoga.open.natural_earth(
+        'admin_0_countries', 'cultural', '110m')
+    greenland = countries[countries.NAME == 'Greenland'].to_crs(crs)
+    greenland.plot(ax=ax, facecolor='none', edgecolor=color)
+    bowtem_utils.annotate_location('Tent Swiss', crs=crs, ax=ax, color=color)
+
+    # set axes properties
+    ax.set_axis_off()
+    ax.set_xlim(-1000e3, 1000e3)
+    ax.set_ylim(-3500e3, -500e3)
 
 
 def plot_long_profile(ax):
@@ -109,7 +124,8 @@ def plot_long_profile(ax):
 def main():
     """Main program called during execution."""
     fig = subplots()
-    plot_location_map(fig.axes[0])
+    plot_bowdoin_map(fig.axes[0])
+    plot_greenland_map(fig.axes[1], color='w')
     plot_long_profile(fig.axes[2])
     fig.savefig(__file__[:-3])
 
