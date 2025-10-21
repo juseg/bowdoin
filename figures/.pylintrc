@@ -1,4 +1,6 @@
 [BASIC]
 good-names = ax, bh, i, j, x, y, z
+[SIMILARITIES]
+min-similarity-lines=5
 [TYPECHECK]
 ignored-classes=_PlotMethods

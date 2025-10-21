@@ -19,11 +19,11 @@ PAL_CODE = $(addprefix bowpal_, samplemap)
 ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(STR_CODE) $(PAL_CODE)
 
 # python figures
-DEF_FIGS = $(addsuffix .pdf, $(DEF_CODE))
-TEM_FIGS = $(addsuffix .pdf, $(TEM_CODE))
-STR_FIGS = $(addsuffix .pdf, $(STR_CODE))
-PAL_FIGS = $(addsuffix .pdf, $(PAL_CODE))
-ALL_FIGS = $(addsuffix .pdf, $(ALL_CODE))
+DEF_FIGS = $(addsuffix .png, $(DEF_CODE))
+TEM_FIGS = $(addsuffix .png, $(TEM_CODE))
+STR_FIGS = $(addsuffix .png, $(STR_CODE))
+PAL_FIGS = $(addsuffix .png, $(PAL_CODE))
+ALL_FIGS = $(addsuffix .png, $(ALL_CODE))
 
 # temporarily deactivated
 # (tmp off: campaign_2016 summary \
@@ -49,7 +49,7 @@ $(PAL_FIGS): bowtem_utils.py
 $(STR_FIGS): bowtem_utils.py bowstr_utils.py
 
 # make python figures (alt use LC_ALL=en_GB.utf8 python)
-$(ALL_FIGS): %.pdf : %.py matplotlibrc
+$(ALL_FIGS): %.png : %.py matplotlibrc
 	python $<
 
 # lint python code
