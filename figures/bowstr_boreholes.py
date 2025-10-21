@@ -104,17 +104,16 @@ def plot_long_profile(ax):
     for i, unit in enumerate(depth.index):
         color = 'C%d' % i
         dist = dict(U=2, L=1.84)[unit[0]]
-        ax.plot(dist+0.01, depth[unit], marker='^')
-        ax.text(dist+0.02, depth[unit], unit, color=color, va='center')
+        ax.plot(dist+0.015, depth[unit], marker='^')
+        ax.text(dist+0.025, depth[unit], unit, color=color, va='center')
 
     # add flow direction arrow
-    ax.text(0.9, 0.55, 'ice flow', ha='center', transform=ax.transAxes)
-    ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
-                xycoords=ax.transAxes, textcoords=ax.transAxes,
+    ax.text(1.92, 70, 'ice flow', ha='center')
+    ax.annotate('', xy=(1.88, 80), xytext=(1.96, 80),
                 arrowprops=dict(arrowstyle='->', lw=1.0))
 
     # set axes properties
-    ax.set_xlim(1.74, 2.16)
+    ax.set_xlim(1.74, 2.40)
     ax.set_ylim(292, -20)
     ax.set_xticks([1.84, 2.0])
     ax.set_xlabel('approximate distance from front in 2014 (km)')
