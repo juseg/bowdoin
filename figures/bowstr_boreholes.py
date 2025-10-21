@@ -15,19 +15,23 @@ import bowtem_utils
 COLOURS = dict(bh1='C0', bh3='C6')
 
 
-def init_figure():
-    """Initialize figure with map and profile subplots."""
+def subplots():
+    """Initialize figure with map, profile axes and insets."""
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85])
-    ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
+    fig.add_axes_mm([2.5, 2.5, 60, 85])
+    fig.add_axes_mm([5, 5, 10, 15])
+    fig.add_axes_mm([77.5, 12.5, 100, 75])
+    fig.add_axes_mm([135, 15, 40, 60])
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(fig.axes, colors=('w', 'k'))
+    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
+    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[2], color='k')
+    bowtem_utils.add_subfig_label('(c)', ax=fig.axes[3], color='k')
 
-    # return figure and axes
-    return fig, (ax0, ax1)
+    # return figure
+    return fig
 
 
 def plot_location_map(ax):
@@ -104,9 +108,9 @@ def plot_long_profile(ax):
 
 def main():
     """Main program called during execution."""
-    fig, (ax0, ax1) = init_figure()
-    plot_location_map(ax0)
-    plot_long_profile(ax1)
+    fig = subplots()
+    plot_location_map(fig.axes[0])
+    plot_long_profile(fig.axes[2])
     fig.savefig(__file__[:-3])
 
 
