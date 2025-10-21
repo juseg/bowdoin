@@ -33,56 +33,6 @@ def subplots():
     return fig
 
 
-def plot_bowdoin_map(ax):
-    """Draw boreholes location map with Sentinel image background."""
-
-    # prepare map axes
-    ax.set_xlim(508e3, 512e3)
-    ax.set_ylim(8621e3, 8626e3+2e3/3)
-
-    # plot Sentinel image data
-    filename = '../data/native/20160808_175915_456_S2A_RGB.jpg'
-    img = xr.open_dataarray(filename).astype(int)
-    img = img.clip(0, None)  # replace no data with black
-    img.plot.imshow(add_labels=False, ax=ax, interpolation='bilinear')
-
-    # add camp and boreholes locations
-    crs = '+proj=utm +zone=19'
-    bowtem_utils.annotate_location(
-        'Tent Swiss', ax=ax, color='w', crs=crs, point='s', marker='^',
-        text='Camp')
-    for bh, color in zip(('bh1', 'bh3'), ('tab:blue', 'tab:pink')):
-        for year in (14, 16, 17):
-            bowtem_utils.annotate_location(
-                f'B{year}{bh.upper()}', ax=ax, color=color, crs=crs,
-                text=f'20{year}', point='se' if bh == 'bh1' else 'nw')
-
-    # add scale
-    img.to_dataset().hyoga.plot.scale_bar(ax=ax, color='w')
-
-    # set axes properties
-    ax.set_title('')
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-
-def plot_greenland_map(ax, color='k'):
-    """Plot Greenland minimap with Bowdoin Glacier location."""
-
-    # draw minimap
-    crs = '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45'
-    countries = hyoga.open.natural_earth(
-        'admin_0_countries', 'cultural', '110m')
-    greenland = countries[countries.NAME == 'Greenland'].to_crs(crs)
-    greenland.plot(ax=ax, facecolor='none', edgecolor=color)
-    bowtem_utils.annotate_location('Tent Swiss', crs=crs, ax=ax, color=color)
-
-    # set axes properties
-    ax.set_axis_off()
-    ax.set_xlim(-1000e3, 1000e3)
-    ax.set_ylim(-3500e3, -500e3)
-
-
 def plot_long_profile(ax):
     """Draw boreholes long profile with intrumental setup."""
 
