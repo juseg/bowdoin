@@ -6,9 +6,7 @@
 """Plot Bowdoin tides borehole setup."""
 
 import absplots as apl
-import hyoga
 import matplotlib.pyplot as plt
-import xarray as xr
 
 import bowstr_utils
 import bowtem_utils
