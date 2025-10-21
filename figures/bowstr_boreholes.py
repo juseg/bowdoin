@@ -13,8 +13,6 @@ import xarray as xr
 import bowstr_utils
 import bowtem_utils
 
-COLOURS = dict(bh1='C0', bh3='C6')
-
 
 def subplots():
     """Initialize figure with map, profile axes and insets."""
@@ -46,18 +44,18 @@ def plot_bowdoin_map(ax):
     filename = '../data/native/20160808_175915_456_S2A_RGB.jpg'
     img = xr.open_dataarray(filename).astype(int)
     img = img.clip(0, None)  # replace no data with black
-    img.plot.imshow(ax=ax, interpolation='bilinear')
+    img.plot.imshow(add_labels=False, ax=ax, interpolation='bilinear')
 
     # add camp and boreholes locations
     crs = '+proj=utm +zone=19'
     bowtem_utils.annotate_location(
         'Tent Swiss', ax=ax, color='w', crs=crs, point='s', marker='^',
         text='Camp')
-    for bh in ('bh1', 'bh3'):
+    for bh, color in zip(('bh1', 'bh3'), ('tab:blue', 'tab:pink')):
         for year in (14, 16, 17):
             bowtem_utils.annotate_location(
-                f'B{year}{bh.upper()}', ax=ax, color=COLOURS[bh],
-                crs=crs, text=f'20{year}', point='se' if bh == 'bh1' else 'nw')
+                f'B{year}{bh.upper()}', ax=ax, color=color, crs=crs,
+                text=f'20{year}', point='se' if bh == 'bh1' else 'nw')
 
     # add scale
     img.to_dataset().hyoga.plot.scale_bar(ax=ax, color='w')
@@ -96,21 +94,21 @@ def plot_long_profile(ax):
         ax.plot([dist, dist], [base, 0.0], 'k-_')
         ax.text(dist, -5.0, var[:3], color=color, fontweight='bold',
                 ha='center', va='bottom')
-        ax.text(dist, base+5.0, '{:.0f} m'.format(base),
+        ax.text(dist, base+5.0, fr'{base:.0f}$\,$m',
                 ha='center', va='top')
 
     # plot tilt unit depths
-    depth = bowstr_utils.load(variable='dept').iloc[0]  # FIXME depth util?
+    depth = bowstr_utils.load(variable='dept').iloc[0]
     for i, unit in enumerate(depth.index):
-        color = 'C%d' % i
-        dist = dict(U=2, L=1.84)[unit[0]]
+        color = f'C{i}'
+        dist = {'U': 2, 'L': 1.84}[unit[0]]
         ax.plot(dist+0.015, depth[unit], marker='^')
         ax.text(dist+0.025, depth[unit], unit, color=color, va='center')
 
     # add flow direction arrow
     ax.text(1.92, 70, 'ice flow', ha='center')
-    ax.annotate('', xy=(1.88, 80), xytext=(1.96, 80),
-                arrowprops=dict(arrowstyle='->', lw=1.0))
+    ax.annotate('', xy=(1.88, 80), xytext=(1.96, 80), arrowprops={
+        'arrowstyle': '->', 'lw': 1})
 
     # set axes properties
     ax.set_xlim(1.74, 2.40)
