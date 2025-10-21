@@ -150,8 +150,10 @@ def mark_inset(ax, inset):
 def main():
     """Main program called during execution."""
     fig = subplots()
-    plot_bowdoin_map(fig.axes[0])
-    plot_greenland_map(fig.axes[1], color='w')
+    bowtem_utils.plot_bowdoin_map(
+        fig.axes[0], boreholes=['bh1', 'bh3'],
+        colors=['tab:blue', 'tab:pink'], season='summer')
+    bowtem_utils.plot_greenland_map(fig.axes[1], color='w')
     plot_long_profile(fig.axes[2])
     plot_unit_casing(fig.axes[3])
     mark_inset(fig.axes[2], fig.axes[3])

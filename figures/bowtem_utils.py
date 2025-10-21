@@ -7,11 +7,14 @@ Bowdoin temperature paper utils.
 """
 
 import glob
+
 import geopandas as gpd
+import hyoga
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 # Global parameters
 # -----------------
@@ -341,3 +344,65 @@ def estimate_closure_state(borehole, temp):
     closure_temps = [temp.loc[closure_dates[k], k] for k in temp]
     return pd.DataFrame(dict(date=closure_dates, temp=closure_temps,
                              time=closure_dates-drilling_date))
+
+
+# Complete plot methods
+# ---------------------
+
+def plot_bowdoin_map(ax, boreholes=None, colors=None, season='spring'):
+    """Draw boreholes location map with Sentinel image background."""
+
+    # default boreholes and colors
+    boreholes = boreholes or list(COLOURS.keys())[:-1]
+    colors = colors or list(COLOURS.values())[:-1]
+
+    # select seasonal image and main color
+    if season == 'spring':
+        color = 'k'
+        image = '20170310_174129_456_S2A_RGB'
+    elif season == 'summer':
+        color = 'w'
+        image = '20160808_175915_456_S2A_RGB'
+
+    # plot Sentinel image data
+    img = xr.open_dataarray(f'../data/native/{image}.jpg').astype(int)
+    img.plot.imshow(add_labels=False, ax=ax, interpolation='bilinear')
+
+    # add camp and boreholes locations
+    crs = '+proj=utm +zone=19'
+    annotate_location(
+        'Tent Swiss', ax=ax, color=color, crs=crs,
+        point='s', marker='^',
+        text='Camp')
+    for bh, c in zip(boreholes, colors):
+        print(bh, c)
+        for year in (14, 16, 17):
+            annotate_location(
+                f'B{year}{bh.upper()}', ax=ax, color=c, crs=crs,
+                text=f'20{year}', point='se' if bh == 'bh1' else 'nw')
+
+    # set axes properties
+    ax.set_xlim(508e3, 512e3)
+    ax.set_ylim(8621e3, 8626e3+2e3/3)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # add scale bar
+    img.to_dataset().hyoga.plot.scale_bar(ax=ax, color=color)
+
+
+def plot_greenland_map(ax, color='k'):
+    """Plot Greenland minimap with Bowdoin Glacier location."""
+
+    # draw minimap
+    crs = '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45'
+    countries = hyoga.open.natural_earth(
+        'admin_0_countries', 'cultural', '110m')
+    greenland = countries[countries.NAME == 'Greenland'].to_crs(crs)
+    greenland.plot(ax=ax, facecolor='none', edgecolor=color)
+    annotate_location('Tent Swiss', crs=crs, ax=ax, color=color)
+
+    # set axes properties
+    ax.set_axis_off()
+    ax.set_xlim(-1000e3, 1000e3)
+    ax.set_ylim(-3500e3, -500e3)

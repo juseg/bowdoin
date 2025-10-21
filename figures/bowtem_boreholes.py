@@ -6,73 +6,26 @@
 """Plot Bowdoin temperature borehole setup."""
 
 import absplots as apl
-import hyoga
 import matplotlib.pyplot as plt
-import xarray as xr
 
 import bowtem_utils
 
 
-def init_figure():
-    """Initialize figure with map and profile subplots."""
+def subplots():
+    """Initialize figure with map, profile axes and insets."""
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
-    ax0 = fig.add_axes_mm([2.5, 2.5, 60, 85])
-    ax1 = fig.add_axes_mm([77.5, 12.5, 100, 75])
+    fig.add_axes_mm([2.5, 2.5, 60, 85])
+    fig.add_axes_mm([5, 5, 10, 15])
+    fig.add_axes_mm([77.5, 12.5, 100, 75])
 
     # add subfigure labels
-    bowtem_utils.add_subfig_label(ax=ax0, text='(a)', color='k')
-    bowtem_utils.add_subfig_label(ax=ax1, text='(b)')
+    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='k')
+    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[2], color='k')
 
-    # return figure and axes
-    return fig, (ax0, ax1)
-
-
-def plot_location_map(ax):
-    """Draw boreholes location map with Sentinel image background."""
-
-    # prepare map axes
-    ax.set_xlim(508e3, 512e3)
-    ax.set_ylim(8621e3, 8626e3+2e3/3)
-    ax.set_xlabel('')
-    ax.set_ylabel('')
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    # plot Sentinel image data
-    filename = '../data/native/20170310_174129_456_S2A_RGB.jpg'
-    img = xr.open_dataarray(filename).astype(int)
-    img = img.clip(0, None)  # replace no data with black
-    img.plot.imshow(ax=ax, add_labels=False, interpolation='bilinear')
-
-    # add camp and boreholes locations
-    crs = '+proj=utm +zone=19'
-    bowtem_utils.annotate_location(
-        'Tent Swiss', ax=ax, color='k', crs=crs, point='s', marker='^',
-        text='Camp')
-    for bh in ('bh1', 'bh2', 'bh3'):
-        for year in (14, 16, 17):
-            bowtem_utils.annotate_location(
-                f'B{year}{bh.upper()}', ax=ax, color=bowtem_utils.COLOURS[bh],
-                crs=crs, text=f'20{year}', point='se' if bh == 'bh1' else 'nw')
-
-    # add scale
-    img.to_dataset().hyoga.plot.scale_bar(ax=ax)
-
-    # add invisible axes
-    ax = ax.figure.add_axes_mm([5, 5, 10, 15])
-    ax.set_axis_off()
-    ax.set_xlim(-1000e3, 1000e3)
-    ax.set_ylim(-3500e3, -500e3)
-
-    # draw minimap
-    crs = '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45'
-    countries = hyoga.open.natural_earth(
-        'admin_0_countries', 'cultural', '110m')
-    greenland = countries[countries.NAME == 'Greenland'].to_crs(crs)
-    greenland.plot(ax=ax, facecolor='none', edgecolor='k')
-    bowtem_utils.annotate_location('Tent Swiss', crs=crs, ax=ax, color='k')
+    # return figure
+    return fig
 
 
 def plot_long_profile(ax):
@@ -130,9 +83,10 @@ def plot_long_profile(ax):
 
 def main():
     """Main program called during execution."""
-    fig, (ax0, ax1) = init_figure()
-    plot_location_map(ax0)
-    plot_long_profile(ax1)
+    fig = subplots()
+    bowtem_utils.plot_bowdoin_map(fig.axes[0])
+    bowtem_utils.plot_greenland_map(fig.axes[1])
+    plot_long_profile(fig.axes[2])
     fig.savefig(__file__[:-3])
 
 
