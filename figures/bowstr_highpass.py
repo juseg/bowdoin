@@ -30,10 +30,9 @@ def main():
             ax.sharex(panel[0])
             ax.sharey(panel[0])
 
-    # hide main axes spines
+    # hide parent axes
     for ax in axes:
-        for spine in ax.spines.values():
-            spine.set_visible(False)
+        ax.set_axis_off()
 
     # only show subaxes outer spines
     for ax in subaxes.flat:
