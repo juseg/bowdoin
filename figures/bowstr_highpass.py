@@ -17,7 +17,7 @@ def main():
     # initialize figure (keep main axes for labels and inset)
     fig, axes = apl.subplots_mm(
         figsize=(180, 120), nrows=2, sharey=True, gridspec_kw={
-            'left': 12.5, 'right': 12.5, 'bottom': 7.5, 'top': 2.5,
+            'left': 12.5, 'right': 12.5, 'bottom': 10, 'top': 2.5,
             'hspace': 10})
     subaxes = np.array([ax.get_subplotspec().subgridspec(
         ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
@@ -67,11 +67,11 @@ def main():
                 transform=ax.transAxes)
 
             # clip lines to main axes
-            ax.patch.set_alpha(0)
+            ax.patch.set_visible(False)
             ax.get_lines()[0].set_clip_box(pax.bbox)
 
             # set axes properties
-            ax.grid(which='minor')
+            ax.grid(False)
             ax.set_ylim(-2, 2)
             ax.set_yticks([-1, 1])
 
@@ -79,6 +79,16 @@ def main():
             ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
             ax.yaxis.set_major_formatter(
                 lambda y, pos: f'{y}' + 3 * (pos % 2) * ' ')
+
+            # add grid on background ghost axes
+            ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
+            ax.grid(which='minor')
+            ax.tick_params(which='both', **{k: False for k in [
+                'labelleft', 'labelbottom', 'left', 'bottom']})
+            ax.patch.set_visible(False)
+            ax.set_zorder(-1)
+            for spine in ax.spines.values():
+                spine.set_visible(False)
 
         # set labels
         panel[4].set_ylabel('stress (kPa)')
