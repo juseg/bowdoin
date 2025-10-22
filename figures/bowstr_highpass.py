@@ -24,6 +24,12 @@ def main():
         ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
         ).subplots() for ax in axes])
 
+    # reimplement sharex and sharey
+    for panel in subaxes:
+        for ax in panel:
+            ax.sharex(panel[0])
+            ax.sharey(panel[0])
+
     # hide main axes spines
     for ax in axes:
         for spine in ax.spines.values():
@@ -49,7 +55,7 @@ def main():
     pres['tide'] = tide / 10
 
     # plot stress and tide data
-    for panel in subaxes:
+    for pax, panel in zip(axes, subaxes):
         for i, unit in enumerate(pres):
             ax = panel[i]
             color = f'C{i}'
@@ -61,14 +67,18 @@ def main():
                 1.01, 0, label, color=color, fontsize=6, fontweight='bold',
                 transform=ax.transAxes)
 
-        # set axes properties
-        ax.grid(which='minor')
-        ax.set_xlabel('')
-        ax.set_ylabel('stress (kPa)')
+            # clip lines to main axes
+            ax.patch.set_alpha(0)
+            ax.get_lines()[0].set_clip_box(pax.bbox)
+
+            # set axes properties
+            ax.grid(which='minor')
+            ax.set_ylim(-2, 2)
+            ax.set_yticks([-1, 1])
 
     # set axes limits
-    subaxes[1, -1].set_ylim(-2.5, 47.5)
-    subaxes[1, -1].set_xlim('20140816', '20141016')
+    subaxes[0, 0].set_xlim('20140701', '20170801')
+    subaxes[1, 0].set_xlim('20140816', '20141016')
 
     # mark zoom inset
     mark_inset(subaxes[0, 0], subaxes[1, 0], loc1=1, loc2=2, ec='0.75', ls='--')
