@@ -88,6 +88,13 @@ def main():
     subaxes[0, 0].set_xlim('20140701', '20170801')
     subaxes[1, 0].set_xlim('20140816', '20141016')
 
+    # remove empty headlines in date tick labels
+    subaxes[1, -1].set_xticks(subaxes[1, -1].get_xticks())
+    subaxes[1, -1].set_xticks(
+        subaxes[1, -1].get_xticks(), [
+            label.get_text().lstrip('\n') for label
+            in subaxes[1, -1].get_xticklabels()])
+
     # mark zoom inset
     indicator = axes[0].indicate_inset(inset_ax=axes[1], ls='--')
     indicator.connectors[0].set_visible(False)
