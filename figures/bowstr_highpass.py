@@ -41,10 +41,11 @@ def main():
         ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(
-        subaxes[:, 0], bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+    for ax, label in zip(subaxes[:, 0], ['(a)', '(b)']):
+        ax.text(-0.05, 0, label, fontweight='bold', transform=ax.transAxes)
 
     # highpass-filter stress series
+    # IDEA implement filter=True, tide=True in bowstr_utils.load()
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = bowstr_utils.load().resample('1h').mean()
     pres = bowstr_utils.filter(pres)
