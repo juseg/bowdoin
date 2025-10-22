@@ -5,11 +5,10 @@
 
 """Plot Bowdoin tides highpass-filtered timeseries."""
 
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import numpy as np
 import absplots as apl
+
 import bowstr_utils
-import bowtem_utils
 
 
 def main():
@@ -18,17 +17,17 @@ def main():
     # initialize figure (keep main axes for labels and inset)
     fig, axes = apl.subplots_mm(
         figsize=(180, 120), nrows=2, sharey=True, gridspec_kw={
-            'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
-            'hspace': 12.5})
+            'left': 12.5, 'right': 12.5, 'bottom': 7.5, 'top': 2.5,
+            'hspace': 10})
     subaxes = np.array([ax.get_subplotspec().subgridspec(
         ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
         ).subplots() for ax in axes])
 
     # reimplement sharex and sharey
-    for panel in subaxes:
+    for pax, panel in zip(axes, subaxes):
         for ax in panel:
-            ax.sharex(panel[0])
-            ax.sharey(panel[0])
+            ax.sharex(pax)
+            ax.sharey(pax)
 
     # hide parent axes
     for ax in axes:
@@ -90,7 +89,11 @@ def main():
     subaxes[1, 0].set_xlim('20140816', '20141016')
 
     # mark zoom inset
-    mark_inset(subaxes[0, 0], subaxes[1, 0], loc1=1, loc2=2, ec='0.75', ls='--')
+    indicator = axes[0].indicate_inset(inset_ax=axes[1], ls='--')
+    indicator.connectors[0].set_visible(False)
+    indicator.connectors[1].set_visible(True)
+    indicator.connectors[2].set_visible(False)
+    indicator.connectors[3].set_visible(True)
 
     # save
     fig.savefig(__file__[:-3])
