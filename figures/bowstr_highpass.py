@@ -52,23 +52,22 @@ def main():
     pres += 5*(1+np.arange(len(pres.columns)))[::-1]
 
     # plot stress and tide data
-    for ax in subaxes[:, -1]:
-        pres.plot(ax=ax, legend=False)
+    for panel in subaxes:
+        for i, unit in enumerate(pres):
+            ax = panel[i]
+            pres[unit].plot(ax=ax, color=f'C{i}', legend=False)
+            ax.text(
+                1.01, 0, f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=f'C{i}',
+                fontsize=6, fontweight='bold', transform=ax.transAxes)
+        ax = panel[9]
         tide.plot(ax=ax, c='C9')
+        ax.text(1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9',
+                fontsize=6, fontweight='bold', transform=ax.transAxes)
 
         # set axes properties
         ax.grid(which='minor')
         ax.set_xlabel('')
         ax.set_ylabel('stress (kPa)')
-
-        # add labels
-        kwargs = {
-            'fontsize': 6, 'fontweight': 'bold', 'transform': ax.transAxes}
-        ax.text(1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9', **kwargs)
-        for i, unit in enumerate(pres):
-            ax.text(
-                1.01, 0.9-0.1*i, f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
-                color=f'C{i}', **kwargs)
 
     # set axes limits
     subaxes[1, -1].set_ylim(-2.5, 47.5)
