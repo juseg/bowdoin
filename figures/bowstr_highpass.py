@@ -75,6 +75,15 @@ def main():
             ax.set_ylim(-2, 2)
             ax.set_yticks([-1, 1])
 
+            # staggered ticks (IDEA use a scale bar instead?)
+            ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
+            ax.yaxis.set_major_formatter(
+                lambda y, pos: f'{y}' + 3 * (pos % 2) * ' ')
+
+        # set labels
+        panel[4].set_ylabel('stress (kPa)')
+        panel[9].set_xlabel('')
+
     # set axes limits
     subaxes[0, 0].set_xlim('20140701', '20170801')
     subaxes[1, 0].set_xlim('20140816', '20141016')
