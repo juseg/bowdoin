@@ -46,23 +46,20 @@ def main():
 
     # load tide data
     tide = bowstr_utils.load_pituffik_tides().resample('1h').mean()  # kPa
-
-    # apply transformation for plotting
-    tide /= 10
-    pres += 5*(1+np.arange(len(pres.columns)))[::-1]
+    pres['tide'] = tide / 10
 
     # plot stress and tide data
     for panel in subaxes:
         for i, unit in enumerate(pres):
             ax = panel[i]
-            pres[unit].plot(ax=ax, color=f'C{i}', legend=False)
+            color = f'C{i}'
+            label = (
+                'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
+                f'{unit}\n{depth[unit]:.0f}'r'$\,$m')
+            pres[unit].plot(ax=ax, color=color, legend=False)
             ax.text(
-                1.01, 0, f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=f'C{i}',
-                fontsize=6, fontweight='bold', transform=ax.transAxes)
-        ax = panel[9]
-        tide.plot(ax=ax, c='C9')
-        ax.text(1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9',
-                fontsize=6, fontweight='bold', transform=ax.transAxes)
+                1.01, 0, label, color=color, fontsize=6, fontweight='bold',
+                transform=ax.transAxes)
 
         # set axes properties
         ax.grid(which='minor')
