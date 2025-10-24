@@ -82,7 +82,7 @@ def main():
 
     # set labels
     axes[-1, 0].set_xlabel('period (days)')
-    axes[-1, 0].set_ylabel(
+    axes[-1, 0].yaxis.set_label_text(
         'amplitude of stress change\n'+r'after refreezing ($kPa\,s^{-1}$)')
 
     # save
