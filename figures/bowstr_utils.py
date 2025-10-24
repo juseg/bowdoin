@@ -7,12 +7,14 @@ Bowdoin stress paper utils.
 """
 
 import glob
-import numpy as np
-import scipy.signal as sg
-import pandas as pd
+
 import absplots as apl
 import matplotlib as mpl
+import numpy as np
+import pandas as pd
+import scipy.signal as sg
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+
 import bowtem_utils
 
 # Physical constants
@@ -27,7 +29,7 @@ GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
 
 def is_multiline(filename):
     """Return True if file has at least two lines."""
-    with open(filename) as fil:
+    with open(filename, encoding='utf-8') as fil:
         line = fil.readline()
         line = fil.readline()
     return line != ''
@@ -97,9 +99,9 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
     files = [f for f in files if is_multiline(f)]
 
     # open in a data series
-    csvkw = dict(index_col=0, parse_dates=True, header=1)
-    series = pd.concat([pd.read_csv(f, **csvkw).squeeze('columns')
-                        for f in files])
+    series = pd.concat([pd.read_csv(
+        f, index_col=0, parse_dates=True, header=1).squeeze('columns')
+            for f in files])
 
     # convert tide (m) to pressure (kPa)
     if unit == 'm':
@@ -108,8 +110,7 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
         return 1e-3 * SEA_DENSITY * GRAVITY * (series-series.mean())
 
     # otherwise raise exception
-    raise ValueError("Invalid unit {}.".format(unit))
-
+    raise ValueError(f"Invalid unit {unit}.")
 
 
 # Signal processing
@@ -142,12 +143,15 @@ def subplots_fourier():
 
     # initialize figure with 2x3x4 subplots grid
     fig = apl.figure_mm(figsize=(180, 120))
-    axes = np.array([fig.subplots_mm(  # 40x35 mm panels
-        nrows=3, ncols=4, sharex=True, sharey=True, gridspec_kw=dict(
-            left=10, right=2.5, bottom=7.5, top=2.5, hspace=2.5, wspace=2.5)),
-                     fig.subplots_mm(  # 20x10 mm panels
-        nrows=3, ncols=4, sharex=True, sharey=False, gridspec_kw=dict(
-            left=27.5, right=5, bottom=25, top=5, hspace=22.5, wspace=22.5))])
+    axes = np.array([
+        fig.subplots_mm(  # 40x35 mm panels
+            nrows=3, ncols=4, sharex=True, sharey=True, gridspec_kw={
+                'left': 10, 'right': 2.5, 'bottom': 7.5, 'top': 2.5,
+                'hspace': 2.5, 'wspace': 2.5}),
+        fig.subplots_mm(  # 20x10 mm panels
+            nrows=3, ncols=4, sharex=True, sharey=False, gridspec_kw={
+                'left': 27.5, 'right': 5, 'bottom': 25, 'top': 5,
+                'hspace': 22.5, 'wspace': 22.5})])
 
     # hide 2x2x1 unused axes in the top-right corner
     for ax in axes[:, :2, 3].flat:
@@ -165,6 +169,7 @@ def subplots_fourier():
         ax.set_xscale('log')
 
     # mark all the insets
+    # FIXME replace with ax.indicate_inset()
     for axespair in axes:
         mark_inset(*axespair, loc1=2, loc2=4, ec='0.75', ls='--')
 
@@ -191,9 +196,10 @@ def subplots_fourier():
     ax = axes[-1, 1]
     blended = mpl.transforms.blended_transform_factory(
         ax.transData, ax.transAxes)
-    kwargs = dict(ha='center', xycoords=blended, textcoords='offset points')
+    kwargs = {
+        'ha': 'center', 'xycoords': blended, 'textcoords': 'offset points'}
     ax.annotate('Tidal constituents', xy=(16/24, 1), xytext=(0, 36), **kwargs)
-    kwargs.update(arrowprops=dict(arrowstyle='-'))
+    kwargs.update(arrowprops={'arrowstyle': '-'})
     ax.annotate(r'$S_2$', xy=(12.00/24, 1), xytext=(-12, 20), **kwargs)
     ax.annotate(r'$M_2$', xy=(12.42/24, 1), xytext=(+00, 20), **kwargs)
     ax.annotate(r'$N_2$', xy=(12.55/24, 1), xytext=(+12, 20), **kwargs)
@@ -211,8 +217,9 @@ def subplots_specgram(nrows=10):
     pd.plotting.register_matplotlib_converters()
     fig, axes = apl.subplots_mm(
         figsize=(180, 120), nrows=nrows, sharex=True, sharey=True,
-        gridspec_kw=dict(
-            left=12.5, right=12.5, bottom=12.5, top=2.5, hspace=1))
+        gridspec_kw={
+            'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
+            'hspace': 1})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes)
