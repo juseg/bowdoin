@@ -43,7 +43,7 @@ def main():
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = bowstr_utils.load().resample('10min').mean()  # kPa
     pres = pres.interpolate(limit_area='inside')
-    pres = bowstr_utils.filter(pres, cutoff=(1/6/12, 1/6), btype='bandpass')
+    pres = bowstr_utils.butter(pres, cutoff=(1/6/12, 1/6), btype='bandpass')
 
     # load tide data
     tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10

@@ -75,7 +75,7 @@ def main():
 
     # set labels
     axes[-1, 0].set_xlabel('period (days)')
-    axes[-1, 0].set_ylabel(
+    axes[-1, 0].yaxis.set_label_text(
         'Lomb-Scargle power\n'+r'after refreezing ($kPa^{2}\,s^{-2}$)')
 
     # save
