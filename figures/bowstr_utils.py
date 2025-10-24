@@ -115,7 +115,7 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
 # Signal processing
 # -----------------
 
-def filter(pres, order=4, cutoff=1/24, btype='high'):
+def butter(pres, order=4, cutoff=1/24, btype='high'):
     """Apply butterworth filter on entire dataframe."""
 
     # prepare filter (order, cutoff)

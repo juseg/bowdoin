@@ -32,7 +32,7 @@ def main():
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = bowstr_utils.load().resample('10min').mean().interpolate()  # kPa
-    pres = bowstr_utils.filter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
+    pres = bowstr_utils.butter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
 
     # load tide data
     tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10

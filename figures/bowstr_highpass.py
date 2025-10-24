@@ -47,7 +47,7 @@ def main():
     # IDEA implement filter=True, tide=True in bowstr_utils.load()
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = bowstr_utils.load().resample('1h').mean()
-    pres = bowstr_utils.filter(pres)
+    pres = bowstr_utils.butter(pres)
 
     # load tide data
     tide = bowstr_utils.load_pituffik_tides().resample('1h').mean()  # kPa

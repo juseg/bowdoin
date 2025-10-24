@@ -56,7 +56,7 @@ def main():
     pres = pres.interpolate(limit_area='inside').dropna()
     pres = pres.diff()
     pres = pres.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)
-    pres = bowstr_utils.filter(pres, cutoff=1/6/24)
+    pres = bowstr_utils.butter(pres, cutoff=1/6/24)
 
     # for each unit
     for i, unit in enumerate(pres):
