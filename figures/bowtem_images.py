@@ -8,7 +8,6 @@
 import matplotlib.pyplot as plt
 import bowtem_utils
 import absplots as apl
-import bowtem_utils
 
 
 def annotate_borehole(x, y, bh, ax=None, **kwargs):

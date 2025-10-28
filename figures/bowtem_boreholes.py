@@ -68,7 +68,7 @@ def plot_long_profile(ax):
 
     # add standalone legend
     labels = ['Inclinometers', 'Thermistors', 'Piezometers']
-    markers = [bowtem_utils.MARKERS[l[0]] for l in labels]
+    markers = [bowtem_utils.MARKERS[label[0]] for label in labels]
     handles = [plt.Line2D([], [], ls='none', marker=m) for m in markers]
     ax.legend(handles, labels, bbox_to_anchor=(1.0, 0.90), loc='upper right')
 

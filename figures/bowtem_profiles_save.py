@@ -7,7 +7,6 @@
 
 import pandas as pd
 import absplots as apl
-import cartopy.crs as ccrs
 import bowtem_utils
 
 from bowtem_ogives import project_borehole_locations

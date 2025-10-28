@@ -6,7 +6,6 @@
 """Plot Bowdoin stress wavelet transforms."""
 
 import numpy as np
-import pandas as pd
 import matplotlib as mpl
 import pywt
 import bowstr_utils
@@ -22,7 +21,7 @@ def wavelets(series, ax):
     # width = omega*samplefreq / (2*waveletfreq*np.pi)
     # width = omega*waveletperiod/timestep / (2*np.pi)
     periods = np.arange(1, 36)  # periods in hours
-    widths = 5*periods*pd.to_timedelta('1h')/series.index.freq / (2*np.pi)
+    # widths = 5*periods*pd.to_timedelta('1h')/series.index.freq / (2*np.pi)
 
     # compute wavelet transform
     scales = periods  # FIXME not sure about that

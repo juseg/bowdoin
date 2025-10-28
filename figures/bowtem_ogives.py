@@ -6,7 +6,7 @@
 """Plot Bowdoin temperature Arctic DEM map and profile."""
 
 from scipy import stats
-import hyoga  # pylint: disable=unused-import
+import hyoga  # noqa pylint: disable=unused-import
 import geopandas as gpd
 import pandas as pd
 import xarray as xr
