@@ -81,6 +81,10 @@ def main():
     grid[2].set_xlabel('phase delay (h)')
     grid[2].set_ylabel('sensor depth (m)')
 
+    # remove empty headlines in date tick labels
+    grid[0].set_xticks(grid[0].get_xticks(), [
+        label.get_text()[1:] for label in grid[0].get_xticklabels()])
+
     # save
     fig.savefig(__file__[:-3])
 
