@@ -24,7 +24,7 @@ def main():
         logger = dict(bh1='Th-Bowdoin-2', bh3='Th-Bowdoin-1')[bh]
 
         # input file name
-        cfilename = '../data/original/temperature/%s_Coefs.dat' % logger
+        cfilename = f'../data/original/temperature/{logger}_Coefs.dat'
 
         # read rearranged calibration coefficients
         # sensor order lower: BH2A[1-9] + BH2B[1-7],

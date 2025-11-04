@@ -46,7 +46,7 @@ def main():
 
     # for each unit
     for i, unit in enumerate(pres):
-        c = 'C%d' % i
+        color = f'C{i}'
         ts = pres[unit]
 
         # plot (series.plot with deltas affected by #18910)
@@ -60,12 +60,12 @@ def main():
         shift = abs(xcorr).idxmax()
         delay = -shift.total_seconds()/3600
         value = xcorr[shift]
-        ax.plot(delay, value, c=c, marker='o')
+        ax.plot(delay, value, c=color, marker='o')
 
         # plot phase delays
         ax = grid[2]
-        ax.plot(delay, depth[unit], c=c, marker='o')
-        ax.text(delay+0.1, depth[unit]-1.0, unit, color=c, clip_on=True)
+        ax.plot(delay, depth[unit], c=color, marker='o')
+        ax.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
 
     # set axes properties
     grid[0].set_ylim(-5, 47.5)

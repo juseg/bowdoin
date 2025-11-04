@@ -197,7 +197,7 @@ def main():
 
         # annotate minimum observed temperature below 50m depth
         sensor = temp0[depth > 50].idxmin()
-        ax0.text(temp0[sensor], depth[sensor], '%.2f°C  ' % temp0[sensor],
+        ax0.text(temp0[sensor], depth[sensor], f'{temp0[sensor]:.2f}°C  ',
                  color=color, ha='right', va='bottom')
 
         # annotate maximum observed warming below

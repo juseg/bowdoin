@@ -26,7 +26,7 @@ def main():
     # for each tilt unit
     pres = bowstr_utils.load()
     for i, unit in enumerate(pres):
-        color = 'C%d' % i
+        color = f'C{i}'
 
         # extract time steps
         step = pres[unit].dropna()
