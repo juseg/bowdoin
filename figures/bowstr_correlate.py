@@ -3,6 +3,8 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
+"""Plot Bowdoin stress cross-correlation."""
+
 import numpy as np
 import pandas as pd
 import absplots as apl
