@@ -70,7 +70,7 @@ def main():
 
     # plot tide data
     ax = axes[-1]
-    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
     specgram(tide, ax, color='C9')
 
     # add text label

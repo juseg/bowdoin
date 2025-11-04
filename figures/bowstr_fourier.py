@@ -68,7 +68,7 @@ def main():
         axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
 
     # plot tide data
-    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean() / 10
     for ax in axes[-1]:
         ax.plot(*fourier(tide), c='C9')
 

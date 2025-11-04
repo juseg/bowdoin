@@ -37,7 +37,8 @@ def main():
 
     # show panoramic photo
     ax = ax0
-    ax.imshow(plt.imread('../photos/julien-d3200-150717-192938-192948-dev.jpg'))
+    ax.imshow(plt.imread(
+        '../photos/julien-d3200-150717-192938-192948-dev.jpg'))
 
     # mark glacier names
     ax.text(500, 75, 'Tuktoo Glacier', color='k', ha='center')

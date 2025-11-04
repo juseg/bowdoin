@@ -91,12 +91,14 @@ def main():
     st1 = 'WV02_20160424_10300100566BCD00_103001005682C900_2m_lsf_seg1'  # 0.95
 
     # load reference elevation data
-    elev = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st0}.tif').squeeze()
+    elev = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st0}.tif')
+    elev = elev.squeeze()
     elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
     zoom = elev.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
 
     # load elevation difference data
-    diff = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st1}.tif').squeeze()
+    diff = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st1}.tif')
+    diff = diff.squeeze()
     diff = diff.loc[-1224000:-1229000, -537500:-532500].where(diff > -9999)
     diff = diff - elev
     diff = diff - stats.mode(diff, axis=None, nan_policy='omit')[0]
@@ -104,7 +106,7 @@ def main():
     # plot zoomed-in elevation map
     ax = grid[0]
     zoom.plot.imshow(
-        ax=ax, add_colorbar=False, add_labels=False,cmap='Blues_r')
+        ax=ax, add_colorbar=False, add_labels=False, cmap='Blues_r')
     zoom.plot.contour(
         ax=ax, add_labels=False, colors='0.25', levels=range(70, 100),
         linewidths=0.1)
@@ -141,8 +143,9 @@ def main():
         if bh != 'bh1':
             ax.annotate('', xy=loc, xytext=initial.loc[bh],
                         arrowprops=dict(arrowstyle='->', color=color))
-            ax.add_patch(plt.Circle(projected.loc[bh].values, radius=10.0, fc='w',
-                                    ec=color, alpha=0.75))
+            ax.add_patch(plt.Circle(
+                projected.loc[bh].values, radius=10.0, fc='w', ec=color,
+                alpha=0.75))
 
         # on other maps too
         grid[1].plot(*loc, color=color, marker='o')
@@ -176,7 +179,7 @@ def main():
         ax.set_yticks([])
     grid[0].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     grid[1].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
-    grid[2].set_title(st1[5:9]+'-'+st1[9:11]+'-'+st1[11:13]+' - '+
+    grid[2].set_title(st1[5:9]+'-'+st1[9:11]+'-'+st1[11:13]+' - ' +
                       st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     pfax.set_title('')
     pfax.set_xlabel('distance from the calving front (m)')

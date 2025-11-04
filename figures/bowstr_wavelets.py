@@ -73,7 +73,7 @@ def main():
 
     # plot tide data (diff but no filter)
     ax = axes[-1]
-    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
     tide = tide.interpolate(limit_area='inside').dropna()
     tide = tide.diff()
     tide = tide.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)

@@ -90,8 +90,8 @@ def compute_theoretical_dissipation(bh, temp, depth):
 
 
 def compute_theoretical_warming(bh, temp, depth):
-    """Compute theoretical temperature change in °C a-1 from both heat diffusion
-    and viscous dissipation."""
+    """Compute theoretical temperature change in °C a-1 from both heat
+    diffusion and viscous dissipation."""
     diffusion = compute_theoretical_diffusion(temp, depth)
     dissipation = compute_theoretical_dissipation(bh, temp, depth)
     return (diffusion + dissipation) / (DENSITY * CAPACITY)

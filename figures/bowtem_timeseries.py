@@ -88,7 +88,6 @@ def main():
                     xytext=(6, offsets.get(unit, 0)),
                     textcoords='offset points', ha='left', va='center')
 
-
     # add campaigns
     bowtem_utils.add_field_campaigns(ax=axes[0])
     bowtem_utils.add_field_campaigns(ax=axes[1], ytext=0.05)
