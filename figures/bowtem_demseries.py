@@ -91,10 +91,11 @@ def main():
     # initialize figure
     fig, grid = apl.subplots_mm(
         figsize=(180, 90+130), nrows=2+3, ncols=4, sharex=True, sharey=True,
-        gridspec_kw=dict(
-            left=2.5, right=17.5, wspace=2.5, bottom=2.5, top=5, hspace=5))
-    cax0, cax1 = fig.subplots_mm(nrows=2, gridspec_kw=dict(
-        left=165, right=12.5, bottom=2.5, top=5, hspace=5))
+        gridspec_kw={
+            'left': 2.5, 'right': 17.5, 'wspace': 2.5, 'bottom': 2.5, 'top': 5,
+            'hspace': 5})
+    cax0, cax1 = fig.subplots_mm(nrows=2, gridspec_kw={
+        'left': 165, 'right': 12.5, 'bottom': 2.5, 'top': 5, 'hspace': 5})
     cax0.grid(False)  # see discussion of mpl issue #21723
     cax1.grid(False)  # see discussion of mpl issue #21723
 

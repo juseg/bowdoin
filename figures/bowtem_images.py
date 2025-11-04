@@ -23,8 +23,9 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 120), ncols=2, gridspec_kw=dict(
-        left=2.5, right=2.5, bottom=0.5, top=62, wspace=2.5))
+    fig, grid = apl.subplots_mm(figsize=(180, 120), ncols=2, gridspec_kw={
+        'left': 2.5, 'right': 2.5, 'bottom': 0.5, 'top': 62,
+        'wspace': 2.5})
     ax0 = fig.add_axes_mm([2.5, 60.5, 175, 175/3])
 
     # add subfigure labels

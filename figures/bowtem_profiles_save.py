@@ -17,8 +17,9 @@ def main():
 
     # initialize figure
     fig, ax = apl.subplots_mm(
-        figsize=(90, 90), sharey=True, gridspec_kw=dict(
-            left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
+        figsize=(90, 90), sharey=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'wspace': 2.5})
 
     # for each borehole excluding 'err'
     for bh in ['bh1', 'bh2', 'bh3']:

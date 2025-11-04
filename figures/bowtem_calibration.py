@@ -14,14 +14,14 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw=dict(
-        left=12.5, right=2.5, bottom=12.5, top=2.5))
+    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
+        'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5})
 
     # for each borehole
     for bh in ['bh1', 'bh3']:
-        cmap = dict(bh1='Blues', bh3='Greens')[bh]
-        site = dict(bh1='U', bh3='L')[bh]
-        logger = dict(bh1='Th-Bowdoin-2', bh3='Th-Bowdoin-1')[bh]
+        cmap = {'bh1': 'Blues', 'bh3': 'Greens'}[bh]
+        site = {'bh1': 'U', 'bh3': 'L'}[bh]
+        logger = {'bh1': 'Th-Bowdoin-2', 'bh3': 'Th-Bowdoin-1'}[bh]
 
         # input file name
         cfilename = f'../data/original/temperature/{logger}_Coefs.dat'

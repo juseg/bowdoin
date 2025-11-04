@@ -17,8 +17,9 @@ def main():
     # initialize figure
     fig, grid = apl.subplots_mm(
         figsize=(180, 90), nrows=9, ncols=2, sharex='col', sharey=True,
-        gridspec_kw=dict(left=12.5, right=2.5, wspace=12.5,
-                         bottom=12.5, top=2.5, hspace=2.5))
+        gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'wspace': 12.5, 'bottom': 12.5,
+            'top': 2.5, 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(grid)

@@ -23,8 +23,9 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw=dict(
-        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=17.5))
+    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw={
+        'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+        'wspace': 17.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(grid, loc='sw')
