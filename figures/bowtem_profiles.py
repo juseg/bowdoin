@@ -232,7 +232,7 @@ def main():
     ax0.invert_yaxis()
     ax0.legend(loc='lower left')
     ax0.set_ylabel('initial sensor depth (m)')
-    ax0.set_xlabel(u'ice temperature (°C)')
+    ax0.set_xlabel('ice temperature (°C)')
     ax1.set_xlabel(r'temperature change ($°C\,a^{-1}$)')
     ax0.set_xlim(-11.5, 0.5)
     ax1.set_xlim(-0.3, 0.7)

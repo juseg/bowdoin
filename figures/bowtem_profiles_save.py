@@ -48,7 +48,7 @@ def main():
     # set axes properties
     ax.invert_yaxis()
     ax.set_ylabel('initial sensor depth (m)')
-    ax.set_xlabel(u'ice temperature (°C)')
+    ax.set_xlabel('ice temperature (°C)')
     ax.set_xlim(-11.5, 0.5)
 
     # save

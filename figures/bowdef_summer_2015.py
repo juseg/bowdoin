@@ -18,7 +18,7 @@ ts.plot(ax=ax, c=c, legend=False)
 
 # add label and legend
 ax.axhline(0.0, c='k', lw=0.5)
-ax.set_ylabel(u'Qaanaaq ice cap air temp. (°C)', color=c)
+ax.set_ylabel('Qaanaaq ice cap air temp. (°C)', color=c)
 ax.set_ylim(-10.0, 40.0)
 
 # plot upper deformation velocity

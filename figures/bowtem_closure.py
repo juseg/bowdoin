@@ -47,7 +47,7 @@ def main():
     ax0.legend()
     ax0.set_xscale('log')
     ax0.set_xlabel('days to freezing')
-    ax0.set_ylabel(u'minimum temperature (°C)')
+    ax0.set_ylabel('minimum temperature (°C)')
     ax1.set_xlabel('days to freezing')
     ax1.set_ylabel('depth (m)')
     ax1.axhline(0.0, c='k', lw=0.5)

@@ -41,7 +41,7 @@ def main():
 
     # set axes properties
     ax.set_xlabel(r'resistance ($k\Omega$)')
-    ax.set_ylabel(u'temperature (°C)')
+    ax.set_ylabel('temperature (°C)')
     ax.legend(ncol=4)
 
     # save
