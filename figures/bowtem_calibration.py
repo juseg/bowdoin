@@ -36,8 +36,8 @@ def main():
         res = np.linspace(20, 40, 101)
         for i, (cf1, cf2, cf3) in enumerate(coefs):
             temp = 1 / (cf1 + cf2*np.log(res) + cf3*np.log(res)**3) - 273.15
-            ax.plot(res, temp, color=cmap(i), lw=0.5,
-                    label=site+'T{:02d}'.format(i+1))
+            ax.plot(
+                res, temp, color=cmap(i), lw=0.5, label=f'{site}T{i+1:02d}')
 
     # set axes properties
     ax.set_xlabel(r'resistance ($k\Omega$)')

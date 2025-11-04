@@ -82,7 +82,7 @@ def main():
             last = temp[unit].dropna().tail(1)
             for ax in axes:
                 ax.annotate(
-                    r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+                    f'{unit}, {depth[unit]:.0f}'r'$\,$m',
                     color=color, clip_on=True, fontsize=6, fontweight='bold',
                     xy=(last.index, last.iloc[0]),
                     xytext=(6, offsets.get(unit, 0)),

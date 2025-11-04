@@ -51,7 +51,7 @@ def main():
 
     # for each tilt unit
     for i, unit in enumerate(pres):
-        color = 'C{}'.format(i)
+        color = f'C{i}'
 
         # plot amplitude spectrum
         per, amp = fourier(pres[unit][date[unit]:])
@@ -60,7 +60,7 @@ def main():
 
         # add main axes text label
         axes[i, 0].text(
-            0.95, 0.35, r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+            0.95, 0.35, f'{unit}, {depth[unit]:.0f}'r'$\,$m',
             color=color, fontsize=6, fontweight='bold',
             transform=axes[i, 0].transAxes, ha='right')
 
