@@ -99,29 +99,28 @@ def main():
     cax0.grid(False)  # see discussion of mpl issue #21723
     cax1.grid(False)  # see discussion of mpl issue #21723
 
-    # loop on data strips
-    for i, strip in enumerate(datastrips):
-        ax = grid.flat[i]
+    # plot reference elevation map
+    strip = datastrips[0]
+    with xr.open_dataarray(
+            f'../data/external/SETSM_s2s041_{strip}.tif') as da0:
+        da0 = da0.where(da0 > -9999).squeeze()
+        im0 = da0.plot.imshow(
+            ax=grid.flat[0], add_colorbar=False, add_labels=False,
+            cmap='PuOr_r', vmin=0, vmax=200)
 
-        # load elevation data
-        elev = xr.open_dataarray(f'../data/external/SETSM_s2s041_{strip}.tif')
-        elev = elev.squeeze()
-        elev = elev.where(elev > -9999)
+    # plot normalized elevation changes using mode as zero
+    for i, strip in enumerate(datastrips[1:]):
+        ax = grid.flat[i+1]
+        with xr.open_dataarray(
+                f'../data/external/SETSM_s2s041_{strip}.tif') as da1:
+            da1 = da1.where(da1 > -9999).squeeze() - da0
+            da1 = da1 - stats.mode(da1, axis=None, nan_policy='omit')[0]
+            im1 = da1.plot.imshow(
+                ax=ax, add_colorbar=False, add_labels=False, cmap='RdBu',
+                vmin=-60, vmax=60)
 
-        # plot reference elevation map
-        if i == 0:
-            im0 = elev.plot.imshow(ax=ax, add_colorbar=False, add_labels=False,
-                                   cmap='PuOr_r', vmin=0, vmax=200)
-            ref = elev
-
-        # plot normalized elevation using mode as zero
-        else:
-            diff = elev - ref
-            diff = diff - stats.mode(diff, axis=None, nan_policy='omit')[0]
-            im1 = diff.plot.imshow(ax=ax, add_colorbar=False, add_labels=False,
-                                   cmap='RdBu', vmin=-60, vmax=60)
-
-        # set axes properties
+    # set axes properties
+    for ax in grid.flat:
         ax.set_rasterization_zorder(2.5)
         ax.set_title(strip[5:13])
         ax.set_xlim(-537500, -532500)
