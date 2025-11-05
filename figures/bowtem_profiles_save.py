@@ -25,7 +25,7 @@ def main():
     for bh in ['bh1', 'bh2', 'bh3']:
 
         # load bowtem paper profiles
-        temp, depth, base = bowtem_utils.load_profiles(bh)
+        temp, depth, _ = bowtem_utils.load_profiles(bh)
 
         # take only the first date
         temp = temp.iloc[:, 0]

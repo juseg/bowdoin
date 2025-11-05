@@ -25,7 +25,7 @@ def wavelets(series, ax):
 
     # compute wavelet transform
     scales = periods  # FIXME not sure about that
-    cwt, frequencies = pywt.cwt(series, scales, 'morl')
+    cwt, _ = pywt.cwt(series, scales, 'morl')
 
     # plot wavelet transform
     extent = (

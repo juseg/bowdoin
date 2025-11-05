@@ -5,8 +5,9 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
-import bowtem_utils
 import absplots as apl
+
+import bowtem_utils
 
 
 def main():
