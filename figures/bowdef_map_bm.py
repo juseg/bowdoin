@@ -64,8 +64,9 @@ cb = fig.colorbar(im, cax, extend='max', orientation='horizontal')
 cb.set_label('ice thickness (m)')
 
 # plot waypoints
-kwa = dict(ax=ax, color='k', marker='o', offset=15,
-           bbox=dict(boxstyle='square,pad=0.5', fc='w'))
+kwa = {
+    'ax': ax, 'color': 'k', 'marker': 'o', 'offset': 15,
+    'bbox': {'boxstyle': 'square,pad=0.5', 'fc': 'w'}}
 bowdef_utils.add_waypoint('Qaanaaq', text='Qaanaaq', textpos='cl', **kwa)
 bowdef_utils.add_waypoint('Tent Swiss', text='Camp', textpos='cr', **kwa)
 

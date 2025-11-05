@@ -22,8 +22,7 @@ def mark_inset(ax0, ax1, text='', **kwargs):
     ax0.text(west, north+100, text, fontweight='bold')
 
 
-def annotate_sample(
-        gdf, name, ax=None, color=None, marker='o', text=None, **kwargs):
+def annotate_sample(gdf, name, ax=None, text=None, **kwargs):
     """Annotate a sample and label with name and altitude."""
     color, marker = {
         'bedrock': ('tab:blue', 's'),
@@ -58,7 +57,7 @@ def init_figure():
 
     # initialize figure
     fig = apl.figure_mm(figsize=(figw, figh))
-    grid = dict()
+    grid = {}
 
     # for each region
     for region, extent in subregions.items():
@@ -101,7 +100,7 @@ def main():
     gdf = gpd.read_file('../data/locations.gpx').set_index('name')
     gdf = gdf.to_crs('+proj=utm +zone=19')
     ax = grid['(a) Bowdoin Glacier']
-    for name, row in gdf.iterrows():
+    for name in gdf.index:
         if name.startswith('BOW1'):
             annotate_sample(gdf, name, ax=ax, text='')
 

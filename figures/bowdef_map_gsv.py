@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # plot Qaanaaq location
     c = 'k'
     ax = grid[1]
-    kwa = dict(ha='center', fontweight='bold')
+    kwa = {'ha': 'center', 'fontweight': 'bold'}
     bowdef_utils.add_waypoint('Qaanaaq', ax=ax, color=c)
     ax.text(-605000, -1250000, 'Qaanaaq', color=c, **kwa)
 

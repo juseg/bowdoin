@@ -90,8 +90,8 @@ def compute_theoretical_dissipation(bh, temp, depth):
 
 
 def compute_theoretical_warming(bh, temp, depth):
-    """Compute theoretical temperature change in °C a-1 from both heat diffusion
-    and viscous dissipation."""
+    """Compute theoretical temperature change in °C a-1 from both heat
+    diffusion and viscous dissipation."""
     diffusion = compute_theoretical_diffusion(temp, depth)
     dissipation = compute_theoretical_dissipation(bh, temp, depth)
     return (diffusion + dissipation) / (DENSITY * CAPACITY)
@@ -164,8 +164,9 @@ def main():
 
     # initialize figure
     fig, (ax0, ax1) = apl.subplots_mm(
-        figsize=(180, 90), ncols=2, sharey=True, gridspec_kw=dict(
-            left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=2.5))
+        figsize=(180, 90), ncols=2, sharey=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'wspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
@@ -184,10 +185,10 @@ def main():
 
         # plot interpolates between sensors
         for i, date in enumerate(temp):
-            plot_interp(ax0, depth, temp[date], c=color,
-                        label='{}, {}-{}-{}'.format(
-                            bh.upper(), date[:4], date[4:6], date[6:]),
-                        ls=('--' if i > 0 else '-'), lw=(0.5 if i > 0 else 1))
+            plot_interp(
+                ax0, depth, temp[date], c=color,
+                label=f'{bh.upper()}, {date[:4]}-{date[4:6]}-{date[6:]}',
+                ls=('--' if i > 0 else '-'), lw=(0.5 if i > 0 else 1))
 
         # plot temperature change
         dates = pd.to_datetime(temp.columns)
@@ -197,7 +198,7 @@ def main():
 
         # annotate minimum observed temperature below 50m depth
         sensor = temp0[depth > 50].idxmin()
-        ax0.text(temp0[sensor], depth[sensor], '%.2f°C  ' % temp0[sensor],
+        ax0.text(temp0[sensor], depth[sensor], f'{temp0[sensor]:.2f}°C  ',
                  color=color, ha='right', va='bottom')
 
         # annotate maximum observed warming below
@@ -232,7 +233,7 @@ def main():
     ax0.invert_yaxis()
     ax0.legend(loc='lower left')
     ax0.set_ylabel('initial sensor depth (m)')
-    ax0.set_xlabel(u'ice temperature (°C)')
+    ax0.set_xlabel('ice temperature (°C)')
     ax1.set_xlabel(r'temperature change ($°C\,a^{-1}$)')
     ax0.set_xlim(-11.5, 0.5)
     ax1.set_xlim(-0.3, 0.7)

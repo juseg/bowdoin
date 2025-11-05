@@ -87,7 +87,7 @@ ax.plot([0.0, base_temp_melt], [0.0, base_depth], c='k', ls=':')
 ax.set_xlim(-12.0, 1.0)
 ax.set_ylim(270.0, 0.0)
 ax.set_ylabel('depth (m)')
-ax.set_title(u'ice temperature (°C)')
+ax.set_title('ice temperature (°C)')
 
 # plot upper tilt profile
 ax = grid[1]

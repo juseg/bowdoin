@@ -3,6 +3,8 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
+"""Plot Bowdoin stress cross-correlation."""
+
 import numpy as np
 import pandas as pd
 import absplots as apl
@@ -23,8 +25,9 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw=dict(
-        left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=17.5))
+    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw={
+        'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+        'wspace': 17.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(grid, loc='sw')
@@ -32,7 +35,7 @@ def main():
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = bowstr_utils.load().resample('10min').mean().interpolate()  # kPa
-    pres = bowstr_utils.filter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
+    pres = bowstr_utils.butter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
 
     # load tide data
     tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
@@ -46,7 +49,7 @@ def main():
 
     # for each unit
     for i, unit in enumerate(pres):
-        c = 'C%d' % i
+        color = f'C{i}'
         ts = pres[unit]
 
         # plot (series.plot with deltas affected by #18910)
@@ -60,12 +63,12 @@ def main():
         shift = abs(xcorr).idxmax()
         delay = -shift.total_seconds()/3600
         value = xcorr[shift]
-        ax.plot(delay, value, c=c, marker='o')
+        ax.plot(delay, value, c=color, marker='o')
 
         # plot phase delays
         ax = grid[2]
-        ax.plot(delay, depth[unit], c=c, marker='o')
-        ax.text(delay+0.1, depth[unit]-1.0, unit, color=c, clip_on=True)
+        ax.plot(delay, depth[unit], c=color, marker='o')
+        ax.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
 
     # set axes properties
     grid[0].set_ylim(-5, 47.5)

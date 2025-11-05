@@ -120,7 +120,7 @@ def add_subfig_labels(axes=None, colors=None, **kwargs):
         colors = [colors] * len(axes)
 
     # add subfigure labels
-    for ax, color, label in zip( axes, colors, 'abcdefghijklmnopqrstuvwxyz'):
+    for ax, color, label in zip(axes, colors, 'abcdefghijklmnopqrstuvwxyz'):
         add_subfig_label('('+label+')', ax=ax, color=color, **kwargs)
 
 

@@ -16,9 +16,9 @@ from osgeo import gdal
 # -----------------
 
 g = 9.80665  # gravitational acceleration in m s-2
-COLOURS = dict(bh1='C0', bh2='C1', bh3='C2', err='0.75')
-MARKERS = dict(I='^', P='s', T='o')
-DRILLING_DATES = dict(bh1='20140716', bh2='20140717', bh3='20140722')
+COLOURS = {'bh1': 'C0', 'bh2': 'C1', 'bh3': 'C2', 'err': '0.75'}
+MARKERS = {'I': '^', 'P': 's', 'T': 'o'}
+DRILLING_DATES = {'bh1': '20140716', 'bh2': '20140717', 'bh3': '20140722'}
 
 
 # Data processing methods
@@ -167,8 +167,9 @@ def load_temp_sigma(site='B'):
     files = [fname % y for y in years]
 
     # open in a data series
-    csvkw = dict(index_col=0, usecols=[0, 3],
-                 na_values=(-50, -9999), squeeze=True)
+    csvkw = {
+        'index_col': 0, 'usecols': [0, 3], 'na_values': (-50, -9999),
+        'squeeze': True}
     ts = pd.concat([pd.read_excel(f, **csvkw) for f in files])
 
     # return temperature data series

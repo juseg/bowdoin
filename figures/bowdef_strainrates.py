@@ -13,8 +13,8 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw=dict(
-        left=17.5, right=2.5, bottom=12.5, top=2.5))
+    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
+        'left': 17.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5})
 
     # plot each borehole
     for bh in ('bh1', 'bh3'):

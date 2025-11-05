@@ -5,8 +5,8 @@
 
 """Plot Bowdoin temperature borehole setup."""
 
-import bowtem_utils
 import absplots as apl
+
 import bowtem_utils
 
 
@@ -14,9 +14,10 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    gridspec_kw = dict(left=12.5, right=2.5, wspace=12.5, bottom=12.5, top=2.5)
-    fig, (ax0, ax1) = apl.subplots_mm(figsize=(180, 90), ncols=2, sharex=True,
-                                      gridspec_kw=gridspec_kw)
+    fig, (ax0, ax1) = apl.subplots_mm(
+        figsize=(180, 90), ncols=2, sharex=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'wspace': 12.5, 'bottom': 12.5,
+            'top': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_label(ax=ax0, text='(a)')
@@ -48,7 +49,7 @@ def main():
     ax0.legend()
     ax0.set_xscale('log')
     ax0.set_xlabel('days to freezing')
-    ax0.set_ylabel(u'minimum temperature (°C)')
+    ax0.set_ylabel('minimum temperature (°C)')
     ax1.set_xlabel('days to freezing')
     ax1.set_ylabel('depth (m)')
     ax1.axhline(0.0, c='k', lw=0.5)
