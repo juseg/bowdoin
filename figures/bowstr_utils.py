@@ -35,7 +35,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(variable='wlev'):
+def load(filter=False, tide=False, variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
@@ -52,6 +52,17 @@ def load(variable='wlev'):
     if variable != 'base':
         data = data.sort_index(axis=1, ascending=False)
         data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
+
+    # apply butterworth filter
+    # FIXME replace all butter() calls with load(filter=True)
+    if filter is True:
+        data = data.resample('1h').mean()
+        data = butter(data)
+
+    # load tide data
+    # FIXME replace all load_pituffik_tides() calls with load(tide=True)
+    if tide is True:
+        data['tide'] = load_pituffik_tides().resample('1h').mean() / 10
 
     # return dataframe
     return data
