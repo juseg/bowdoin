@@ -51,7 +51,7 @@ def main():
 
     # for each tilt unit
     for i, unit in enumerate(pres):
-        color = 'C{}'.format(i)
+        color = f'C{i}'
 
         # plot amplitude spectrum
         per, amp = fourier(pres[unit][date[unit]:])
@@ -60,7 +60,7 @@ def main():
 
         # add main axes text label
         axes[i, 0].text(
-            0.95, 0.35, r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+            0.95, 0.35, f'{unit}, {depth[unit]:.0f}'r'$\,$m',
             color=color, fontsize=6, fontweight='bold',
             transform=axes[i, 0].transAxes, ha='right')
 
@@ -68,7 +68,7 @@ def main():
         axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
 
     # plot tide data
-    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean() / 10
     for ax in axes[-1]:
         ax.plot(*fourier(tide), c='C9')
 

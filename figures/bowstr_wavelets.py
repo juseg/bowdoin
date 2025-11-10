@@ -25,7 +25,7 @@ def wavelets(series, ax):
 
     # compute wavelet transform
     scales = periods  # FIXME not sure about that
-    cwt, frequencies = pywt.cwt(series, scales, 'morl')
+    cwt, _ = pywt.cwt(series, scales, 'morl')
 
     # plot wavelet transform
     extent = (
@@ -60,7 +60,7 @@ def main():
     # for each unit
     for i, unit in enumerate(pres):
         ax = axes[i]
-        color = 'C{}'.format(i+2*(i > 3))
+        color = f'C{i+2*(i > 3)}'
         series = pres[unit][date[unit]:]
 
         # plot wavelet transform
@@ -68,12 +68,12 @@ def main():
 
         # add text label
         ax.text(
-            1.01, 0, unit+'\n'+r'{:.0f}$\,$m'.format(depth[unit]),
+            1.01, 0, f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
             color=color, fontsize=6, fontweight='bold', transform=ax.transAxes)
 
     # plot tide data (diff but no filter)
     ax = axes[-1]
-    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
     tide = tide.interpolate(limit_area='inside').dropna()
     tide = tide.diff()
     tide = tide.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)

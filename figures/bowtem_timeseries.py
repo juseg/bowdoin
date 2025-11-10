@@ -74,20 +74,21 @@ def main():
                 ax.axvline(date, color=color, ls=(offset, [2, 4]))
 
         # add unit labels
-        offsets = dict(
-            LT01=8, LT02=2, LT03=-2, LT04=-5, LT05=2, LT06=3, LT07=-3, LT09=-1,
-            LT10=3, LT11=-2, LT12=-2, LT13=-2, UP=-2, UT01=2, UT04=2, UT07=4,
-            UT08=-4, UT09=0, UT10=-8, UT11=6, UT12=0, UT13=-2, UT14=-2)
+        offsets = {
+            'LT01': 8, 'LT02': 2, 'LT03': -2, 'LT04': -5, 'LT05': 2, 'LT06': 3,
+            'LT07': -3, 'LT09': -1, 'LT10': 3, 'LT11': -2, 'LT12': -2,
+            'LT13': -2, 'UP': -2, 'UT01': 2, 'UT04': 2, 'UT07': 4, 'UT08': -4,
+            'UT09': 0, 'UT10': -8, 'UT11': 6, 'UT12': 0, 'UT13': -2,
+            'UT14': -2}
         for unit in temp:
             last = temp[unit].dropna().tail(1)
             for ax in axes:
                 ax.annotate(
-                    r'{}, {:.0f}$\,$m'.format(unit, depth[unit]),
+                    f'{unit}, {depth[unit]:.0f}'r'$\,$m',
                     color=color, clip_on=True, fontsize=6, fontweight='bold',
                     xy=(last.index, last.iloc[0]),
                     xytext=(6, offsets.get(unit, 0)),
                     textcoords='offset points', ha='left', va='center')
-
 
     # add campaigns
     bowtem_utils.add_field_campaigns(ax=axes[0])

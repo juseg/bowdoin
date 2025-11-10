@@ -21,8 +21,8 @@ def init_figure():
 
     # initialize figure
     fig, grid = apl.subplots_mm(
-        figsize=(180, 120), ncols=3, gridspec_kw=dict(
-            left=2.5, right=22.5, bottom=65, top=5, wspace=2.5))
+        figsize=(180, 120), ncols=3, gridspec_kw={
+            'left': 2.5, 'right': 22.5, 'bottom': 65, 'top': 5, 'wspace': 2.5})
 
     # add colorbar and profile axes
     cax = fig.add_axes_mm([160, 65, 5, 50])
@@ -91,12 +91,14 @@ def main():
     st1 = 'WV02_20160424_10300100566BCD00_103001005682C900_2m_lsf_seg1'  # 0.95
 
     # load reference elevation data
-    elev = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st0}.tif').squeeze()
+    elev = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st0}.tif')
+    elev = elev.squeeze()
     elev = elev.loc[-1224000:-1229000, -537500:-532500].where(elev > -9999)
     zoom = elev.loc[-1226725:-1227025, -535075:-534775]  # 300x300 m
 
     # load elevation difference data
-    diff = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st1}.tif').squeeze()
+    diff = xr.open_dataarray(f'../data/external/SETSM_s2s041_{st1}.tif')
+    diff = diff.squeeze()
     diff = diff.loc[-1224000:-1229000, -537500:-532500].where(diff > -9999)
     diff = diff - elev
     diff = diff - stats.mode(diff, axis=None, nan_policy='omit')[0]
@@ -104,7 +106,7 @@ def main():
     # plot zoomed-in elevation map
     ax = grid[0]
     zoom.plot.imshow(
-        ax=ax, add_colorbar=False, add_labels=False,cmap='Blues_r')
+        ax=ax, add_colorbar=False, add_labels=False, cmap='Blues_r')
     zoom.plot.contour(
         ax=ax, add_labels=False, colors='0.25', levels=range(70, 100),
         linewidths=0.1)
@@ -120,7 +122,7 @@ def main():
     # plot elevation difference map
     diff.plot.imshow(
         ax=grid[2], add_labels=False, cbar_ax=cax, cmap='RdBu',
-        vmin=-20, vmax=20, cbar_kwargs=dict(label='elevation change (m)'))
+        vmin=-20, vmax=20, cbar_kwargs={'label': 'elevation change (m)'})
 
     # plot borehole locations on the map
     ax = grid[0]
@@ -133,16 +135,18 @@ def main():
         ax.plot(*projected.loc[bh], color=color, marker='+')
         loc = projected.loc[bh].values
         bowtem_utils.annotate_by_compass(
-            bh.upper(), ax=ax, bbox=dict(alpha=0.75, ec=color, fc='w', pad=2),
+            bh.upper(), ax=ax, bbox={
+                'alpha': 0.75, 'ec': color, 'fc': 'w', 'pad': 2},
             color=color, fontweight='bold', xy=loc, offset=12,
             point=('se' if bh == 'bh1' else 'nw'), zorder=10)
 
         # add arrows and uncertainty circles
         if bh != 'bh1':
             ax.annotate('', xy=loc, xytext=initial.loc[bh],
-                        arrowprops=dict(arrowstyle='->', color=color))
-            ax.add_patch(plt.Circle(projected.loc[bh].values, radius=10.0, fc='w',
-                                    ec=color, alpha=0.75))
+                        arrowprops={'arrowstyle': '->', 'color': color})
+            ax.add_patch(plt.Circle(
+                projected.loc[bh].values, radius=10.0, fc='w', ec=color,
+                alpha=0.75))
 
         # on other maps too
         grid[1].plot(*loc, color=color, marker='o')
@@ -176,7 +180,7 @@ def main():
         ax.set_yticks([])
     grid[0].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     grid[1].set_title(st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
-    grid[2].set_title(st1[5:9]+'-'+st1[9:11]+'-'+st1[11:13]+' - '+
+    grid[2].set_title(st1[5:9]+'-'+st1[9:11]+'-'+st1[11:13]+' - ' +
                       st0[5:9]+'-'+st0[9:11]+'-'+st0[11:13])
     pfax.set_title('')
     pfax.set_xlabel('distance from the calving front (m)')

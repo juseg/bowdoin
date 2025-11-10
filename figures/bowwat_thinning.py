@@ -35,14 +35,14 @@ ax1.set_extent(reg, crs=utm)
 # -------------
 
 # open GPX file as a dictionary
-locations = dict()
+locations = {}
 with open('../data/locations.gpx', 'r') as gpx_file:
     for wpt in gpxpy.parse(gpx_file).waypoints:
         xy = utm.transform_point(wpt.longitude, wpt.latitude, ll)
         locations[wpt.name] = xy
 
 # compute distances
-distances = dict()
+distances = {}
 for y in years:
     ux, uy = locations['B%2dBH2' % (y-2000)]
     lx, ly = locations['B%2dBH3' % (y-2000)]
@@ -68,12 +68,12 @@ ax.imshow(data, extent=extent, transform=utm, cmap='Blues')
 
 # plot borehole locations
 for y, c in zip(years, colors):
-    kwa = dict(ax=ax, color=c, marker='o')
+    kwa = {'ax': ax, 'color': c, marker: 'o'}
     bowdef_utils.add_waypoint('B%2dBH2' % (y-2000), text=y, **kwa)
     bowdef_utils.add_waypoint('B%2dBH3' % (y-2000), **kwa)
 
 # plot camp location
-kwa = dict(ax=ax, color='C3', marker='^')
+kwa = {'ax': ax, 'color': 'C3', 'marker': '^'}
 bowdef_utils.add_waypoint('Tent Swiss', text='Camp', **kwa)
 
 # add scale
@@ -102,9 +102,9 @@ ax.text(d, -5.0, 'upper', fontweight='bold', ha='center')
 
 # add flow direction arrow
 ax.text(0.9, 0.55, 'ice flow', ha='center', transform=ax.transAxes)
-ax.annotate('', xy=(0.85, 0.5), xytext=(0.95, 0.5),
-            xycoords=ax.transAxes, textcoords=ax.transAxes,
-            arrowprops=dict(arrowstyle='->',  lw=1.0))
+ax.annotate(
+    '', xy=(0.85, 0.5), xytext=(0.95, 0.5), xycoords=ax.transAxes,
+    textcoords=ax.transAxes, arrowprops={'arrowstyle': '->', 'lw': 1})
 
 # set axes properties
 ax.set_xlim(-15.0, 245.0)

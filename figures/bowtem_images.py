@@ -6,8 +6,9 @@
 """Plot Bowdoin temperature profiles."""
 
 import matplotlib.pyplot as plt
-import bowtem_utils
 import absplots as apl
+
+import bowtem_utils
 
 
 def annotate_borehole(x, y, bh, ax=None, **kwargs):
@@ -23,8 +24,9 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 120), ncols=2, gridspec_kw=dict(
-        left=2.5, right=2.5, bottom=0.5, top=62, wspace=2.5))
+    fig, grid = apl.subplots_mm(figsize=(180, 120), ncols=2, gridspec_kw={
+        'left': 2.5, 'right': 2.5, 'bottom': 0.5, 'top': 62,
+        'wspace': 2.5})
     ax0 = fig.add_axes_mm([2.5, 60.5, 175, 175/3])
 
     # add subfigure labels
@@ -37,7 +39,8 @@ def main():
 
     # show panoramic photo
     ax = ax0
-    ax.imshow(plt.imread('../photos/julien-d3200-150717-192938-192948-dev.jpg'))
+    ax.imshow(plt.imread(
+        '../photos/julien-d3200-150717-192938-192948-dev.jpg'))
 
     # mark glacier names
     ax.text(500, 75, 'Tuktoo Glacier', color='k', ha='center')

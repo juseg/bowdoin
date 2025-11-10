@@ -46,7 +46,7 @@ def main():
     pres = bowstr_utils.butter(pres, cutoff=(1/6/12, 1/6), btype='bandpass')
 
     # load tide data
-    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10  # kPa/10
+    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
 
     # subset
     pres = pres.drop(columns=['UI03', 'UI02'])
@@ -55,7 +55,7 @@ def main():
 
     # for each unit
     for i, unit in enumerate(pres):
-        color = 'C{}'.format(i+2*(i > 3))
+        color = f'C{i+2*(i > 3)}'
         series = pres[unit].dropna()
 
         # plot cross correlation
@@ -76,7 +76,7 @@ def main():
 
         # add text label
         ax.text(
-            1.01, 0, unit+'\n'+r'{:.0f}$\,$m'.format(depth[unit]),
+            1.01, 0, f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
             color=color, fontsize=6, fontweight='bold', transform=ax.transAxes)
 
     # set axes properties

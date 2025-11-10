@@ -68,7 +68,7 @@ ts.plot(ax=ax, c=c, ls='', marker='.', markersize=0.5, alpha=0.25)
 ts.resample('1D').mean().plot(ax=ax, c=c)
 
 # add annotations
-kwa = dict(fontweight='bold', ha='center', va='center')
+kwa = {'fontweight': 'bold', 'ha': 'center', 'va': 'center'}
 ax.text('20150801', 600, 'GPS', color=bowdef_utils.colors['dgps'], **kwa)
 ax.text('20150501', 250, 'Landsat', color=bowdef_utils.palette['darkorange'], **kwa)
 ax.text('20160201', 450, 'Sentinel-1', color=bowdef_utils.palette['darkpurple'], **kwa)

@@ -16,8 +16,9 @@ def main():
 
     # initialize figure
     fig, (ax0, ax1) = apl.subplots_mm(
-        figsize=(180, 90), ncols=2, sharey=True, gridspec_kw=dict(
-            left=12.5, right=2.5, bottom=12.5, top=2.5, wspace=7.5))
+        figsize=(180, 90), ncols=2, sharey=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'wspace': 7.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels((ax0, ax1))
@@ -39,13 +40,13 @@ def main():
     ax0.legend(ncol=2, loc='lower right')
 
     # zooming windows
-    zooms = dict(
-        z1=['20140901', '20141001'],  # zoom with all sensors, L3 not frozen
-        z2=['20140910', '20140915'],  # zoom on phase, L3 not frozen
-        z3=['20141120', '20141125'],  # zoom phase, U2 and U2 lost
-        z4=['20150101', '20150201'],  # zoom on 14-day modulation, 2 cycles
-        z5=['20150901', '20151101'],  # zoom on 14-day modulation, 4 cycles
-        z6=['20150601', '20150715'])  # zoom on summer, more complicated
+    zooms = {
+        'z1': ['20140901', '20141001'],  # zoom with all sensors, L3 not frozen
+        'z2': ['20140910', '20140915'],  # zoom on phase, L3 not frozen
+        'z3': ['20141120', '20141125'],  # zoom phase, U2 and U2 lost
+        'z4': ['20150101', '20150201'],  # zoom on 14-day modulation, 2 cycles
+        'z5': ['20150901', '20151101'],  # zoom on 14-day modulation, 4 cycles
+        'z6': ['20150601', '20150715']}  # zoom on summer, more complicated
 
     # save without right panel  # FIXME formatlise presentation mode
     # grid[1].set_visible(False)
