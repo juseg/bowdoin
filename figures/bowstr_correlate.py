@@ -33,9 +33,10 @@ def main():
     bowtem_utils.add_subfig_labels(grid, loc='sw')
 
     # load stress data
+    # FIXME new load util should adjust cutoff freq to sampling rate
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = bowstr_utils.load().resample('10min').mean().interpolate()  # kPa
-    pres = bowstr_utils.butter(pres, cutoff=(1/6/12, 2/6), btype='bandpass')
+    pres = bowstr_utils.butter(pres, cutoff=10/60/24)
 
     # load tide data
     tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
@@ -82,6 +83,10 @@ def main():
     grid[2].invert_yaxis()
     grid[2].set_xlabel('phase delay (h)')
     grid[2].set_ylabel('sensor depth (m)')
+
+    # remove empty headlines in date tick labels
+    grid[0].set_xticks(grid[0].get_xticks(), [
+        label.get_text()[1:] for label in grid[0].get_xticklabels()])
 
     # save
     fig.savefig(__file__[:-3])
