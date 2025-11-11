@@ -58,10 +58,16 @@ def load(highpass=False, interp=False, resample=None, tide=False, variable='wlev
     if resample is not None:
         data = data.resample(resample).mean()
 
+    # load tide data
+    # FIXME replace all load_pituffik_tides() calls with load(tide=True)
+    if tide is True:
+        assert resample is not None
+        data['tide'] = load_pituffik_tides().resample(resample).mean() / 10
+
     # resample
     # FIXME replace all interpolate() calls with load(interpolate=True)
     if interp is True:
-        data = data.interpolate(limit_area='inside')
+        data = data.interpolate(limit_area='inside').dropna(how='all')
 
     # apply butterworth filter
     # FIXME replace all butter() calls with load(highpass=True)
@@ -69,12 +75,6 @@ def load(highpass=False, interp=False, resample=None, tide=False, variable='wlev
         assert resample is not None
         cutoff = pd.to_timedelta(resample).total_seconds() / 3600 / 24
         data = butter(data, cutoff=cutoff)
-
-    # load tide data
-    # FIXME replace all load_pituffik_tides() calls with load(tide=True)
-    if tide is True:
-        assert resample is not None
-        data['tide'] = load_pituffik_tides().resample(resample).mean() / 10
 
     # return dataframe
     return data
