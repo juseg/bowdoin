@@ -35,7 +35,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(filter=False, tide=False, variable='wlev'):
+def load(filter=False, resample=None, tide=False, variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
@@ -53,16 +53,23 @@ def load(filter=False, tide=False, variable='wlev'):
         data = data.sort_index(axis=1, ascending=False)
         data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
 
+    # resample
+    # FIXME replace all resample(rule) calls with load(resample=rule)
+    if resample is not None:
+        data = data.resample(resample).mean()
+
     # apply butterworth filter
     # FIXME replace all butter() calls with load(filter=True)
     if filter is True:
-        data = data.resample('1h').mean()
-        data = butter(data)
+        assert resample is not None
+        cutoff = pd.to_timedelta(resample).total_seconds() / 3600 / 24
+        data = butter(data, cutoff=cutoff)
 
     # load tide data
     # FIXME replace all load_pituffik_tides() calls with load(tide=True)
     if tide is True:
-        data['tide'] = load_pituffik_tides().resample('1h').mean() / 10
+        assert resample is not None
+        data['tide'] = load_pituffik_tides().resample(resample).mean() / 10
 
     # return dataframe
     return data
