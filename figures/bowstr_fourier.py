@@ -14,7 +14,6 @@ def fourier(series):
     """Compute Fourier transform ready for plotting."""
 
     # interpolate, drop nans, and differentiate
-    series = series.interpolate(limit_area='inside')
     series = series.dropna()
     series = series.diff() / series.index.to_series().diff().dt.total_seconds()
     series = series[1:]  # first value is nan after diff
@@ -46,8 +45,9 @@ def main():
 
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load().resample('1h').mean()  # kPa
     date = bowstr_utils.load_freezing_dates()
+    pres = bowstr_utils.load(interp=True, resample='1h', tide=True)
+    tide = pres.pop('tide')
 
     # for each tilt unit
     for i, unit in enumerate(pres):
@@ -68,7 +68,6 @@ def main():
         axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
 
     # plot tide data
-    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean() / 10
     for ax in axes[-1]:
         ax.plot(*fourier(tide), c='C9')
 
