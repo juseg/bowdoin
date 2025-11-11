@@ -35,7 +35,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(filter=False, resample=None, tide=False, variable='wlev'):
+def load(filter=False, interp=False, resample=None, tide=False, variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
@@ -57,6 +57,11 @@ def load(filter=False, resample=None, tide=False, variable='wlev'):
     # FIXME replace all resample(rule) calls with load(resample=rule)
     if resample is not None:
         data = data.resample(resample).mean()
+
+    # resample
+    # FIXME replace all interpolate() calls with load(interpolate=True)
+    if interp is True:
+        data = data.interpolate(limit_area='inside')
 
     # apply butterworth filter
     # FIXME replace all butter() calls with load(filter=True)
