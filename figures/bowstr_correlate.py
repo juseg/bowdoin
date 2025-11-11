@@ -33,20 +33,14 @@ def main():
     bowtem_utils.add_subfig_labels(grid, loc='sw')
 
     # load stress data
-    # FIXME new load util should adjust cutoff freq to sampling rate
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load().resample('10min').mean().interpolate()  # kPa
-    pres = bowstr_utils.butter(pres, cutoff=10/60/24)
-
-    # load tide data
-    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
+    pres = bowstr_utils.load(highpass=True, interp=True, resample='10min', tide=True)
     pres = pres['20140916':'20141016']
-    tide = tide['20140916':'20141016']
 
     # plot time series
-    offsets = 5 * (1+np.arange(len(pres.columns)))[::-1]
+    offsets = 5 * np.arange(len(pres.columns))[::-1]
     (pres+offsets).plot(ax=grid[0], legend=False)
-    tide.plot(ax=grid[0], c='C9')
+    tide = pres.pop('tide')
 
     # for each unit
     for i, unit in enumerate(pres):

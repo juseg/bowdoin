@@ -14,7 +14,6 @@ def specgram(series, ax, color):
     """Plot specgrogram from data series."""
 
     # interpolate, drop nans, and differentiate
-    series = series.interpolate(limit_area='inside').dropna()
     series = series.diff() / series.index.to_series().diff().dt.total_seconds()
     series = series[1:]  # first value is nan after diff
 
@@ -51,8 +50,9 @@ def main():
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    pres = bowstr_utils.load().resample('10min').mean()  # kPa
+    pres = bowstr_utils.load(interp=True, resample='10min', tide=True)
     pres = pres.drop(columns=['UI03', 'UI02'])
+    tide = pres.pop('tide')
 
     # for each tilt unit
     for i, unit in enumerate(pres):
@@ -70,7 +70,6 @@ def main():
 
     # plot tide data
     ax = axes[-1]
-    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
     specgram(tide, ax, color='C9')
 
     # add text label

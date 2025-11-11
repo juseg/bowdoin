@@ -74,8 +74,8 @@ def main():
 
     # load stress, temperature and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(variable='wlev').resample('1h').mean() / 1e3
-    temp = bowstr_utils.load(variable='temp').resample('1h').mean()
+    pres = bowstr_utils.load(resample='1h', variable='wlev') / 1e3
+    temp = bowstr_utils.load(resample='1h', variable='temp')
     date = bowstr_utils.load_freezing_dates()
 
     # plot pressure data in top panels

@@ -43,15 +43,9 @@ def main():
     for ax, label in zip(subaxes[:, 0], ['(a)', '(b)']):
         ax.text(-0.05, 0, label, fontweight='bold', transform=ax.transAxes)
 
-    # highpass-filter stress series
-    # IDEA implement filter=True, tide=True in bowstr_utils.load()
+    # load filtered stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load().resample('1h').mean()
-    pres = bowstr_utils.butter(pres)
-
-    # load tide data
-    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean()  # kPa
-    pres['tide'] = tide / 10
+    pres = bowstr_utils.load(highpass=True, resample='1h', tide=True)
 
     # plot stress and tide data
     for pax, panel in zip(axes, subaxes):

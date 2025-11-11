@@ -35,7 +35,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(variable='wlev'):
+def load(highpass=False, interp=False, resample=None, tide=False, variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
@@ -52,6 +52,25 @@ def load(variable='wlev'):
     if variable != 'base':
         data = data.sort_index(axis=1, ascending=False)
         data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
+
+    # resample
+    if resample is not None:
+        data = data.resample(resample).mean()
+
+    # load tide data
+    if tide is True:
+        assert resample is not None
+        data['tide'] = load_pituffik_tides().resample(resample).mean() / 10
+
+    # resample
+    if interp is True:
+        data = data.interpolate(limit_area='inside').dropna(how='all')
+
+    # apply butterworth filter
+    if highpass is True:
+        assert resample is not None
+        cutoff = pd.to_timedelta(resample).total_seconds() / 3600 / 24
+        data = butter(data, cutoff=cutoff)
 
     # return dataframe
     return data
@@ -125,11 +144,14 @@ def butter(pres, order=4, cutoff=1/24, btype='high'):
     # for each unit
     for unit in pres:
 
-        # crop, filter and reindex
-        series = pres[unit].dropna()
-        series[:] = sg.filtfilt(*filt, series)
-        series = series.reindex_like(pres)
-        pres[unit] = series
+        # except the tide
+        if unit != 'tide':
+
+            # crop, filter and reindex
+            series = pres[unit].dropna()
+            series[:] = sg.filtfilt(*filt, series)
+            series = series.reindex_like(pres)
+            pres[unit] = series
 
     # return filtered dataframe
     return pres
