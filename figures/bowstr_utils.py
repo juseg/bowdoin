@@ -35,7 +35,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(filter=False, interp=False, resample=None, tide=False, variable='wlev'):
+def load(highpass=False, interp=False, resample=None, tide=False, variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
@@ -64,8 +64,8 @@ def load(filter=False, interp=False, resample=None, tide=False, variable='wlev')
         data = data.interpolate(limit_area='inside')
 
     # apply butterworth filter
-    # FIXME replace all butter() calls with load(filter=True)
-    if filter is True:
+    # FIXME replace all butter() calls with load(highpass=True)
+    if highpass is True:
         assert resample is not None
         cutoff = pd.to_timedelta(resample).total_seconds() / 3600 / 24
         data = butter(data, cutoff=cutoff)
