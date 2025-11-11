@@ -148,11 +148,14 @@ def butter(pres, order=4, cutoff=1/24, btype='high'):
     # for each unit
     for unit in pres:
 
-        # crop, filter and reindex
-        series = pres[unit].dropna()
-        series[:] = sg.filtfilt(*filt, series)
-        series = series.reindex_like(pres)
-        pres[unit] = series
+        # except the tide
+        if unit != 'tide':
+
+            # crop, filter and reindex
+            series = pres[unit].dropna()
+            series[:] = sg.filtfilt(*filt, series)
+            series = series.reindex_like(pres)
+            pres[unit] = series
 
     # return filtered dataframe
     return pres
