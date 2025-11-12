@@ -41,7 +41,7 @@ def main():
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(highpass=True, interp=True, resample='10min', tide=True)
+    pres = bowstr_utils.load(filt='24hhp', interp=True, resample='10min', tide=True)
     tide = pres.pop('tide')
 
     # subset

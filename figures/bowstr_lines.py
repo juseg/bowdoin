@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin tides highpass-filtered timeseries."""
+"""Plot Bowdoin stress filtered line plots."""
 
 import numpy as np
 import absplots as apl
@@ -11,8 +11,8 @@ import absplots as apl
 import bowstr_utils
 
 
-def main():
-    """Main program called during execution."""
+def plot(filt='24hhp'):
+    """Plot and return full figure for given options."""
 
     # initialize figure (keep main axes for labels and inset)
     fig, axes = apl.subplots_mm(
@@ -45,7 +45,7 @@ def main():
 
     # load filtered stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(highpass=True, resample='1h', tide=True)
+    pres = bowstr_utils.load(filt=filt, resample='1h', tide=True)
 
     # plot stress and tide data
     for pax, panel in zip(axes, subaxes):
@@ -66,8 +66,8 @@ def main():
 
             # set axes properties
             ax.grid(False)
-            ax.set_ylim(-2, 2)
-            ax.set_yticks([-1, 1])
+            ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
+            ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
 
             # staggered ticks (IDEA use a scale bar instead?)
             ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
@@ -85,7 +85,8 @@ def main():
                 spine.set_visible(False)
 
         # set labels
-        panel[4].set_ylabel('stress (kPa)')
+        panel[4].set_ylabel(
+            'stress change (Pa/s)' if filt == 'deriv' else 'stress (kPa)')
         panel[9].set_xlabel('')
 
     # set axes limits
@@ -106,8 +107,15 @@ def main():
     indicator.connectors[2].set_visible(False)
     indicator.connectors[3].set_visible(True)
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv'] # FIXME 'phase'
+    plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
+    plotter()
 
 
 if __name__ == '__main__':

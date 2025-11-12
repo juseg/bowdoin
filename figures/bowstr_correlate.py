@@ -34,7 +34,7 @@ def main():
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(highpass=True, interp=True, resample='10min', tide=True)
+    pres = bowstr_utils.load(filt=filt, interp=True, resample='10min', tide=True)
     pres = pres['20140916':'20141016']
 
     # plot time series
