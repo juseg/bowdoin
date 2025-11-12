@@ -119,6 +119,9 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
         cutoff = lowcut if filt.endswith('hp') else (lowcut, 6*perday)
         btype = 'highpass' if filt.endswith('hp') else 'bandpass'
         data = butter(data, cutoff=cutoff, btype=btype)
+    elif filt == 'deriv':
+        assert resample is not None
+        data = data.diff() / pd.to_timedelta(resample).total_seconds() * 1e3
 
     # return dataframe
     return data
