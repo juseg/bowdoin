@@ -46,7 +46,7 @@ def main():
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    pres = bowstr_utils.load(highpass=True, interp=True, resample='10min', tide=True)
+    pres = bowstr_utils.load(filt='24hhp', interp=True, resample='10min', tide=True)
     pres = pres.drop(columns=['UI03', 'UI02'])
     pres = pres['20150501':'20151101']
     tide = pres.pop('tide')
