@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin tides highpass-filtered timeseries."""
+"""Plot Bowdoin stress filtered line plots."""
 
 import numpy as np
 import absplots as apl
@@ -11,8 +11,8 @@ import absplots as apl
 import bowstr_utils
 
 
-def plot(filt='hpass'):
-    """Make plot and save figure for given source."""
+def plot(filt='24hhp'):
+    """Plot and return full figure for given options."""
 
     # initialize figure (keep main axes for labels and inset)
     fig, axes = apl.subplots_mm(
@@ -112,7 +112,7 @@ def plot(filt='hpass'):
 
 def main():
     """Main program called during execution."""
-    filters = ['hpass']  # FIXME implement 'bpass', 'deriv', 'phase'
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp'] # FIXME 'deriv', 'phase'
     plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
     plotter()
 
