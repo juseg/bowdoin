@@ -18,8 +18,8 @@ BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowstr_, \
-			boreholes correlate diffseries fourier fjordtide \
-			intervals lombscargle rollcorr specgrams timeseries wavelets) \
+			boreholes correlate fourier fjordtide intervals lombscargle \
+			rollcorr specgrams timeseries wavelets) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp ))
 
 # bowdoin temperature figures
