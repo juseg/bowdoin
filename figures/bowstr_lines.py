@@ -11,8 +11,8 @@ import absplots as apl
 import bowstr_utils
 
 
-def main():
-    """Main program called during execution."""
+def plot(filt='hpass'):
+    """Make plot and save figure for given source."""
 
     # initialize figure (keep main axes for labels and inset)
     fig, axes = apl.subplots_mm(
@@ -106,8 +106,15 @@ def main():
     indicator.connectors[2].set_visible(False)
     indicator.connectors[3].set_visible(True)
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    filters = ['hpass']  # FIXME implement 'bpass', 'deriv', 'phase'
+    plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
+    plotter()
 
 
 if __name__ == '__main__':
