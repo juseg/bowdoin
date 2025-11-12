@@ -111,14 +111,14 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
     if interp is True:
         data = data.interpolate(limit_area='inside').dropna(how='all')
 
-#     if transform == 'hpass':
-# pres = bowstr_utils.butter(pres, cutoff=(1 / 6 / 12, 1 / 6), btype="bandpass")
-
-    # apply butterworth filter
-    if filt == 'hpass':
+    # apply filter (4h high cutoff gives max correlations over 20140916-1016).
+    if filt in ('12hbp', '12hhp', '24hbp', '24hhp'):
         assert resample is not None
-        cutoff = pd.to_timedelta(resample).total_seconds() / 3600 / 24
-        data = butter(data, cutoff=cutoff)
+        perday = pd.to_timedelta(resample).total_seconds() / 3600 / 24
+        lowcut = perday if filt.startswith('24h') else 2*perday
+        cutoff = lowcut if filt.endswith('hp') else (lowcut, 6*perday)
+        btype = 'highpass' if filt.endswith('hp') else 'bandpass'
+        data = butter(data, cutoff=cutoff, btype=btype)
 
     # return dataframe
     return data
