@@ -66,8 +66,8 @@ def plot(filt='24hhp'):
 
             # set axes properties
             ax.grid(False)
-            ax.set_ylim(-2, 2)
-            ax.set_yticks([-1, 1])
+            ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
+            ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
 
             # staggered ticks (IDEA use a scale bar instead?)
             ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
@@ -85,7 +85,8 @@ def plot(filt='24hhp'):
                 spine.set_visible(False)
 
         # set labels
-        panel[4].set_ylabel('stress (kPa)')
+        panel[4].set_ylabel(
+            'stress change (Pa/s)' if filt == 'deriv' else 'stress (kPa)')
         panel[9].set_xlabel('')
 
     # set axes limits
@@ -112,7 +113,7 @@ def plot(filt='24hhp'):
 
 def main():
     """Main program called during execution."""
-    filters = ['12hbp', '12hhp', '24hbp', '24hhp'] # FIXME 'deriv', 'phase'
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv'] # FIXME 'phase'
     plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
     plotter()
 
