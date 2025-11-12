@@ -45,7 +45,7 @@ def plot(filt='hpass'):
 
     # load filtered stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(highpass=True, resample='1h', tide=True)
+    pres = bowstr_utils.load(filt=filt, resample='1h', tide=True)
 
     # plot stress and tide data
     for pax, panel in zip(axes, subaxes):

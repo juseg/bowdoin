@@ -80,7 +80,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(highpass=False, interp=False, resample=None, tide=False, variable='wlev'):
+def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
@@ -111,8 +111,11 @@ def load(highpass=False, interp=False, resample=None, tide=False, variable='wlev
     if interp is True:
         data = data.interpolate(limit_area='inside').dropna(how='all')
 
+#     if transform == 'hpass':
+# pres = bowstr_utils.butter(pres, cutoff=(1 / 6 / 12, 1 / 6), btype="bandpass")
+
     # apply butterworth filter
-    if highpass is True:
+    if filt == 'hpass':
         assert resample is not None
         cutoff = pd.to_timedelta(resample).total_seconds() / 3600 / 24
         data = butter(data, cutoff=cutoff)
