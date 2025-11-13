@@ -75,10 +75,10 @@ def plot(filt='24hhp'):
             -corr.index.total_seconds()/3600,
             corr, colors=['0.25'], linestyles=['dashed'], levels=[0])
 
-        # find maximum (anti)correlation
-        delay = -np.abs(corr).dropna(axis=1, how='all').idxmax()
+        # find maximum anticorrelation
+        delay = -corr.dropna(axis=1, how='all').idxmin()
         delay = delay.dt.total_seconds()/3600
-        delay = delay.where(np.abs(corr).max() >= 0.5)
+        delay = delay.where(corr.min() <= -0.5)
         delay = delay.resample('1D').nearest()  # for compat with mpl.dates
         delay.plot(ax=ax, drawstyle='steps-mid', color='w', lw=2, alpha=0.5)
         delay.plot(ax=ax, drawstyle='steps-mid', color=color)
