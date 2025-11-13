@@ -5,10 +5,13 @@
 
 """Plot Bowdoin stress moving window cross-correlation."""
 
+import absplots as apl
+import matplotlib as mpl
 import numpy as np
 import pandas as pd
-import matplotlib as mpl
+
 import bowstr_utils
+import bowtem_utils
 
 
 def crosscorr(series, other, wmin=-30, wmax=6):
@@ -37,7 +40,12 @@ def plot(filt='24hhp'):
     """Plot and return full figure for given options."""
 
     # initialize figure
-    fig, axes = bowstr_utils.subplots_specgram(nrows=7)
+    fig, ax = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
+        'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5})
+    axes = bowstr_utils.subsubplots(fig, [ax])[0]
+
+    # add subfigure labels
+    bowtem_utils.add_subfig_labels(axes)
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
