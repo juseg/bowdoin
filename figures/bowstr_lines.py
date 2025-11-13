@@ -5,7 +5,6 @@
 
 """Plot Bowdoin stress filtered line plots."""
 
-import numpy as np
 import absplots as apl
 
 import bowstr_utils
@@ -19,25 +18,7 @@ def plot(filt='24hhp'):
         figsize=(180, 120), nrows=2, sharey=True, gridspec_kw={
             'left': 12.5, 'right': 12.5, 'bottom': 10, 'top': 2.5,
             'hspace': 10})
-    subaxes = np.array([ax.get_subplotspec().subgridspec(
-        ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
-        ).subplots() for ax in axes])
-
-    # reimplement sharex and sharey
-    for pax, panel in zip(axes, subaxes):
-        for ax in panel:
-            ax.sharex(pax)
-            ax.sharey(pax)
-
-    # hide parent axes
-    for ax in axes:
-        ax.set_axis_off()
-
-    # only show subaxes outer spines
-    for ax in subaxes.flat:
-        ax.spines['top'].set_visible(ax.get_subplotspec().is_first_row())
-        ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
-        ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
+    subaxes = bowstr_utils.subsubplots(fig, axes)
 
     # add subfigure labels
     for ax, label in zip(subaxes[:, 0], ['(a)', '(b)']):
@@ -60,16 +41,13 @@ def plot(filt='24hhp'):
                 1.01, 0, label, color=color, fontsize=6, fontweight='bold',
                 transform=ax.transAxes)
 
-            # clip lines to main axes
-            ax.patch.set_visible(False)
-            ax.get_lines()[0].set_clip_box(pax.bbox)
-
             # set axes properties
             ax.grid(False)
+            ax.get_lines()[0].set_clip_box(pax.bbox)
             ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
             ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
 
-            # staggered ticks (IDEA use a scale bar instead?)
+            # stagger tick labels
             ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
             ax.yaxis.set_major_formatter(
                 lambda y, pos: f'{y}' + 3 * (pos % 2) * ' ')
