@@ -313,15 +313,12 @@ def subsubplots(fig, axes):
         ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
         ).subplots() for ax in axes])
 
-    # reimplement sharex and sharey
+    # hide parent axes and reimplement sharex and sharey
     for pax, panel in zip(axes, subaxes):
+        pax.set_axis_off()
         for ax in panel:
             ax.sharex(pax)
             ax.sharey(pax)
-
-    # hide parent axes
-    for ax in axes:
-        ax.set_axis_off()
 
     # only show subaxes outer spines
     for ax in subaxes.flat:
