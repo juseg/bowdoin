@@ -60,16 +60,20 @@ def plot(filt='24hhp'):
 
     # for each unit
     for i, unit in enumerate(pres):
+        ax = axes[i]
         color = f'C{i+2*(i > 3)}'
         series = pres[unit].dropna()
 
-        # plot cross correlation
-        ax = axes[i]
+        # plot cross correlation and zero contour
         corr = rollcorr(series, tide)
         ax.imshow(
-            corr, alpha=0.75, aspect='auto', cmap='RdGy_r', vmin=-1, vmax=1,
-            extent=(*mpl.dates.date2num((corr.columns[0], corr.columns[-1])),
-                    *-corr.index[[-1, 0]].total_seconds()/3600))
+            corr, aspect='auto', cmap='Greys_r', vmin=-1, vmax=1, extent=(
+                *mpl.dates.date2num((corr.columns[0], corr.columns[-1])),
+                *-corr.index[[-1, 0]].total_seconds()/3600))
+        ax.contour(
+            mpl.dates.date2num(corr.columns),
+            -corr.index.total_seconds()/3600,
+            corr, colors=['0.25'], linestyles=['dashed'], levels=[0])
 
         # find maximum (anti)correlation
         delay = -np.abs(corr).dropna(axis=1, how='all').idxmax()
@@ -86,7 +90,7 @@ def plot(filt='24hhp'):
 
     # set axes properties
     ax.set_xlim('20140615', '20170815')
-    ax.set_yticks([0, 2, 4])
+    ax.set_yticks([-3, 0, 3, 6])
     axes[len(axes)//2].set_ylabel('phase delay (h)')
 
     # return figure
