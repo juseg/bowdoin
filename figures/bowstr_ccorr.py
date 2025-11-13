@@ -25,9 +25,12 @@ def plot(filt='24hhp'):
     """Plot and return full figure for given options."""
 
     # initialize figure
-    fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw={
-        'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
-        'wspace': 17.5})
+    fig = apl.figure_mm(figsize=(180, 90))
+    fig.subplots_mm(ncols=1, gridspec_kw={
+        'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
+    fig.subplots_mm(ncols=2, gridspec_kw={
+        'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
+    grid = fig.axes
     subaxes = bowstr_utils.subsubplots(fig, grid[:1])[0]
 
     # add subfigure labels
@@ -46,6 +49,12 @@ def plot(filt='24hhp'):
         ax = subaxes[i]
         color = f'C{i}'
         pres[unit].plot(ax=ax, color=color, legend=False)
+        ax.text(
+            1.08, 0.5,
+            'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
+            f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
+            fontsize=6, fontweight='bold', ha='center', va='center',
+            rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(grid[0].bbox)
@@ -81,7 +90,9 @@ def plot(filt='24hhp'):
     grid[1].axvline(0.0, ls=':')
     grid[1].set_xticks([-12, 0, 12])
     grid[1].set_xlabel('time delay (h)')
-    grid[1].set_ylabel('cross-correlation')
+    grid[1].set_ylabel('cross-correlation', labelpad=0)
+    grid[1].set_ylim(-1.05, 1.05)
+    grid[1].yaxis.set_major_formatter(lambda y, pos: f'{y}'*(pos % 2))
     grid[2].axvline(0.0, ls=':')
     grid[2].set_xlim(0.5, 3.5)
     grid[2].invert_yaxis()
