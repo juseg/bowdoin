@@ -19,9 +19,10 @@ BOWSTR_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowstr_, \
 			boreholes fourier fjordtide intervals lombscargle \
-			rollcorr specgrams timeseries wavelets) \
+			specgrams timeseries wavelets) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
-		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv))
+		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv) \
+		$(addprefix bowstr_mines_, 12hbp 12hhp 24hbp 24hhp deriv))
 
 # bowdoin temperature figures
 BOWTEM_FIGS = \
