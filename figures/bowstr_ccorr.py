@@ -30,13 +30,12 @@ def plot(filt='24hhp'):
         'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
     fig.subplots_mm(ncols=2, gridspec_kw={
         'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
-    grid = fig.axes
-    subaxes = bowstr_utils.subsubplots(fig, grid[:1])[0]
+    subaxes = bowstr_utils.subsubplots(fig, fig.axes[:1])[0]
 
     # add subfigure labels
     bowtem_utils.add_subfig_label('(a)', ax=subaxes[9], loc='sw')
-    bowtem_utils.add_subfig_label('(b)', ax=grid[1], loc='sw')
-    bowtem_utils.add_subfig_label('(c)', ax=grid[2], loc='sw')
+    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
+    bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -57,7 +56,7 @@ def plot(filt='24hhp'):
             rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
-        ax.get_lines()[0].set_clip_box(grid[0].bbox)
+        ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
         ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
         ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
         ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
@@ -69,35 +68,32 @@ def plot(filt='24hhp'):
         ts = pres[unit]
 
         # plot (series.plot with deltas affected by #18910)
-        ax = grid[1]
+        ax = fig.axes[1]
         xcorr = crosscorr(ts, tide)
-        delay = -xcorr.index.total_seconds()/3600
-        ax.plot(delay, xcorr)
+        ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
 
-        # find maximum correlation
-        # (a positive shift corresponds to a negative delay)
+        # find maximum correlation (a positive shift is a negative delay)
         shift = abs(xcorr).idxmax()
         delay = -shift.total_seconds()/3600
-        value = xcorr[shift]
-        ax.plot(delay, value, c=color, marker='o')
+        ax.plot(delay, xcorr[shift], c=color, marker='o')
 
         # plot phase delays
-        ax = grid[2]
+        ax = fig.axes[2]
         ax.plot(delay, depth[unit], c=color, marker='o')
         ax.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
 
     # set axes properties
-    grid[1].axvline(0.0, ls=':')
-    grid[1].set_xticks([-12, 0, 12])
-    grid[1].set_xlabel('time delay (h)')
-    grid[1].set_ylabel('cross-correlation', labelpad=0)
-    grid[1].set_ylim(-1.05, 1.05)
-    grid[1].yaxis.set_major_formatter(lambda y, pos: f'{y}'*(pos % 2))
-    grid[2].axvline(0.0, ls=':')
-    grid[2].set_xlim(0.5, 3.5)
-    grid[2].invert_yaxis()
-    grid[2].set_xlabel('phase delay (h)')
-    grid[2].set_ylabel('sensor depth (m)')
+    fig.axes[1].axvline(0.0, ls=':')
+    fig.axes[1].set_xticks([-12, 0, 12])
+    fig.axes[1].set_xlabel('time delay (h)')
+    fig.axes[1].set_ylabel('cross-correlation', labelpad=0)
+    fig.axes[1].set_ylim(-1.05, 1.05)
+    fig.axes[1].yaxis.set_major_formatter(lambda y, pos: f'{y}'*(pos % 2))
+    fig.axes[2].axvline(0.0, ls=':')
+    fig.axes[2].set_xlim(0.5, 3.5)
+    fig.axes[2].invert_yaxis()
+    fig.axes[2].set_xlabel('phase delay (h)')
+    fig.axes[2].set_ylabel('sensor depth (m)')
 
     # set labels and remove empty headlines in date tick labels
     subaxes[4].set_ylabel(
