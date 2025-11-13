@@ -42,7 +42,7 @@ def plot(filt='24hhp'):
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
         'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5})
-    axes = bowstr_utils.subsubplots(fig, [ax])[0]
+    axes = bowstr_utils.subsubplots(fig, [ax], nrows=7)[0]
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes)

@@ -307,10 +307,12 @@ def subplots_specgram(nrows=10):
     return fig, axes
 
 
-def subsubplots(fig, axes):
+def subsubplots(fig, axes, nrows=10):
     """Add open-spine sub-plots within each parent axes."""
+    hspace_mm = 1
     subaxes = np.array([ax.get_subplotspec().subgridspec(
-        ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
+        ncols=1, nrows=nrows,
+        hspace=nrows/(fig.get_position_mm(ax)[3] / hspace_mm + 1 - nrows)
         ).subplots() for ax in axes])
 
     # hide parent axes and reimplement sharex and sharey
