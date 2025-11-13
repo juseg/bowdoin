@@ -53,22 +53,8 @@ def plot(filt='24hhp'):
 
         # clip lines to main axes
         ax.get_lines()[0].set_clip_box(grid[0].bbox)
-
-        # set axes properties
-        ax.grid(False)
         ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
         ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
-
-        # add grid on background ghost axes
-        # FIXME is it possible to move this to util?
-        ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
-        ax.grid(which='minor')
-        ax.tick_params(which='both', **{k: False for k in [
-            'labelleft', 'labelbottom', 'left', 'bottom']})
-        ax.patch.set_visible(False)
-        ax.set_zorder(-1)
-        for spine in ax.spines.values():
-            spine.set_visible(False)
 
     # set labels
     subaxes[4].set_ylabel(

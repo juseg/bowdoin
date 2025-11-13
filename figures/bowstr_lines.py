@@ -42,7 +42,6 @@ def plot(filt='24hhp'):
                 transform=ax.transAxes)
 
             # set axes properties
-            ax.grid(False)
             ax.get_lines()[0].set_clip_box(pax.bbox)
             ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
             ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
@@ -51,16 +50,6 @@ def plot(filt='24hhp'):
             ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
             ax.yaxis.set_major_formatter(
                 lambda y, pos: f'{y}' + 3 * (pos % 2) * ' ')
-
-            # add grid on background ghost axes
-            ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
-            ax.grid(which='minor')
-            ax.tick_params(which='both', **{k: False for k in [
-                'labelleft', 'labelbottom', 'left', 'bottom']})
-            ax.patch.set_visible(False)
-            ax.set_zorder(-1)
-            for spine in ax.spines.values():
-                spine.set_visible(False)
 
         # set labels
         panel[4].set_ylabel(

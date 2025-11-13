@@ -330,5 +330,16 @@ def subsubplots(fig, axes):
         ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
         ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
 
+        # move the grid to background ghost axes
+        ax.grid(False)
+        ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
+        ax.grid(which='minor')
+        ax.patch.set_visible(False)
+        ax.set_zorder(-1)
+        ax.tick_params(which='both', **{k: False for k in [
+            'labelleft', 'labelbottom', 'left', 'bottom']})
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
     # return the subaxes
     return subaxes
