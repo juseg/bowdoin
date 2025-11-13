@@ -57,8 +57,8 @@ def plot(filt='24hhp'):
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
-        ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
-        ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
+        ax.set_ylim(-2, 2)
+        ax.set_yticks([-1, 1])
         ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
 
     # for each non-tide unit
@@ -87,8 +87,8 @@ def plot(filt='24hhp'):
     fig.axes[1].set_xticks([-12, 0, 12])
     fig.axes[1].set_xlabel('time delay (h)')
     fig.axes[1].set_ylabel('cross-correlation', labelpad=0)
-    fig.axes[1].set_ylim(-1.05, 1.05)
-    fig.axes[1].yaxis.set_major_formatter(lambda y, pos: f'{y}'*(pos % 2))
+    fig.axes[1].set_ylim((-0.42, 0.42) if filt == 'deriv' else (-1.05, 1.05))
+    fig.axes[1].yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
     fig.axes[2].axvline(0.0, ls=':')
     fig.axes[2].set_xlim(0.5, 3.5)
     fig.axes[2].invert_yaxis()
