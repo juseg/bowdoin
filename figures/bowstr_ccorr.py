@@ -21,8 +21,8 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     return df.corrwith(other, axis=1)
 
 
-def main():
-    """Main program called during execution."""
+def plot(filt='24hhp'):
+    """Plot and return full figure for given options."""
 
     # initialize figure
     fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw={
@@ -34,7 +34,8 @@ def main():
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(filt=filt, interp=True, resample='10min', tide=True)
+    pres = bowstr_utils.load(
+        filt=filt, interp=True, resample='10min', tide=True)
     pres = pres['20140916':'20141016']
 
     # plot time series
@@ -82,8 +83,15 @@ def main():
     grid[0].set_xticks(grid[0].get_xticks(), [
         label.get_text()[1:] for label in grid[0].get_xticklabels()])
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv']  # FIXME 'phase'
+    plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
+    plotter()
 
 
 if __name__ == '__main__':
