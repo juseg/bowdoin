@@ -28,6 +28,7 @@ def plot(filt='24hhp'):
     fig, grid = apl.subplots_mm(figsize=(180, 90), ncols=3, gridspec_kw={
         'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
         'wspace': 17.5})
+    subaxes = bowstr_utils.subsubplots(fig, grid[:1])[0]
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(grid, loc='sw')
@@ -39,11 +40,43 @@ def plot(filt='24hhp'):
     pres = pres['20140916':'20141016']
 
     # plot time series
-    offsets = 5 * np.arange(len(pres.columns))[::-1]
-    (pres+offsets).plot(ax=grid[0], legend=False)
-    tide = pres.pop('tide')
+    for i, unit in enumerate(pres):
+        ax = subaxes[i]
+        color = f'C{i}'
+        label = (
+            'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
+            f'{unit}\n{depth[unit]:.0f}'r'$\,$m')
+        pres[unit].plot(ax=ax, color=color, legend=False)
+        ax.text(
+            1.01, 0, label, color=color, fontsize=6, fontweight='bold',
+            transform=ax.transAxes)
+
+        # clip lines to main axes
+        ax.get_lines()[0].set_clip_box(grid[0].bbox)
+
+        # set axes properties
+        ax.grid(False)
+        ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
+        ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
+
+        # add grid on background ghost axes
+        # FIXME is it possible to move this to util?
+        ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
+        ax.grid(which='minor')
+        ax.tick_params(which='both', **{k: False for k in [
+            'labelleft', 'labelbottom', 'left', 'bottom']})
+        ax.patch.set_visible(False)
+        ax.set_zorder(-1)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+    # set labels
+    subaxes[4].set_ylabel(
+        'stress change (Pa/s)' if filt == 'deriv' else 'stress (kPa)')
+    subaxes[9].set_xlabel('')
 
     # for each unit
+    tide = pres.pop('tide')
     for i, unit in enumerate(pres):
         color = f'C{i}'
         ts = pres[unit]
@@ -67,8 +100,8 @@ def plot(filt='24hhp'):
         ax.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
 
     # set axes properties
-    grid[0].set_ylim(-5, 47.5)
-    grid[0].set_ylabel('stress (kPa)')
+    # grid[0].set_ylim(-5, 47.5)
+    # grid[0].set_ylabel('stress (kPa)')
     grid[1].axvline(0.0, ls=':')
     grid[1].set_xticks([-12, 0, 12])
     grid[1].set_xlabel('time delay (h)')
@@ -80,7 +113,7 @@ def plot(filt='24hhp'):
     grid[2].set_ylabel('sensor depth (m)')
 
     # remove empty headlines in date tick labels
-    grid[0].set_xticks(grid[0].get_xticks(), [
+    subaxes[-1].set_xticks(grid[0].get_xticks(), [
         label.get_text()[1:] for label in grid[0].get_xticklabels()])
 
     # return figure
