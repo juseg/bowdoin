@@ -305,3 +305,38 @@ def subplots_specgram(nrows=10):
 
     # return figure and axes
     return fig, axes
+
+
+def subsubplots(fig, axes):
+    """Add open-spine sub-plots within each parent axes."""
+    subaxes = np.array([ax.get_subplotspec().subgridspec(
+        ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
+        ).subplots() for ax in axes])
+
+    # hide parent axes and reimplement sharex and sharey
+    for pax, panel in zip(axes, subaxes):
+        pax.set_axis_off()
+        for ax in panel:
+            ax.sharex(pax)
+            ax.sharey(pax)
+
+    # only show subaxes outer spines
+    for ax in subaxes.flat:
+        ax.patch.set_visible(False)
+        ax.spines['top'].set_visible(ax.get_subplotspec().is_first_row())
+        ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
+        ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
+
+        # move the grid to background ghost axes
+        ax.grid(False)
+        ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
+        ax.grid(which='minor')
+        ax.patch.set_visible(False)
+        ax.set_zorder(-1)
+        ax.tick_params(which='both', **{k: False for k in [
+            'labelleft', 'labelbottom', 'left', 'bottom']})
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+    # return the subaxes
+    return subaxes
