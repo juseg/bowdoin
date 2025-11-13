@@ -14,7 +14,7 @@ import bowstr_utils
 import bowtem_utils
 
 
-def crosscorr(series, other, wmin=-30, wmax=6):
+def crosscorr(series, other, wmin=-45, wmax=27):
     """Compute cross-correlation between two series."""
     shifts = np.arange(wmin, wmax+1)
     dataframe = pd.DataFrame(
