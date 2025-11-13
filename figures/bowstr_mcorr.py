@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin stress rolling-window cross-correlation."""
+"""Plot Bowdoin stress moving window cross-correlation."""
 
 import numpy as np
 import pandas as pd
@@ -33,15 +33,16 @@ def rollcorr(series, other, window='14D', stride='7D'):
     return corr
 
 
-def main():
-    """Main program called during execution."""
+def plot(filt='24hhp'):
+    """Plot and return full figure for given options."""
 
     # initialize figure
     fig, axes = bowstr_utils.subplots_specgram(nrows=7)
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(filt='24hhp', interp=True, resample='10min', tide=True)
+    pres = bowstr_utils.load(
+        filt=filt, interp=True, resample='10min', tide=True)
     tide = pres.pop('tide')
 
     # subset
@@ -80,8 +81,15 @@ def main():
     ax.set_yticks([0, 2, 4])
     axes[len(axes)//2].set_ylabel('phase delay (h)')
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv']  # FIXME 'phase'
+    plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
+    plotter()
 
 
 if __name__ == '__main__':
