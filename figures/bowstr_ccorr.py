@@ -31,7 +31,9 @@ def plot(filt='24hhp'):
     subaxes = bowstr_utils.subsubplots(fig, grid[:1])[0]
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(grid, loc='sw')
+    bowtem_utils.add_subfig_label('(a)', ax=subaxes[9], loc='sw')
+    bowtem_utils.add_subfig_label('(b)', ax=grid[1], loc='sw')
+    bowtem_utils.add_subfig_label('(c)', ax=grid[2], loc='sw')
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -43,25 +45,15 @@ def plot(filt='24hhp'):
     for i, unit in enumerate(pres):
         ax = subaxes[i]
         color = f'C{i}'
-        label = (
-            'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
-            f'{unit}\n{depth[unit]:.0f}'r'$\,$m')
         pres[unit].plot(ax=ax, color=color, legend=False)
-        ax.text(
-            1.01, 0, label, color=color, fontsize=6, fontweight='bold',
-            transform=ax.transAxes)
 
-        # clip lines to main axes
+        # set axes properties
         ax.get_lines()[0].set_clip_box(grid[0].bbox)
         ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
         ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
+        ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
 
-    # set labels
-    subaxes[4].set_ylabel(
-        'stress change (Pa/s)' if filt == 'deriv' else 'stress (kPa)')
-    subaxes[9].set_xlabel('')
-
-    # for each unit
+    # for each non-tide unit
     tide = pres.pop('tide')
     for i, unit in enumerate(pres):
         color = f'C{i}'
@@ -86,8 +78,6 @@ def plot(filt='24hhp'):
         ax.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
 
     # set axes properties
-    # grid[0].set_ylim(-5, 47.5)
-    # grid[0].set_ylabel('stress (kPa)')
     grid[1].axvline(0.0, ls=':')
     grid[1].set_xticks([-12, 0, 12])
     grid[1].set_xlabel('time delay (h)')
@@ -98,9 +88,12 @@ def plot(filt='24hhp'):
     grid[2].set_xlabel('phase delay (h)')
     grid[2].set_ylabel('sensor depth (m)')
 
-    # remove empty headlines in date tick labels
-    subaxes[-1].set_xticks(grid[0].get_xticks(), [
-        label.get_text()[1:] for label in grid[0].get_xticklabels()])
+    # set labels and remove empty headlines in date tick labels
+    subaxes[4].set_ylabel(
+        'stress change (Pa/s)' if filt == 'deriv' else 'stress (kPa)')
+    subaxes[9].set_xlabel('')
+    subaxes[9].set_xticks(subaxes[9].get_xticks(), [
+        label.get_text()[1:] for label in subaxes[9].get_xticklabels()])
 
     # return figure
     return fig
