@@ -40,8 +40,8 @@ def plot(filt='24hhp'):
     """Plot and return full figure for given options."""
 
     # initialize figure
-    fig, ax = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
-        'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5})
+    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
+        'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
     axes = bowstr_utils.subsubplots(fig, [ax], nrows=7)[0]
 
     # load stress data
@@ -82,8 +82,10 @@ def plot(filt='24hhp'):
 
         # add text label
         ax.text(
-            1.01, 0, f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
-            color=color, fontsize=6, fontweight='bold', transform=ax.transAxes)
+            1.02, 0.5, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
+            f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
+            fontsize=6, fontweight='bold', ha='center', va='center',
+            rotation='vertical', transform=ax.transAxes)
 
     # set axes properties
     ax.set_xlim('20140701', '20170801')
