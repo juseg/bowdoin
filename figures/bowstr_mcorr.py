@@ -44,9 +44,6 @@ def plot(filt='24hhp'):
         'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5})
     axes = bowstr_utils.subsubplots(fig, [ax], nrows=7)[0]
 
-    # add subfigure labels
-    bowtem_utils.add_subfig_labels(axes)
-
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = bowstr_utils.load(
@@ -89,8 +86,8 @@ def plot(filt='24hhp'):
             color=color, fontsize=6, fontweight='bold', transform=ax.transAxes)
 
     # set axes properties
-    ax.set_xlim('20140615', '20170815')
-    ax.set_yticks([-3, 0, 3, 6])
+    ax.set_xlim('20140701', '20170801')
+    ax.set_yticks([0, 3, 6])
     axes[len(axes)//2].set_ylabel('phase delay (h)')
 
     # return figure
