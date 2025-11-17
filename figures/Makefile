@@ -11,7 +11,7 @@
 # bowdoin deformation figures (most outdated)
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowdef_, strainrates))
+		$(addprefix bowdef_, strainrates tilts))
 
 # bowdoin stress figures
 BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv
