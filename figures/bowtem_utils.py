@@ -307,6 +307,7 @@ def load_strain_rate(borehole, freq='1D'):
     tily = load(prefix+'.inc.tily.csv').resample(freq).mean()
 
     # compute near horizontal shear strain
+    # FIXME this is an approximation, see bowdef_rates for exact formula
     exz_x = np.sin(tilx).diff()
     exz_y = np.sin(tily).diff()
     exz = np.sqrt(exz_x**2+exz_y**2)
