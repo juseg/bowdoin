@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin stress filtered line plots."""
+"""Plot Bowdoin deformation tilt angles."""
 
 import absplots as apl
 import matplotlib as mpl
@@ -18,7 +18,7 @@ def main():
 
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
-            'left': 15, 'right': 2.5, 'bottom': 10, 'top': 2.5})
+        'left': 15, 'right': 2.5, 'bottom': 10, 'top': 2.5})
     inset = fig.add_axes_mm([27.5, 55, 40, 30])
     bowtem_utils.add_subfig_label('(a)', ax=ax)
     bowtem_utils.add_subfig_label('(b)', ax=inset)
@@ -29,11 +29,11 @@ def main():
     tilx = tilx[tilx.index >= '2014-07-17']
     tily = tily[tily.index >= '2014-07-17']
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt.plot(ax=ax, xlabel='', ylabel='tilt angular distance (°)')
+    tilt.plot(ax=ax, xlabel='', ylabel='tilt angle (°)')
 
     # set axes properties
-    ax.set_xlim('2014-07-01', '2017-08-01')
     ax.legend(loc='lower right', ncols=3)
+    ax.set_xlim('20140701', '20170801')
 
     # format date axis (FIXME duplicates bowtem_timeseries)
     locator = mpl.dates.MonthLocator([1, 4, 7, 10])
