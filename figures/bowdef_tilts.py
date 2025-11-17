@@ -10,6 +10,7 @@ import matplotlib as mpl
 import numpy as np
 
 import bowstr_utils
+import bowtem_utils
 
 
 def main():
@@ -18,7 +19,9 @@ def main():
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
             'left': 15, 'right': 2.5, 'bottom': 10, 'top': 2.5})
-    inset = fig.add_axes_mm([17.5, 50, 35, 35])
+    inset = fig.add_axes_mm([27.5, 55, 40, 30])
+    bowtem_utils.add_subfig_label('(a)', ax=ax)
+    bowtem_utils.add_subfig_label('(b)', ax=inset)
 
     # plot tilt angular distance
     tilx = bowstr_utils.load(variable='tilx')
@@ -50,6 +53,7 @@ def main():
     inset.plot(tilx, tily, ls='none', marker='o', mfc='none')
 
     # set axes properties
+    inset.set_aspect(1, adjustable='datalim')
     inset.set_xlabel('x-tilt')
     inset.set_ylabel('y-tilt')
     inset.yaxis.set_label_position('right')
