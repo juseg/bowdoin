@@ -13,6 +13,39 @@ import bowdef_utils
 import bowstr_utils
 
 
+def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
+    """Fit and plot tilt velocity profile."""
+
+    # compute discrete and extrapolated shear profiles
+    exponent, softness = bowdef_utils.glenfit(depth, strain)
+    depth_int = np.linspace(0, base, 51)
+    shear_int = bowdef_utils.vsia(depth_int, base, exponent, softness)
+    shear = bowdef_utils.vsia(depth, base, exponent, softness)
+
+    # plot interpolated shear profile
+    ax.plot(shear_int, depth_int, c=color)
+    ax.fill_betweenx(depth_int, 0, shear_int, color=color, alpha=0.25)
+
+    # plot displacement and tilt arrows at unit locations
+    for d, s in zip(depth, shear):
+        ax.arrow(
+            0, d, s, 0, fc='none', ec=color, head_width=5, head_length=1,
+            length_includes_head=True)
+    ax.quiver(shear, depth, -strain*2, np.sqrt(1-(2*strain)**2),
+              angles='xy', scale=5.0)
+
+    # add horizontal lines
+    ax.axhline(0, color='0.25', linestyle='dashed')
+    ax.axhline(base, color='0.25', linestyle='dashed')
+    # ax.plot([0, 0], [base, 0], 'k-_')
+
+    # add fit values
+    ax.text(
+        0.05, 0.05,
+        f'A={softness:.2e}'r'$\,Pa^{-n}\,s^{-2}$, 'f'n={exponent:.2f}',
+        transform=ax.transAxes)
+
+
 def main(start='2014-11-01', end='2015-11-01'):
     """Main program called during execution."""
 
@@ -35,8 +68,7 @@ def main(start='2014-11-01', end='2015-11-01'):
         mask = strain.notnull() & strain.index.str.startswith(
             'U' if bh == 'BH1' else 'L')
         color = f'C{mask.argmax()}'
-        bowdef_utils.plot_vsia_profile(
-            depth[mask], strain[mask], base[f'{bh}B'], ax=ax, c=color)
+        plot_shear_profile(ax, base[f'{bh}B'], depth[mask], strain[mask], color=color)
         ax.text(4, 20, bh, color=color, fontweight='bold')
         ax.xaxis.set_inverted(True)
         ax.yaxis.set_inverted(True)
