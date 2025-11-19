@@ -29,12 +29,14 @@ def glenfit(base, depth, exz, g=9.80665, rhoi=910.0, slope=0.03):
     # fit for C only
     n, C = powerfit(depth, exz, 1)
     A = np.exp(C) / (rhoi*g*slope)**n
+    A *= base**n  # bugfix
     return n, A
 
 
 def vsia(depth, depth_base, n, A, g=9.80665, rhoi=910.0, slope=0.03):
     """Return simple horizontal shear velocity profile."""
     C = A * (rhoi*g*slope)**n
+    C /= depth_base**n  # bugfix
     v = 2*C/(n+1) * (depth_base**(n+1) - depth**(n+1))
     return v
 
