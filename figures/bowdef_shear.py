@@ -9,18 +9,44 @@
 import absplots as apl
 import numpy as np
 
-import bowdef_utils
 import bowstr_utils
+
+
+def powerfit(x, y, deg, **kwargs):
+    """Fit to a power law."""
+    logx = np.log(x)
+    logy = np.log(y)
+    p = np.polyfit(logx, logy, deg, **kwargs)
+    return p
+
+
+def glenfit(base, depth, exz, g=9.80665, rhoi=910.0, slope=0.03):
+    """Fit to a power law with exp(C) = A * (rhoi*g*slope)**n."""
+    # FIXME: the slope (sin alpha) is an approximate value from MEASURES
+    # FIXME: this results in very variable and sometimtes even negative values
+    # for n. The negative values cause divide by zero encountered in power
+    # runtime warnings in vsia(). A better approach would be to fix n = 3 and
+    # fit for C only
+    n, C = powerfit(depth, exz, 1)
+    A = np.exp(C) / (rhoi*g*slope)**n
+    return n, A
+
+
+def vsia(depth, depth_base, n, A, g=9.80665, rhoi=910.0, slope=0.03):
+    """Return simple horizontal shear velocity profile."""
+    C = A * (rhoi*g*slope)**n
+    v = 2*C/(n+1) * (depth_base**(n+1) - depth**(n+1))
+    return v
 
 
 def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
     """Fit and plot tilt velocity profile."""
 
     # compute discrete and extrapolated shear profiles
-    exponent, softness = bowdef_utils.glenfit(depth, strain)
+    exponent, softness = glenfit(base, depth, strain)
     depth_int = np.linspace(0, base, 51)
-    shear_int = bowdef_utils.vsia(depth_int, base, exponent, softness)
-    shear = bowdef_utils.vsia(depth, base, exponent, softness)
+    shear_int = vsia(depth_int, base, exponent, softness)
+    shear = vsia(depth, base, exponent, softness)
 
     # plot interpolated shear profile
     ax.plot(shear_int, depth_int, c=color)
