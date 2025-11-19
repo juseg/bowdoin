@@ -12,12 +12,8 @@ import numpy as np
 import bowdef_utils
 import bowstr_utils
 
-# dates to plot
-start = '2014-11-01'
-end = '2015-11-01'
 
-
-def main():
+def main(start='2014-11-01', end='2015-11-01'):
     """Main program called during execution."""
 
     # initialize figure
@@ -42,16 +38,12 @@ def main():
         bowdef_utils.plot_vsia_profile(
             depth[mask], strain[mask], base[f'{bh}B'], ax=ax, c=color)
         ax.text(4, 20, bh, color=color, fontweight='bold')
+        ax.xaxis.set_inverted(True)
+        ax.yaxis.set_inverted(True)
 
     # set axes properties
-    ax.xaxis.set_inverted(True)
-    ax.yaxis.set_inverted(True)
-
-    # add common labels
-    figw, figh = fig.get_size_inches()*25.4
-    xlabel = 'total ice deformation from %s to %s (m)' % (start, end)
-    fig.text(0.5, 2.5/figh, xlabel, ha='center')
-    fig.text(2.5/figw, 0.5, 'depth (m)', va='center', rotation='vertical')
+    axes[0].set_xlabel(f'shear deformation from {start} to {end} (m)').set_x(1)
+    axes[0].set_ylabel('depth (m)')
 
     # save
     fig.savefig(__file__[:-3])
