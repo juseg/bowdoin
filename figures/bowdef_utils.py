@@ -323,11 +323,11 @@ def plot_vsia_profile(depth, exz, depth_base, ax=None, c='k', n=101,
     depth_fit = np.linspace(0.0, depth_base, n)
 
     # fit to glen's law
-    n, A = al.glenfit(depth, exz)
+    n, A = glenfit(depth, exz)
 
     # compute velocity profiles
-    v_fit = al.vsia(depth_fit, depth_base, n, A)
-    v_obs = al.vsia(depth, depth_base, n, A)
+    v_fit = vsia(depth_fit, depth_base, n, A)
+    v_obs = vsia(depth, depth_base, n, A)
 
     # plot fitted velocity profiles
     ax.plot(v_fit, depth_fit, c=c)
