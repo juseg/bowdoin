@@ -89,7 +89,8 @@ def main(start='2014-11-01', end='2015-11-01'):
     tily = bowstr_utils.load(variable='tily')
     tilx = tilx.loc[end].mean() - tilx.loc[start].mean()
     tily = tily.loc[end].mean() - tily.loc[start].mean()
-    strain = (1 - (np.cos(tilx) * np.cos(tily)) ** 2) ** 0.5
+    costilt = np.cos(tilx) * np.cos(tily)
+    strain = 0.5 * (1 - costilt**2) ** 0.5 / costilt
 
     # plot velocity profile
     for ax, bh in zip(axes, ('BH3', 'BH1')):
