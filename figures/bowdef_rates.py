@@ -22,6 +22,7 @@ def main():
     # plot strain rate as sin(tilt) = sqrt(1-(cos(tx)*cos(ty))**2)
     tilx = bowstr_utils.load(variable='tilx').resample('1D').mean().diff()
     tily = bowstr_utils.load(variable='tily').resample('1D').mean().diff()
+    # FIXME wrong formula and a factor half is missing! strain = 0.5*tan(tilt)
     strain = (1 - (np.cos(tilx) * np.cos(tily)) ** 2) ** 0.5
     strain = strain[strain.index >= '2014-07-17']
     strain *= 3600 * 24 * 365.25 / pd.to_timedelta('1D').total_seconds()
