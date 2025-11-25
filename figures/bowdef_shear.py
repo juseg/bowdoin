@@ -7,6 +7,7 @@
 
 
 import absplots as apl
+import matplotlib as mpl
 import numpy as np
 
 import bowstr_utils
@@ -51,20 +52,26 @@ def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
     shear = vsia(depth, base, exponent, softness)
 
     # plot interpolated shear profile
-    ax.plot(shear_int, depth_int, c=color)
     ax.fill_betweenx(depth_int, 0, shear_int, color=color, alpha=0.25)
-
-    # plot displacement and tilt arrows at unit locations
-    for d, s in zip(depth, shear):
-        ax.arrow(
-            0, d, s, 0, fc='none', ec=color, head_width=5, head_length=1,
-            length_includes_head=True)
-    ax.quiver(shear, depth, -strain*2, np.sqrt(1-(2*strain)**2),
-              angles='xy', scale=5.0)
-
-    # add horizontal lines
-    ax.plot([0, shear_int[0]], [0, 0], color=color, linestyle='dashed')
+    ax.plot(shear_int, depth_int, color=color)
+    ax.plot([0, shear_int[0]], [0, 0], color=color)
     ax.plot([0, 0], [base, 0], 'k-_')
+
+    # plot unit markers (FIXME unit colors)
+    for i, unit in enumerate(depth.index):
+        bbox = ax.get_window_extent()
+        ratio = bbox.width / bbox.height * ax.get_data_ratio()
+        angle = np.arctan(2*strain[unit]*ratio)
+        vertices = [(1, 2), (-1, 2), (-1, -2), (1, -2), (1, 2)]
+        transform = mpl.transforms.Affine2D().rotate_deg(angle * 180 / np.pi)
+        marker = mpl.markers.MarkerStyle(vertices, transform=transform)
+        ax.plot(shear[unit], depth[unit], mec=color, marker=marker, ms=20)
+        offset = np.sin(angle) + 0.5 * np.cos(angle)
+        ax.annotate(
+            '', xy=(shear[unit] - offset, depth[unit]),
+            xytext=(0, depth[unit]), arrowprops={
+                'arrowstyle': '-|>', 'color': color, 'linewidth': 1,
+                'linestyle': 'dashed'})
 
     # add fit values
     ax.text(
