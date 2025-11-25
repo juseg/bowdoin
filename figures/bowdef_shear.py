@@ -63,9 +63,8 @@ def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
               angles='xy', scale=5.0)
 
     # add horizontal lines
-    ax.axhline(0, color='0.25', linestyle='dashed')
-    ax.axhline(base, color='0.25', linestyle='dashed')
-    # ax.plot([0, 0], [base, 0], 'k-_')
+    ax.plot([0, shear_int[0]], [0, 0], color=color, linestyle='dashed')
+    ax.plot([0, 0], [base, 0], 'k-_')
 
     # add fit values
     ax.text(
