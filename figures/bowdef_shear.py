@@ -13,43 +13,27 @@ import numpy as np
 import bowstr_utils
 
 
-def powerfit(x, y, deg, **kwargs):
-    """Fit to a power law."""
-    logx = np.log(x)
-    logy = np.log(y)
-    p = np.polyfit(logx, logy, deg, **kwargs)
-    return p
+def compute_power_fit(depth, strain):
+    """Fit to a power law strain = constant * depth ** exponent."""
+    exponent, constant = np.polyfit(np.log(depth), np.log(strain), 1)
+    return exponent, np.exp(constant)
 
 
-def glenfit(base, depth, exz, g=9.80665, rhoi=910.0, slope=0.03):
-    """Fit to a power law with exp(C) = A * (rhoi*g*slope)**n."""
-    # FIXME: the slope (sin alpha) is an approximate value from MEASURES
-    # FIXME: this results in very variable and sometimtes even negative values
-    # for n. The negative values cause divide by zero encountered in power
-    # runtime warnings in vsia(). A better approach would be to fix n = 3 and
-    # fit for C only
-    n, C = powerfit(depth, exz, 1)
-    A = np.exp(C) / (rhoi*g*slope)**n
-    A *= base**n  # bugfix
-    return n, A
-
-
-def vsia(depth, depth_base, n, A, g=9.80665, rhoi=910.0, slope=0.03):
-    """Return simple horizontal shear velocity profile."""
-    C = A * (rhoi*g*slope)**n
-    C /= depth_base**n  # bugfix
-    v = 2*C/(n+1) * (depth_base**(n+1) - depth**(n+1))
-    return v
+def compute_shear_profile(base, depth, exponent, constant):
+    """Compute horizontal shear profile from fitted exponent and constant."""
+    power = exponent + 1
+    shear = 2 * constant / power * (base**power - depth**power)
+    return shear
 
 
 def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
     """Fit and plot tilt velocity profile."""
 
     # compute discrete and extrapolated shear profiles
-    exponent, softness = glenfit(base, depth, strain)
+    exponent, constant = compute_power_fit(depth, strain)
     depth_int = np.linspace(0, base, 51)
-    shear_int = vsia(depth_int, base, exponent, softness)
-    shear = vsia(depth, base, exponent, softness)
+    shear_int = compute_shear_profile(base, depth_int, exponent, constant)
+    shear = compute_shear_profile(base, depth, exponent, constant)
 
     # plot interpolated shear profile
     ax.fill_betweenx(depth_int, 0, shear_int, color=color, alpha=0.25)
@@ -78,9 +62,8 @@ def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
 
     # add fit values
     ax.text(
-        0.05, 0.05,
-        f'A={softness:.2e}'r'$\,Pa^{-n}\,s^{-2}$, 'f'n={exponent:.2f}',
-        transform=ax.transAxes)
+        0.05, 0.05, f'n = {exponent:.2f}',
+        color=color, fontweight='bold', transform=ax.transAxes)
 
 
 def main(start='2014-11-01', end='2015-11-01'):
