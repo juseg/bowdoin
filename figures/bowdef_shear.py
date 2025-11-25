@@ -29,19 +29,30 @@ def compute_shear_profile(base, depth, exponent, constant):
 def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
     """Fit and plot tilt velocity profile."""
 
-    # compute discrete and extrapolated shear profiles
+    # compute and plot discrete and extrapolated shear profiles
     exponent, constant = compute_power_fit(depth, strain)
     depth_int = np.linspace(0, base, 51)
     shear_int = compute_shear_profile(base, depth_int, exponent, constant)
     shear = compute_shear_profile(base, depth, exponent, constant)
+    plot_shear_profile_lines(ax, base, depth_int, shear_int, color=color)
+    plot_shear_profile_markers(ax, depth, shear, strain, color=color)
 
-    # plot interpolated shear profile
-    ax.fill_betweenx(depth_int, 0, shear_int, color=color, alpha=0.25)
-    ax.plot(shear_int, depth_int, color=color)
-    ax.plot([0, shear_int[0]], [0, 0], color=color)
+    # add fit values
+    ax.text(
+        shear_int[0]-1, 20, f'n = {exponent:.2f}', color=color,
+        fontweight='bold')
+
+
+def plot_shear_profile_lines(ax, base, depth, shear, color='C0'):
+    """Plot and fill continuous shear profile line."""
+    ax.fill_betweenx(depth, 0, shear, color=color, alpha=0.25)
+    ax.plot(shear, depth, color=color)
+    ax.plot([0, shear[0]], [0, 0], color=color)
     ax.plot([0, 0], [base, 0], 'k-_')
 
-    # plot unit markers
+
+def plot_shear_profile_markers(ax, depth, shear, strain, color='C0'):
+    """Mark tilt units on shear profile with rotated rectangles."""
     for i, unit in enumerate(depth.index):
         unit_color = f'C{i+int(color[1])}'
         bbox = ax.get_window_extent()
@@ -59,11 +70,6 @@ def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
             xytext=(0, depth[unit]), arrowprops={
                 'arrowstyle': '-|>', 'color': color, 'linewidth': 1,
                 'linestyle': 'dashed'})
-
-    # add fit values
-    ax.text(
-        0.05, 0.05, f'n = {exponent:.2f}',
-        color=color, fontweight='bold', transform=ax.transAxes)
 
 
 def main(start='2014-11-01', end='2015-11-01'):
@@ -89,8 +95,9 @@ def main(start='2014-11-01', end='2015-11-01'):
         mask = strain.notnull() & strain.index.str.startswith(
             'U' if bh == 'BH1' else 'L')
         color = f'C{mask.argmax()}'
-        plot_shear_profile(ax, base[f'{bh}B'], depth[mask], strain[mask], color=color)
-        ax.text(4, 20, bh, color=color, fontweight='bold')
+        plot_shear_profile(
+            ax, base[f'{bh}B'], depth[mask], strain[mask], color=color)
+        ax.text(1, 20, bh, color=color, fontweight='bold', ha='right')
         ax.xaxis.set_inverted(True)
         ax.yaxis.set_inverted(True)
 
