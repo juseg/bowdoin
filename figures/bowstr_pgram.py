@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin stress Fourier transforms."""
+"""Plot Bowdoin stress periodograms."""
 
 import numpy as np
 import pandas as pd
@@ -37,8 +37,8 @@ def fourier(series):
     return period, amplitude
 
 
-def main():
-    """Main program called during execution."""
+def plot(variable='wlev'):
+    """Plot and return full figure for given options."""
 
     # initialize figure
     fig, axes = bowstr_utils.subplots_fourier()
@@ -46,7 +46,8 @@ def main():
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    pres = bowstr_utils.load(interp=True, resample='1h', tide=True)
+    pres = bowstr_utils.load(
+        interp=True, resample='1h', tide=True, variable=variable)
     tide = pres.pop('tide')
 
     # for each tilt unit
@@ -84,8 +85,16 @@ def main():
     axes[-1, 0].yaxis.set_label_text(
         'amplitude of stress change\n'+r'after refreezing ($kPa\,s^{-1}$)')
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv']  # FIXME 'phase'
+    variables = ['tilx', 'tily', 'wlev']
+    plotter = bowstr_utils.MultiPlotter(plot, variables=variables)
+    plotter()
 
 
 if __name__ == '__main__':
