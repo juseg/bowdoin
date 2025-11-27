@@ -37,6 +37,20 @@ def fourier(series):
     return period, amplitude
 
 
+def load(variable='press', **kwargs):
+    """Load modified variables."""
+    if variable == 'press':
+        data = bowstr_utils.load(tide=True, variable='wlev', **kwargs)
+    else:
+        tilx = bowstr_utils.load(tide=True, variable='tilx', **kwargs)
+        tily = bowstr_utils.load(tide=False, variable='tily', **kwargs)
+        tide = tilx.pop('tide')
+        tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+        tilt = tilt * 1e3
+        data = tilt.assign(tide=tide)
+    return data
+
+
 def plot(variable='wlev'):
     """Plot and return full figure for given options."""
 
@@ -46,31 +60,26 @@ def plot(variable='wlev'):
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    pres = bowstr_utils.load(
-        interp=True, resample='1h', tide=True, variable=variable)
-    tide = pres.pop('tide')
+    df = load(variable=variable, interp=True, resample='1h')
 
     # for each tilt unit
-    for i, unit in enumerate(pres):
+    for i, unit in enumerate(df):
         color = f'C{i}'
 
         # plot amplitude spectrum
-        per, amp = fourier(pres[unit][date[unit]:])
+        per, amp = fourier(df.loc[date.get(unit, None):, unit])
         for ax in axes[i]:
             ax.plot(per, amp, color=color)
 
         # add main axes text label
         axes[i, 0].text(
-            0.95, 0.35, f'{unit}, {depth[unit]:.0f}'r'$\,$m',
+            0.95, 0.35, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
+            f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
             color=color, fontsize=6, fontweight='bold',
             transform=axes[i, 0].transAxes, ha='right')
 
         # set inset axes limits
         axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
-
-    # plot tide data
-    for ax in axes[-1]:
-        ax.plot(*fourier(tide), c='C9')
 
     # add main axes corner tag
     axes[-1, 0].text(
@@ -83,7 +92,9 @@ def plot(variable='wlev'):
     # set labels
     axes[-1, 0].set_xlabel('period (days)')
     axes[-1, 0].yaxis.set_label_text(
-        'amplitude of stress change\n'+r'after refreezing ($kPa\,s^{-1}$)')
+        f'amplitude of {variable.replace('press', 'stress')} change\n'
+        f'after borehole closure ({'kPa' if variable == 'stres' else 'k°'}'
+        r'$\,s^{-1}$)')
 
     # return figure
     return fig
@@ -92,7 +103,7 @@ def plot(variable='wlev'):
 def main():
     """Main program called during execution."""
     filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv']  # FIXME 'phase'
-    variables = ['tilx', 'tily', 'wlev']
+    variables = ['press', 'tilts']
     plotter = bowstr_utils.MultiPlotter(plot, variables=variables)
     plotter()
 
