@@ -52,8 +52,8 @@ def plot(filt='24hhp'):
                 lambda y, pos: f'{y}' + 3 * (pos % 2) * ' ')
 
         # set labels
-        panel[4].set_ylabel(
-            'stress change (Pa/s)' if filt == 'deriv' else 'stress (kPa)')
+        panel[4].set_ylabel(f'stress {
+            r'change ($Pa\,s^{-1}$)' if filt == 'deriv' else '(kPa)'}')
         panel[9].set_xlabel('')
 
     # set axes limits
