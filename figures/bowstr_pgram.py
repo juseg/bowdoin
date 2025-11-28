@@ -56,8 +56,8 @@ def load(variable='st', **kwargs):
     return data
 
 
-def plot_canvas():
-    """Initialize empty figure with ten subplots."""
+def plot(method='stfft'):
+    """Plot and return full figure for given options."""
 
     # initialize figure with 2x3x4 subplots grid
     fig = apl.figure_mm(figsize=(180, 120))
@@ -81,6 +81,44 @@ def plot_canvas():
 
     # add subfigure labels on main axes
     bowtem_utils.add_subfig_labels(axes[:, 0])
+
+    # load stress and freezing dates
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    date = bowstr_utils.load_freezing_dates()
+    df = load(interp=True, resample='1h', variable=method[:2])
+
+    # for each tilt unit
+    for i, unit in enumerate(df):
+        color = f'C{i}'
+
+        # plot periodograms (FIXME replace LSP power with amplitude)
+        per, amp = compute_periodogram(
+            df.loc[date.get(unit, None):, unit],
+            np.logspace(-1, 3, 201)*24*3600, method=method[2:])
+        axes[i, 0].plot(per, amp, color=color)
+        per, amp = compute_periodogram(
+            df.loc[date.get(unit, None):, unit],
+            np.logspace(-0.35, 0.1, 201)*24*3600, method=method[2:])
+        axes[i, 1].plot(per, amp, color=color)
+
+        # set axes properties
+        # if method == 'fft':
+        axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
+        axes[i, 0].text(
+            0.95, 0.35, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
+            f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
+            color=color, fontsize=6, fontweight='bold',
+            transform=axes[i, 0].transAxes, ha='right')
+
+    # add labels
+    axes[-1, 0].set_xlabel('period (days)')
+    axes[-1, 0].text(
+        0.95, 0.1, r'Pituffik tide$\,/\,$10', color='C9', fontsize=6,
+        fontweight='bold', ha='right', transform=axes[-1, 0].transAxes)
+    axes[-1, 0].yaxis.set_label_text(
+        f'amplitude of {'tilt' if method[:2] == 'ti' else 'stress'} change\n'
+        f'after borehole closure ({'k°' if method[:2] == 'ti' else 'kPa'}'
+        r'$\,s^{-1}$)')
 
     # set log scale on all axes
     for ax in axes.flat:
@@ -122,54 +160,6 @@ def plot_canvas():
     ax.annotate(r'$N_2$', xy=(12.55/24, 1), xytext=(+12, 20), **kwargs)
     ax.annotate(r'$K_1$', xy=(23.93/24, 1), xytext=(-4, 20), **kwargs)
     ax.annotate(r'$O_1$', xy=(25.82/24, 1), xytext=(+4, 20), **kwargs)
-
-    # return figure and axes
-    return fig, axes
-
-
-def plot(method='stfft'):
-    """Plot and return full figure for given options."""
-
-    # initialize figure
-    fig, axes = plot_canvas()
-
-    # load stress and freezing dates
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    date = bowstr_utils.load_freezing_dates()
-    df = load(interp=True, resample='1h', variable=method[:2])
-
-    # for each tilt unit
-    for i, unit in enumerate(df):
-        color = f'C{i}'
-
-        # plot periodograms (FIXME replace LSP power with amplitude)
-        per, amp = compute_periodogram(
-            df.loc[date.get(unit, None):, unit],
-            np.logspace(-1, 3, 201)*24*3600, method=method[2:])
-        axes[i, 0].plot(per, amp, color=color)
-        per, amp = compute_periodogram(
-            df.loc[date.get(unit, None):, unit],
-            np.logspace(-0.35, 0.1, 201)*24*3600, method=method[2:])
-        axes[i, 1].plot(per, amp, color=color)
-
-        # set axes properties
-        # if method == 'fft':
-        axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
-        axes[i, 0].text(
-            0.95, 0.35, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
-            f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
-            color=color, fontsize=6, fontweight='bold',
-            transform=axes[i, 0].transAxes, ha='right')
-
-    # add labels
-    axes[-1, 0].set_xlabel('period (days)')
-    axes[-1, 0].text(
-        0.95, 0.1, r'Pituffik tide$\,/\,$10', color='C9', fontsize=6,
-        fontweight='bold', ha='right', transform=axes[-1, 0].transAxes)
-    axes[-1, 0].yaxis.set_label_text(
-        f'amplitude of {'tilt' if method[:2] == 'ti' else 'stress'} change\n'
-        f'after borehole closure ({'k°' if method[:2] == 'ti' else 'kPa'}'
-        r'$\,s^{-1}$)')
 
     # return figure
     return fig
