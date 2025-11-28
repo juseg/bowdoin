@@ -11,9 +11,6 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 
-# FIXME replace with indicate_inset
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
-
 import bowstr_utils
 import bowtem_utils
 
@@ -119,9 +116,8 @@ def plot_canvas():
         ax.set_xscale('log')
 
     # mark all the insets
-    # FIXME replace with ax.indicate_inset()
     for axespair in axes:
-        mark_inset(*axespair, loc1=2, loc2=4, ec='0.75', ls='--')
+        axespair[0].indicate_inset(inset_ax=axespair[1], ls='dashed')
 
     # set tidal ticks, no labels on insets
     for ax in axes[:, 1]:
