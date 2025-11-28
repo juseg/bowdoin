@@ -74,9 +74,9 @@ def compute_periodogram(series, periods, method='fft'):
     return func(*args)
 
 
-def load(variable='press', **kwargs):
+def load(variable='st', **kwargs):
     """Load modified variables."""
-    if variable == 'press':
+    if variable == 'st':
         data = bowstr_utils.load(tide=True, variable='wlev', **kwargs)
     else:
         tilx = bowstr_utils.load(tide=True, variable='tilx', **kwargs)
@@ -160,7 +160,7 @@ def plot_canvas():
     return fig, axes
 
 
-def plot(variable='press', method='fft'):
+def plot(method='stfft'):
     """Plot and return full figure for given options."""
 
     # initialize figure
@@ -169,7 +169,7 @@ def plot(variable='press', method='fft'):
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    df = load(variable=variable, interp=True, resample='1h')
+    df = load(interp=True, resample='1h', variable=method[:2])
 
     # for each tilt unit
     for i, unit in enumerate(df):
@@ -178,14 +178,15 @@ def plot(variable='press', method='fft'):
         # plot periodograms (FIXME replace LSP power with amplitude)
         per, amp = compute_periodogram(
             df.loc[date.get(unit, None):, unit],
-            np.logspace(-1, 3, 201)*24*3600, method=method)
+            np.logspace(-1, 3, 201)*24*3600, method=method[2:])
         axes[i, 0].plot(per, amp, color=color)
         per, amp = compute_periodogram(
             df.loc[date.get(unit, None):, unit],
-            np.logspace(-0.35, 0.1, 201)*24*3600, method=method)
+            np.logspace(-0.35, 0.1, 201)*24*3600, method=method[2:])
         axes[i, 1].plot(per, amp, color=color)
 
         # set axes properties
+        # if method == 'fft':
         axes[i, 1].set_ylim(np.array([-0.05, 1.05])*amp[per < 2].max())
         axes[i, 0].text(
             0.95, 0.35, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
@@ -199,8 +200,8 @@ def plot(variable='press', method='fft'):
         0.95, 0.1, r'Pituffik tide$\,/\,$10', color='C9', fontsize=6,
         fontweight='bold', ha='right', transform=axes[-1, 0].transAxes)
     axes[-1, 0].yaxis.set_label_text(
-        f'amplitude of {variable.replace('press', 'stress')} change\n'
-        f'after borehole closure ({'kPa' if variable == 'stres' else 'k°'}'
+        f'amplitude of {'tilt' if method[:2] == 'ti' else 'stress'} change\n'
+        f'after borehole closure ({'k°' if method[:2] == 'ti' else 'kPa'}'
         r'$\,s^{-1}$)')
 
     # return figure
@@ -209,10 +210,8 @@ def plot(variable='press', method='fft'):
 
 def main():
     """Main program called during execution."""
-    methods = ['fft', 'lsp']
-    variables = ['press', 'tilts']
-    plotter = bowstr_utils.MultiPlotter(
-        plot, variables=variables, methods=methods)
+    methods = ['stlsp', 'stfft', 'tilsp', 'tifft']
+    plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
     plotter()
 
 
