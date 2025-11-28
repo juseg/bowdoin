@@ -112,13 +112,15 @@ def plot(method='stfft'):
 
     # add labels
     axes[-1, 0].set_xlabel('period (days)')
+    axes[-1, 0].set_ylabel(
+        f'\namplitude of {'tilt' if method[:2] == 'ti' else 'stress'} change'
+        f'\nafter borehole closure ({'k°' if method[:2] == 'ti' else 'kPa'}'
+        r'$\,s^{-1}$)')
     axes[-1, 0].text(
         0.95, 0.1, r'Pituffik tide$\,/\,$10', color='C9', fontsize=6,
         fontweight='bold', ha='right', transform=axes[-1, 0].transAxes)
-    axes[-1, 0].yaxis.set_label_text(
-        f'amplitude of {'tilt' if method[:2] == 'ti' else 'stress'} change\n'
-        f'after borehole closure ({'k°' if method[:2] == 'ti' else 'kPa'}'
-        r'$\,s^{-1}$)')
+    axes[-1, 0].yaxis.label.set_va('top')
+    axes[-1, 0].yaxis.label.set_position((10, 2+(3.75-5)/35))
 
     # set log scale on all axes
     for ax in axes.flat:
@@ -140,14 +142,7 @@ def plot(method='stfft'):
     for ax in axes[-1]:
         ax.set_position(ax.get_position().translated(0, 5/120))
 
-    # set labels on last main axes
-    ax = axes[-1, 0]
-    ax.set_xlabel('xlabel', labelpad=7)
-    ax.set_ylabel('ylabel', labelpad=0)
-    ax.yaxis.label.set_position((10, 2+(3.75-5)/35))
-    ax.yaxis.label.set_va('top')
-
-    # annotate tidal modes on last inset axes
+    # annotate tidal modes on last inset
     ax = axes[-1, 1]
     blended = mpl.transforms.blended_transform_factory(
         ax.transData, ax.transAxes)
