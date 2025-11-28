@@ -11,18 +11,19 @@
 # bowdoin deformation figures (most outdated)
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowdef_, rates tilts))
+		$(addprefix bowdef_, rates shear tilts))
 
 # bowdoin stress figures
 BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowstr_, \
-			boreholes fourier fjordtide intervals lombscargle \
-			specgrams timeseries wavelets) \
+			boreholes fjordtide intervals \
+			pgram specgrams timeseries wavelets) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv) \
-		$(addprefix bowstr_mines_, 12hbp 12hhp 24hbp 24hhp deriv))
+		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
+		$(addprefix bowstr_pgram_, stlsp stfft tilsp tifft))
 
 # bowdoin temperature figures
 BOWTEM_FIGS = \
