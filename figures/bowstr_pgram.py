@@ -54,10 +54,10 @@ def compute_lsp(series, periods):
     # compute periodogram
     time = (series.index-series.index[0]).total_seconds()
     power = sp.signal.lombscargle(time, series, frequency)
-    # amplitude = (4*power/len(periods))**0.5  # maybe
+    amplitude = 2 * (power / len(periods))**0.5
 
-    # return spectral power
-    return periods / 24 / 3600, power
+    # return periods and amplitude
+    return periods / 24 / 3600, amplitude
 
 
 def compute_periodogram(series, periods, method='fft'):
