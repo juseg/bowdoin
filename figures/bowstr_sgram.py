@@ -5,6 +5,7 @@
 
 """Plot Bowdoin stress spectrograms."""
 
+import absplots as apl
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -61,7 +62,9 @@ def plot(method='stfft'):
     """Plot and return full figure for given options."""
 
     # initialize figure
-    fig, axes = bowstr_utils.subplots_specgram(nrows=8)
+    fig, ax = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
+        'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
+    axes = bowstr_utils.subsubplots(fig, [ax], nrows=8)[0]
 
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
