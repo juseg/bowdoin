@@ -23,7 +23,8 @@ BOWSTR_FIGS = \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv) \
 		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
-		$(addprefix bowstr_pgram_, stlsp stfft tilsp tifft))
+		$(addprefix bowstr_pgram_, stlsp stfft tilsp tifft) \
+		$(addprefix bowstr_sgram_, stfft tifft))
 
 # bowdoin temperature figures
 BOWTEM_FIGS = \
