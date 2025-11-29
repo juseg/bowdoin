@@ -5,8 +5,10 @@
 
 """Plot Bowdoin stress spectrograms."""
 
+import numpy as np
 import pandas as pd
 import matplotlib as mpl
+
 import bowstr_utils
 
 
@@ -41,8 +43,22 @@ def specgram(series, ax, color):
     (1+ratio).plot(ax=ax, color=color)
 
 
-def main():
-    """Main program called during execution."""
+def load(variable='st', **kwargs):
+    """Load modified variables."""
+    if variable == 'st':
+        data = bowstr_utils.load(tide=True, variable='wlev', **kwargs)
+    else:
+        tilx = bowstr_utils.load(tide=True, variable='tilx', **kwargs)
+        tily = bowstr_utils.load(tide=False, variable='tily', **kwargs)
+        tide = tilx.pop('tide')
+        tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+        tilt = tilt * 1e3
+        data = tilt.assign(tide=tide)
+    return data
+
+
+def plot(method='stfft'):
+    """Plot and return full figure for given options."""
 
     # initialize figure
     fig, axes = bowstr_utils.subplots_specgram(nrows=8)
@@ -50,7 +66,7 @@ def main():
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    pres = bowstr_utils.load(interp=True, resample='10min', tide=True)
+    pres = load(interp=True, resample='10min', variable=method[:2])
     pres = pres.drop(columns=['UI03', 'UI02'])
     tide = pres.pop('tide')
 
@@ -90,8 +106,15 @@ def main():
     # set y label
     axes[4].set_ylabel('period (h)', y=0)
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    methods = ['stfft', 'tifft']
+    plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
+    plotter()
 
 
 if __name__ == '__main__':
