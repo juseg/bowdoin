@@ -13,31 +13,27 @@ import matplotlib as mpl
 import bowstr_utils
 
 
-def specgram(series, ax, color):
-    """Plot specgrogram from data series."""
+def plot_spectrogram(series, ax, color):
+    """Plot spectrogram from data series."""
 
-    # interpolate, drop nans, and differentiate
+    # differentiate series
     series = series.diff() / series.index.to_series().diff().dt.total_seconds()
-    series = series[1:]  # first value is nan after diff
-
-    # calculate sampling frequency in hours
-    freq = pd.to_timedelta('1D') / series.index.freq
+    series = series[1:]
 
     # plot spectrogram (values range ca. -170 to -50)
     per, freqs, bins, img = ax.specgram(
-        series, Fs=freq, NFFT=6*24*14, noverlap=6*24*12,
-        cmap='Greys', vmin=-150, vmax=-50)
+        series, Fs=pd.to_timedelta('1D') / series.index.freq, NFFT=6*24*14,
+        noverlap=6*24*12, cmap='Greys', vmin=-150, vmax=-50)
 
-    # shift the image horizontally to series start date
-    # (this is all we need as long as freq is in days)
+    # shift image horizontally to series start date
     offset = mpl.dates.date2num(series.index[0])
     img.set_extent((*img.get_extent()[:2]+offset, *img.get_extent()[2:]))
 
-    # power in 12 vs 24-h bands (resample needed for pandas format ticks)
+    # plot 22-26 vs 10-14 hour bands power ratio
     pow12 = per[(24/14 <= freqs) & (freqs <= 24/10), :].sum(axis=0)
     pow24 = per[(24/26 <= freqs) & (freqs <= 24/22), :].sum(axis=0)
-    ratio = pow12 / (pow12 + pow24)
     index = pd.DatetimeIndex(mpl.dates.num2date(offset+bins))
+    ratio = 1 / (1 + pow24 / pow12)
     ratio = pd.Series(ratio, index=index)
     ratio = ratio.resample('1D').mean().interpolate()
     (1+ratio).plot(ax=ax, color='w', lw=2, alpha=0.5)
@@ -62,44 +58,34 @@ def plot(method='stfft'):
     """Plot and return full figure for given options."""
 
     # initialize figure
-    fig, ax = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
+    fig, pax = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
         'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
-    axes = bowstr_utils.subsubplots(fig, [ax], nrows=8)[0]
+    axes = bowstr_utils.subsubplots(fig, [pax], nrows=8)[0]
 
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    date = bowstr_utils.load_freezing_dates()
-    pres = load(interp=True, resample='10min', variable=method[:2])
-    pres = pres.drop(columns=['UI03', 'UI02'])
+    dates = bowstr_utils.load_freezing_dates()
+    df = load(interp=True, resample='10min', variable=method[:2])
+    df = df.drop(columns=['UI03', 'UI02'])
 
-    # for each tilt unit
-    for i, unit in enumerate(pres):
+    # plot spectrograms and text labels
+    for i, unit in enumerate(df):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
-        series = pres.loc[date.get(unit, None):, unit]
-
-        # plot spectrogram
-        specgram(series, ax, color)
-
-        # add text label
+        series = df.loc[dates.get(unit, None):, unit]
+        plot_spectrogram(series, ax, color)
         ax.text(
             1.02, 0.5, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
-    # plot invisible timeseries to format axes as pandas
-    # (the 1D frequency ensures compatibility with mdates.date2num)
-    series.resample('1D').mean().plot(ax=ax, visible=False)
-
     # set axes properties
-    ax.set_xlim('20140615', '20170815')
+    ax.set_xlim('20140701', '20170801')
     ax.set_ylim(0.5, 2.5)
     ax.set_yticks([1, 2])
     ax.set_yticklabels(['24', '12'])
-
-    # set y label
-    axes[4].set_ylabel('period (h)', y=0)
+    axes[4].set_ylabel('period (h)', ha='left', labelpad=0)
 
     # return figure
     return fig
