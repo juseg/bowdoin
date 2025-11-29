@@ -71,30 +71,22 @@ def plot(method='stfft'):
     date = bowstr_utils.load_freezing_dates()
     pres = load(interp=True, resample='10min', variable=method[:2])
     pres = pres.drop(columns=['UI03', 'UI02'])
-    tide = pres.pop('tide')
 
     # for each tilt unit
     for i, unit in enumerate(pres):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
-        series = pres[unit][date[unit]:]
+        series = pres.loc[date.get(unit, None):, unit]
 
         # plot spectrogram
         specgram(series, ax, color)
 
         # add text label
         ax.text(
-            1.01, 0, f'{unit}\n{depth[unit]:.0f}'r'$\,$m',
-            color=color, fontsize=6, fontweight='bold', transform=ax.transAxes)
-
-    # plot tide data
-    ax = axes[-1]
-    specgram(tide, ax, color='C9')
-
-    # add text label
-    ax.text(
-        1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10',
-        color='C9', fontsize=6, fontweight='bold', transform=ax.transAxes)
+            1.02, 0.5, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
+            f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
+            fontsize=6, fontweight='bold', ha='center', va='center',
+            rotation='vertical', transform=ax.transAxes)
 
     # plot invisible timeseries to format axes as pandas
     # (the 1D frequency ensures compatibility with mdates.date2num)
