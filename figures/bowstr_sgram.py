@@ -35,7 +35,7 @@ def plot_spectrogram(series, ax, color):
     index = pd.DatetimeIndex(mpl.dates.num2date(offset+bins))
     ratio = 1 / (1 + pow24 / pow12)
     ratio = pd.Series(ratio, index=index)
-    ratio = ratio.resample('1D').mean().interpolate()
+    ratio = ratio.where(pow12 > 1e-15).resample('2D').mean()
     (1+ratio).plot(ax=ax, color='w', lw=2, alpha=0.5)
     (1+ratio).plot(ax=ax, color=color)
 
