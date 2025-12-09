@@ -6,7 +6,6 @@
 """Plot Bowdoin stress spectrograms."""
 
 import absplots as apl
-import numpy as np
 import pandas as pd
 import matplotlib as mpl
 
@@ -43,20 +42,6 @@ def plot_spectrogram(series, ax, color):
     return img
 
 
-def load(variable='st', **kwargs):
-    """Load modified variables."""
-    if variable == 'st':
-        data = bowstr_utils.load(tide=True, variable='wlev', **kwargs)
-    else:
-        tilx = bowstr_utils.load(tide=True, variable='tilx', **kwargs)
-        tily = bowstr_utils.load(tide=False, variable='tily', **kwargs)
-        tide = tilx.pop('tide')
-        tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-        tilt = tilt * 1e3
-        data = tilt.assign(tide=tide)
-    return data
-
-
 def plot(method='stfft'):
     """Plot and return full figure for given options."""
 
@@ -69,7 +54,7 @@ def plot(method='stfft'):
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     dates = bowstr_utils.load_freezing_dates()
-    df = load(interp=True, resample='10min', variable=method[:2])
+    df = bowstr_utils.load_spectral(interp=True, resample='10min', variable=method[:2])
     df = df.drop(columns=['UI03', 'UI02'])
 
     # plot spectrograms and text labels
