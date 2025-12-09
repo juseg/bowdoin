@@ -39,6 +39,9 @@ def plot_spectrogram(series, ax, color):
     (1+ratio).plot(ax=ax, color='w', lw=2, alpha=0.5)
     (1+ratio).plot(ax=ax, color=color)
 
+    # return image for colorbar
+    return img
+
 
 def load(variable='st', **kwargs):
     """Load modified variables."""
@@ -61,6 +64,7 @@ def plot(method='stfft'):
     fig, pax = apl.subplots_mm(figsize=(180, 120), gridspec_kw={
         'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
     axes = bowstr_utils.subsubplots(fig, [pax], nrows=8)[0]
+    cax = fig.add_axes_mm([100, 45, 60, 5])
 
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -73,12 +77,16 @@ def plot(method='stfft'):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
         series = df.loc[dates.get(unit, None):, unit]
-        plot_spectrogram(series, ax, color)
+        img = plot_spectrogram(series, ax, color)
         ax.text(
             1.02, 0.5, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
+
+    # add colorbar
+    cax.figure.colorbar(img, cax=cax, orientation='horizontal')
+    cax.set_xlabel('power spectral density')
 
     # set axes properties
     ax.set_xlim('20140701', '20170801')
