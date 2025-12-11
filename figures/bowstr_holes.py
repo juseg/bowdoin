@@ -71,7 +71,7 @@ def plot_unit_casing(ax):
     """Plot rendering of tilt unit casing and electronics."""
 
     # plot image and text
-    ax.imshow(plt.imread('../data/native/design_diboss_topview.png'))
+    ax.imshow(plt.imread('../data/native/design_diboss_view_04.png'))
     ax.text(0.5, 0.05, 'top view', ha='center', transform=ax.transAxes)
 
     # set axes properties
