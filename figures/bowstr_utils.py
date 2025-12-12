@@ -122,6 +122,8 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
     elif filt == 'deriv':
         assert resample is not None
         data = data.diff() / pd.to_timedelta(resample).total_seconds() * 1e3
+    elif filt == 'phase':
+        data = hilbert_frame(data)
 
     # return dataframe
     return data
