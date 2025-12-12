@@ -15,7 +15,7 @@ def wavelets(series, ax):
     """Plot continuous wavelet transform from data series."""
 
     # interpolate, drop nans, and differentiate
-    series = series.interpolate(limit_area='inside').dropna()
+    series = series.dropna()
 
     # compute wavelet widths
     # width = omega*samplefreq / (2*waveletfreq*np.pi)
@@ -46,16 +46,15 @@ def main():
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    pres = bowstr_utils.load().resample('10min').mean()  # kPa
+    pres = bowstr_utils.load(filt='24hhp', interp=True, resample='10min', tide=True)
     pres = pres.drop(columns=['UI03', 'UI02'])
     pres = pres['20150501':'20151101']
+    tide = pres.pop('tide')
 
     # interpolate, drop nans, differentiate and filter
     # (I'm not sure filtering is really useful here)
-    pres = pres.interpolate(limit_area='inside').dropna()
     pres = pres.diff()
     pres = pres.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)
-    pres = bowstr_utils.butter(pres, cutoff=1/6/24)
 
     # for each unit
     for i, unit in enumerate(pres):
@@ -73,8 +72,6 @@ def main():
 
     # plot tide data (diff but no filter)
     ax = axes[-1]
-    tide = bowstr_utils.load_pituffik_tides().resample('10min').mean() / 10
-    tide = tide.interpolate(limit_area='inside').dropna()
     tide = tide.diff()
     tide = tide.div(pres.index.to_series().diff().dt.total_seconds(), axis=0)
     wavelets(tide, ax)

@@ -7,6 +7,12 @@ Bowdoin stress paper utils.
 """
 
 import glob
+import argparse
+import itertools
+import multiprocessing
+import os.path
+import sys
+import time
 
 import absplots as apl
 import matplotlib as mpl
@@ -24,6 +30,45 @@ SEA_DENSITY = 1029      # Sea wat. density,     kg m-3          (--)
 GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
 
 
+# Parallel MultiPlotter class
+# ---------------------------
+
+class MultiPlotter():
+    """Plot multiple figures in parallel."""
+
+    def __init__(self, plotter, **options):
+        """Initialize with a plot method and options dictionary."""
+        self.plotter = plotter
+        self.options = options
+
+    def __call__(self):
+        """Plot and save figures in parallel."""
+        options = vars(self.parse())
+        iterargs = itertools.product(*options.values())
+        with multiprocessing.Pool() as pool:
+            pool.starmap(self.savefig, iterargs)
+        # unfortunately starmap can't take iterable keyword-arguments
+        # iterkwargs = [dict(zip(options, combi)) for combi in iterargs]
+
+    def parse(self):
+        """Parse command-line arguments."""
+        parser = argparse.ArgumentParser(description=__doc__)
+        for name, choices in self.options.items():
+            parser.add_argument(
+                f'-{name}[0]', f'--{name}', choices=choices, default=choices,
+                nargs='+')
+        return parser.parse_args()
+
+    def savefig(self, *args):
+        """Plot and save one figure."""
+        filename = '_'.join([sys.argv[0][:-3]] + list(args))
+        basename = os.path.basename(filename)
+        print(time.strftime(f'[%H:%M:%S] plotting {basename} ...'))
+        fig = self.plotter(*args)
+        fig.savefig(filename, dpi='figure')
+        mpl.pyplot.close(fig)
+
+
 # Data loading methods
 # --------------------
 
@@ -35,7 +80,7 @@ def is_multiline(filename):
     return line != ''
 
 
-def load(variable='wlev'):
+def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
     """Load inclinometer variable data for all boreholes."""
 
     # load all inclinometer data for this variable
@@ -52,6 +97,31 @@ def load(variable='wlev'):
     if variable != 'base':
         data = data.sort_index(axis=1, ascending=False)
         data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
+
+    # resample
+    if resample is not None:
+        data = data.resample(resample).mean()
+
+    # load tide data
+    if tide is True:
+        assert resample is not None
+        data['tide'] = load_pituffik_tides().resample(resample).mean() / 10
+
+    # resample
+    if interp is True:
+        data = data.interpolate(limit_area='inside').dropna(how='all')
+
+    # apply filter (4h high cutoff gives max correlations over 20140916-1016).
+    if filt in ('12hbp', '12hhp', '24hbp', '24hhp'):
+        assert resample is not None
+        perday = pd.to_timedelta(resample).total_seconds() / 3600 / 24
+        lowcut = perday if filt.startswith('24h') else 2*perday
+        cutoff = lowcut if filt.endswith('hp') else (lowcut, 6*perday)
+        btype = 'highpass' if filt.endswith('hp') else 'bandpass'
+        data = butter(data, cutoff=cutoff, btype=btype)
+    elif filt == 'deriv':
+        assert resample is not None
+        data = data.diff() / pd.to_timedelta(resample).total_seconds() * 1e3
 
     # return dataframe
     return data
@@ -113,6 +183,20 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
     raise ValueError(f"Invalid unit {unit}.")
 
 
+def load_spectral(variable='st', **kwargs):
+    """Load modified variables for spectral analysis."""
+    if variable == 'st':
+        data = load(tide=True, variable='wlev', **kwargs)
+    else:
+        tilx = load(tide=True, variable='tilx', **kwargs)
+        tily = load(tide=False, variable='tily', **kwargs)
+        tide = tilx.pop('tide')
+        tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+        tilt = tilt * 1e3
+        data = tilt.assign(tide=tide)
+    return data
+
+
 # Signal processing
 # -----------------
 
@@ -125,11 +209,14 @@ def butter(pres, order=4, cutoff=1/24, btype='high'):
     # for each unit
     for unit in pres:
 
-        # crop, filter and reindex
-        series = pres[unit].dropna()
-        series[:] = sg.filtfilt(*filt, series)
-        series = series.reindex_like(pres)
-        pres[unit] = series
+        # except the tide
+        if unit != 'tide':
+
+            # crop, filter and reindex
+            series = pres[unit].dropna()
+            series[:] = sg.filtfilt(*filt, series)
+            series = series.reindex_like(pres)
+            pres[unit] = series
 
     # return filtered dataframe
     return pres
@@ -246,3 +333,40 @@ def subplots_specgram(nrows=10):
 
     # return figure and axes
     return fig, axes
+
+
+def subsubplots(fig, axes, nrows=10):
+    """Add open-spine sub-plots within each parent axes."""
+    hspace_mm = 1
+    subaxes = np.array([ax.get_subplotspec().subgridspec(
+        ncols=1, nrows=nrows,
+        hspace=nrows/(fig.get_position_mm(ax)[3] / hspace_mm + 1 - nrows)
+        ).subplots() for ax in axes])
+
+    # hide parent axes and reimplement sharex and sharey
+    for pax, panel in zip(axes, subaxes):
+        pax.set_axis_off()
+        for ax in panel:
+            ax.sharex(pax)
+            ax.sharey(pax)
+
+    # only show subaxes outer spines
+    for ax in subaxes.flat:
+        ax.patch.set_visible(False)
+        ax.spines['top'].set_visible(ax.get_subplotspec().is_first_row())
+        ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
+        ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
+
+        # move the grid to background ghost axes
+        ax.grid(False)
+        ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
+        ax.grid(which='minor')
+        ax.patch.set_visible(False)
+        ax.set_zorder(-1)
+        ax.tick_params(which='both', **{k: False for k in [
+            'labelleft', 'labelbottom', 'left', 'bottom']})
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+    # return the subaxes
+    return subaxes

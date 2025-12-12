@@ -5,35 +5,40 @@
 # Figures Makefile
 # ================
 
-# Variables
-# ---------
+# Targets
+# -------
 
-# python code
-DEF_CODE = $(addprefix bowdef_, )
-TEM_CODE = $(addprefix bowtem_, boreholes calibration closure demseries \
-	                        images ogives profiles timeseries)
-STR_CODE = $(addprefix bowstr_, \
-    boreholes correlate diffseries fourier fjordtide highpass \
-    intervals lombscargle rollcorr specgrams timeseries wavelets)
-PAL_CODE = $(addprefix bowpal_, samplemap)
-ALL_CODE = $(DEF_CODE) $(TEM_CODE) $(STR_CODE) $(PAL_CODE)
+# bowdoin deformation figures (most outdated)
+BOWDEF_FIGS = \
+	$(addsuffix .png, \
+		$(addprefix bowdef_, rates shear tilts))
 
-# python figures
-DEF_FIGS = $(addsuffix .png, $(DEF_CODE))
-TEM_FIGS = $(addsuffix .png, $(TEM_CODE))
-STR_FIGS = $(addsuffix .png, $(STR_CODE))
-PAL_FIGS = $(addsuffix .png, $(PAL_CODE))
-ALL_FIGS = $(addsuffix .png, $(ALL_CODE))
+# bowdoin stress figures
+BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv
+BOWSTR_FIGS = \
+	$(addsuffix .png, \
+		$(addprefix bowstr_, \
+			bores fjordtide intervals timeseries wavelets) \
+		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
+		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv) \
+		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
+		$(addprefix bowstr_pgram_, stlsp stfft tilsp tifft) \
+		$(addprefix bowstr_sgram_, stfft tifft))
 
-# temporarily deactivated
-# (tmp off: campaign_2016 summary \
-#          $(addprefix bowdef_, profiles spectrogram strainrate \
-#            $(addprefix fft_, gpsv tilt) \
-#            $(addprefix hist_, ls8 ls8_uv) \
-#            $(addprefix map_, gsv ls8 ls8_uv vgd vgd_uv) \
-#            $(addprefix summer_, 2014 2015 2016) \
-#            $(addprefix ts_, defvel detrended gpsvel satvel satvel_uv tilt)) \
-#          $(addprefix bowwat_, thinning wlevseries)
+# bowdoin temperature figures
+BOWTEM_FIGS = \
+	$(addsuffix .png, \
+		$(addprefix bowtem_, \
+			boreholes calibration closure demseries images ogives profiles \
+			timeseries))
+
+# bowdoin paleo figures
+BOWPAL_FIGS = \
+	$(addsuffix .png, \
+		$(addprefix bowpal_, samplemap))
+
+# all bowdoin figures
+ALL_FIGS = $(BOWDEF_FIGS) $(BOWTEM_FIGS) $(BOWSTR_FIGS) $(BOWPAL_FIGS)
 
 
 # Rules
@@ -42,19 +47,21 @@ ALL_FIGS = $(addsuffix .png, $(ALL_CODE))
 # default rule
 all: $(ALL_FIGS)
 
-# project dependencies
-$(DEF_FIGS): bowdef_utils.py
-$(TEM_FIGS): bowtem_utils.py
-$(PAL_FIGS): bowtem_utils.py
-$(STR_FIGS): bowtem_utils.py bowstr_utils.py
+# dependencies
+$(ALL_FIGS): bowtem_utils.py matplotlibrc
+$(BOWSTR_FIGS): bowstr_utils.py
 
-# make python figures (alt use LC_ALL=en_GB.utf8 python)
-$(ALL_FIGS): %.png : %.py matplotlibrc
+# default pattern rule
+%.png: %.py
 	python $<
 
-# lint python code
-lint:
-	pylint -j 0 $(ALL_CODE) util/???.py
+# custom filter pattern rules
+define GEN_FILTER_RULE
+%_$(filter).png: %.py
+	python $$< --filters $(filter)
+endef
+$(foreach filter,$(BOWSTR_FILTERS), \
+  $(eval $(call GEN_FILTER_RULE)))
 
 # clean up
 .PHONY: clean

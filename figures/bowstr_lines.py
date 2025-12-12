@@ -3,55 +3,30 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin tides highpass-filtered timeseries."""
+"""Plot Bowdoin stress filtered line plots."""
 
-import numpy as np
 import absplots as apl
 
 import bowstr_utils
 
 
-def main():
-    """Main program called during execution."""
+def plot(filt='24hhp'):
+    """Plot and return full figure for given options."""
 
     # initialize figure (keep main axes for labels and inset)
     fig, axes = apl.subplots_mm(
         figsize=(180, 120), nrows=2, sharey=True, gridspec_kw={
             'left': 12.5, 'right': 12.5, 'bottom': 10, 'top': 2.5,
             'hspace': 10})
-    subaxes = np.array([ax.get_subplotspec().subgridspec(
-        ncols=1, nrows=10, hspace=10/(fig.get_position_mm(ax)[3]-9),
-        ).subplots() for ax in axes])
-
-    # reimplement sharex and sharey
-    for pax, panel in zip(axes, subaxes):
-        for ax in panel:
-            ax.sharex(pax)
-            ax.sharey(pax)
-
-    # hide parent axes
-    for ax in axes:
-        ax.set_axis_off()
-
-    # only show subaxes outer spines
-    for ax in subaxes.flat:
-        ax.spines['top'].set_visible(ax.get_subplotspec().is_first_row())
-        ax.spines['bottom'].set_visible(ax.get_subplotspec().is_last_row())
-        ax.tick_params(bottom=ax.get_subplotspec().is_last_row(), which='both')
+    subaxes = bowstr_utils.subsubplots(fig, axes)
 
     # add subfigure labels
     for ax, label in zip(subaxes[:, 0], ['(a)', '(b)']):
         ax.text(-0.05, 0, label, fontweight='bold', transform=ax.transAxes)
 
-    # highpass-filter stress series
-    # IDEA implement filter=True, tide=True in bowstr_utils.load()
+    # load filtered stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load().resample('1h').mean()
-    pres = bowstr_utils.butter(pres)
-
-    # load tide data
-    tide = bowstr_utils.load_pituffik_tides().resample('1h').mean()  # kPa
-    pres['tide'] = tide / 10
+    pres = bowstr_utils.load(filt=filt, resample='1h', tide=True)
 
     # plot stress and tide data
     for pax, panel in zip(axes, subaxes):
@@ -66,32 +41,19 @@ def main():
                 1.01, 0, label, color=color, fontsize=6, fontweight='bold',
                 transform=ax.transAxes)
 
-            # clip lines to main axes
-            ax.patch.set_visible(False)
-            ax.get_lines()[0].set_clip_box(pax.bbox)
-
             # set axes properties
-            ax.grid(False)
-            ax.set_ylim(-2, 2)
-            ax.set_yticks([-1, 1])
+            ax.get_lines()[0].set_clip_box(pax.bbox)
+            ax.set_ylim((-.2, .2) if filt == 'deriv' else (-2, 2))
+            ax.set_yticks([-.1, .1] if filt == 'deriv' else (-1, 1))
 
-            # staggered ticks (IDEA use a scale bar instead?)
+            # stagger tick labels
             ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
             ax.yaxis.set_major_formatter(
                 lambda y, pos: f'{y}' + 3 * (pos % 2) * ' ')
 
-            # add grid on background ghost axes
-            ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
-            ax.grid(which='minor')
-            ax.tick_params(which='both', **{k: False for k in [
-                'labelleft', 'labelbottom', 'left', 'bottom']})
-            ax.patch.set_visible(False)
-            ax.set_zorder(-1)
-            for spine in ax.spines.values():
-                spine.set_visible(False)
-
         # set labels
-        panel[4].set_ylabel('stress (kPa)')
+        panel[4].set_ylabel(f'stress {
+            r'change ($Pa\,s^{-1}$)' if filt == 'deriv' else '(kPa)'}')
         panel[9].set_xlabel('')
 
     # set axes limits
@@ -112,8 +74,15 @@ def main():
     indicator.connectors[2].set_visible(False)
     indicator.connectors[3].set_visible(True)
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv'] # FIXME 'phase'
+    plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
+    plotter()
 
 
 if __name__ == '__main__':

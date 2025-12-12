@@ -306,12 +306,8 @@ def load_strain_rate(borehole, freq='1D'):
     tilx = load(prefix+'.inc.tilx.csv').resample(freq).mean()
     tily = load(prefix+'.inc.tily.csv').resample(freq).mean()
 
-    # compute near horizontal shear strain
-    exz_x = np.sin(tilx).diff()
-    exz_y = np.sin(tily).diff()
-    exz = np.sqrt(exz_x**2+exz_y**2)
-
-    # convert to strain rate in a-1
+    # compute subhorizontal shear strain
+    exz = 0.5 * (np.cos(tilx.diff()) * np.cos(tily.diff())**-2 - 1)**0.5
     exz /= pd.to_timedelta(freq).total_seconds()
 
     # return strain rate
