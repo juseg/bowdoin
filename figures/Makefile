@@ -18,8 +18,7 @@ BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowstr_, \
-			boreholes fjordtide intervals \
-			pgram specgrams timeseries wavelets) \
+			bores fjordtide intervals timeseries wavelets) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv) \
 		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
