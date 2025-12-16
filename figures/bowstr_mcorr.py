@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 
 import bowstr_utils
-import bowtem_utils
 
 
 def crosscorr(series, other, wmin=-48, wmax=12):
