@@ -14,14 +14,14 @@ BOWDEF_FIGS = \
 		$(addprefix bowdef_, rates shear tilts))
 
 # bowdoin stress figures
-BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv
+BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv phase
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowstr_, \
 			bores fjordtide intervals timeseries wavelets) \
-		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
-		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv) \
-		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv) \
+		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
+		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
+		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_pgram_, stlsp stfft tilsp tifft) \
 		$(addprefix bowstr_sgram_, stfft tifft))
 
@@ -56,6 +56,7 @@ $(BOWSTR_FIGS): bowstr_utils.py
 	python $<
 
 # custom filter pattern rules
+# FIXME add rule for pgram, sgram
 define GEN_FILTER_RULE
 %_$(filter).png: %.py
 	python $$< --filters $(filter)
