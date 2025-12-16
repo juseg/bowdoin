@@ -112,7 +112,7 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
         data = data.interpolate(limit_area='inside').dropna(how='all')
 
     # apply filter (4h high cutoff gives max correlations over 20140916-1016).
-    if filt in ('12hbp', '12hhp', '24hbp', '24hhp'):
+    if filt in ('12hbp', '12hhp', '24hbp', '24hhp', 'phase'):
         assert resample is not None
         perday = pd.to_timedelta(resample).total_seconds() / 3600 / 24
         lowcut = perday if filt.startswith('24h') else 2*perday
@@ -122,7 +122,7 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
     elif filt == 'deriv':
         assert resample is not None
         data = data.diff() / pd.to_timedelta(resample).total_seconds() * 1e3
-    elif filt == 'phase':
+    if filt == 'phase':
         data = hilbert_frame(data)
 
     # return dataframe
