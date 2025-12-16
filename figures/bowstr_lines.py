@@ -80,7 +80,7 @@ def plot(filt='24hhp'):
 
 def main():
     """Main program called during execution."""
-    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv'] # FIXME 'phase'
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv', 'phase']
     plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
     plotter()
 
