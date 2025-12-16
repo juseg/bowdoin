@@ -123,7 +123,10 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
         assert resample is not None
         data = data.diff() / pd.to_timedelta(resample).total_seconds() * 1e3
     if filt == 'phase':
-        data = hilbert_frame(data)
+        data = pd.concat([pd.Series(
+            data=np.angle(sg.hilbert(series.dropna())),
+            index=series.dropna().index,
+            name=col) for col, series in data.items()], axis=1)
 
     # return dataframe
     return data
@@ -222,20 +225,6 @@ def butter(pres, order=4, cutoff=1/24, btype='high'):
 
     # return filtered dataframe
     return pres
-
-
-def hilbert_series(series):
-    """Apply Hilbert transform on data series."""
-    series = series.dropna()
-    # phase = np.unwrap(np.angle(sg.hilbert(series)))
-    phase = np.angle(sg.hilbert(series))
-    series[:] = phase
-    return series
-
-
-def hilbert_frame(df):
-    """Apply Hilbert transform on data frame."""
-    return pd.concat([hilbert_series(df[col]) for col in df], axis=1)
 
 
 # Figure initialization
