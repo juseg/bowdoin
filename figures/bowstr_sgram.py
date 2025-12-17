@@ -6,8 +6,10 @@
 """Plot Bowdoin stress spectrograms."""
 
 import absplots as apl
-import pandas as pd
 import matplotlib as mpl
+import numpy as np
+import pandas as pd
+import pywt
 
 import bowstr_utils
 
@@ -42,6 +44,39 @@ def plot_spectrogram(series, ax, color):
     return img
 
 
+def plot_wavelets(series, ax):
+    """Plot continuous wavelet transform from data series."""
+
+    # interpolate, drop nans, and differentiate
+    series = series.dropna()
+
+    # compute wavelet widths
+    # width = omega*samplefreq / (2*waveletfreq*np.pi)
+    # width = omega*waveletperiod/timestep / (2*np.pi)
+    periods = np.arange(1, 36)  # periods in hours
+    # widths = 5*periods*pd.to_timedelta('1h')/series.index.freq / (2*np.pi)
+
+    # compute wavelet transform
+    scales = periods  # FIXME not sure about that
+    cwt, _ = pywt.cwt(series, scales, 'morl')
+
+    # plot wavelet transform
+    extent = (
+        *mpl.dates.date2num((series.index[0], series.index[-1])),
+        periods[0], periods[-1])
+    vmax = np.quantile(abs(cwt), 0.99)
+    img = ax.imshow(
+        cwt, cmap='RdBu', aspect='auto', extent=extent, origin='lower',
+        vmin=-vmax, vmax=vmax)
+
+    # plot invisible timeseries to format axes as pandas
+    # force pandas date format
+    (10+0*series.resample('1D').mean()).plot(ax=ax, visible=False)
+
+    # return image for colorbar
+    return img
+
+
 def plot(method='stfft'):
     """Plot and return full figure for given options."""
 
@@ -62,7 +97,10 @@ def plot(method='stfft'):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
         series = df.loc[dates.get(unit, None):, unit]
-        img = plot_spectrogram(series, ax, color)
+        if method[2:] == 'cwt':
+            img = plot_wavelets(series, ax)
+        else:
+            img = plot_spectrogram(series, ax, color)
         ax.text(
             1.02, 0.5, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
@@ -75,9 +113,10 @@ def plot(method='stfft'):
 
     # set axes properties
     ax.set_xlim('20140701', '20170801')
-    ax.set_ylim(0.5, 2.5)
-    ax.set_yticks([1, 2])
-    ax.set_yticklabels(['24', '12'])
+    if method[2:] == 'fft':
+        ax.set_ylim(0.5, 2.5)
+        ax.set_yticks([1, 2])
+        ax.set_yticklabels(['24', '12'])
     axes[4].set_ylabel('period (h)', ha='left', labelpad=0)
 
     # return figure
@@ -86,7 +125,7 @@ def plot(method='stfft'):
 
 def main():
     """Main program called during execution."""
-    methods = ['stfft', 'tifft']
+    methods = ['stcwt', 'stfft', 'ticwt', 'tifft']
     plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
     plotter()
 
