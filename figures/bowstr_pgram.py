@@ -71,8 +71,7 @@ def plot(method='stfft'):
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     date = bowstr_utils.load_freezing_dates()
-    df = bowstr_utils.load_spectral(
-        interp=True, resample='1h', variable=method[:2])
+    df = bowstr_utils.load_spectral(resample='1h', variable=method[:2])
 
     # for each tilt unit
     for i, unit in enumerate(df):

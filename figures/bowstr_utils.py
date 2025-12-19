@@ -188,13 +188,13 @@ def load_pituffik_tides(start='2014-07', end='2017-08', unit='kPa'):
     raise ValueError(f"Invalid unit {unit}.")
 
 
-def load_spectral(variable='st', **kwargs):
+def load_spectral(interp=True, variable='st', **kwargs):
     """Load modified variables for spectral analysis."""
     if variable == 'st':
-        data = load(tide=True, variable='wlev', **kwargs)
+        data = load(interp=True, tide=True, variable='wlev', **kwargs)
     else:
-        tilx = load(tide=True, variable='tilx', **kwargs)
-        tily = load(tide=False, variable='tily', **kwargs)
+        tilx = load(interp=True, tide=True, variable='tilx', **kwargs)
+        tily = load(interp=True, tide=False, variable='tily', **kwargs)
         tide = tilx.pop('tide')
         tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
         tilt = tilt * 1e3

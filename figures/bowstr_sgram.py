@@ -32,7 +32,7 @@ def plot_cwt(series, ax):
             1.5*1/freqs[0]-0.5*1/freqs[1], 1.5*1/freqs[-1]-0.5*1/freqs[-2]])
 
     # plot invisible timeseries to format axes as pandas
-    (10+0*series.resample('1D').mean()).plot(ax=ax, visible=False)
+    (18+0*series.resample('1D').mean()).plot(ax=ax, visible=False)
 
     # set axes properties
     ax.set_yticks([12, 24])
@@ -90,7 +90,7 @@ def plot(method='stfft'):
     # load stress and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     dates = bowstr_utils.load_freezing_dates()
-    df = bowstr_utils.load_spectral(interp=True, resample='10min', variable=method[:2])
+    df = bowstr_utils.load_spectral(resample='10min', variable=method[:2])
     df = df.drop(columns=['UI03', 'UI02'])
 
     # plot spectrograms and text labels
