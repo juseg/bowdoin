@@ -14,16 +14,14 @@ BOWDEF_FIGS = \
 		$(addprefix bowdef_, rates shear tilts))
 
 # bowdoin stress figures
-BOWSTR_FILTERS = 12hbp 12hhp 24hbp 24hhp deriv phase
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowstr_, \
-			bores fjordtide intervals timeseries wavelets) \
+		$(addprefix bowstr_, bores fjordtide intervals timeseries) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_pgram_, stlsp stfft tilsp tifft) \
-		$(addprefix bowstr_sgram_, stfft tifft))
+		$(addprefix bowstr_sgram_, stcwt stfft ticwt tifft))
 
 # bowdoin temperature figures
 BOWTEM_FIGS = \
@@ -55,14 +53,12 @@ $(BOWSTR_FIGS): bowstr_utils.py
 %.png: %.py
 	python $<
 
-# custom filter pattern rules
-# FIXME add rule for pgram, sgram
-define GEN_FILTER_RULE
-%_$(filter).png: %.py
-	python $$< --filters $(filter)
-endef
-$(foreach filter,$(BOWSTR_FILTERS), \
-  $(eval $(call GEN_FILTER_RULE)))
+# optioned pattern rule
+OPT_RULE = %_$(2).png: %.py ; python $$< --$(1) $(2)
+$(foreach filter, 12hbp 12hhp 24hbp 24hhp deriv phase, \
+  $(eval $(call OPT_RULE,filters,$(filter))))
+$(foreach method, stcwt stlsp stfft ticwt tilsp tifft, \
+  $(eval $(call OPT_RULE,methods,$(method))))
 
 # clean up
 .PHONY: clean
