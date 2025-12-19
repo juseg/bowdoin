@@ -104,9 +104,9 @@ def plot(method='stfft'):
     # set axes properties
     ax.set_xlim('20140701', '20170801')
     if method[2:] == 'fft':
-        ax.set_ylim(0.5, 2.5)
-        ax.set_yticks([1, 2])
-        ax.set_yticklabels(['24', '12'])
+        ax.set_ylim(2.5, 0.5)
+        ax.set_yticks([2, 1])
+        ax.set_yticklabels(['12', '24'])
     else:
         ax.set_yticks([12, 24])
     axes[4].set_ylabel('period (h)', ha='left', labelpad=0)
