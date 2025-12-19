@@ -14,8 +14,33 @@ import pywt
 import bowstr_utils
 
 
-def plot_spectrogram(series, ax, color):
-    """Plot spectrogram from data series."""
+def plot_cwt(series, ax):
+    """Plot spectrogram from continuous wavelet transform."""
+
+    # compute wavelet transform
+    series = series.dropna()
+    sampling = (series.index[1] - series.index[0]).total_seconds() / 3600
+    periods = np.arange(6, 31, 1)
+    scales = pywt.frequency2scale('morl', sampling / periods)
+    cwt, freqs = pywt.cwt(series, scales, 'morl', sampling_period=sampling)
+
+    # plot wavelet transform
+    img = ax.imshow(
+        np.abs(cwt), aspect='auto', cmap='Greys', origin='lower', vmin=0,
+        vmax=np.quantile(np.abs(cwt), 0.99), extent=[
+            *mpl.dates.date2num((series.index[0], series.index[-1])),
+            1.5*1/freqs[0]-0.5*1/freqs[1], 1.5*1/freqs[-1]-0.5*1/freqs[-2]])
+
+    # plot invisible timeseries to format axes as pandas
+    # force pandas date format
+    (10+0*series.resample('1D').mean()).plot(ax=ax, visible=False)
+
+    # return image for colorbar
+    return img
+
+
+def plot_fft(series, ax, color):
+    """Plot spectrogram from Fast Fourier Transform."""
 
     # differentiate series
     series = series.diff() / series.index.to_series().diff().dt.total_seconds()
@@ -42,29 +67,11 @@ def plot_spectrogram(series, ax, color):
     return img
 
 
-def plot_wavelets(series, ax):
-    """Plot continuous wavelet transform from data series."""
-
-    # compute wavelet transform
-    series = series.dropna()
-    sampling = (series.index[1] - series.index[0]).total_seconds() / 3600
-    periods = np.arange(6, 31, 1)
-    scales = pywt.frequency2scale('morl', sampling / periods)
-    cwt, freqs = pywt.cwt(series, scales, 'morl', sampling_period=sampling)
-
-    # plot wavelet transform
-    img = ax.imshow(
-        np.abs(cwt), aspect='auto', cmap='Greys', origin='lower', vmin=0,
-        vmax=np.quantile(np.abs(cwt), 0.99), extent=[
-            *mpl.dates.date2num((series.index[0], series.index[-1])),
-            1.5*1/freqs[0]-0.5*1/freqs[1], 1.5*1/freqs[-1]-0.5*1/freqs[-2]])
-
-    # plot invisible timeseries to format axes as pandas
-    # force pandas date format
-    (10+0*series.resample('1D').mean()).plot(ax=ax, visible=False)
-
-    # return image for colorbar
-    return img
+def plot_spectrogram(series, ax, color, method='fft'):
+    """Plot spectrogram from data series."""
+    func = globals().get(f'plot_{method}')
+    args = (series, ax) + (color,) * (method == 'fft')
+    return func(*args)
 
 
 def plot(method='stfft'):
@@ -87,10 +94,7 @@ def plot(method='stfft'):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
         series = df.loc[dates.get(unit, None):, unit]
-        if method[2:] == 'cwt':
-            img = plot_wavelets(series, ax)
-        else:
-            img = plot_spectrogram(series, ax, color)
+        img = plot_spectrogram(series, ax, color, method=method[2:])
         ax.text(
             1.02, 0.5, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
