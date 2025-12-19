@@ -16,8 +16,7 @@ BOWDEF_FIGS = \
 # bowdoin stress figures
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowstr_, \
-			bores fjordtide intervals timeseries wavelets) \
+		$(addprefix bowstr_, bores fjordtide intervals timeseries) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
