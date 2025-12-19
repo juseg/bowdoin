@@ -47,27 +47,19 @@ def plot_spectrogram(series, ax, color):
 def plot_wavelets(series, ax):
     """Plot continuous wavelet transform from data series."""
 
-    # interpolate, drop nans, and differentiate
-    series = series.dropna()
-
-    # compute wavelet widths
-    # width = omega*samplefreq / (2*waveletfreq*np.pi)
-    # width = omega*waveletperiod/timestep / (2*np.pi)
-    periods = np.arange(1, 36)  # periods in hours
-    # widths = 5*periods*pd.to_timedelta('1h')/series.index.freq / (2*np.pi)
-
     # compute wavelet transform
-    scales = periods  # FIXME not sure about that
-    cwt, _ = pywt.cwt(series, scales, 'morl')
+    series = series.dropna()
+    sampling = (series.index[1] - series.index[0]).total_seconds() / 3600
+    periods = np.arange(6, 31, 1)
+    scales = pywt.frequency2scale('morl', sampling / periods)
+    cwt, freqs = pywt.cwt(series, scales, 'morl', sampling_period=sampling)
 
     # plot wavelet transform
-    extent = (
-        *mpl.dates.date2num((series.index[0], series.index[-1])),
-        periods[0], periods[-1])
-    vmax = np.quantile(abs(cwt), 0.99)
     img = ax.imshow(
-        cwt, cmap='RdBu', aspect='auto', extent=extent, origin='lower',
-        vmin=-vmax, vmax=vmax)
+        np.abs(cwt), aspect='auto', cmap='Greys', origin='lower', vmin=0,
+        vmax=np.quantile(np.abs(cwt), 0.99), extent=[
+            *mpl.dates.date2num((series.index[0], series.index[-1])),
+            1.5*1/freqs[0]-0.5*1/freqs[1], 1.5*1/freqs[-1]-0.5*1/freqs[-2]])
 
     # plot invisible timeseries to format axes as pandas
     # force pandas date format
@@ -117,6 +109,8 @@ def plot(method='stfft'):
         ax.set_ylim(0.5, 2.5)
         ax.set_yticks([1, 2])
         ax.set_yticklabels(['24', '12'])
+    else:
+        ax.set_yticks([12, 24])
     axes[4].set_ylabel('period (h)', ha='left', labelpad=0)
 
     # return figure
