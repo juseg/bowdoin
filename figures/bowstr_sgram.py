@@ -27,7 +27,7 @@ def plot_cwt(series, ax):
     # plot wavelet transform
     img = ax.imshow(
         np.abs(cwt), aspect='auto', cmap='Greys', origin='lower', vmin=0,
-        vmax=np.quantile(np.abs(cwt), 0.99), extent=[
+        vmax=np.quantile(np.abs(cwt), 0.98), extent=[
             *mpl.dates.date2num((series.index[0], series.index[-1])),
             1.5*1/freqs[0]-0.5*1/freqs[1], 1.5*1/freqs[-1]-0.5*1/freqs[-2]])
 
