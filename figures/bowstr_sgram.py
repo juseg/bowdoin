@@ -32,8 +32,10 @@ def plot_cwt(series, ax):
             1.5*1/freqs[0]-0.5*1/freqs[1], 1.5*1/freqs[-1]-0.5*1/freqs[-2]])
 
     # plot invisible timeseries to format axes as pandas
-    # force pandas date format
     (10+0*series.resample('1D').mean()).plot(ax=ax, visible=False)
+
+    # set axes properties
+    ax.set_yticks([12, 24])
 
     # return image for colorbar
     return img
@@ -42,11 +44,8 @@ def plot_cwt(series, ax):
 def plot_fft(series, ax, color):
     """Plot spectrogram from Fast Fourier Transform."""
 
-    # differentiate series
-    series = series.diff() / series.index.to_series().diff().dt.total_seconds()
-    series = series[1:]
-
     # plot spectrogram (values range ca. -170 to -50)
+    series = series.diff() / series.index.to_series().diff().dt.total_seconds()
     sfreq = int(pd.to_timedelta('1D') / series.index.freq)
     per, freqs, bins, img = ax.specgram(
         series, cmap='Greys', Fs=sfreq, NFFT=sfreq*14, noverlap=sfreq*12,
@@ -62,6 +61,11 @@ def plot_fft(series, ax, color):
     ratio = ratio.where(pow12 > 1e-15).resample('2D').mean()
     (1+ratio).plot(ax=ax, color='w', lw=2, alpha=0.5)
     (1+ratio).plot(ax=ax, color=color)
+
+    # set axes properties
+    ax.set_ylim(2.5, 0.5)
+    ax.set_yticks([2, 1])
+    ax.set_yticklabels(['12', '24'])
 
     # return image for colorbar
     return img
@@ -103,16 +107,12 @@ def plot(method='stfft'):
 
     # add colorbar
     cax.figure.colorbar(img, cax=cax, orientation='horizontal')
-    cax.set_xlabel('power spectral density')
+    cax.set_xlabel(
+        'continuous wavelet transform' if method[2:] == 'cwt' else
+        'power spectral density')
 
     # set axes properties
-    ax.set_xlim('20140701', '20170801')
-    if method[2:] == 'fft':
-        ax.set_ylim(2.5, 0.5)
-        ax.set_yticks([2, 1])
-        ax.set_yticklabels(['12', '24'])
-    else:
-        ax.set_yticks([12, 24])
+    axes[0].set_xlim('20140701', '20170801')
     axes[4].set_ylabel('period (h)', ha='left', labelpad=0)
 
     # return figure
