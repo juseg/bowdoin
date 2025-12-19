@@ -22,18 +22,16 @@ def plot_spectrogram(series, ax, color):
     series = series[1:]
 
     # plot spectrogram (values range ca. -170 to -50)
+    sfreq = int(pd.to_timedelta('1D') / series.index.freq)
     per, freqs, bins, img = ax.specgram(
-        series, Fs=pd.to_timedelta('1D') / series.index.freq, NFFT=6*24*14,
-        noverlap=6*24*12, cmap='Greys', vmin=-150, vmax=-50)
-
-    # shift image horizontally to series start date
-    offset = mpl.dates.date2num(series.index[0])
-    img.set_extent((*img.get_extent()[:2]+offset, *img.get_extent()[2:]))
+        series, cmap='Greys', Fs=sfreq, NFFT=sfreq*14, noverlap=sfreq*12,
+        xextent=mpl.dates.date2num((series.index[0], series.index[-1])),
+        vmin=-150, vmax=-50)
 
     # plot 22-26 vs 10-14 hour bands power ratio
     pow12 = per[(24/14 <= freqs) & (freqs <= 24/10), :].sum(axis=0)
     pow24 = per[(24/26 <= freqs) & (freqs <= 24/22), :].sum(axis=0)
-    index = pd.DatetimeIndex(mpl.dates.num2date(offset+bins))
+    index = series.index[0] + np.asarray(mpl.dates.num2timedelta(bins))
     ratio = 1 / (1 + pow24 / pow12)
     ratio = pd.Series(ratio, index=index)
     ratio = ratio.where(pow12 > 1e-15).resample('2D').mean()
