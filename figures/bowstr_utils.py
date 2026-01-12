@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2019-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -98,16 +98,23 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
         data = data.sort_index(axis=1, ascending=False)
         data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
 
+    # load sampling intervals before resampling
+    if filt == 'steps':
+        data = pd.concat([
+            series.dropna().index.to_series(name=col).diff().dt.total_seconds()
+            for col, series in data.items()], axis=1) / 3600
+
     # resample
     if resample is not None:
         data = data.resample(resample).mean()
 
     # load tide data
+    # FIXME move this above with steps
     if tide is True:
         assert resample is not None
         data['tide'] = load_pituffik_tides().resample(resample).mean() / 10
 
-    # resample
+    # interpolate
     if interp is True:
         data = data.interpolate(limit_area='inside').dropna(how='all')
 
