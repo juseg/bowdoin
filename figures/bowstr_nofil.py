@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2019-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -101,7 +101,7 @@ def main():
 
     # set main axes properties
     axes[1, 0].set_xlabel('')
-    axes[0, 0].set_ylabel('stress (MPa)')
+    axes[0, 0].set_ylabel('water pressure or ice stress (MPa)')
     axes[1, 0].set_ylabel('temperature (°C)')
     axes[0, 0].set_xlim('20140708', '20140908')
     axes[0, 1].set_xlim('20140908', '20171201')

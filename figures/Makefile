@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2015-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -16,7 +16,7 @@ BOWDEF_FIGS = \
 # bowdoin stress figures
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowstr_, bores fjordtide intervals timeseries) \
+		$(addprefix bowstr_, bores fjordtide intervals nofil) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
