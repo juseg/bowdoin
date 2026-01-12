@@ -14,12 +14,10 @@ import os.path
 import sys
 import time
 
-import absplots as apl
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import scipy.signal as sg
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 import bowtem_utils
 
@@ -98,7 +96,7 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
         data = data.sort_index(axis=1, ascending=False)
         data = data.drop(['LI01', 'LI02', 'UI01'], axis=1)
 
-    # load sampling intervals before resampling
+    # compute sampling intervals before resampling
     if filt == 'steps':
         data = pd.concat([
             series.dropna().index.to_series(name=col).diff().dt.total_seconds()
@@ -109,7 +107,6 @@ def load(interp=False, filt=None, resample=None, tide=False, variable='wlev'):
         data = data.resample(resample).mean()
 
     # load tide data
-    # FIXME move this above with steps
     if tide is True:
         assert resample is not None
         data['tide'] = load_pituffik_tides().resample(resample).mean() / 10
