@@ -18,7 +18,7 @@ BOWSTR_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowstr_, bores fjordtide intervals nofil) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
-		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
+		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv phase steps) \
 		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_pgram_, stlsp stfft tilsp tifft) \
 		$(addprefix bowstr_sgram_, stcwt stfft ticwt tifft))
@@ -55,7 +55,7 @@ $(BOWSTR_FIGS): bowstr_utils.py
 
 # optioned pattern rule
 OPT_RULE = %_$(2).png: %.py ; python $$< --$(1) $(2)
-$(foreach filter, 12hbp 12hhp 24hbp 24hhp deriv phase, \
+$(foreach filter, 12hbp 12hhp 24hbp 24hhp deriv phase steps, \
   $(eval $(call OPT_RULE,filters,$(filter))))
 $(foreach method, stcwt stlsp stfft ticwt tilsp tifft, \
   $(eval $(call OPT_RULE,methods,$(method))))
