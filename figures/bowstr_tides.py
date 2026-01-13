@@ -31,7 +31,7 @@ def main():
     ax.set_ylabel('Tide (kPa)', labelpad=0.0)
     ax.set_xlim(bowd.index[[0, -1]].date)
     ax.set_xlim(bowd.index[0].floor('D'), bowd.index[-1].ceil('D'))
-    ax.legend()
+    ax.legend(loc='lower left')
 
     # crop Thule data and downsample Bowdoin
     thul = thul[bowd.index[0]:bowd.index[-1]]
