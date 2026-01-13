@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2019-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -58,7 +58,9 @@ def plot(filt='24hhp'):
 
     # set axes limits
     subaxes[0, 0].set_xlim('20140701', '20170801')
-    subaxes[1, 0].set_xlim('20140816', '20141016')
+    subaxes[1, 0].set_xlim(
+        ['20141016', '20141216'] if filt == 'steps' else
+        ['20140816', '20141016'])
 
     # remove empty headlines in date tick labels
     subaxes[1, -1].set_xticks(subaxes[1, -1].get_xticks())
@@ -80,7 +82,7 @@ def plot(filt='24hhp'):
 
 def main():
     """Main program called during execution."""
-    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv'] # FIXME 'phase'
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv', 'phase', 'steps']
     plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
     plotter()
 

@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 
 import bowstr_utils
-import bowtem_utils
 
 
 def crosscorr(series, other, wmin=-48, wmax=12):
@@ -98,7 +97,7 @@ def plot(filt='24hhp'):
 
 def main():
     """Main program called during execution."""
-    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv']  # FIXME 'phase'
+    filters = ['12hbp', '12hhp', '24hbp', '24hhp', 'deriv', 'phase']
     plotter = bowstr_utils.MultiPlotter(plot, filters=filters)
     plotter()
 
