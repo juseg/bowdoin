@@ -41,15 +41,10 @@ def main():
     ax = grid[1]
     ax.scatter(thul, bowd, marker='+', alpha=0.25)
     ax.set_xlabel('Pituffik tide (kPa)')
-    ax.set_ylabel('Bowdoin tide (kPa)', labelpad=0.0)
+    ax.set_ylabel('Bowdoin tide (kPa)', labelpad=-6)
 
     # save
     fig.savefig(__file__[:-3])
-
-    # save alternative frames  # FIXME formalise presentation mode
-    # fig.savefig(__file__[:-3]+'_z1')
-    # ax.set_visible(False)
-    # fig.savefig(__file__[:-3]+'_z0')
 
 
 if __name__ == '__main__':
