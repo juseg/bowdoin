@@ -184,7 +184,7 @@
 % ----------------------------------------------------------------------
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_boreholes}}
+      \centerline{\includegraphics{bowstr_bores}}
       \caption{%
         \textbf{(a)}
           Bowdoin borehole locations from drilling in July 2014 to dismantling
@@ -199,7 +199,8 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_timeseries}}
+      % FIXME move this after spectral analysis.
+      \centerline{\includegraphics{bowstr_nofil}}
       \caption{%
         \textbf{(a)}
           Complete piezometer record, including the initial borehole water
@@ -212,7 +213,8 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_freezedates}}
+      % FIXME this has been merged with timeseries.
+      % \centerline{\includegraphics{bowstr_freezedates}}
       \caption{%
         \textbf{(a)}
           Same as Fig.~\ref{fig:timeseries} but with split axes. Sharp peaks in
@@ -230,7 +232,7 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_highpass}}
+      \centerline{\includegraphics{bowstr_lines_12hbp}}
       \caption{%
         \textbf{(a)}
           Complete piezometer record, after applying a fourth-order Butterworth
@@ -248,12 +250,14 @@
           maybe add a separate figure with borehole temp and stress during
           refreezing.}
         \todo{
-          fix year label, add GPS and tilts, and highlight the freezing dates?}}
+          fix year label, add GPS and tilts, and highlight the freezing dates?}
+        \todo{
+          Move after the spectrogram as Fig. 5?}}
       \label{fig:highpass}
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_fourier}}
+      \centerline{\includegraphics{bowstr_pgram_stfft}}
       \caption{%
         \textbf{(a--i)}
           Fast-fourier transforms of the (non-filtered) series of stress
@@ -270,7 +274,7 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_specgrams}}
+      \centerline{\includegraphics{bowstr_sgram_stfft}}
       \caption{%
         \textbf{(a--h)}
           Rolling-window spectrograms of glacier stress and tidal pressure
@@ -287,7 +291,8 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_wavelets}}
+      % FIXME not used in talks, is this fig necessary?
+      \centerline{\includegraphics{bowstr_sgram_stcwt}}
       \caption{%
         \textbf{(a--h)}
           Continuous wavelet transforms of glacier stress and tidal pressure
@@ -308,7 +313,7 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_correlate}}
+      \centerline{\includegraphics{bowstr_ccorr_12hbp}}
       \caption{%
         \textbf{(a)}
           Extract of the piezometer record and tidal pressure for October 2014,
@@ -329,7 +334,7 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_rollcorr}}
+      \centerline{\includegraphics{bowstr_mcorr_12hbp}}
       \caption{%
         \textbf{(a-g)}
           Rolling-window cross-correlation between the piezometer and tidal
