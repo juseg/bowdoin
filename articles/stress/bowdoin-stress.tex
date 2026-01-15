@@ -105,7 +105,7 @@
 \section{Methods}
 % ----------------------------------------------------------------------
 
-    Borehole set-up (Fig.~\ref{fig:boreholes}).
+    Borehole set-up (Fig.~\ref{fig:bores}).
 
 % ----------------------------------------------------------------------
 \section{Results}
@@ -115,8 +115,8 @@
 \subsection{Stress timeseries}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Stress timeseries (Fig.~\ref{fig:timeseries}).
-    Filtered timeseries (Fig.~\ref{fig:highpass}).
+    Stress timeseries (Fig.~\ref{fig:nofil}).
+    Filtered timeseries (Fig.~\ref{fig:lines}).
 
     Ice-cased sensors recorded stress oscillations.
     The amplitude is an order of magnitude below Pituffik tides.
@@ -125,9 +125,9 @@
 \subsection{Spectral content}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Fourier transforms (Fig.~\ref{fig:fourier}).
-    Fourier spectrograms (Fig.~\ref{fig:specgrams}).
-    Continuous wavelet transform (Fig.~\ref{fig:wavelets}).
+    Fourier transforms (Fig.~\ref{fig:pgram}).
+    Fourier spectrograms (Fig.~\ref{fig:sgram}).
+    Continuous wavelet transform (Fig.~\ref{fig:wlets}).
 
     Spectral content is very similar to that of Pituffik tides.
     Tidal signal is overprinted by daily oscillations in summer.
@@ -137,8 +137,8 @@
 \subsection{Phase relationships}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Cross-correlation (Fig.~\ref{fig:correlate}).
-    Rolling window cross-correlation (Fig.~\ref{fig:rollcorr}).
+    Cross-correlation (Fig.~\ref{fig:ccorr}).
+    Rolling window cross-correlation (Fig.~\ref{fig:mcorr}).
 
     Stress signal is anti-correlated with the tide.
     Maximum stress occur 1 to 2 hours after low tide.
@@ -195,7 +195,7 @@
           Initially observed ice thickness and localization of the piezometers
           as deduced from initial water-pressure measurements.
         \todo{add model of tilt unit casing with location of the sensor}.}
-      \label{fig:boreholes}
+      \label{fig:bores}
     \end{figure}
 
     \begin{figure}
@@ -209,15 +209,15 @@
         \textbf{(b, c)}
           Insets displaying an example of semi-diurnal periodic oscillations
           observed in the stress record after refreezing.}
-      \label{fig:timeseries}
+      \label{fig:nofil}
     \end{figure}
 
     \begin{figure}
-      % FIXME this has been merged with timeseries.
+      % FIXME this has been merged with timeseries
       % \centerline{\includegraphics{bowstr_freezedates}}
       \caption{%
         \textbf{(a)}
-          Same as Fig.~\ref{fig:timeseries} but with split axes. Sharp peaks in
+          Same as Fig.~\ref{fig:nofil} but with split axes. Sharp peaks in
           the early part of the record correspond to the hotwater-drilled
           borehole refreezing phase.
         \textbf{(b)}
@@ -227,7 +227,7 @@
           Insets displaying an example of semi-diurnal periodic oscillations
           observed in the stress record after refreezing.
         \note{%
-          Maybe this can be merged with Fig.~\ref{fig:timeseries}.}}
+          Maybe this can be merged with Fig.~\ref{fig:nofil}.}}
       \label{fig:freezedates}
     \end{figure}
 
@@ -253,7 +253,7 @@
           fix year label, add GPS and tilts, and highlight the freezing dates?}
         \todo{
           Move after the spectrogram as Fig. 5?}}
-      \label{fig:highpass}
+      \label{fig:lines}
     \end{figure}
 
     \begin{figure}
@@ -270,7 +270,7 @@
           converted to sea-water pressure and divided by ten. Insets show a
           zoom on the diurnal and semi-diurnal tidal components which can also
           be found in some of the stress records.}
-      \label{fig:fourier}
+      \label{fig:pgram}
     \end{figure}
 
     \begin{figure}
@@ -287,7 +287,7 @@
           visualization, showing that semi-diurnal oscillations dominate the
           record outside the melt season. UI03 and UI02 are omitted due to the
           short length of their solid stress record after refreezing.}
-      \label{fig:specgrams}
+      \label{fig:sgram}
     \end{figure}
 
     \begin{figure}
@@ -309,7 +309,7 @@
             diminish as I extend the time period. On the other hand the CWT
             seems to be good at picking the changes in frequency at the
             beginning and the end of the melt season.}}
-      \label{fig:wavelets}
+      \label{fig:wlets}
     \end{figure}
 
     \begin{figure}
@@ -330,7 +330,7 @@
         \todo{
           fix labels, check that the clocks are on-time (at least UI* should be
           OK, but I'm not sure about LI*).}}
-      \label{fig:correlate}
+      \label{fig:ccorr}
     \end{figure}
 
     \begin{figure}
@@ -345,7 +345,7 @@
           above 0.75.
           \note{no idea what happens after 2016.}
           \todo{add colorbar (grey=anticorrelation), try 1-bit normalization}.}
-      \label{fig:rollcorr}
+      \label{fig:mcorr}
     \end{figure}
 
 % ----------------------------------------------------------------------
