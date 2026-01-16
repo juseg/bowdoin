@@ -116,7 +116,6 @@
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
     Stress timeseries (Fig.~\ref{fig:nofil}).
-    Filtered timeseries (Fig.~\ref{fig:lines}).
 
     Ice-cased sensors recorded stress oscillations.
     The amplitude is an order of magnitude below Pituffik tides.
@@ -137,6 +136,7 @@
 \subsection{Phase relationships}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
+    Filtered timeseries (Fig.~\ref{fig:lines}).
     Cross-correlation (Fig.~\ref{fig:ccorr}).
     Rolling window cross-correlation (Fig.~\ref{fig:mcorr}).
 
@@ -215,32 +215,6 @@
     \end{figure}
 
     \begin{figure}
-      % FIXME move this after spectral analysis.
-      \centerline{\includegraphics{bowstr_lines_12hbp}}
-      \caption{%
-        \textbf{(a)}
-          Complete piezometer record, after applying a fourth-order Butterworth
-          high-pass filter with a cut-off period of one day. The bottom curve
-          shows (non-filtered) tidal measurements from Pituffik, converted to
-          sea-water pressure and divided by ten.
-        \textbf{(b)}
-          Zoom on the later part of the 2014 melt season and transition into
-          fall, before contact to UI03 and UI02 was lost, but also while LI03
-          was not yet refrozen. Other sensors record a transition from
-          high-amplitude, daily stress oscillations (correlated with glacier
-          speed) to semi-diurnal oscillations anti-correlated with, and an
-          order of magnitude lower than, the tide.
-        \note{
-          maybe add a separate figure with borehole temp and stress during
-          refreezing.}
-        \todo{
-          fix year label, add GPS and tilts, and highlight the freezing dates?}
-        \todo{
-          Move after the spectrogram as Fig. 5?}}
-      \label{fig:lines}
-    \end{figure}
-
-    \begin{figure}
       \centerline{\includegraphics{bowstr_pgram_stfft}}
       \caption{%
         \textbf{(a--i)}
@@ -294,6 +268,32 @@
             seems to be good at picking the changes in frequency at the
             beginning and the end of the melt season.}}
       \label{fig:wlets}
+    \end{figure}
+
+    \begin{figure}
+      % FIXME move this after spectral analysis.
+      \centerline{\includegraphics{bowstr_lines_12hbp}}
+      \caption{%
+        \textbf{(a)}
+          Complete piezometer record, after applying a fourth-order Butterworth
+          high-pass filter with a cut-off period of one day. The bottom curve
+          shows (non-filtered) tidal measurements from Pituffik, converted to
+          sea-water pressure and divided by ten.
+        \textbf{(b)}
+          Zoom on the later part of the 2014 melt season and transition into
+          fall, before contact to UI03 and UI02 was lost, but also while LI03
+          was not yet refrozen. Other sensors record a transition from
+          high-amplitude, daily stress oscillations (correlated with glacier
+          speed) to semi-diurnal oscillations anti-correlated with, and an
+          order of magnitude lower than, the tide.
+        \note{
+          maybe add a separate figure with borehole temp and stress during
+          refreezing.}
+        \todo{
+          fix year label, add GPS and tilts, and highlight the freezing dates?}
+        \todo{
+          Move after the spectrogram as Fig. 5?}}
+      \label{fig:lines}
     \end{figure}
 
     \begin{figure}
