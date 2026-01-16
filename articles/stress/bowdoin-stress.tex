@@ -105,7 +105,7 @@
 \section{Methods}
 % ----------------------------------------------------------------------
 
-    Borehole set-up (Fig.~\ref{fig:boreholes}).
+    Borehole set-up (Fig.~\ref{fig:bores}).
 
 % ----------------------------------------------------------------------
 \section{Results}
@@ -115,8 +115,7 @@
 \subsection{Stress timeseries}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Stress timeseries (Fig.~\ref{fig:timeseries}).
-    Filtered timeseries (Fig.~\ref{fig:highpass}).
+    Stress timeseries (Fig.~\ref{fig:nofil}).
 
     Ice-cased sensors recorded stress oscillations.
     The amplitude is an order of magnitude below Pituffik tides.
@@ -125,9 +124,9 @@
 \subsection{Spectral content}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Fourier transforms (Fig.~\ref{fig:fourier}).
-    Fourier spectrograms (Fig.~\ref{fig:specgrams}).
-    Continuous wavelet transform (Fig.~\ref{fig:wavelets}).
+    Fourier transforms (Fig.~\ref{fig:pgram}).
+    Fourier spectrograms (Fig.~\ref{fig:sgram}).
+    Continuous wavelet transform (Fig.~\ref{fig:wlets}).
 
     Spectral content is very similar to that of Pituffik tides.
     Tidal signal is overprinted by daily oscillations in summer.
@@ -137,8 +136,9 @@
 \subsection{Phase relationships}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Cross-correlation (Fig.~\ref{fig:correlate}).
-    Rolling window cross-correlation (Fig.~\ref{fig:rollcorr}).
+    Filtered timeseries (Fig.~\ref{fig:lines}).
+    Cross-correlation (Fig.~\ref{fig:ccorr}).
+    Rolling window cross-correlation (Fig.~\ref{fig:mcorr}).
 
     Stress signal is anti-correlated with the tide.
     Maximum stress occur 1 to 2 hours after low tide.
@@ -180,11 +180,11 @@
 
 % ----------------------------------------------------------------------
 % Figures
-%\clearpage
+\clearpage
 % ----------------------------------------------------------------------
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_boreholes}}
+      \centerline{\includegraphics{bowstr_bores}}
       \caption{%
         \textbf{(a)}
           Bowdoin borehole locations from drilling in July 2014 to dismantling
@@ -194,153 +194,123 @@
         \textbf{(b)}
           Initially observed ice thickness and localization of the piezometers
           as deduced from initial water-pressure measurements.
-        \todo{add model of tilt unit casing with location of the sensor}.}
-      \label{fig:boreholes}
+        \textbf{(c)}
+          Three-dimensional rendering of digital sensor units
+          \citep[DIBOSS,][]{Ryser.2014, Ryser.etal.2014, Ryser.etal.2014a},
+          including the top cylindrical slots with six pins where pressure
+          sensors were installed under a silicon membrane.}
+      \label{fig:bores}
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_timeseries}}
+      \centerline{\includegraphics{bowstr_nofil}}
       \caption{%
         \textbf{(a)}
-          Complete piezometer record, including the initial borehole water
-          pressure measurements, and the transition to solid ice stress
-          measurements.
+          Complete unfiltered piezometer record, including the initial borehole
+          water pressure measurements, peak pressure during borehole closure
+          by refreezing, and the transition to solid ice stress records.
         \textbf{(b, c)}
           Insets displaying an example of semi-diurnal periodic oscillations
-          observed in the stress record after refreezing.}
-      \label{fig:timeseries}
+          observed in the stress record after borehole closure.
+        \textbf{(d)}
+          Corresponding temperature record, estimated closure dates when
+          temperatures reach $80\%$ of their minumum value relative to
+          0$\,$C$^\circ$, and long-term ice warming trend due to latent heat
+          \citep[cf.][]{Seguinot.etal.2020}.}
+      \label{fig:nofil}
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_freezedates}}
-      \caption{%
-        \textbf{(a)}
-          Same as Fig.~\ref{fig:timeseries} but with split axes. Sharp peaks in
-          the early part of the record correspond to the hotwater-drilled
-          borehole refreezing phase.
-        \textbf{(b)}
-          Corresponding temperature record, showing the initial refreezing
-          phase and long-term warming \citep[cf.][]{Seguinot.etal.2020}.
-          Full circles denote refreezing dates estimated
-          Insets displaying an example of semi-diurnal periodic oscillations
-          observed in the stress record after refreezing.
-        \note{%
-          Maybe this can be merged with Fig.~\ref{fig:timeseries}.}}
-      \label{fig:freezedates}
-    \end{figure}
-
-    \begin{figure}
-      \centerline{\includegraphics{bowstr_highpass}}
-      \caption{%
-        \textbf{(a)}
-          Complete piezometer record, after applying a fourth-order Butterworth
-          high-pass filter with a cut-off period of one day. The bottom curve
-          shows (non-filtered) tidal measurements from Pituffik, converted to
-          sea-water pressure and divided by ten.
-        \textbf{(b)}
-          Zoom on the later part of the 2014 melt season and transition into
-          fall, before contact to UI03 and UI02 was lost, but also while LI03
-          was not yet refrozen. Other sensors record a transition from
-          high-amplitude, daily stress oscillations (correlated with glacier
-          speed) to semi-diurnal oscillations anti-correlated with, and an
-          order of magnitude lower than, the tide.
-        \note{
-          maybe add a separate figure with borehole temp and stress during
-          refreezing.}
-        \todo{
-          fix year label, add GPS and tilts, and highlight the freezing dates?}}
-      \label{fig:highpass}
-    \end{figure}
-
-    \begin{figure}
-      \centerline{\includegraphics{bowstr_fourier}}
+      \centerline{\includegraphics{bowstr_pgram_stfft}}
       \caption{%
         \textbf{(a--i)}
-          Fast-fourier transforms of the (non-filtered) series of stress
-          derivative over time (kPa$\,$s$^{-1}$) after refreezing. The
-          refreezing date is computed independently for each unit as the date
-          when temperatures reach $75\%$ of their minumum value relative to
-          0$\,$C$^\circ$. \todo{ensure this is consistent among plots.}
+          Fast-fourier transforms of the time derivative of hourly-resampled
+          stress series, computed from the part of the record that follows
+          estimated borehole closure (Fig.~\ref{fig:nofil}).
         \textbf{(j)}
           Fast-fourier transform of the time derivative of Pituffik tides,
           converted to sea-water pressure and divided by ten. Insets show a
           zoom on the diurnal and semi-diurnal tidal components which can also
           be found in some of the stress records.}
-      \label{fig:fourier}
+      \label{fig:pgram}
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_specgrams}}
+      \centerline{\includegraphics{bowstr_sgram_stfft}}
       \caption{%
         \textbf{(a--h)}
-          Rolling-window spectrograms of glacier stress and tidal pressure
-          temporal derivatives after refreezing of the individual units.
-          Fourier transforms are computed on 14-day windows with a 12-day
-          overlap. Some of the vertical bands result from interpolating the
-          signal from solar-power-adaptive to a constant, ten-minute time step.
-          Colour curves indicate the relative ratio of spectral power between
-          the 10--14 and 22--26\,h bands, rescaled between 12 and 24\,h for
-          visualization, showing that semi-diurnal oscillations dominate the
-          record outside the melt season. UI03 and UI02 are omitted due to the
-          short length of their solid stress record after refreezing.}
-      \label{fig:specgrams}
+          Rolling-window spectrograms of the post-closure time derivative of
+          stress and the time derivative of tidal pressure divided by ten.
+          Fast fourier transforms are computed on 14-day windows with a 12-day
+          overlap. Colour curves visualize the relative ratio of power spectral
+          density between the 10--14 and 22--26\,h bands. Semi-diurnal
+          oscillations predominate the record outside the melt season.
+          Near-basal units UI03 and UI02 are omitted due to the short length of
+          their stress record after borehole closure.}
+      \label{fig:sgram}
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_wavelets}}
+      \centerline{\includegraphics{bowstr_sgram_stcwt}}
       \caption{%
         \textbf{(a--h)}
-          Continuous wavelet transforms of glacier stress and tidal pressure
-          temporal derivatives after applying a fourth-order Butterworth
-          high-pass filter with a cut-off period of one day \todo{maybe
-          filtering is not needed here}, showing the emergence of a diurnal
-          signal during the 2015 melt season, in addition to the persistent
-          semi-diurnal signal.
-          \todo{%
-            try and extend upwards to 14-days periods.}
+          Continuous Morlet wavelet transforms of post-closure stress and tidal
+          pressure divided by ten, showing a predominant semi-diurnal signal
+          outside the melt seasons and the emergence of a superimposed diurnal
+          signal during the melt seasons.
           \note{%
-            I do not yet master this. I tried to plot the CWT for longer
-            record, but the magnitude of 12 and 24-h oscillations appears to
-            diminish as I extend the time period. On the other hand the CWT
-            seems to be good at picking the changes in frequency at the
-            beginning and the end of the melt season.}}
-      \label{fig:wavelets}
+            I find that this plot is bringing little new information on top of
+            the Fourier spectrograms (\ref{fig:sgram}) and that either figure
+            would probably be sufficient in itself. What do you think?}}
+      \label{fig:wlets}
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_correlate}}
+      \centerline{\includegraphics{bowstr_lines_12hbp}}
       \caption{%
         \textbf{(a)}
-          Extract of the piezometer record and tidal pressure for October 2014,
-          after applying a fourth-order Butterworth band-pass filter with
-          cut-off periods of 0.5 and 12\,h.
-          \todo{try 15\,h, or maybe even use the same filter in all plots.}
+          Complete piezometer record, after applying hourly resampling and a
+          second-order band-pass Butterworth filter once forward and once
+          backward (resulting in a zero-phase fourth-order filter) with cutoff
+          frequencies of 2 and 6 per day (or cutoff periods of 4 and 12\,h).
+          The bottom curve shows non-filtered tidal pressure from Pituffik,
+          converted to sea-water pressure and divided by ten.
         \textbf{(b)}
-          Cross-correlation of the ice stress (and water pressure) time series
+          Zoom on the later part of the 2014 melt season and transition into
+          fall, before signal to UI03 and UI02 was lost, but while LI03
+          remained in liquid water. All sensors except LI03 record a transition
+          from a complex signal to semi-diurnal oscillations anti-correlated
+          with the tide, and roughly an order of magnitude lower in amplitude.}
+      \label{fig:lines}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowstr_ccorr_12hbp}}
+      \caption{%
+        \textbf{(a)}
+          Extract of 10-minute-resampled, 4 to 12\,h band-pass-filtered stress
+          series and unfiltered tidal pressure in September and October 2014.
+        \textbf{(b)}
+          Cross-correlation between each band-pass-filtered stress series
           against tidal pressure. Coloured dots indicate the maximum absolute
           correlation, which corresponds to an anti-correlation with a phase
           delay of ca.~1--2\,h.
         \textbf{(c)}
-          Corresponding phase delay as a function of sensor depth.
-        \todo{
-          fix labels, check that the clocks are on-time (at least UI* should be
-          OK, but I'm not sure about LI*).}}
-      \label{fig:correlate}
+          Corresponding phase delay (with a precision on 10 minutes) plotted
+          against initial sensor depth before closure.}
+      \label{fig:ccorr}
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowstr_rollcorr}}
+      \centerline{\includegraphics{bowstr_mcorr_12hbp}}
       \caption{%
         \textbf{(a-g)}
-          Rolling-window cross-correlation between the piezometer and tidal
-          pressure record when the latter is available, after applying a
-          fourth-order Butterworth band-pass filter with cut-off periods of 2
-          and 12\,h. Colour curves show the optimal phase delay of stress
-          records relative to tides when absolute maximum (anti)correlation is
-          above 0.75.
-          \note{no idea what happens after 2016.}
-          \todo{add colorbar (grey=anticorrelation), try 1-bit normalization}.}
-      \label{fig:rollcorr}
+          Moving-window cross-correlation between the each 10-minute-resampled,
+          4 to 12\,h band-pass-filtered stress series against tidal pressure.
+          Colour curves show the moving-window phase delay of filtered stress
+          records relative to tides when anticorrelation is above 0.75.
+          \todo{add colorbar and mask periods without tide data.}}
+      \label{fig:mcorr}
     \end{figure}
 
 % ----------------------------------------------------------------------
