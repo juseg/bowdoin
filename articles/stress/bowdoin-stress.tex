@@ -277,8 +277,11 @@
       \centerline{\includegraphics{bowstr_lines_12hbp}}
       \caption{%
         \textbf{(a)}
-          Complete piezometer record, after applying a fourth-order Butterworth
-          high-pass filter with a cut-off period of one day. The bottom curve
+          Complete piezometer record, after applying hourly resampling and a
+          second-order band-pass Butterworth filter once forward and once
+          backward (resulting in a zero-phase fourth-order filter) with cutoff
+          frequencies of 2 and 6 per day (or cutoff periods of 4 and 12\,h).
+          The bottom curve
           shows (non-filtered) tidal measurements from Pituffik, converted to
           sea-water pressure and divided by ten.
         \textbf{(b)}
@@ -298,17 +301,16 @@
       \centerline{\includegraphics{bowstr_ccorr_12hbp}}
       \caption{%
         \textbf{(a)}
-          Extract of the piezometer record and tidal pressure for October 2014,
-          after applying a fourth-order Butterworth band-pass filter with
-          cut-off periods of 0.5 and 12\,h.
-          \todo{try 15\,h, or maybe even use the same filter in all plots.}
+          Extract of 10-minute-resampled, 4 to 12\,h band-pass-filtered stress
+          series and unfiltered tidal pressure in September and October 2014.
         \textbf{(b)}
-          Cross-correlation of the ice stress (and water pressure) time series
+          Cross-correlation between each band-pass-filtered stress series
           against tidal pressure. Coloured dots indicate the maximum absolute
           correlation, which corresponds to an anti-correlation with a phase
           delay of ca.~1--2\,h.
         \textbf{(c)}
-          Corresponding phase delay as a function of sensor depth.}
+          Corresponding phase delay (with a precision on 10 minutes) plotted
+          against initial sensor depth before refreezing.}
       \label{fig:ccorr}
     \end{figure}
 
@@ -316,14 +318,11 @@
       \centerline{\includegraphics{bowstr_mcorr_12hbp}}
       \caption{%
         \textbf{(a-g)}
-          Rolling-window cross-correlation between the piezometer and tidal
-          pressure record when the latter is available, after applying a
-          fourth-order Butterworth band-pass filter with cut-off periods of 2
-          and 12\,h. Colour curves show the optimal phase delay of stress
-          records relative to tides when absolute maximum (anti)correlation is
-          above 0.75.
-          \note{no idea what happens after 2016.}
-          \todo{add colorbar (grey=anticorrelation)}.}
+          Moving-window cross-correlation between the each 10-minute-resampled,
+          4 to 12\,h band-pass-filtered stress series against tidal pressure.
+          Colour curves show the moving-window phase delay of filtered stress
+          records relative to tides when anticorrelation is above 0.75.
+          \todo{add colorbar and mask periods without tide data.}}
       \label{fig:mcorr}
     \end{figure}
 
