@@ -180,7 +180,7 @@
 
 % ----------------------------------------------------------------------
 % Figures
-%\clearpage
+\clearpage
 % ----------------------------------------------------------------------
 
     \begin{figure}
@@ -207,11 +207,11 @@
       \caption{%
         \textbf{(a)}
           Complete unfiltered piezometer record, including the initial borehole
-          water pressure measurements, peak pressure during the refreezing
-          phase, and the transition to solid ice stress records.
+          water pressure measurements, peak pressure during borehole closure
+          by refreezing, and the transition to solid ice stress records.
         \textbf{(b, c)}
           Insets displaying an example of semi-diurnal periodic oscillations
-          observed in the stress record after refreezing.
+          observed in the stress record after borehole closure.
         \textbf{(d)}
           Corresponding temperature record, estimated closure dates when
           temperatures reach $80\%$ of their minumum value relative to
@@ -241,14 +241,12 @@
         \textbf{(a--h)}
           Rolling-window spectrograms of the post-closure time derivative of
           stress and the time derivative of tidal pressure divided by ten.
-          Fourier transforms are computed on 14-day windows with a 12-day
-          overlap. Some of the vertical bands result from interpolating the
-          signal from solar-power-adaptive to a constant, ten-minute time step.
-          Colour curves indicate the relative ratio of spectral power between
-          the 10--14 and 22--26\,h bands, rescaled between 12 and 24\,h for
-          visualization, showing that semi-diurnal oscillations dominate the
-          record outside the melt season. UI03 and UI02 are omitted due to the
-          short length of their solid stress record after refreezing.}
+          Fast fourier transforms are computed on 14-day windows with a 12-day
+          overlap. Colour curves visualize the relative ratio of power spectral
+          density between the 10--14 and 22--26\,h bands. Semi-diurnal
+          oscillations predominate the record outside the melt season.
+          Near-basal units UI03 and UI02 are omitted due to the short length of
+          their stress record after borehole closure.}
       \label{fig:sgram}
     \end{figure}
 
@@ -256,10 +254,10 @@
       \centerline{\includegraphics{bowstr_sgram_stcwt}}
       \caption{%
         \textbf{(a--h)}
-          Continuous wavelet transforms of post-closure stress and tidal
-          pressure divided by ten, showing the emergence of a diurnal
-          signal during melt seasons, in addition to the persistent
-          semi-diurnal signal.
+          Continuous Morlet wavelet transforms of post-closure stress and tidal
+          pressure divided by ten, showing a predominant semi-diurnal signal
+          outside the melt seasons and the emergence of a superimposed diurnal
+          signal during the melt seasons.
           \note{%
             I find that this plot is bringing little new information on top of
             the Fourier spectrograms (\ref{fig:sgram}) and that either figure
@@ -275,16 +273,14 @@
           second-order band-pass Butterworth filter once forward and once
           backward (resulting in a zero-phase fourth-order filter) with cutoff
           frequencies of 2 and 6 per day (or cutoff periods of 4 and 12\,h).
-          The bottom curve
-          shows (non-filtered) tidal measurements from Pituffik, converted to
-          sea-water pressure and divided by ten.
+          The bottom curve shows non-filtered tidal pressure from Pituffik,
+          converted to sea-water pressure and divided by ten.
         \textbf{(b)}
           Zoom on the later part of the 2014 melt season and transition into
-          fall, before contact to UI03 and UI02 was lost, but also while LI03
-          was not yet refrozen. Other sensors record a transition from
-          high-amplitude, daily stress oscillations (correlated with glacier
-          speed) to semi-diurnal oscillations anti-correlated with, and an
-          order of magnitude lower than, the tide.}
+          fall, before signal to UI03 and UI02 was lost, but while LI03
+          remained in liquid water. All sensors except LI03 record a transition
+          from a complex signal to semi-diurnal oscillations anti-correlated
+          with the tide, and roughly an order of magnitude lower in amplitude.}
       \label{fig:lines}
     \end{figure}
 
@@ -301,7 +297,7 @@
           delay of ca.~1--2\,h.
         \textbf{(c)}
           Corresponding phase delay (with a precision on 10 minutes) plotted
-          against initial sensor depth before refreezing.}
+          against initial sensor depth before closure.}
       \label{fig:ccorr}
     \end{figure}
 
