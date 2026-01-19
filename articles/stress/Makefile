@@ -9,7 +9,7 @@
 # ---------
 
 PAPER = bowdoin-stress
-BIB = ../../../references/references.bib
+BIB = references.bib
 REV = $(shell git describe --abbrev=0 --match=bowstr*)
 
 
