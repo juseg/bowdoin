@@ -149,6 +149,21 @@ def main():
     # save default
     fig.savefig(__file__[:-3])
 
+    # save partial
+    # insets[1].set_visible(False)
+    # insets[0].artists[-1].remove()
+    # fig.savefig(__file__[:-3]+'_05')
+    # insets[0].set_visible(False)
+    # axes[0, 0].artists[-1].remove()
+    # axes[0, 1].artists[-1].remove()
+    # fig.savefig(__file__[:-3]+'_04')
+    # axes[0, 1].set_visible(False)
+    # fig.savefig(__file__[:-3]+'_03')
+    # axes[0, 0].set_visible(False)
+    # fig.savefig(__file__[:-3]+'_02')
+    # axes[1, 1].set_visible(False)
+    # fig.savefig(__file__[:-3]+'_01')
+
 
 if __name__ == '__main__':
     main()

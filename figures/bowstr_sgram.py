@@ -115,6 +115,15 @@ def plot(method='stfft'):
     axes[0].set_xlim('20140701', '20170801')
     axes[4].set_ylabel('period (h)', ha='left', labelpad=0)
 
+    # save partial (for fft only)
+    # for ax in axes:
+    #     for line in ax.lines:
+    #         line.set_visible(False)
+    # fig.savefig(f'{__file__[:-3]}_{method}_01')
+    # for ax in axes:
+    #     for line in ax.lines:
+    #         line.set_visible(True)
+
     # return figure
     return fig
 

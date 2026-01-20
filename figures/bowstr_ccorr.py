@@ -102,6 +102,14 @@ def plot(filt='24hhp'):
     subaxes[9].set_xticks(subaxes[9].get_xticks(), [
         label.get_text()[1:] for label in subaxes[9].get_xticklabels()])
 
+    # save partial
+    # fig.axes[1].set_visible(False)
+    # fig.axes[2].set_visible(False)
+    # fig.savefig(f'{__file__[:-3]}_{filt}_01')
+    # fig.axes[1].set_visible(True)
+    # fig.savefig(f'{__file__[:-3]}_{filt}_02')
+    # fig.axes[2].set_visible(True)
+
     # return figure
     return fig
 

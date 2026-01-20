@@ -142,6 +142,13 @@ def plot(method='stfft'):
     ax.annotate(r'$K_1$', xy=(23.93/24, 1), xytext=(-4, 20), **kwargs)
     ax.annotate(r'$O_1$', xy=(25.82/24, 1), xytext=(+4, 20), **kwargs)
 
+    # save partial
+    # axes[-1, 0].set_visible(False)
+    # axes[-1, 1].set_visible(False)
+    # fig.savefig(f'{__file__[:-3]}_{method}_01')
+    # axes[-1, 0].set_visible(True)
+    # axes[-1, 1].set_visible(True)
+
     # return figure
     return fig
 

@@ -69,6 +69,15 @@ def plot(filt='24hhp'):
             label.get_text().lstrip('\n') for label
             in subaxes[1, -1].get_xticklabels()])
 
+    # save partial
+    # for ax in subaxes[1]:
+    #     ax.set_visible(False)
+    #     ax.ghost.set_visible(False)
+    # fig.savefig(f'{__file__[:-3]}_{filt}_01')
+    # for ax in subaxes[1]:
+    #     ax.set_visible(True)
+    #     ax.ghost.set_visible(True)
+
     # mark zoom inset
     indicator = axes[0].indicate_inset(inset_ax=axes[1], ls='--')
     indicator.connectors[0].set_visible(False)
