@@ -258,7 +258,8 @@ def subsubplots(fig, axes, nrows=10):
 
         # move the grid to background ghost axes
         ax.grid(False)
-        ax = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
+        ax.ghost = fig.add_subplot(ax.get_subplotspec(), sharex=ax, sharey=ax)
+        ax = ax.ghost
         ax.grid(which='minor')
         ax.patch.set_visible(False)
         ax.set_zorder(-1)
