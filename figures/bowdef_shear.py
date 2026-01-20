@@ -37,6 +37,9 @@ def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
     plot_shear_profile_lines(ax, base, depth_int, shear_int, color=color)
     plot_shear_profile_markers(ax, depth, shear, strain, color=color)
 
+    # print total shear and surface motion fraction for EGU26 abstract
+    # print(shear_int[0], shear_int[0] / 356.412 * 100)
+
     # add fit values
     ax.text(
         shear_int[0]-1, 20, f'n = {exponent:.2f}', color=color,
