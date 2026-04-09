@@ -86,7 +86,7 @@ def main():
                 ax.annotate(
                     f'{unit}, {depth[unit]:.0f}'r'$\,$m',
                     color=color, clip_on=True, fontsize=6, fontweight='bold',
-                    xy=(last.index, last.iloc[0]),
+                    xy=(last.index[0], last.iloc[0]),
                     xytext=(6, offsets.get(unit, 0)),
                     textcoords='offset points', ha='left', va='center')
 

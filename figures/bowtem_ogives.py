@@ -169,7 +169,7 @@ def main():
     # mark borehole locations along profile
     for bh in ['bh2', 'bh3']:
         color = bowtem_utils.COLOURS[bh]
-        dist = project_location(elev.x, elev.y, projected.loc[bh])
+        dist = project_location(elev.x, elev.y, projected.loc[bh]).squeeze()
         pfax.axvline(dist, color=color)
         pfax.text(dist, 40, ' '+bh.upper()+' ', color=color, fontweight='bold',
                   ha=('left' if bh == 'bh2' else 'right'))
