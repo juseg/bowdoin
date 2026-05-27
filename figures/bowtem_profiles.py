@@ -104,7 +104,8 @@ def estimate_longitudinal_strain_rate():
     """
 
     # open borehole locations
-    gdf = gpd.read_file('../data/locations.gpx').set_index('name')
+    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
+    gdf = gdf.set_index('name')
     gdf = gdf.to_crs('+proj=utm +zone=19')
 
     # compute distance between boreholes

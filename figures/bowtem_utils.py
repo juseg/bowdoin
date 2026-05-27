@@ -182,7 +182,8 @@ def annotate_by_compass(*args, ax=None, color=None, point='ne', offset=8,
 def annotate_location(
         name, crs=None, marker='o', point=None, text=None, **kwargs):
     """Plot and annotate a geographic location."""
-    gdf = gpd.read_file('../data/locations.gpx').set_index('name').loc[[name]]
+    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
+    gdf = gdf.set_index('name').loc[[name]]
     gdf = gdf.to_crs(crs)
     gdf.plot(marker=marker, **kwargs)
     if text is not None:
