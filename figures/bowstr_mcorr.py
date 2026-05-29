@@ -42,6 +42,7 @@ def plot(filt='24hhp'):
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
         'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
     axes = bowstr_utils.subsubplots(fig, [ax], nrows=7)[0]
+    cax = fig.add_axes_mm([100, 30, 60, 5])
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -62,7 +63,7 @@ def plot(filt='24hhp'):
 
         # plot cross correlation and zero contour
         corr = rollcorr(series, tide)
-        ax.imshow(
+        img = ax.imshow(
             corr, aspect='auto', cmap='Greys_r', vmin=-1, vmax=1, extent=(
                 *mpl.dates.date2num((corr.columns[0], corr.columns[-1])),
                 *-corr.index[[-1, 0]].total_seconds()/3600))
@@ -85,6 +86,10 @@ def plot(filt='24hhp'):
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
+
+    # add colorbar
+    cax.figure.colorbar(img, cax=cax, orientation='horizontal')
+    cax.set_xlabel('cross-correlation with Pituffik tide / 10')
 
     # set axes properties
     ax.set_xlim('20140701', '20170801')
