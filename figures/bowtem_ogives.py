@@ -45,7 +45,8 @@ def project_borehole_locations(date, crs):
     """
 
     # read initial positions from GPX file
-    gdf = gpd.read_file('../data/locations.gpx').set_index('name').to_crs(crs)
+    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
+    gdf = gdf.set_index('name').to_crs(crs)
     gdf = gdf[gdf.index.str.startswith('B14')]
     gdf = gdf.set_index(gdf.index.str[3:].str.lower())
     initial = gdf.geometry.get_coordinates()

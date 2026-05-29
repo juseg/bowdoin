@@ -97,7 +97,8 @@ def main():
         img.plot.imshow(ax=ax, add_labels=False)
 
     # plot all sample locations on the main panel
-    gdf = gpd.read_file('../data/locations.gpx').set_index('name')
+    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
+    gdf = gdf.set_index('name')
     gdf = gdf.to_crs('+proj=utm +zone=19')
     ax = grid['(a) Bowdoin Glacier']
     for name in gdf.index:
