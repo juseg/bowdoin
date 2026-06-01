@@ -80,4 +80,4 @@ figs: $(PAPER)-figs.zip
 
 .PHONY: clean
 clean:
-	latexmk -pdf -CA && rm $(PAPER).{bbl,bib,rtf,txt}
+	latexmk -pdf -CA && rm --force $(PAPER).{bbl,bib,rtf,txt}
