@@ -139,7 +139,8 @@
     System network (GLOSS). A pressure sensor was also installed for a short
     period in Bowdoin fjord showing comparable tidal phase and magnitude to
     that measured at Pituffik, hence the Pituffik record is representative of
-    tidal fluctuations in Bowdoin Fjord.
+    tidal fluctuations in Bowdoin Fjord. Tidal height was converted to pressure
+    using standard sea water density.
 
 \subsection{Spectral analysis}
 
@@ -148,7 +149,10 @@
     (Fig.~\ref{fig:bores}). We conduct spectral analysis on the Bowdoin stress
     post-closure and Pituffik tide records, including Fast Fourier Transform,
     rolling-window spectrograms, continuous wavelet transforms, band-pass
-    filtering, cross-correlation, and moving-window cross-correlation.
+    filtering, cross-correlation, and moving-window cross-correlation. The
+    sensors use a variable sample rate depending on available solar energy,
+    and some analyses apply resampling (detailed in captions). Alternative
+    methods may be presented in supplement?
 
 % ----------------------------------------------------------------------
 \section{Results}
@@ -158,35 +162,68 @@
 \subsection{Stress timeseries}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Stress timeseries (Fig.~\ref{fig:nofil}).
-
-    Ice-cased sensors recorded stress oscillations.
-    The amplitude is an order of magnitude below Pituffik tides.
+    Before borehole closure, the piezometers record water table fluctuations
+    within each borehole (Fig.~\ref{fig:nofil}a). During borehole closure,
+    there is a strong peak in pressure. After borehole closure, several signals
+    are visible. On the yearly scale, some sensors show a tendency for higher
+    stress in the summer months. On a weekly scale, several sensors show
+    negative stress peaks during the melting seasons (probably corresponding to
+    glacier speed-up events, see discussion). Zooming-in to daily and hourly
+    scales, all sensors show distinct 12-hourly oscillations, with amplitudes
+    an order of magnitude below Pituffik tides (Fig.~\ref{fig:nofil}b and~c).
+    Thermistors inside the casing document the timing of borehole closure
+    (Fig.~\ref{fig:nofil}d).
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Spectral content}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Fourier transforms (Fig.~\ref{fig:pgram}).
-    Fourier spectrograms (Fig.~\ref{fig:sgram}).
-    Continuous wavelet transform (Fig.~\ref{fig:wlets}).
+    Fourier transforms (Fig.~\ref{fig:pgram}) of the resampled signal reveal a
+    frequency spectrum very similar to that of regional Pituffik tides, with
+    predominant frequencies in the 12-hour band (tidal constituents
+    $\mathrm{S_2}$, $\mathrm{M_2}$, $\mathrm{N_2}$), and second-degree
+    frequencies in the 24-hour band ($\mathrm{K_1}$, $\mathrm{O_1}$).
+    Lomb-Scargle periodograms (supplement) show similar results.
 
-    Spectral content is very similar to that of Pituffik tides.
-    Tidal signal is overprinted by daily oscillations in summer.
-    Untested: especially during speed-up events, I think.
+    Fourier spectrograms (Fig.~\ref{fig:sgram}) reveal that 12-hour periods
+    predominate the signal outside the melt season (Oct-May). During the melt
+    season (June-Sep) the tidal spectrum is overprinted with noise in all
+    tested frequency bands, and stronger signal in the 24-hour band.
+    Continuous wavelet transform (Fig.~\ref{fig:wlets}) show that the tidal
+    signal remain present during the melt season, but it is overprinted by
+    other frequency, particularly in a broad band around the daily frequency
+    (hypothesis: especially during speed-up events, see discussion).
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Phase relationships}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    Filtered timeseries (Fig.~\ref{fig:lines}).
-    Cross-correlation (Fig.~\ref{fig:ccorr}).
-    Rolling window cross-correlation (Fig.~\ref{fig:mcorr}).
+    A 4-to-12 hour band-pass filter was applied to isolate tidal signal from
+    high-frequency sampling noise, a low-frequency content unrelated to tidal
+    processes (Fig.~\ref{fig:lines}). The filter was applied once forward and
+    once backward to annulate phase shift. Filtered timeseries show 12-hourly
+    amplitude roughly an order of magnitude lower than the tide, and similarly
+    modulated by a 14-day period. The frequency band was optimised for high
+    cross-correlation in the next step, but other band-pass and high-pass
+    windows gave similar results (supplement).
 
-    Stress signal is anti-correlated with the tide.
-    Maximum stress occur 1 to 2 hours after low tide.
-    This phase delay appears to peak around 200 meter depth.
-    The delay is rather stable in 2014-16 but gets messy in 16-17.
+    Cross-correlation between Bowdoin stress and Pituffik tides is first
+    showcased on a selected interval of one month were data from all sensors
+    remained available, but two sensors close to the glacier bed remained in
+    the melt water from the drilling (Fig.~\ref{fig:ccorr}a). The maximum
+    absolute is an anti-correlation, observed with a delay of ca.~1--2\,h.
+    That is, maximum compressive stress occurs a little after the minimum tide
+    (Fig.~\ref{fig:ccorr}b). This phase delay appears to peak around 200\,m
+    depth, but the relation between sensor depth and phase delay, if any, is
+    not clear (Fig.~\ref{fig:ccorr}c).
+
+    Rolling window cross-correlation (Fig.~\ref{fig:mcorr}) show that this
+    phase delay remains stable over much of the measuring period, with the
+    exceptions of melt seasons, where the correlation weakens, and the later
+    part of the record, where it becomes inconsistent between different sensor
+    units (interestingly, UI04 and UI05 display a slow-down and almost complete
+    halt in tilting over that period, could this be decoupling from the bed,
+    see discussion).
 
 
 % ----------------------------------------------------------------------
@@ -351,7 +388,8 @@
           Moving-window cross-correlation between the each 10-minute-resampled,
           4 to 12\,h band-pass-filtered stress series against tidal pressure.
           Colour curves show the moving-window phase delay of filtered stress
-          records relative to tides when anticorrelation is above 0.75.}
+          records relative to tides when anticorrelation is above 0.75
+          \todo{mask periods with no tidal record}.}
       \label{fig:mcorr}
     \end{figure}
 
