@@ -207,7 +207,8 @@
     amplitude roughly an order of magnitude lower than the tide, and similarly
     modulated by a 14-day period. The frequency band was optimised for high
     cross-correlation in the next step, but other band-pass and high-pass
-    windows gave similar results (supplement).
+    windows, using stress derivative, or Hilbert transform analytical phase
+    signal, gave similar results (supplement).
 
     Cross-correlation between Bowdoin stress and Pituffik tides is first
     showcased on a selected interval of one month were data from all sensors
@@ -269,19 +270,65 @@
     discussed this explanation in Sapporo and concluded it was incompatible
     with summer GNSS velocity from Shin.
 
-    (2) TODO
+    (2) Low tide yields higher horizontal shear strain (increased tilt rates).
+    If tilt units are tilted from the vertical in the direction of shear, this
+    horizontal shear contains an extensive component along the direction of
+    tilt units, so compressive strain along the sensor unit is reduced. If this
+    hypothesis is true, this effect should depend on the tilt unit angle, with
+    no effect when they are perpendicular to the ice flow, and maximum effect
+    at an angle of 45° relative to ice flow.
+
+    To test these hypotheses, we need to study the relations, especially phase
+    relations between tides and ice flow, and between ice flow and stress.
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Link to surface velocity}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    TODO
+    We have glacier surface velocity data from satellite imagery, automated
+    cameras on ground, and GNSS. Only GNSS has a sufficient sampling rate to
+    look at tidal fluctuations. Most GNSS data is from the melt season, where
+    they record complex surface velocity including tidal oscillations, daily
+    oscillations, and multi-day speed-up events (Shin's paper). Stress
+    fluctuations during the melt season also contain more than just the tidal
+    frequency (Fig.~\ref{fig:pgram}), so analysing phase relations there is
+    difficult.
+
+    The overwintering GNSS station at BH1 (unpublished) did not function in the
+    darkest months of the year, but sometime recorded outside the melt season
+    in May or September, including the transitions toward and out of a complex
+    signal on to a more simple tidal surface velocity pattern. These records,
+    while short, can be a good starting place to analyse phase relation between
+    surface velocity and stress.
+
+    \todo{analyse link to surface velocity in May or September.}
 
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 \subsection{Link to tilt rates}
 % -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 
-    TODO
+    We have a tilt record for each unit that contained a piezometer (or the
+    other way around really, as tilt rates where the main expected result).
+    Tilt measurements are available throughout the winter, whenever pressure
+    or stress measurements are available. They use also the same variable
+    sampling rate (varying between 10 min in summer to 3 hours in winter).
+
+    Tilt rates appear to generally follow the patterns observed in surface
+    velocity. However, the difference in tilt between two consecutive
+    measurements is well below the sampling noise, so that it is difficult to
+    analyse high frequency content in tilt rate, particularly in winter when
+    tilt is not affected by multi-day and daily melt patterns.
+
+    I reproduced some of the above figures for tilt records. The good news is
+    that Fourier and wavelet transforms pick up tidal frequencies, so we can
+    be confident there is a tidal signal in tilts, including in winter.
+    However, analysing phase relations will require to isolate this tidal
+    signal from the sampling noise. This may only be possible for periods with
+    a high sampling rate. Luckily, we have short periods when our instruments
+    recorded with the maximum sampling rate, GNSS data is available, and the
+    daily melt cycle is absent.
+
+    \todo{isolate tidal signal from noise in tilt rates}
 
 % ----------------------------------------------------------------------
 \section{Conclusions}
