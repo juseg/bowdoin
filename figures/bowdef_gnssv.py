@@ -17,36 +17,13 @@ import bowtem_utils
 
 def read_gnss_velocities(borehole=1):
     """Compute velocity components from raw data of one station."""
-    # FIXME duplicates preprocessing code, also this function is a mess, seems
-    # to include multiple ways to compute the derivatives
+    # FIXME alternate velocity computations may be moved to postprocessing, and
+    # the Zenodo dataset updated with central, multipoint or filtered velocity
+    # (instead of two-point backward) and corrected azimuth formula. Or we
+    # move all velocity derivations here and remove them from Zenodo.
 
-    # read gps data
-    df = pd.read_fwf(
-        # f"../data/external.bkp/gps/B16{borehole:02d}_15min.dat",
-        "../data/original/gps/B14BH1/B14BH1_2016_15min.dat",
-        names=[
-            "daydate", "time", "lat", "lon", "z", "Q", "ns", "sdn", "sde",
-            "sdu", "sdne", "sdeu", "sdun", "age", "ratio"],
-        index_col=0,
-        usecols=["daydate", "time", "lon", "lat", "z"],
-        parse_dates={"date": ["daydate", "time"]},
-    )
-
-    # find samples not taken at multiples of 15 min (900 sec) and remove them
-    # it seems these (18) values were recorded directly after each data gap
-    # FIXME is this still needed now?
-    inpace = (60 * df.index.minute + df.index.second) % 900 == 0
-    assert not inpace.sum() < 1  # make sure we remove less than 20 values
-    df = df[inpace]
-
-    # convert lon/lat to UTM 19 meters
-    trans = pyproj.Transformer.from_crs("+proj=lonlat", "+proj=utm +zone=19")
-    x, y = trans.transform(df.lon, df.lat)
-    df["x"] = x  # points[:, 0]
-    df["y"] = y  # points[:, 1]
-
-    # resample with 15 minute frequency and fill with NaN
-    df = df.resample("15min").mean()
+    # read gps data, including backward velocity
+    df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
 
     # compute derivative using savgol filter
     def derive(x):
@@ -64,14 +41,12 @@ def read_gnss_velocities(borehole=1):
     # vel = vel1*4/3 + vel2/6
     # # vel = (-pos[4:]+8*pos[3:-1]-8*pos[1:-3]+pos[:-4])/12
     vel *= 60 * 24 * 365 / 15.0
-    vel.columns = ["vx", "vy", "vz"]
+    vel.columns = ["v1x", "v1y", "v1z"]
     df = df.join(vel)
 
     # compute velocity polar coordinates
-    df["vh"] = (df["vx"] ** 2 + df["vy"] ** 2) ** 0.5
+    df["v1h"] = (df["v1x"] ** 2 + df["v1y"] ** 2) ** 0.5
     df["fvh"] = (df["fvx"] ** 2 + df["fvy"] ** 2) ** 0.5
-    df["azimuth"] = np.arctan2(df["vy"], df["vx"] ** 2) * 180 / np.pi  # FIXME
-    df["altitude"] = np.arctan2(df["vz"], df["vh"]) * 180 / np.pi
 
     # return the whole dataframe
     return df
@@ -112,11 +87,8 @@ def main():
     # plot borehole velocity
     df = read_gnss_velocities(borehole=2)
     df.fvh.plot(ax=axes[0])
-    df.vh.plot(ax=axes[0], alpha=0.5)
-
-    # same thing from postprocessed data
-    # pdf = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
-    # pdf.vh.plot(ax=axes[0], alpha=0.5)
+    df.vh.plot(ax=axes[0], alpha=0.25)
+    df.v1h.plot(ax=axes[0], alpha=0.25)
 
     # read strain rate
     # strain = read_gnss_strain_rate()

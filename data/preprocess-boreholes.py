@@ -324,6 +324,7 @@ def read_gps_data(method='backward'):
     df = df.join(v)
 
     # compute velocity polar coordinates
+    # FIXME azimuth should be atan2(x, y)*180/pi ?
     df['vh'] = (df['vx']**2 + df['vy']**2)**0.5
     df['azimuth'] = np.arctan2(df['vy'], df['vx']**2)*180/np.pi
     df['altitude'] = np.arctan2(df['vz'], df['vh'])*180/np.pi
