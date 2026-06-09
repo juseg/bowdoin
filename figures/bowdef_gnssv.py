@@ -25,28 +25,20 @@ def read_gnss_velocities(borehole=1):
     # read gps data, including backward velocity
     df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
 
-    # compute derivative using savgol filter
-    def derive(x):
-        return scipy.signal.savgol_filter(
-            x, window_length=20, polyorder=2, delta=1, deriv=1
-        )
-    df["fvx"] = derive(df.x) * 60 * 24 * 365 / 15.0
-    df["fvy"] = derive(df.y) * 60 * 24 * 365 / 15.0
-    df["fvz"] = derive(df.z) * 60 * 24 * 365 / 15.0
+    # compute two-point central velocity
+    pos = df[['x', 'y', 'z']]
+    vel = (pos.shift(1)-pos.shift(-1))/2
+    df['vh1'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
-    # compute cartesian velocity in meters per year
-    pos = df[["x", "y", "z"]]
-    vel = (pos.diff(1) - pos.diff(-1)) / 2.0
-    # vel2 = (pos.diff(2)-pos.diff(-2))/2.0
-    # vel = vel1*4/3 + vel2/6
-    # # vel = (-pos[4:]+8*pos[3:-1]-8*pos[1:-3]+pos[:-4])/12
-    vel *= 60 * 24 * 365 / 15.0
-    vel.columns = ["v1x", "v1y", "v1z"]
-    df = df.join(vel)
+    # compute four-point central velocity
+    vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
+    df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
-    # compute velocity polar coordinates
-    df["v1h"] = (df["v1x"] ** 2 + df["v1y"] ** 2) ** 0.5
-    df["fvh"] = (df["fvx"] ** 2 + df["fvy"] ** 2) ** 0.5
+    # compute Savitzky–Golay filtered velocity
+    vel = {dim: scipy.signal.savgol_filter(
+        df[dim], window_length=20, polyorder=2, delta=1, deriv=1)
+        for dim in ['x', 'y']}
+    df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
     # return the whole dataframe
     return df
@@ -86,9 +78,9 @@ def main():
 
     # plot borehole velocity
     df = read_gnss_velocities(borehole=2)
-    df.fvh.plot(ax=axes[0])
-    df.vh.plot(ax=axes[0], alpha=0.25)
-    df.v1h.plot(ax=axes[0], alpha=0.25)
+    df.vh1.plot(ax=axes[0], alpha=0.25)
+    df.vh2.plot(ax=axes[0], alpha=0.25)
+    df.vhs.plot(ax=axes[0], alpha=1)
 
     # read strain rate
     # strain = read_gnss_strain_rate()
