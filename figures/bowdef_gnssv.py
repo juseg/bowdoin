@@ -34,9 +34,9 @@ def read_gnss_velocities(borehole=1):
     vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
     df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
-    # compute Savitzky–Golay filtered velocity
+    # compute Savitzky–Golay filtered velocity (6h = 24*15min)
     vel = {dim: scipy.signal.savgol_filter(
-        df[dim], window_length=20, polyorder=2, delta=1, deriv=1)
+        df[dim], window_length=48, polyorder=2, delta=1, deriv=1)
         for dim in ['x', 'y']}
     df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
@@ -69,9 +69,9 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 120), nrows=2, sharex=True, gridspec_kw={
+        figsize=(180, 120), nrows=3, sharex=True, gridspec_kw={
             'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
-            'hspace': 12.5})
+            'hspace': 12.5, 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
@@ -94,8 +94,30 @@ def main():
     pres += 5 * (np.arange(len(pres.columns)))[::-1]
     tide = pres.pop('tide')
 
+    # plot tilt rate (6h = 36*10min)
+    # FIXME add functions to savgol-derive series and dataframes?
+    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
+    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    tilx = tilx.interpolate(limit_area='inside', method='cubic').dropna(how='all')
+    tily = tily.interpolate(limit_area='inside', method='cubic').dropna(how='all')
+    kwargs = dict(window_length=72, polyorder=2, delta=1, deriv=1)
+    tilx = pd.concat([
+        pd.Series(
+            data=scipy.signal.savgol_filter(tilx[unit].dropna(), **kwargs),
+            index=tilx[unit].dropna().index,
+            name=unit) for unit in tilx], axis=1)
+    tily = pd.concat([
+        pd.Series(
+            data=scipy.signal.savgol_filter(tily[unit].dropna(), **kwargs),
+            index=tily[unit].dropna().index,
+            name=unit) for unit in tily], axis=1)
+    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+    tilt = tilt[tilt.index >= '2014-07-17']
+    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
+    tilt.plot(ax=axes[1], xlabel='', ylabel=r'tilt rate ($°\,a^{-1}$)')
+
     # plot stress and tide data
-    for ax in [axes[1]]:
+    for ax in [axes[2]]:
         pres.plot(ax=ax, legend=False)
         tide.plot(ax=ax, c='C9')
 
@@ -113,12 +135,15 @@ def main():
                 color=f"C{i}", **kwargs)
 
     # set axes limits
+    axes[1].legend(ncols=2)
     axes[0].grid(which='minor')
+    axes[1].grid(which='minor')
     # axes[1].set_ylim(-2.5, 47.5)
     # axes[1].set_xlim('20150707', '20150721')
     # axes[1].set_xlim('20160613', '20160721')
     # axes[1].set_xlim('20160707', '20160721')
     axes[0].set_ylim(0, 1000)
+    axes[1].set_ylim(-1, 21)
 
     # save
     fig.savefig(__file__[:-3])
