@@ -46,6 +46,7 @@ def read_gnss_velocities(borehole=1):
 
 def read_gnss_strain(lower=1, upper=3):
     """Compute longitudinal strain from raw data of two stations."""
+    # FIXME reading GNSS data from other stations is not yet implemented
 
     ldf = read_gnss_velocities(borehole=lower)
     udf = read_gnss_velocities(borehole=upper)
@@ -56,6 +57,7 @@ def read_gnss_strain(lower=1, upper=3):
 
 def read_gnss_strain_rate(lower=1, upper=2):
     """Compute longitudinal strain rate from raw data of two stations."""
+    # FIXME reading GNSS data from other stations is not yet implemented
 
     ldf = read_gnss_velocities(borehole=lower)
     udf = read_gnss_velocities(borehole=upper)
@@ -113,17 +115,16 @@ def main():
     tilt.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
-    for ax in [axes[2]]:
-        pres.plot(ax=ax, legend=False)
-        tide.plot(ax=ax, c='C9')
+    pres.plot(ax=axes[2], legend=False)
+    tide.plot(ax=axes[2], c='C9')
 
-        # add labels
-        kwargs = {'fontsize': 6, 'fontweight': 'bold', 'transform': ax.transAxes}
-        ax.text(1.01, 0, 'Pituffik\ntide' + r'$\,/\,$10', color='C9', **kwargs)
-        for i, unit in enumerate(pres):
-            ax.text(
-                1.01, 1.35-0.15*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
-                color=f'C{i}', **kwargs)
+    # add labels
+    kwargs = {'fontsize': 6, 'fontweight': 'bold', 'transform': axes[2].transAxes}
+    axes[2].text(1.01, 0, 'Pituffik\ntide' r'$\,/\,$10', color='C9', **kwargs)
+    for i, unit in enumerate(pres):
+        axes[2].text(
+            1.01, 1.35-0.15*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
+            color=f'C{i}', **kwargs)
 
     # set axes limits
     axes[0].grid(which='minor')
@@ -133,10 +134,6 @@ def main():
     axes[0].set_ylabel(r'velocity ($m\,a^{-1}$)', labelpad=0)
     axes[1].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
     axes[2].set_ylabel('pressure or stress (MPa)')
-    # axes[1].set_ylim(-2.5, 47.5)
-    # axes[1].set_xlim('20150707', '20150721')
-    # axes[1].set_xlim('20160613', '20160721')
-    # axes[1].set_xlim('20160707', '20160721')
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
 
