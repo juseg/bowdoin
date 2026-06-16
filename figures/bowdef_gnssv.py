@@ -88,10 +88,7 @@ def main():
 
     # highpass-filter stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(filt=None, resample='10min', tide=True)
-
-    # apply transformation for plotting
-    pres += 5 * (np.arange(len(pres.columns)))[::-1]
+    pres = bowstr_utils.load(filt=None, resample='10min', tide=True) / 1e3
     tide = pres.pop('tide')
 
     # plot tilt rate (6h = 36*10min)
@@ -124,7 +121,7 @@ def main():
         # set axes properties
         ax.grid(which='minor')
         ax.set_xlabel('')
-        ax.set_ylabel('stress (kPa)')
+        ax.set_ylabel('pressure or stress (MPa)')
 
         # add labels
         kwargs = {'fontsize': 6, 'fontweight': 'bold', 'transform': ax.transAxes}
