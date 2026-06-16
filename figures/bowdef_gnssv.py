@@ -97,8 +97,8 @@ def main():
     # FIXME add functions to savgol-derive series and dataframes?
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='cubic').dropna(how='all')
-    tily = tily.interpolate(limit_area='inside', method='cubic').dropna(how='all')
+    tilx = tilx.interpolate(limit_area='inside', method='linear')
+    tily = tily.interpolate(limit_area='inside', method='linear')
     kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
     tilx = pd.concat([
         pd.Series(
