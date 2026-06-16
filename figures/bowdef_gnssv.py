@@ -8,7 +8,6 @@
 import absplots as apl
 import numpy as np
 import pandas as pd
-import pyproj
 import scipy
 
 import bowstr_utils
@@ -23,6 +22,8 @@ def read_gnss_velocities(borehole=1):
     # move all velocity derivations here and remove them from Zenodo.
 
     # read gps data, including backward velocity
+    # FIXME implement reading data from other stations
+    assert borehole == 1
     df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
 
     # compute two-point central velocity
@@ -73,13 +74,13 @@ def main():
     fig, axes = apl.subplots_mm(
         figsize=(180, 120), nrows=3, sharex=True, gridspec_kw={
             'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
-            'hspace': 12.5, 'hspace': 2.5})
+             'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # plot borehole velocity
-    df = read_gnss_velocities(borehole=2)
+    df = read_gnss_velocities()
     df.vh1.plot(ax=axes[0], color='0.9')
     df.vhs.plot(ax=axes[0], color='tab:blue')
 
@@ -98,7 +99,7 @@ def main():
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
     tilx = tilx.interpolate(limit_area='inside', method='cubic').dropna(how='all')
     tily = tily.interpolate(limit_area='inside', method='cubic').dropna(how='all')
-    kwargs = dict(window_length=72, polyorder=2, delta=1, deriv=1)
+    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
     tilx = pd.concat([
         pd.Series(
             data=scipy.signal.savgol_filter(tilx[unit].dropna(), **kwargs),
@@ -120,7 +121,7 @@ def main():
 
     # add labels
     kwargs = {'fontsize': 6, 'fontweight': 'bold', 'transform': axes[2].transAxes}
-    axes[2].text(1.01, 0, 'Pituffik\ntide' r'$\,/\,$10', color='C9', **kwargs)
+    axes[2].text(1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9', **kwargs)
     for i, unit in enumerate(pres):
         axes[2].text(
             1.01, 1.35-0.15*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
