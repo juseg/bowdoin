@@ -78,9 +78,8 @@ def main():
 
     # plot borehole velocity
     df = read_gnss_velocities(borehole=2)
-    df.vh1.plot(ax=axes[0], alpha=0.25)
-    df.vh2.plot(ax=axes[0], alpha=0.25)
-    df.vhs.plot(ax=axes[0], alpha=1)
+    df.vh1.plot(ax=axes[0], color='0.9')
+    df.vhs.plot(ax=axes[0], color='tab:blue')
 
     # read strain rate
     # strain = read_gnss_strain_rate()
@@ -111,35 +110,34 @@ def main():
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
-    tilt.plot(ax=axes[1], xlabel='', ylabel=r'tilt rate ($°\,a^{-1}$)')
+    tilt.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
     for ax in [axes[2]]:
         pres.plot(ax=ax, legend=False)
         tide.plot(ax=ax, c='C9')
 
-        # set axes properties
-        ax.grid(which='minor')
-        ax.set_xlabel('')
-        ax.set_ylabel('pressure or stress (MPa)')
-
         # add labels
         kwargs = {'fontsize': 6, 'fontweight': 'bold', 'transform': ax.transAxes}
         ax.text(1.01, 0, 'Pituffik\ntide' + r'$\,/\,$10', color='C9', **kwargs)
         for i, unit in enumerate(pres):
             ax.text(
-                1.01, 0.9-0.1 * i, f"{unit}\n{depth[unit]:.0f}" r"$\,$m",
-                color=f"C{i}", **kwargs)
+                1.01, 1.35-0.15*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
+                color=f'C{i}', **kwargs)
 
     # set axes limits
-    axes[1].legend(ncols=2)
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
+    axes[2].grid(which='minor')
+    axes[2].set_xlabel('')
+    axes[0].set_ylabel(r'velocity ($m\,a^{-1}$)', labelpad=0)
+    axes[1].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
+    axes[2].set_ylabel('pressure or stress (MPa)')
     # axes[1].set_ylim(-2.5, 47.5)
     # axes[1].set_xlim('20150707', '20150721')
     # axes[1].set_xlim('20160613', '20160721')
     # axes[1].set_xlim('20160707', '20160721')
-    axes[0].set_ylim(0, 1000)
+    axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
 
     # save
