@@ -116,6 +116,7 @@ def main():
     tilt.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
+    # FIXME move tides to separate panel
     pres.plot(ax=axes[2], legend=False)
     tide.plot(ax=axes[2], c='C9')
 
@@ -137,6 +138,11 @@ def main():
     axes[2].set_ylabel('pressure or stress (MPa)')
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
+
+    # zoom on tidal oscillations
+    # axes[0].set_xlim('20160801', '20161001')
+    # axes[1].set_ylim(-1, 14)
+    # axes[2].set_ylim(1.99, 2.14)
 
     # save
     fig.savefig(__file__[:-3])
