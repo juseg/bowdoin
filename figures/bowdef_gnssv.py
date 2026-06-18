@@ -72,9 +72,9 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 120), nrows=3, sharex=True, gridspec_kw={
+        figsize=(180, 120), nrows=4, sharex=True, gridspec_kw={
             'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
-             'hspace': 2.5})
+            'height_ratios': (3, 3, 2, 1), 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
@@ -90,8 +90,9 @@ def main():
 
     # highpass-filter stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(filt=None, resample='10min', tide=True) / 1e3
+    pres = bowstr_utils.load(filt=None, resample='10min', tide=True)
     tide = pres.pop('tide')
+    pres = pres / 1e3
 
     # plot tilt rate (6h = 36*10min)
     # FIXME add functions to savgol-derive series and dataframes?
@@ -116,28 +117,32 @@ def main():
     tilt.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
-    # FIXME move tides to separate panel
     pres.plot(ax=axes[2], legend=False)
-    tide.plot(ax=axes[2], c='C9')
+    tide.plot(ax=axes[3], c='C9')
 
     # add labels
-    kwargs = {'fontsize': 6, 'fontweight': 'bold', 'transform': axes[2].transAxes}
-    axes[2].text(1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9', **kwargs)
     for i, unit in enumerate(pres):
         axes[2].text(
-            1.01, 1.35-0.15*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
-            color=f'C{i}', **kwargs)
+            1.01, 1.6-0.2*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
+            color=f'C{i}', fontsize=6, fontweight='bold',
+            transform=axes[2].transAxes)
+    axes[3].text(
+        1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9',
+        fontsize=6, fontweight='bold', transform=axes[3].transAxes)
 
     # set axes limits
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
-    axes[2].set_xlabel('')
+    axes[3].set_xlabel('')
     axes[0].set_ylabel(r'velocity ($m\,a^{-1}$)', labelpad=0)
     axes[1].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
-    axes[2].set_ylabel('pressure or stress (MPa)')
+    axes[2].set_ylabel('stress (MPa)')
+    axes[3].set_ylabel('tide (kPa)', labelpad=0)
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
+    axes[2].set_ylim(-0.15, 3.15)
+    axes[3].set_ylim(-2.4, 2.4)
 
     # zoom on tidal oscillations
     # axes[0].set_xlim('20160801', '20161001')
