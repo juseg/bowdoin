@@ -66,21 +66,20 @@ def read_gnss_strain_rate(lower=1, upper=2):
     return strain_rate
 
 
-def trim_series(series):
-    """Trim NaN values at the beginning and end of a series."""
-    if series.notna().any():
-        first = series.notna().idxmax()
-        last = series.notna().iloc[::-1].idxmax()
-        series = series.loc[first:last]
-    return series
-
-
-def savgol_dataframe(df, **kwargs):
+def savgol_dataframe(df, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
-    trimmed = [trim_series(df[column]) for column in df]
-    return pd.concat([pd.Series(
-        data=scipy.signal.savgol_filter(series, **kwargs),
-        index=series.index, name=series.name) for series in trimmed], axis=1)
+    return pd.concat(
+        [savgol_series(df[column], *args, **kwargs) for column in df], axis=1)
+
+
+def savgol_series(series, *args, **kwargs):
+    """Apply Savitsky-Golay filter on series trimmed from NaNs."""
+    first = series.first_valid_index()
+    last = series.last_valid_index()
+    series = series.loc[first:last]
+    return pd.Series(
+        data=scipy.signal.savgol_filter(series, *args, **kwargs),
+        index=series.index, name=series.name)
 
 
 def main():
