@@ -36,9 +36,8 @@ def read_gnss_velocities(borehole=1):
     df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
     # compute Savitzky–Golay filtered velocity (6h = 24*15min)
-    vel = {dim: scipy.signal.savgol_filter(
-        df[dim], window_length=48, polyorder=2, delta=1, deriv=1)
-        for dim in ['x', 'y']}
+    vel = savgol_dataframe(
+        df[['x', 'y']], window_length=48, polyorder=2, delta=1, deriv=1)
     df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
     # return the whole dataframe
@@ -65,6 +64,23 @@ def read_gnss_strain_rate(lower=1, upper=2):
     distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
     strain_rate = (ldf.fvh - udf.fvh) / distance
     return strain_rate
+
+
+def trim_series(series):
+    """Trim NaN values at the beginning and end of a series."""
+    if series.notna().any():
+        first = series.notna().idxmax()
+        last = series.notna().iloc[::-1].idxmax()
+        series = series.loc[first:last]
+    return series
+
+
+def savgol_dataframe(df, **kwargs):
+    """Apply Savitsky-Golay filter on each series in a dataframe."""
+    trimmed = [trim_series(df[column]) for column in df]
+    return pd.concat([pd.Series(
+        data=scipy.signal.savgol_filter(series, **kwargs),
+        index=series.index, name=series.name) for series in trimmed], axis=1)
 
 
 def main():
@@ -95,22 +111,13 @@ def main():
     pres = pres / 1e3
 
     # plot tilt rate (6h = 36*10min)
-    # FIXME add functions to savgol-derive series and dataframes?
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
     tilx = tilx.interpolate(limit_area='inside', method='linear')
     tily = tily.interpolate(limit_area='inside', method='linear')
     kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = pd.concat([
-        pd.Series(
-            data=scipy.signal.savgol_filter(tilx[unit].dropna(), **kwargs),
-            index=tilx[unit].dropna().index,
-            name=unit) for unit in tilx], axis=1)
-    tily = pd.concat([
-        pd.Series(
-            data=scipy.signal.savgol_filter(tily[unit].dropna(), **kwargs),
-            index=tily[unit].dropna().index,
-            name=unit) for unit in tily], axis=1)
+    tilx = savgol_dataframe(tilx, **kwargs)
+    tily = savgol_dataframe(tily, **kwargs)
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
