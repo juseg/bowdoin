@@ -22,6 +22,46 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     return df.corrwith(other, axis=1)
 
 
+def load_rates(join='inner'):
+    """Load joint tilt rates and surface velocity data."""
+    # FIXME move to bowdef_utils or merge with bowstr_utils
+    # FIXME apply savgol filters after joining the data
+
+    # load depth and tilt rates
+    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
+    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    tilx = tilx.interpolate(limit_area='inside', method='linear')
+    tily = tily.interpolate(limit_area='inside', method='linear')
+    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
+    tilx = bowdef_gnssv.savgol_dataframe(tilx, **kwargs)
+    tily = bowdef_gnssv.savgol_dataframe(tily, **kwargs)
+    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+    tilt = tilt[tilt.index >= '2014-07-17']
+    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
+
+    # load surface velocities
+    gnss = bowdef_gnssv.read_gnss_velocities()
+
+    # prepare joined dataframe interpolated to tilt samples
+    if join == '10min':
+        tilt = tilt.join(
+            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
+
+    # prepare joined dataframe using intersecting samples only
+    elif join == 'inner':
+        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
+        tilt = tilt.resample('30min').mean()
+
+    # prepare joined dataframe interpolated to maximum sampling rate
+    elif join == 'outer':
+        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
+        tilt = tilt.resample('5min').mean().interpolate(
+            limit=2, method='linear')
+
+    # return tilt rates dataframe
+    return tilt
+
+
 def plot(method='inner'):
     """Main program called during execution."""
 
@@ -39,41 +79,9 @@ def plot(method='inner'):
     bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
     bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
-    # plot borehole velocity
-    gnss = bowdef_gnssv.read_gnss_velocities()
-
     # load depth and tilt rates
-    # FIXME add util to load joined savgol-filtered rates and speed
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = bowdef_gnssv.savgol_dataframe(tilx, **kwargs)
-    tily = bowdef_gnssv.savgol_dataframe(tily, **kwargs)
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
-
-    # prepare joined dataframe interpolated to tilt samples
-    if method == '10min':
-        tilt = tilt.join(
-            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
-
-    # prepare joined dataframe using intersecting samples only
-    elif method == 'inner':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
-        tilt = tilt.resample('30min').mean()
-
-    # prepare joined dataframe interpolated to maximum sampling rate
-    elif method == 'outer':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
-        tilt = tilt.resample('5min').mean().interpolate(
-            limit=2, method='linear')
-
-    # load stress data
-    depth = bowstr_utils.load(variable='dept').iloc[0]
+    tilt = load_rates(join=method)
     tilt = tilt['20150516':'20150815']
     tilt = tilt.dropna(how='all', axis=1)
 
