@@ -41,20 +41,10 @@ def plot(method='inner'):
 
     # plot borehole velocity
     gnss = bowdef_gnssv.read_gnss_velocities()
-    # df.vh1.plot(ax=fig.axes[0], color='0.9')
-    # df.vhs.plot(ax=fig.axes[0], color='tab:blue')
 
-    # read strain rate
-    # strain = read_gnss_strain_rate()
-    # strain.plot(ax=axes[1])
-
-    # highpass-filter stress series
+    # load depth and tilt rates
+    # FIXME add util to load joined savgol-filtered rates and speed
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    tilt = bowstr_utils.load(filt=None, resample='10min', tide=True)
-    tide = tilt.pop('tide')
-    tilt = tilt / 1e3
-
-    # plot tilt rate (6h = 36*10min)
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
     tilx = tilx.interpolate(limit_area='inside', method='linear')
@@ -65,7 +55,6 @@ def plot(method='inner'):
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
-    # tilt.plot(ax=fig.axes[0], legend=False)
 
     # prepare joined dataframe interpolated to tilt samples
     if method == '10min':
@@ -132,10 +121,8 @@ def plot(method='inner'):
     fig.axes[1].set_xticks([-12, 0, 12])
     fig.axes[1].set_xlabel('time delay (h)')
     fig.axes[1].set_ylabel('cross-correlation', labelpad=0)
-    # fig.axes[1].set_ylim((-0.42, 0.42) if filt == 'deriv' else (-1.05, 1.05))
     fig.axes[1].yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
     fig.axes[2].axvline(0.0, ls=':')
-    # fig.axes[2].set_xlim(0.5, 3.5)
     fig.axes[2].invert_yaxis()
     fig.axes[2].set_xlabel('phase delay (h)')
     fig.axes[2].set_ylabel('sensor depth (m)')
