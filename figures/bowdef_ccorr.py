@@ -31,10 +31,10 @@ def plot(method='inner'):
         'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
     fig.subplots_mm(ncols=2, gridspec_kw={
         'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
-    subaxes = bowstr_utils.subsubplots(fig, fig.axes[:1], sharey=False)[0]
+    subaxes = bowstr_utils.subsubplots(fig, fig.axes[:1], nrows=8, sharey=False)[0]
 
     # add subfigure labels
-    bowtem_utils.add_subfig_label('(a)', ax=subaxes[9], loc='sw')
+    bowtem_utils.add_subfig_label('(a)', ax=subaxes[-1], loc='sw')
     bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
     bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
@@ -86,11 +86,12 @@ def plot(method='inner'):
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
     pres = pres['20150516':'20150815']
+    pres = pres.dropna(how='all', axis=1)
 
     # plot time series
     for i, unit in enumerate(pres):
         ax = subaxes[i]
-        color = f'C{i}'
+        color = 'tab:cyan' if unit == 'vhs' else f'C{i}'
         pres[unit].plot(ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
@@ -101,12 +102,9 @@ def plot(method='inner'):
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
-        ax.set_ylim((300, 700) if unit == 'vhs' else (2, 13))
-        ax.set_yticks([400, 600] if unit == 'vhs' else [5, 10])
+        ax.set_ylim((250, 650) if unit == 'vhs' else (2, 13))
+        ax.set_yticks([300, 600] if unit == 'vhs' else [5, 10])
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
-
-    # FIXME remove empty subaxes
-    pres = pres.dropna(how='all', axis=1)
 
     # for each non-tide unit
     # FIXME rename to vhs or gnss
@@ -145,9 +143,7 @@ def plot(method='inner'):
 
     # set labels and remove empty headlines in date tick labels
     subaxes[4].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
-    subaxes[9].set_xlabel('')
-    subaxes[9].set_xticks(subaxes[9].get_xticks(), [
-        label.get_text()[1:] for label in subaxes[9].get_xticklabels()])
+    subaxes[-1].set_xlabel('')
 
     # save partial
     # fig.axes[1].set_visible(False)
