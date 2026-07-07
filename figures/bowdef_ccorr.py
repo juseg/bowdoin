@@ -31,7 +31,8 @@ def plot(method='inner'):
         'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
     fig.subplots_mm(ncols=2, gridspec_kw={
         'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
-    subaxes = bowstr_utils.subsubplots(fig, fig.axes[:1], nrows=8, sharey=False)[0]
+    subaxes = bowstr_utils.subsubplots(
+        fig, fig.axes[:1], nrows=8, sharey=False)[0]
 
     # add subfigure labels
     bowtem_utils.add_subfig_label('(a)', ax=subaxes[-1], loc='sw')
@@ -39,7 +40,7 @@ def plot(method='inner'):
     bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
     # plot borehole velocity
-    df = bowdef_gnssv.read_gnss_velocities()
+    gnss = bowdef_gnssv.read_gnss_velocities()
     # df.vh1.plot(ax=fig.axes[0], color='0.9')
     # df.vhs.plot(ax=fig.axes[0], color='tab:blue')
 
@@ -49,9 +50,9 @@ def plot(method='inner'):
 
     # highpass-filter stress series
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(filt=None, resample='10min', tide=True)
-    tide = pres.pop('tide')
-    pres = pres / 1e3
+    tilt = bowstr_utils.load(filt=None, resample='10min', tide=True)
+    tide = tilt.pop('tide')
+    tilt = tilt / 1e3
 
     # plot tilt rate (6h = 36*10min)
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
@@ -67,32 +68,31 @@ def plot(method='inner'):
     # tilt.plot(ax=fig.axes[0], legend=False)
 
     # prepare joined dataframe interpolated to tilt samples
-    # FIXME rename to tilt or data
     if method == '10min':
-        pres = tilt.join(
-            df.vhs.resample('10min').interpolate(limit=2, method='linear'))
+        tilt = tilt.join(
+            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
 
     # prepare joined dataframe using intersecting samples only
     elif method == 'inner':
-        pres = tilt.join(df.vhs.groupby(level=0).mean(), how='inner')
-        pres = pres.resample('30min').mean()
+        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
+        tilt = tilt.resample('30min').mean()
 
     # prepare joined dataframe interpolated to maximum sampling rate
     elif method == 'outer':
-        pres = tilt.join(df.vhs.groupby(level=0).mean(), how='outer')
-        pres = pres.resample('5min').mean().interpolate(
+        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
+        tilt = tilt.resample('5min').mean().interpolate(
             limit=2, method='linear')
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = pres['20150516':'20150815']
-    pres = pres.dropna(how='all', axis=1)
+    tilt = tilt['20150516':'20150815']
+    tilt = tilt.dropna(how='all', axis=1)
 
     # plot time series
-    for i, unit in enumerate(pres):
+    for i, unit in enumerate(tilt):
         ax = subaxes[i]
         color = 'tab:cyan' if unit == 'vhs' else f'C{i}'
-        pres[unit].plot(ax=ax, color=color, legend=False)
+        tilt[unit].plot(ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
             '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vhs' else
@@ -107,15 +107,14 @@ def plot(method='inner'):
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # for each non-tide unit
-    # FIXME rename to vhs or gnss
-    tide = pres.pop('vhs')
-    for i, unit in enumerate(pres):
+    gnss = tilt.pop('vhs')
+    for i, unit in enumerate(tilt):
         color = f'C{i}'
-        ts = pres[unit]
+        ts = tilt[unit]
 
         # plot (series.plot with deltas affected by #18910)
         ax = fig.axes[1]
-        xcorr = crosscorr(ts, tide)
+        xcorr = crosscorr(ts, gnss)
         ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
 
         # find maximum correlation (a positive shift is a negative delay)
