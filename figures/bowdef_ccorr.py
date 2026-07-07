@@ -22,7 +22,7 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     return df.corrwith(other, axis=1)
 
 
-def main():
+def plot(method='inner'):
     """Main program called during execution."""
 
     # initialize figure
@@ -66,27 +66,26 @@ def main():
     tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
     # tilt.plot(ax=fig.axes[0], legend=False)
 
-    # prepare joined dataframe
+    # prepare joined dataframe interpolated to tilt samples
     # FIXME rename to tilt or data
-    # option 1 keep intersecting sample and drop other data
-    pres = tilt.join(df.vhs.groupby(level=0).mean(), how='inner')
-    pres = pres.resample('30min').mean()
-    # # option 2 interpolate GNSS to tilt samples
-    # pres = tilt.join(df.vhs.resample('10min').interpolate(limit=2, method='linear'))
-    # option 3 interpolate all records to 05min
-    # pres = tilt.join(df.vhs.groupby(level=0).mean(), how='outer')
-    # pres = pres.resample('5min').mean().interpolate(limit=2, method='linear')
-    # option 2 interpolate GNSS data to tilt samples
-    # gnss = df.vhs.resample('10min').mean().interpolate(limit_area='inside', method='linear')
-    # print(gnss['20160901':'20161001'])
-    # pres = tilt.join(df.vhs.reindex(tilt.index))
+    if method == '10min':
+        pres = tilt.join(
+            df.vhs.resample('10min').interpolate(limit=2, method='linear'))
+
+    # prepare joined dataframe using intersecting samples only
+    elif method == 'inner':
+        pres = tilt.join(df.vhs.groupby(level=0).mean(), how='inner')
+        pres = pres.resample('30min').mean()
+
+    # prepare joined dataframe interpolated to maximum sampling rate
+    elif method == 'outer':
+        pres = tilt.join(df.vhs.groupby(level=0).mean(), how='outer')
+        pres = pres.resample('5min').mean().interpolate(
+            limit=2, method='linear')
 
     # load stress data
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    # pres = pres['20160801':'20160901']
-    # pres = pres['20160901':'20161001']
-    # pres = pres['20160801':'20161001']
-    pres = pres['20160816':'20160915']
+    pres = pres['20150516':'20150815']
 
     # plot time series
     for i, unit in enumerate(pres):
@@ -95,15 +94,15 @@ def main():
         pres[unit].plot(ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
-            r'\nSurface\nspeed\n($m\,a^{-1}$)' if unit == 'vhs' else
+            '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vhs' else
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
-        ax.set_ylim((0, 600) if unit == 'vhs' else (4, 11))
-        ax.set_yticks([100, 500] if unit == 'vhs' else [5, 10])
+        ax.set_ylim((300, 700) if unit == 'vhs' else (2, 13))
+        ax.set_yticks([400, 600] if unit == 'vhs' else [5, 10])
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # FIXME remove empty subaxes
@@ -158,8 +157,15 @@ def main():
     # fig.savefig(f'{__file__[:-3]}_{filt}_02')
     # fig.axes[2].set_visible(True)
 
-    # save
-    fig.savefig(__file__[:-3])
+    # return figure
+    return fig
+
+
+def main():
+    """Main program called during execution."""
+    methods = ['10min', 'inner', 'outer']
+    plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
+    plotter()
 
 
 if __name__ == '__main__':
