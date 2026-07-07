@@ -111,7 +111,8 @@ def plot(method='inner'):
 
         # plot (series.plot with deltas affected by #18910)
         ax = fig.axes[1]
-        xcorr = crosscorr(ts, gnss)
+        shift = 36 / pd.to_timedelta(ts.index.freq).total_seconds() * 3600
+        xcorr = crosscorr(ts, gnss, wmin=-shift, wmax=shift)
         ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
 
         # find maximum correlation (a positive shift is a negative delay)
@@ -126,9 +127,10 @@ def plot(method='inner'):
 
     # set axes properties
     fig.axes[1].axvline(0.0, ls=':')
-    fig.axes[1].set_xticks([-12, 0, 12])
+    fig.axes[1].set_xticks(range(-36, 48, 12))
     fig.axes[1].set_xlabel('time delay (h)')
     fig.axes[1].set_ylabel('cross-correlation', labelpad=0)
+    fig.axes[1].xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
     fig.axes[1].yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
     fig.axes[2].axvline(0.0, ls=':')
     fig.axes[2].invert_yaxis()
