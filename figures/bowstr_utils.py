@@ -234,7 +234,7 @@ def butter(pres, order=4, cutoff=1/24, btype='high'):
 # Figure initialization
 # ---------------------
 
-def subsubplots(fig, axes, nrows=10):
+def subsubplots(fig, axes, nrows=10, sharex=True, sharey=True):
     """Add open-spine sub-plots within each parent axes."""
     hspace_mm = 1
     subaxes = np.array([ax.get_subplotspec().subgridspec(
@@ -246,8 +246,10 @@ def subsubplots(fig, axes, nrows=10):
     for pax, panel in zip(axes, subaxes):
         pax.set_axis_off()
         for ax in panel:
-            ax.sharex(pax)
-            ax.sharey(pax)
+            if sharex is True:
+                ax.sharex(pax)
+            if sharey is True:
+                ax.sharey(pax)
 
     # only show subaxes outer spines
     for ax in subaxes.flat:
