@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2015-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -10,7 +10,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from osgeo import gdal
 
 # Global parameters
 # -----------------
@@ -181,6 +180,7 @@ def open_gtif(filename, extent=None):
     """Open GeoTIFF and return data and extent."""
 
     # open dataset
+    from osgeo import gdal
     ds = gdal.Open(filename)
 
     # read geotransform
