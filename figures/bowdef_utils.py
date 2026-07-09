@@ -4,12 +4,19 @@
 
 """Bowdoin deformation paper utils."""
 
-# FIXME this module is completely untested on recent Python versions and
-# contains code that duplicate bowtem_utils.py and other projects.
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+# ----------------------------------------------------------------------
+
+# FIXME untested broken code below duplicating bowtem_utils and other projects
+# pylint: disable=consider-using-f-string,consider-using-from-import
+# pylint: disable=dangerous-default-value,fixme
+# pylint: disable=import-error,import-outside-toplevel,invalid-name
+# pylint: disable=missing-function-docstring,no-member
+# pylint: disable=undefined-variable,unnecessary-negation,unused-argument
+# pylint: disable=redefined-outer-name,disable=singleton-comparison
+# pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
 
 # Global parameters
 # -----------------
