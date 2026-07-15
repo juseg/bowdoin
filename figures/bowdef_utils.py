@@ -71,14 +71,14 @@ def load_data(sensor, variable, borehole):
     assert borehole in ('both', 'lower', 'upper')
 
     # read data
-    if borehole in bowdef_utils.boreholes:
+    if borehole in ('lower', 'upper'):
         filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
                     % (sensor, variable, borehole))
         df = pd.read_csv(filename, parse_dates=True, index_col='date')
         df = df.groupby(level=0).mean()
     elif borehole == 'both':
-        dfu = bowdef_utils.load_data(sensor, variable, 'upper')
-        dfl = bowdef_utils.load_data(sensor, variable, 'lower')
+        dfu = load_data(sensor, variable, 'upper')
+        dfl = load_data(sensor, variable, 'lower')
         df = pd.concat([dfu, dfl], axis=1)
     return df
 
@@ -93,7 +93,7 @@ def load_depth(sensor, borehole):
 
 
 def load_bowtid_depth():
-    ts = bowdef_utils.load_depth('tiltunit', 'both')
+    ts = load_depth('tiltunit', 'both')
     ts = ts.sort_index(ascending=False)
     ts.index = [c[0::3] for c in ts.index]
     ts = ts.drop(['L1', 'L2', 'U1'])
@@ -105,7 +105,7 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
     or between two dates."""
 
     # check argument validity
-    assert borehole in bowdef_utils.boreholes
+    assert borehole in ('lower', 'upper')
 
     # load tilt data
     tiltx = load_data('tiltunit', 'tiltx', borehole)
@@ -127,7 +127,7 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
     exz = np.sqrt(exz_x**2+exz_y**2)
 
     # convert to angles
-    if as_angle == True:
+    if as_angle:
         exz = np.arcsin(exz)*180/np.pi
 
     # return strain rate
@@ -266,9 +266,9 @@ def unframe(ax, edges=['bottom', 'left']):
                                 ['left' in edges]['right' in edges])
 
     # set label positions
-    if 'right' in edges and not 'left' in edges:
+    if 'right' in edges and 'left' not in edges:
         ax.yaxis.set_label_position('right')
-    if 'top' in edges and not 'bottom' in edges:
+    if 'top' in edges and 'bottom' not in edges:
         ax.xaxis.set_label_position('top')
 
 
