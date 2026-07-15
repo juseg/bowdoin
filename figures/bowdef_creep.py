@@ -114,7 +114,7 @@ def main(start='2014-11-01', end='2015-11-01'):
         mask = strain.notnull() & strain.index.str.startswith(
             'U' if bh == 'BH1' else 'L')
         color = f'C{mask.argmax()}'
-        stress = 917 * 9.80665 * depth * 0.02 * 1e-6 # FIXME better slope
+        stress = 917 * 9.80665 * depth * np.sin(1.6*np.pi/180) * 1e-6
         ax.plot(stress[mask], strain_rate[mask], color=color, linestyle='', marker='+')
         # ax.text(1, 20, bh, color=color, fontweight='bold', ha='right')
 
