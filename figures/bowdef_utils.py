@@ -34,7 +34,7 @@ def filter_savgol_series(series, *args, **kwargs):
 # Data loading methods
 # --------------------
 
-def load_gnss_velocities():
+def load_gnss_velocities(window='12h'):
     """Compute velocity components from raw data of one station."""
     # FIXME alternate velocity computations may be moved to postprocessing, and
     # the Zenodo dataset updated with central, multipoint or filtered velocity
@@ -60,10 +60,12 @@ def load_gnss_velocities():
     vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
     df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
-    # compute Savitzky–Golay filtered velocity (6h = 24*15min)
+    # compute Savitzky–Golay filtered velocity
+    freq = pd.to_timedelta(pd.infer_freq(df.index))
     vel = filter_savgol_dataframe(
-        df[['x', 'y']], window_length=48, polyorder=2, delta=1, deriv=1)
-    df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
+        df[['x', 'y']], window_length=int(pd.to_timedelta(window)/freq),
+        polyorder=2, deriv=1, delta=freq/pd.to_timedelta('365d'))
+    df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5
 
     # return the whole dataframe
     return df
