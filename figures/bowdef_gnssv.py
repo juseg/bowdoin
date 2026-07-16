@@ -14,58 +14,6 @@ import bowstr_utils
 import bowtem_utils
 
 
-def read_gnss_velocities(borehole=1):
-    """Compute velocity components from raw data of one station."""
-    # FIXME alternate velocity computations may be moved to postprocessing, and
-    # the Zenodo dataset updated with central, multipoint or filtered velocity
-    # (instead of two-point backward) and corrected azimuth formula. Or we
-    # move all velocity derivations here and remove them from Zenodo.
-
-    # read gps data, including backward velocity
-    # FIXME implement reading data from other stations
-    assert borehole == 1
-    df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
-
-    # compute two-point central velocity
-    pos = df[['x', 'y', 'z']]
-    vel = (pos.shift(1)-pos.shift(-1))/2
-    df['vh1'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # compute four-point central velocity
-    vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
-    df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # compute Savitzky–Golay filtered velocity (6h = 24*15min)
-    vel = bowdef_utils.filter_savgol_dataframe(
-        df[['x', 'y']], window_length=48, polyorder=2, delta=1, deriv=1)
-    df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # return the whole dataframe
-    return df
-
-
-def read_gnss_strain(lower=1, upper=3):
-    """Compute longitudinal strain from raw data of two stations."""
-    # FIXME reading GNSS data from other stations is not yet implemented
-
-    ldf = read_gnss_velocities(borehole=lower)
-    udf = read_gnss_velocities(borehole=upper)
-    distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
-    strain = (distance.diff(1) - distance.diff(-1)) / 2.0
-    return strain
-
-
-def read_gnss_strain_rate(lower=1, upper=2):
-    """Compute longitudinal strain rate from raw data of two stations."""
-    # FIXME reading GNSS data from other stations is not yet implemented
-
-    ldf = read_gnss_velocities(borehole=lower)
-    udf = read_gnss_velocities(borehole=upper)
-    distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
-    strain_rate = (ldf.fvh - udf.fvh) / distance
-    return strain_rate
-
-
 def main():
     """Main program called during execution."""
 
@@ -79,7 +27,7 @@ def main():
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # plot borehole velocity
-    df = read_gnss_velocities()
+    df = bowdef_utils.load_gnss_velocities()
     df.vh1.plot(ax=axes[0], color='0.9')
     df.vhs.plot(ax=axes[0], color='tab:blue')
 
