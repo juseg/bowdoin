@@ -8,9 +8,12 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 
+import bowdef_gnssv  # FIXME move contents to bowdef_utils
+import bowstr_utils
 
-# Signal processing
-# -----------------
+
+# Signal processing methods
+# -------------------------
 
 def filter_savgol_dataframe(df, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
@@ -26,6 +29,48 @@ def filter_savgol_series(series, *args, **kwargs):
     return pd.Series(
         data=sp.signal.savgol_filter(series, *args, **kwargs),
         index=series.index, name=series.name)
+
+
+# Data loading methods
+# --------------------
+
+def load_tilt_rates_and_gnssv(join='inner'):
+    """Load joint tilt rates and surface velocity data."""
+    # FIXME apply savgol filters after joining the data
+
+    # load depth and tilt rates
+    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
+    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    tilx = tilx.interpolate(limit_area='inside', method='linear')
+    tily = tily.interpolate(limit_area='inside', method='linear')
+    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
+    tilx = filter_savgol_dataframe(tilx, **kwargs)
+    tily = filter_savgol_dataframe(tily, **kwargs)
+    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+    tilt = tilt[tilt.index >= '2014-07-17']
+    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
+
+    # load surface velocities
+    gnss = bowdef_gnssv.read_gnss_velocities()
+
+    # prepare joined dataframe interpolated to tilt samples
+    if join == '10min':
+        tilt = tilt.join(
+            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
+
+    # prepare joined dataframe using intersecting samples only
+    elif join == 'inner':
+        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
+        tilt = tilt.resample('30min').mean()
+
+    # prepare joined dataframe interpolated to maximum sampling rate
+    elif join == 'outer':
+        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
+        tilt = tilt.resample('5min').mean().interpolate(
+            limit=2, method='linear')
+
+    # return tilt rates dataframe
+    return tilt
 
 
 # ----------------------------------------------------------------------

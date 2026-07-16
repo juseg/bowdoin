@@ -8,7 +8,6 @@
 import numpy as np
 import pandas as pd
 import absplots as apl
-import bowdef_gnssv  # FIXME move contents to bowdef_utils
 import bowdef_utils
 import bowtem_utils
 import bowstr_utils
@@ -21,46 +20,6 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
         data=[series.shift(i, freq='infer') for i in shifts],
         index=pd.to_timedelta(shifts*series.index.freq))
     return df.corrwith(other, axis=1)
-
-
-def load_rates(join='inner'):
-    """Load joint tilt rates and surface velocity data."""
-    # FIXME move to bowdef_utils or merge with bowstr_utils
-    # FIXME apply savgol filters after joining the data
-
-    # load depth and tilt rates
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = bowdef_utils.filter_savgol_dataframe(tilx, **kwargs)
-    tily = bowdef_utils.filter_savgol_dataframe(tily, **kwargs)
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
-
-    # load surface velocities
-    gnss = bowdef_gnssv.read_gnss_velocities()
-
-    # prepare joined dataframe interpolated to tilt samples
-    if join == '10min':
-        tilt = tilt.join(
-            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
-
-    # prepare joined dataframe using intersecting samples only
-    elif join == 'inner':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
-        tilt = tilt.resample('30min').mean()
-
-    # prepare joined dataframe interpolated to maximum sampling rate
-    elif join == 'outer':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
-        tilt = tilt.resample('5min').mean().interpolate(
-            limit=2, method='linear')
-
-    # return tilt rates dataframe
-    return tilt
 
 
 def plot(method='inner'):
@@ -82,7 +41,7 @@ def plot(method='inner'):
 
     # load depth and tilt rates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    tilt = load_rates(join=method)
+    tilt = bowdef_utils.load_tilt_rates_and_gnssv(join=method)
     tilt = tilt['20150516':'20150815']
     tilt = tilt.dropna(how='all', axis=1)
 
