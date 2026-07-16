@@ -34,16 +34,21 @@ def filter_savgol_series(series, *args, **kwargs):
 # Data loading methods
 # --------------------
 
-def load_gnss_velocities(borehole=1):
+def load_gnss_velocities():
     """Compute velocity components from raw data of one station."""
     # FIXME alternate velocity computations may be moved to postprocessing, and
     # the Zenodo dataset updated with central, multipoint or filtered velocity
     # (instead of two-point backward) and corrected azimuth formula. Or we
     # move all velocity derivations here and remove them from Zenodo.
+    # NOTE we could add data from other stations (Sugiyama et al. 2024) and
+    # methods to compute longitudinal strain and strain rates.
+    # ldf = load_gnss_velocities(borehole=lower)
+    # udf = load_gnss_velocities(borehole=upper)
+    # distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
+    # strain = (distance.diff(1) - distance.diff(-1)) / 2.0
+    # strain_rate = (ldf.fvh - udf.fvh) / distance
 
     # read gps data, including backward velocity
-    # FIXME implement reading data from other stations
-    assert borehole == 1
     df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
 
     # compute two-point central velocity
@@ -62,29 +67,6 @@ def load_gnss_velocities(borehole=1):
 
     # return the whole dataframe
     return df
-
-
-def load_gnss_strain(lower=1, upper=3):
-    """Compute longitudinal strain from raw data of two stations."""
-    # FIXME reading GNSS data from other stations is not yet implemented
-
-    ldf = load_gnss_velocities(borehole=lower)
-    udf = load_gnss_velocities(borehole=upper)
-    distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
-    strain = (distance.diff(1) - distance.diff(-1)) / 2.0
-    return strain
-
-
-def load_gnss_strain_rate(lower=1, upper=2):
-    """Compute longitudinal strain rate from raw data of two stations."""
-    # FIXME reading GNSS data from other stations is not yet implemented
-
-    ldf = load_gnss_velocities(borehole=lower)
-    udf = load_gnss_velocities(borehole=upper)
-    distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
-    strain_rate = (ldf.fvh - udf.fvh) / distance
-    return strain_rate
-
 
 def load_tilt_rates_and_gnssv(join='inner'):
     """Load joint tilt rates and surface velocity data."""
