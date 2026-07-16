@@ -8,8 +8,8 @@
 import absplots as apl
 import numpy as np
 import pandas as pd
-import scipy
 
+import bowdef_utils
 import bowstr_utils
 import bowtem_utils
 
@@ -36,7 +36,7 @@ def read_gnss_velocities(borehole=1):
     df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
     # compute Savitzky–Golay filtered velocity (6h = 24*15min)
-    vel = savgol_dataframe(
+    vel = bowdef_utils.filter_savgol_dataframe(
         df[['x', 'y']], window_length=48, polyorder=2, delta=1, deriv=1)
     df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
@@ -64,22 +64,6 @@ def read_gnss_strain_rate(lower=1, upper=2):
     distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
     strain_rate = (ldf.fvh - udf.fvh) / distance
     return strain_rate
-
-
-def savgol_dataframe(df, *args, **kwargs):
-    """Apply Savitsky-Golay filter on each series in a dataframe."""
-    return pd.concat(
-        [savgol_series(df[column], *args, **kwargs) for column in df], axis=1)
-
-
-def savgol_series(series, *args, **kwargs):
-    """Apply Savitsky-Golay filter on series trimmed from NaNs."""
-    first = series.first_valid_index()
-    last = series.last_valid_index()
-    series = series.loc[first:last]
-    return pd.Series(
-        data=scipy.signal.savgol_filter(series, *args, **kwargs),
-        index=series.index, name=series.name)
 
 
 def main():
@@ -115,8 +99,8 @@ def main():
     tilx = tilx.interpolate(limit_area='inside', method='linear')
     tily = tily.interpolate(limit_area='inside', method='linear')
     kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = savgol_dataframe(tilx, **kwargs)
-    tily = savgol_dataframe(tily, **kwargs)
+    tilx = bowdef_utils.filter_savgol_dataframe(tilx, **kwargs)
+    tily = bowdef_utils.filter_savgol_dataframe(tily, **kwargs)
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()

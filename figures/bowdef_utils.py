@@ -6,6 +6,27 @@
 
 import numpy as np
 import pandas as pd
+import scipy as sp
+
+
+# Signal processing
+# -----------------
+
+def filter_savgol_dataframe(df, *args, **kwargs):
+    """Apply Savitsky-Golay filter on each series in a dataframe."""
+    return pd.concat(
+        [filter_savgol_series(df[column], *args, **kwargs) for column in df], axis=1)
+
+
+def filter_savgol_series(series, *args, **kwargs):
+    """Apply Savitsky-Golay filter on series trimmed from NaNs."""
+    first = series.first_valid_index()
+    last = series.last_valid_index()
+    series = series.loc[first:last]
+    return pd.Series(
+        data=sp.signal.savgol_filter(series, *args, **kwargs),
+        index=series.index, name=series.name)
+
 
 # ----------------------------------------------------------------------
 

@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import absplots as apl
 import bowdef_gnssv  # FIXME move contents to bowdef_utils
+import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
@@ -33,8 +34,8 @@ def load_rates(join='inner'):
     tilx = tilx.interpolate(limit_area='inside', method='linear')
     tily = tily.interpolate(limit_area='inside', method='linear')
     kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = bowdef_gnssv.savgol_dataframe(tilx, **kwargs)
-    tily = bowdef_gnssv.savgol_dataframe(tily, **kwargs)
+    tilx = bowdef_utils.filter_savgol_dataframe(tilx, **kwargs)
+    tily = bowdef_utils.filter_savgol_dataframe(tily, **kwargs)
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
