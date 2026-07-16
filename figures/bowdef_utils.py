@@ -15,17 +15,31 @@ import bowtem_utils
 # Signal processing methods
 # -------------------------
 
-def filter_savgol_dataframe(df, *args, **kwargs):
+def filter_savgol_dataframe(df, window_length, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
-    return pd.concat(
-        [filter_savgol_series(df[column], *args, **kwargs) for column in df], axis=1)
+
+    # infer sampling frequency in years
+    freq = pd.to_timedelta(pd.infer_freq(df.index))
+    kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
+
+    # convert string window length to integer
+    if isinstance(window_length, str):
+        window_length = int(pd.to_timedelta(window_length)/freq)
+
+    # return concatenation of filtered series
+    return pd.concat([filter_savgol_series(
+        df[column], window_length, *args, **kwargs) for column in df], axis=1)
 
 
 def filter_savgol_series(series, *args, **kwargs):
     """Apply Savitsky-Golay filter on series trimmed from NaNs."""
+
+    # strip initial and final nan values
     first = series.first_valid_index()
     last = series.last_valid_index()
     series = series.loc[first:last]
+
+    # return new series with filtered values
     return pd.Series(
         data=sp.signal.savgol_filter(series, *args, **kwargs),
         index=series.index, name=series.name)
@@ -61,14 +75,12 @@ def load_gnss_velocities(window='12h'):
     df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
     # compute Savitzky–Golay filtered velocity
-    freq = pd.to_timedelta(pd.infer_freq(df.index))
-    vel = filter_savgol_dataframe(
-        df[['x', 'y']], window_length=int(pd.to_timedelta(window)/freq),
-        polyorder=2, deriv=1, delta=freq/pd.to_timedelta('365d'))
+    vel = filter_savgol_dataframe(df[['x', 'y']], window, polyorder=2, deriv=1)
     df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5
 
     # return the whole dataframe
     return df
+
 
 def load_tilt_rates_and_gnssv(join='inner'):
     """Load joint tilt rates and surface velocity data."""
