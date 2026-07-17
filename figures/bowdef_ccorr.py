@@ -41,15 +41,16 @@ def plot(method='inner'):
 
     # load depth and tilt rates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    tilt = bowdef_utils.load_multivariate(join=method)
-    tilt = tilt['20150516':'20150815']
-    tilt = tilt.dropna(how='all', axis=1)
+    df = bowdef_utils.load_multivariate(join=method)
+    df = df.loc['20150516':'20150815']
+    df = df.dropna(how='all', axis=1)
 
     # plot time series
-    for i, unit in enumerate(tilt):
+    for i, unit in enumerate((*df.tilt.columns, 'vh')):
         ax = subaxes[i]
         color = 'tab:cyan' if unit == 'vh' else f'C{i}'
-        tilt[unit].plot(ax=ax, color=color, legend=False)
+        df['gnss' if unit == 'vh' else 'tilt', unit].plot(
+            ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
             '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vh' else
@@ -64,15 +65,14 @@ def plot(method='inner'):
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # for each non-tide unit
-    gnss = tilt.pop('vh')
-    for i, unit in enumerate(tilt):
+    for i, unit in enumerate(df.tilt):
         color = f'C{i}'
-        ts = tilt[unit]
+        ts = df.tilt[unit]
 
         # plot (series.plot with deltas affected by #18910)
         ax = fig.axes[1]
         shift = 36 / pd.to_timedelta(ts.index.freq).total_seconds() * 3600
-        xcorr = crosscorr(ts, gnss, wmin=-shift, wmax=shift)
+        xcorr = crosscorr(ts, df.gnss.vh, wmin=-shift, wmax=shift)
         ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
 
         # find maximum correlation (a positive shift is a negative delay)
