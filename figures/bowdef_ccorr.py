@@ -48,23 +48,23 @@ def plot(method='inner'):
     # plot time series
     for i, unit in enumerate(tilt):
         ax = subaxes[i]
-        color = 'tab:cyan' if unit == 'vhs' else f'C{i}'
+        color = 'tab:cyan' if unit == 'vh' else f'C{i}'
         tilt[unit].plot(ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
-            '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vhs' else
+            '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vh' else
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
-        ax.set_ylim((250, 650) if unit == 'vhs' else (2, 13))
-        ax.set_yticks([300, 600] if unit == 'vhs' else [5, 10])
+        ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))
+        ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # for each non-tide unit
-    gnss = tilt.pop('vhs')
+    gnss = tilt.pop('vh')
     for i, unit in enumerate(tilt):
         color = f'C{i}'
         ts = tilt[unit]

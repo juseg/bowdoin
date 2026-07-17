@@ -27,9 +27,10 @@ def main():
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # plot borehole velocity
-    df = bowdef_utils.load_gnss_velocities()
-    df.vh1.plot(ax=axes[0], color='0.9')
-    df.vhs.plot(ax=axes[0], color='tab:blue')
+    df = bowdef_utils.load_gnss_velocities(method='twopoint')
+    df.vh.plot(ax=axes[0], color='0.9')
+    df = bowdef_utils.load_gnss_velocities(method='savgol')
+    df.vh.plot(ax=axes[0], color='tab:blue')
 
     # read strain rate
     # strain = read_gnss_strain_rate()

@@ -48,7 +48,7 @@ def filter_savgol_series(series, *args, **kwargs):
 # Data loading methods
 # --------------------
 
-def load_gnss_velocities(window='12h'):
+def load_gnss_velocities(method='savgol', window='12h'):
     """Compute velocity components from raw data of one station."""
     # FIXME alternate velocity computations may be moved to postprocessing, and
     # the Zenodo dataset updated with central, multipoint or filtered velocity
@@ -67,16 +67,19 @@ def load_gnss_velocities(window='12h'):
 
     # compute two-point central velocity
     pos = df[['x', 'y', 'z']]
-    vel = (pos.shift(1)-pos.shift(-1))/2
-    df['vh1'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
+    if method == 'twopoint':
+        vel = (pos.shift(1)-pos.shift(-1))/2
+        df['vh'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
     # compute four-point central velocity
-    vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
-    df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
+    elif method == 'fourpoint':
+        vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
+        df['vh'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
 
     # compute Savitzky–Golay filtered velocity
-    vel = filter_savgol_dataframe(df[['x', 'y']], window, polyorder=2, deriv=1)
-    df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5
+    elif method == 'savgol':
+        vel = filter_savgol_dataframe(df[['x', 'y']], window, polyorder=2, deriv=1)
+        df['vh'] = (vel['x']**2 + vel['y']**2)**0.5
 
     # return the whole dataframe
     return df
@@ -104,16 +107,16 @@ def load_tilt_rates_and_gnssv(join='inner'):
     # prepare joined dataframe interpolated to tilt samples
     if join == '10min':
         tilt = tilt.join(
-            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
+            gnss.vh.resample('10min').interpolate(limit=2, method='linear'))
 
     # prepare joined dataframe using intersecting samples only
     elif join == 'inner':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
+        tilt = tilt.join(gnss.vh.groupby(level=0).mean(), how='inner')
         tilt = tilt.resample('30min').mean()
 
     # prepare joined dataframe interpolated to maximum sampling rate
     elif join == 'outer':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
+        tilt = tilt.join(gnss.vh.groupby(level=0).mean(), how='outer')
         tilt = tilt.resample('5min').mean().interpolate(
             limit=2, method='linear')
 
