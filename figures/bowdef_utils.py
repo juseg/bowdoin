@@ -35,6 +35,9 @@ def filter_derive_dataframe(df, method='savgol', window='12h'):
         return filter_savgol_dataframe(
             df, window, polyorder=2, delta=delta, deriv=1)
 
+    # other methods are unknown
+    raise ValueError("Unkown derivation method {method}.")
+
 
 def filter_savgol_dataframe(df, window_length, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
