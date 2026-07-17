@@ -41,7 +41,7 @@ def plot(method='inner'):
 
     # load depth and tilt rates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    tilt = bowdef_utils.load_tilt_rates_and_gnssv(join=method)
+    tilt = bowdef_utils.load_multivariate(join=method)
     tilt = tilt['20150516':'20150815']
     tilt = tilt.dropna(how='all', axis=1)
 

@@ -110,10 +110,10 @@ def load_tilt_rates(**kwargs):
     return tilt
 
 
-def load_tilt_rates_and_gnssv(join='inner', method='savgol', window='12h'):
-    """Load joint tilt rates and surface velocity data."""
+def load_multivariate(join='inner', method='savgol', window='12h'):
+    """Load tilt rates, speed, stress, and tides in one dataframe."""
 
-    # load surface velocities
+    # load tilt rates and speed
     tilt = load_tilt_rates(method=method, window=window)
     gnss = load_gnss_velocities(method=method, window=window)
 
