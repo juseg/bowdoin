@@ -71,9 +71,9 @@ def filter_savgol_series(series, *args, **kwargs):
 
 def load_gnss_velocities(**kwargs):
     """Compute velocity components from raw data of one station."""
-    # FIXME alternate velocity computations may be moved to postprocessing, and
-    # the Zenodo dataset updated with central, multipoint or filtered velocity
-    # (instead of two-point backward) and corrected azimuth formula. Or we
+    # NOTE this improved velocity computation may be moved to postprocessing,
+    # and the Zenodo dataset updated with centred-difference or filtered
+    # (insead of backward) velocity and corrected azimuth formula. Or we
     # move all velocity derivations here and remove them from Zenodo.
     # NOTE we could add data from other stations (Sugiyama et al. 2024) and
     # methods to compute longitudinal strain and strain rates.
