@@ -6,8 +6,6 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
-import numpy as np
-import pandas as pd
 
 import bowdef_utils
 import bowstr_utils
@@ -42,17 +40,8 @@ def main():
     tide = pres.pop('tide')
     pres = pres / 1e3
 
-    # plot tilt rate (6h = 36*10min)
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = bowdef_utils.filter_savgol_dataframe(tilx, **kwargs)
-    tily = bowdef_utils.filter_savgol_dataframe(tily, **kwargs)
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
+    # plot tilt rate
+    tilt = bowdef_utils.load_tilt_rates(method='savgol', window='12h')
     tilt.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
