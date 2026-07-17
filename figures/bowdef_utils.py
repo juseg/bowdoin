@@ -97,24 +97,21 @@ def load_gnss_velocities(**kwargs):
     return df
 
 
-def load_tilt_rates_and_gnssv(join='inner'):
+def load_tilt_rates_and_gnssv(join='inner', window='12h'):
     """Load joint tilt rates and surface velocity data."""
-    # FIXME apply savgol filters after joining the data
 
     # load depth and tilt rates
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
     tilx = tilx.interpolate(limit_area='inside', method='linear')
     tily = tily.interpolate(limit_area='inside', method='linear')
-    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = filter_savgol_dataframe(tilx, **kwargs)
-    tily = filter_savgol_dataframe(tily, **kwargs)
+    tilx = filter_derive_dataframe(tilx, window=window)
+    tily = filter_derive_dataframe(tily, window=window)
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
 
     # load surface velocities
-    gnss = load_gnss_velocities()
+    gnss = load_gnss_velocities(window=window)
 
     # prepare joined dataframe interpolated to tilt samples
     if join == '10min':
