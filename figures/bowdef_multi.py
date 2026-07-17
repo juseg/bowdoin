@@ -28,7 +28,7 @@ def main():
     df = bowdef_utils.load_gnss_velocities(method='twopoint')
     df.vh.plot(ax=axes[0], color='0.9')
     df = bowdef_utils.load_multivariate()
-    df.vh.plot(ax=axes[0], color='tab:blue')
+    df.gnss.vh.plot(ax=axes[0], color='tab:blue')
 
     # read strain rate
     # strain = read_gnss_strain_rate()
@@ -41,7 +41,7 @@ def main():
     pres = pres / 1e3
 
     # plot tilt rate
-    df.plot(ax=axes[1], legend=False)
+    df.tilt.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
     pres.plot(ax=axes[2], legend=False)
