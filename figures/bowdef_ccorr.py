@@ -115,7 +115,7 @@ def plot(method='inner'):
 
 def main():
     """Main program called during execution."""
-    methods = ['10min', 'inner', 'outer']
+    methods = ['inner', 'mixed', 'outer']
     plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
     plotter()
 

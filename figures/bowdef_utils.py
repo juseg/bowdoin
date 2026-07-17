@@ -117,15 +117,15 @@ def load_tilt_rates_and_gnssv(join='inner', method='savgol', window='12h'):
     tilt = load_tilt_rates(method=method, window=window)
     gnss = load_gnss_velocities(method=method, window=window)
 
-    # prepare joined dataframe interpolated to tilt samples
-    if join == '10min':
-        tilt = tilt.join(
-            gnss.vh.resample('10min').interpolate(limit=2, method='linear'))
-
     # prepare joined dataframe using intersecting samples only
-    elif join == 'inner':
+    if join == 'inner':
         tilt = tilt.join(gnss.vh.groupby(level=0).mean(), how='inner')
         tilt = tilt.resample('30min').mean()
+
+    # prepare joined dataframe interpolated to tilt samples
+    elif join == 'mixed':
+        tilt = tilt.join(
+            gnss.vh.resample('10min').interpolate(limit=2, method='linear'))
 
     # prepare joined dataframe interpolated to maximum sampling rate
     elif join == 'outer':
