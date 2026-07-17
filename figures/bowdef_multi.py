@@ -27,7 +27,7 @@ def main():
     # plot borehole velocity
     df = bowdef_utils.load_gnss_velocities(method='twopoint')
     df.vh.plot(ax=axes[0], color='0.9')
-    df = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
+    df = bowdef_utils.load_multivariate()
     df.vh.plot(ax=axes[0], color='tab:blue')
 
     # read strain rate
@@ -41,8 +41,7 @@ def main():
     pres = pres / 1e3
 
     # plot tilt rate
-    tilt = bowdef_utils.load_tilt_rates(method='savgol', window='12h')
-    tilt.plot(ax=axes[1], legend=False)
+    df.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
     pres.plot(ax=axes[2], legend=False)
