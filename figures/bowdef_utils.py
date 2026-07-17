@@ -15,6 +15,27 @@ import bowtem_utils
 # Signal processing methods
 # -------------------------
 
+def filter_derive_dataframe(df, method='savgol', window='12h'):
+    """Derive a dataframe optionally using Savitsky-Golay filter."""
+
+    # infer sampling interval in years
+    delta = pd.to_timedelta(pd.infer_freq(df.index)) / pd.to_timedelta('365d')
+
+    # compute two-point central difference
+    if method == 'twopoint':
+        return (df.shift(1)-df.shift(-1)) / 2 / delta
+
+    # compute four-point central difference
+    if method == 'fourpoint':
+        return (
+            df.shift(-2)-8*df.shift(-1)+8*df.shift(1)-df.shift(2)) / 12 / delta
+
+    # compute Savitzky–Golay filtered derivative
+    if method == 'savgol':
+        return filter_savgol_dataframe(
+            df, window, polyorder=2, delta=delta, deriv=1)
+
+
 def filter_savgol_dataframe(df, window_length, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
 
@@ -48,7 +69,7 @@ def filter_savgol_series(series, *args, **kwargs):
 # Data loading methods
 # --------------------
 
-def load_gnss_velocities(method='savgol', window='12h'):
+def load_gnss_velocities(**kwargs):
     """Compute velocity components from raw data of one station."""
     # FIXME alternate velocity computations may be moved to postprocessing, and
     # the Zenodo dataset updated with central, multipoint or filtered velocity
@@ -62,24 +83,12 @@ def load_gnss_velocities(method='savgol', window='12h'):
     # strain = (distance.diff(1) - distance.diff(-1)) / 2.0
     # strain_rate = (ldf.fvh - udf.fvh) / distance
 
-    # read gps data, including backward velocity
+    # read gnss data, including backward-difference velocity
     df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
 
-    # compute two-point central velocity
-    pos = df[['x', 'y', 'z']]
-    if method == 'twopoint':
-        vel = (pos.shift(1)-pos.shift(-1))/2
-        df['vh'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # compute four-point central velocity
-    elif method == 'fourpoint':
-        vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
-        df['vh'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # compute Savitzky–Golay filtered velocity
-    elif method == 'savgol':
-        vel = filter_savgol_dataframe(df[['x', 'y']], window, polyorder=2, deriv=1)
-        df['vh'] = (vel['x']**2 + vel['y']**2)**0.5
+    # derive horizontal velocity
+    vel = filter_derive_dataframe(df[['x', 'y']], **kwargs)
+    df['vh'] = (vel['x']**2 + vel['y']**2)**0.5
 
     # return the whole dataframe
     return df
