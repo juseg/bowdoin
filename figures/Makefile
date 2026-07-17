@@ -48,7 +48,7 @@ all: $(ALL_FIGS)
 
 # dependencies
 $(ALL_FIGS): bowtem_utils.py matplotlibrc
-$(BOWDEF_FIGS): bowstr_utils.py
+$(BOWDEF_FIGS): bowdef_utils.py bowstr_utils.py
 $(BOWSTR_FIGS): bowstr_utils.py
 
 # default pattern rule
