@@ -29,7 +29,7 @@ def main():
     # plot borehole velocity
     df = bowdef_utils.load_gnss_velocities(method='twopoint')
     df.vh.plot(ax=axes[0], color='0.9')
-    df = bowdef_utils.load_gnss_velocities(method='savgol')
+    df = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
     df.vh.plot(ax=axes[0], color='tab:blue')
 
     # read strain rate

@@ -15,7 +15,7 @@ import bowtem_utils
 # Signal processing methods
 # -------------------------
 
-def filter_derive_dataframe(df, method='savgol', window='12h'):
+def filter_derive_dataframe(df, method='twopoint', window=None):
     """Derive a dataframe optionally using Savitsky-Golay filter."""
 
     # infer sampling interval in years
