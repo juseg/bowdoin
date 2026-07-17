@@ -1,16 +1,152 @@
-# Copyright (c) 2015-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2015-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 """Bowdoin deformation paper utils."""
 
-# FIXME this module is completely untested on recent Python versions and
-# contains code that duplicate bowtem_utils.py and other projects.
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from osgeo import gdal
+import scipy as sp
+
+import bowstr_utils
+import bowtem_utils
+
+
+# Signal processing methods
+# -------------------------
+
+def filter_derive_dataframe(df, method='twopoint', window=None):
+    """Derive a dataframe optionally using Savitsky-Golay filter."""
+
+    # infer sampling interval in years
+    delta = pd.to_timedelta(pd.infer_freq(df.index)) / pd.to_timedelta('365d')
+
+    # compute two-point central difference
+    if method == 'twopoint':
+        return (df.shift(1)-df.shift(-1)) / 2 / delta
+
+    # compute four-point central difference
+    if method == 'fourpoint':
+        return (
+            df.shift(-2)-8*df.shift(-1)+8*df.shift(1)-df.shift(2)) / 12 / delta
+
+    # compute Savitzky–Golay filtered derivative
+    if method == 'savgol':
+        return filter_savgol_dataframe(
+            df, window, polyorder=2, delta=delta, deriv=1)
+
+    # other methods are unknown
+    raise ValueError("Unkown derivation method {method}.")
+
+
+def filter_savgol_dataframe(df, window_length, *args, **kwargs):
+    """Apply Savitsky-Golay filter on each series in a dataframe."""
+
+    # infer sampling frequency in years
+    freq = pd.to_timedelta(pd.infer_freq(df.index))
+    kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
+
+    # convert string window length to integer
+    if isinstance(window_length, str):
+        window_length = int(pd.to_timedelta(window_length)/freq)
+
+    # return concatenation of filtered series
+    return pd.concat([filter_savgol_series(
+        df[column], window_length, *args, **kwargs) for column in df], axis=1)
+
+
+def filter_savgol_series(series, *args, **kwargs):
+    """Apply Savitsky-Golay filter on series trimmed from NaNs."""
+
+    # strip initial and final nan values
+    first = series.first_valid_index()
+    last = series.last_valid_index()
+    series = series.loc[first:last]
+
+    # return new series with filtered values
+    return pd.Series(
+        data=sp.signal.savgol_filter(series, *args, **kwargs),
+        index=series.index, name=series.name)
+
+
+# Data loading methods
+# --------------------
+
+def load_gnss_velocities(**kwargs):
+    """Compute velocity components from raw data of one station."""
+    # NOTE this improved velocity computation may be moved to postprocessing,
+    # and the Zenodo dataset updated with centred-difference or filtered
+    # (insead of backward) velocity and corrected azimuth formula. Or we
+    # move all velocity derivations here and remove them from Zenodo.
+    # NOTE we could add data from other stations (Sugiyama et al. 2024) and
+    # methods to compute longitudinal strain and strain rates.
+    # ldf = load_gnss_velocities(borehole=lower)
+    # udf = load_gnss_velocities(borehole=upper)
+    # distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
+    # strain = (distance.diff(1) - distance.diff(-1)) / 2.0
+    # strain_rate = (ldf.fvh - udf.fvh) / distance
+
+    # read gnss data, including backward-difference velocity
+    df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
+
+    # derive horizontal velocity
+    vel = filter_derive_dataframe(df[['x', 'y']], **kwargs)
+    df['vh'] = (vel['x']**2 + vel['y']**2)**0.5
+
+    # return the whole dataframe
+    return df
+
+
+def load_tilt_rates(**kwargs):
+    """Load resampled, interpolated, and filter-derived tilt rates."""
+    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
+    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    tilx = tilx.interpolate(limit_area='inside', method='linear')
+    tily = tily.interpolate(limit_area='inside', method='linear')
+    tilx = filter_derive_dataframe(tilx, **kwargs)
+    tily = filter_derive_dataframe(tily, **kwargs)
+    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+    tilt = tilt[tilt.index >= '2014-07-17']
+    return tilt
+
+
+def load_tilt_rates_and_gnssv(join='inner', method='savgol', window='12h'):
+    """Load joint tilt rates and surface velocity data."""
+
+    # load surface velocities
+    tilt = load_tilt_rates(method=method, window=window)
+    gnss = load_gnss_velocities(method=method, window=window)
+
+    # prepare joined dataframe using intersecting samples only
+    if join == 'inner':
+        tilt = tilt.join(gnss.vh.groupby(level=0).mean(), how='inner')
+        tilt = tilt.resample('30min').mean()
+
+    # prepare joined dataframe interpolated to tilt samples
+    elif join == 'mixed':
+        tilt = tilt.join(
+            gnss.vh.resample('10min').interpolate(limit=2, method='linear'))
+
+    # prepare joined dataframe interpolated to maximum sampling rate
+    elif join == 'outer':
+        tilt = tilt.join(gnss.vh.groupby(level=0).mean(), how='outer')
+        tilt = tilt.resample('5min').mean().interpolate(
+            limit=2, method='linear')
+
+    # return tilt rates dataframe
+    return tilt
+
+
+# ----------------------------------------------------------------------
+
+# FIXME untested broken code below duplicating bowtem_utils and other projects
+# pylint: disable=consider-using-f-string,consider-using-from-import
+# pylint: disable=dangerous-default-value,fixme
+# pylint: disable=import-error,import-outside-toplevel,invalid-name
+# pylint: disable=missing-function-docstring,no-member
+# pylint: disable=undefined-variable,unnecessary-negation,unused-argument
+# pylint: disable=redefined-outer-name,disable=singleton-comparison
+# pylint: disable=too-many-arguments,too-many-locals,too-many-positional-arguments
 
 # Global parameters
 # -----------------
@@ -65,14 +201,14 @@ def load_data(sensor, variable, borehole):
     assert borehole in ('both', 'lower', 'upper')
 
     # read data
-    if borehole in bowdef_utils.boreholes:
+    if borehole in ('lower', 'upper'):
         filename = ('../data/processed/bowdoin-%s-%s-%s.csv'
                     % (sensor, variable, borehole))
         df = pd.read_csv(filename, parse_dates=True, index_col='date')
         df = df.groupby(level=0).mean()
     elif borehole == 'both':
-        dfu = bowdef_utils.load_data(sensor, variable, 'upper')
-        dfl = bowdef_utils.load_data(sensor, variable, 'lower')
+        dfu = load_data(sensor, variable, 'upper')
+        dfl = load_data(sensor, variable, 'lower')
         df = pd.concat([dfu, dfl], axis=1)
     return df
 
@@ -87,7 +223,7 @@ def load_depth(sensor, borehole):
 
 
 def load_bowtid_depth():
-    ts = bowdef_utils.load_depth('tiltunit', 'both')
+    ts = load_depth('tiltunit', 'both')
     ts = ts.sort_index(ascending=False)
     ts.index = [c[0::3] for c in ts.index]
     ts = ts.drop(['L1', 'L2', 'U1'])
@@ -99,7 +235,7 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
     or between two dates."""
 
     # check argument validity
-    assert borehole in bowdef_utils.boreholes
+    assert borehole in ('lower', 'upper')
 
     # load tilt data
     tiltx = load_data('tiltunit', 'tiltx', borehole)
@@ -121,7 +257,7 @@ def load_total_strain(borehole, start, end=None, as_angle=False):
     exz = np.sqrt(exz_x**2+exz_y**2)
 
     # convert to angles
-    if as_angle == True:
+    if as_angle:
         exz = np.arcsin(exz)*180/np.pi
 
     # return strain rate
@@ -181,6 +317,7 @@ def open_gtif(filename, extent=None):
     """Open GeoTIFF and return data and extent."""
 
     # open dataset
+    from osgeo import gdal
     ds = gdal.Open(filename)
 
     # read geotransform
@@ -259,9 +396,9 @@ def unframe(ax, edges=['bottom', 'left']):
                                 ['left' in edges]['right' in edges])
 
     # set label positions
-    if 'right' in edges and not 'left' in edges:
+    if 'right' in edges and 'left' not in edges:
         ax.yaxis.set_label_position('right')
-    if 'top' in edges and not 'bottom' in edges:
+    if 'top' in edges and 'bottom' not in edges:
         ax.xaxis.set_label_position('top')
 
 

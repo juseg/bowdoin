@@ -8,7 +8,7 @@
 import numpy as np
 import pandas as pd
 import absplots as apl
-import bowdef_gnssv  # FIXME move contents to bowdef_utils
+import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
@@ -20,46 +20,6 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
         data=[series.shift(i, freq='infer') for i in shifts],
         index=pd.to_timedelta(shifts*series.index.freq))
     return df.corrwith(other, axis=1)
-
-
-def load_rates(join='inner'):
-    """Load joint tilt rates and surface velocity data."""
-    # FIXME move to bowdef_utils or merge with bowstr_utils
-    # FIXME apply savgol filters after joining the data
-
-    # load depth and tilt rates
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = bowdef_gnssv.savgol_dataframe(tilx, **kwargs)
-    tily = bowdef_gnssv.savgol_dataframe(tily, **kwargs)
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
-
-    # load surface velocities
-    gnss = bowdef_gnssv.read_gnss_velocities()
-
-    # prepare joined dataframe interpolated to tilt samples
-    if join == '10min':
-        tilt = tilt.join(
-            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
-
-    # prepare joined dataframe using intersecting samples only
-    elif join == 'inner':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
-        tilt = tilt.resample('30min').mean()
-
-    # prepare joined dataframe interpolated to maximum sampling rate
-    elif join == 'outer':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
-        tilt = tilt.resample('5min').mean().interpolate(
-            limit=2, method='linear')
-
-    # return tilt rates dataframe
-    return tilt
 
 
 def plot(method='inner'):
@@ -81,30 +41,30 @@ def plot(method='inner'):
 
     # load depth and tilt rates
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    tilt = load_rates(join=method)
+    tilt = bowdef_utils.load_tilt_rates_and_gnssv(join=method)
     tilt = tilt['20150516':'20150815']
     tilt = tilt.dropna(how='all', axis=1)
 
     # plot time series
     for i, unit in enumerate(tilt):
         ax = subaxes[i]
-        color = 'tab:cyan' if unit == 'vhs' else f'C{i}'
+        color = 'tab:cyan' if unit == 'vh' else f'C{i}'
         tilt[unit].plot(ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
-            '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vhs' else
+            '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vh' else
             f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
-        ax.set_ylim((250, 650) if unit == 'vhs' else (2, 13))
-        ax.set_yticks([300, 600] if unit == 'vhs' else [5, 10])
+        ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))
+        ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # for each non-tide unit
-    gnss = tilt.pop('vhs')
+    gnss = tilt.pop('vh')
     for i, unit in enumerate(tilt):
         color = f'C{i}'
         ts = tilt[unit]
@@ -155,7 +115,7 @@ def plot(method='inner'):
 
 def main():
     """Main program called during execution."""
-    methods = ['10min', 'inner', 'outer']
+    methods = ['inner', 'mixed', 'outer']
     plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
     plotter()
 

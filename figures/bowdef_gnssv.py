@@ -6,80 +6,10 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
-import numpy as np
-import pandas as pd
-import scipy
 
+import bowdef_utils
 import bowstr_utils
 import bowtem_utils
-
-
-def read_gnss_velocities(borehole=1):
-    """Compute velocity components from raw data of one station."""
-    # FIXME alternate velocity computations may be moved to postprocessing, and
-    # the Zenodo dataset updated with central, multipoint or filtered velocity
-    # (instead of two-point backward) and corrected azimuth formula. Or we
-    # move all velocity derivations here and remove them from Zenodo.
-
-    # read gps data, including backward velocity
-    # FIXME implement reading data from other stations
-    assert borehole == 1
-    df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
-
-    # compute two-point central velocity
-    pos = df[['x', 'y', 'z']]
-    vel = (pos.shift(1)-pos.shift(-1))/2
-    df['vh1'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # compute four-point central velocity
-    vel = (pos.shift(-2)-8*pos.shift(-1)+8*pos.shift(1)-pos.shift(2))/12
-    df['vh2'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # compute Savitzky–Golay filtered velocity (6h = 24*15min)
-    vel = savgol_dataframe(
-        df[['x', 'y']], window_length=48, polyorder=2, delta=1, deriv=1)
-    df['vhs'] = (vel['x']**2 + vel['y']**2)**0.5 * 60 * 24 * 365 / 15.0
-
-    # return the whole dataframe
-    return df
-
-
-def read_gnss_strain(lower=1, upper=3):
-    """Compute longitudinal strain from raw data of two stations."""
-    # FIXME reading GNSS data from other stations is not yet implemented
-
-    ldf = read_gnss_velocities(borehole=lower)
-    udf = read_gnss_velocities(borehole=upper)
-    distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
-    strain = (distance.diff(1) - distance.diff(-1)) / 2.0
-    return strain
-
-
-def read_gnss_strain_rate(lower=1, upper=2):
-    """Compute longitudinal strain rate from raw data of two stations."""
-    # FIXME reading GNSS data from other stations is not yet implemented
-
-    ldf = read_gnss_velocities(borehole=lower)
-    udf = read_gnss_velocities(borehole=upper)
-    distance = ((ldf.x - udf.x) ** 2 + (ldf.y - udf.y) ** 2) ** 0.5
-    strain_rate = (ldf.fvh - udf.fvh) / distance
-    return strain_rate
-
-
-def savgol_dataframe(df, *args, **kwargs):
-    """Apply Savitsky-Golay filter on each series in a dataframe."""
-    return pd.concat(
-        [savgol_series(df[column], *args, **kwargs) for column in df], axis=1)
-
-
-def savgol_series(series, *args, **kwargs):
-    """Apply Savitsky-Golay filter on series trimmed from NaNs."""
-    first = series.first_valid_index()
-    last = series.last_valid_index()
-    series = series.loc[first:last]
-    return pd.Series(
-        data=scipy.signal.savgol_filter(series, *args, **kwargs),
-        index=series.index, name=series.name)
 
 
 def main():
@@ -95,9 +25,10 @@ def main():
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # plot borehole velocity
-    df = read_gnss_velocities()
-    df.vh1.plot(ax=axes[0], color='0.9')
-    df.vhs.plot(ax=axes[0], color='tab:blue')
+    df = bowdef_utils.load_gnss_velocities(method='twopoint')
+    df.vh.plot(ax=axes[0], color='0.9')
+    df = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
+    df.vh.plot(ax=axes[0], color='tab:blue')
 
     # read strain rate
     # strain = read_gnss_strain_rate()
@@ -109,17 +40,8 @@ def main():
     tide = pres.pop('tide')
     pres = pres / 1e3
 
-    # plot tilt rate (6h = 36*10min)
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = savgol_dataframe(tilx, **kwargs)
-    tily = savgol_dataframe(tily, **kwargs)
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
+    # plot tilt rate
+    tilt = bowdef_utils.load_tilt_rates(method='savgol', window='12h')
     tilt.plot(ax=axes[1], legend=False)
 
     # plot stress and tide data
