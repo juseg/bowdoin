@@ -33,7 +33,7 @@ def main():
     # plot tilt rates, stress and tide
     df.tilt.plot(ax=axes[1], legend=False)
     (df.pres/1e3).plot(ax=axes[2], legend=False)
-    df.tide.plot(ax=axes[3], legend=False, c='C9')
+    (df.tide/1e1).plot(ax=axes[3], legend=False, c='C9')
 
     # add labels
     depth = bowstr_utils.load(variable='dept').iloc[0]
