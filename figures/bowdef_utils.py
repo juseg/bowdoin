@@ -140,6 +140,7 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
         index = pd.date_range(index[0], index[-1], freq=index.diff().min())
         gnss = gnss.reindex(index).interpolate(limit=2, method='time')
         pres = pres.reindex(index).interpolate(limit=2, method='time')
+        tilt = tilt.reindex(index).interpolate(limit=2, method='time')
 
     # tide is on a different grid, so upsample, interpolate, and downsample
     tide = tide.reindex(tide.index.union(index)).interpolate(
