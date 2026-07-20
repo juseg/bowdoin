@@ -49,7 +49,9 @@ def plot_time_series(ax, depth, df, var, ref):
         ax = subaxes[-1]
         df[ref].plot(ax=ax, color='tab:cyan', legend=False)
         ax.text(
-            1.08, 0.5, '\nSurface\nspeed\n'r'($m\,a^{-1}$)', color='tab:cyan',
+            1.08, 0.5, {
+                'gnss': '\nSurface\nspeed\n'r'($m\,a^{-1}$)',
+                'tide': 'Pituffik\ntide'r'$\,/\,$10'}[ref], color='tab:cyan',
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
@@ -59,7 +61,8 @@ def plot_time_series(ax, depth, df, var, ref):
         # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
 
     # set labels and remove empty headlines in date tick labels
-    subaxes[4].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
+    subaxes[df[var].shape[1]//2].set_ylabel({
+        'pres': 'stress (kPa)', 'tilt': r'tilt rate ($°\,a^{-1}$)'}[var])
     subaxes[-1].set_xlabel('')
 
 
