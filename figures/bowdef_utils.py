@@ -124,22 +124,29 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
         [pres, tilt], axis=1, keys=['pres', 'tilt'], names=['variable', 'unit'])
 
     # prepare joined dataframe using intersecting samples only
-    gnss = gnss.to_frame()
-    gnss.columns = pd.MultiIndex.from_product([['gnss'], ['vh']])
     if join == 'inner':
-        tilt = tilt.join(gnss.groupby(level=0).mean(), how='inner')
-        tilt = tilt.resample('30min').mean()
+        index = tilt.index.join(gnss.index, how='inner')
+        tilt = tilt.reindex(index)
+        gnss = gnss.reindex(index)
+        tilt['gnss', 'vh'] = gnss
+        # FIXME skip the 'vh' and just assign it to 'gnss' instead
+        # tilt = tilt.reindex(index).assign(gnss=gnss.reindex(index))
 
     # prepare joined dataframe interpolated to tilt samples
+    # NOTE this will not work over periods with mixed sampling rate
     elif join == 'mixed':
-        tilt = tilt.join(
-            gnss.resample('10min').interpolate(limit=2, method='linear'))
+        index = tilt.index.join(gnss.index, how='left')
+        tilt = tilt.reindex(index)
+        gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
+        tilt['gnss', 'vh'] = gnss
 
     # prepare joined dataframe interpolated to maximum sampling rate
     elif join == 'outer':
-        tilt = tilt.join(gnss.groupby(level=0).mean(), how='outer')
-        tilt = tilt.resample('5min').mean().interpolate(
-            limit=2, method='linear')
+        index = tilt.index.join(gnss.index, how='outer')
+        index = pd.date_range(index[0], index[-1], freq=index.diff().min())
+        tilt = tilt.reindex(index).interpolate(limit=2, method='linear')
+        gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
+        tilt['gnss', 'vh'] = gnss
 
     # return tilt rates dataframe
     return tilt
