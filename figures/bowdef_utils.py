@@ -127,6 +127,7 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
         gnss = gnss.reindex(index)
         pres = pres.reindex(index)
         tilt = tilt.reindex(index)
+        tide = tide.reindex(index)
 
     # prepare joined dataframe interpolated to tilt samples
     # NOTE this will not work over periods with mixed sampling rate
@@ -135,6 +136,7 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
         gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
         pres = pres.reindex(index)
         tilt = tilt.reindex(index)
+        tide = tide.reindex(index)
 
     # prepare joined dataframe interpolated to maximum sampling rate
     elif join == 'outer':
@@ -142,11 +144,11 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
         index = pd.date_range(index[0], index[-1], freq=index.diff().min())
         gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
         pres = pres.reindex(index).interpolate(limit=2, method='linear')
-        tilt = tilt.reindex(index).interpolate(limit=2, method='linear')
+        tide = tide.reindex(index).interpolate(limit=2, method='linear')
 
     # concatenate with a multi-index
     tilt = pd.concat(
-        [gnss, pres, tilt], axis=1, keys=['gnss', 'pres', 'tilt'],
+        [gnss, pres, tilt, tide], axis=1, keys=['gnss', 'pres', 'tilt', 'tide'],
         names=['variable', 'unit'])
 
     # return tilt rates dataframe
