@@ -22,7 +22,7 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     return df.corrwith(other, axis=1)
 
 
-def plot(method='inner'):
+def plot(couple='ti2sp', method='inner'):
     """Main program called during execution."""
 
     # initialize figure
@@ -39,17 +39,18 @@ def plot(method='inner'):
     bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
     bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
-    # load depth and tilt rates
+    # load all variables
+    var = 'tilt' if couple[:2] == 'tr' else 'pres'
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(join=method)
     df = df.loc['20150516':'20150815']
     df = df.dropna(how='all', axis=1)
 
     # plot time series
-    for i, unit in enumerate((*df.tilt.columns, 'vh')):
+    for i, unit in enumerate((*df[var].columns, 'vh')):
         ax = subaxes[i]
         color = 'tab:cyan' if unit == 'vh' else f'C{i}'
-        df['gnss' if unit == 'vh' else 'tilt', unit].plot(
+        df['gnss' if unit == 'vh' else var, unit].plot(
             ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
@@ -60,14 +61,14 @@ def plot(method='inner'):
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
-        ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))
-        ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])
+        # ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))  # FIXME
+        # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # for each non-tide unit
-    for i, unit in enumerate(df.tilt):
+    for i, unit in enumerate(df[var]):
         color = f'C{i}'
-        ts = df.tilt[unit]
+        ts = df[var][unit]
 
         # plot (series.plot with deltas affected by #18910)
         ax = fig.axes[1]
@@ -116,8 +117,9 @@ def plot(method='inner'):
 
 def main():
     """Main program called during execution."""
+    couples = ['st2sp', 'tr2sp']  # add st2pt, tr2pt
     methods = ['inner', 'mixed', 'outer']
-    plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
+    plotter = bowstr_utils.MultiPlotter(plot, couples=couples, methods=methods)
     plotter()
 
 
