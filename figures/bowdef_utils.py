@@ -113,36 +113,26 @@ def load_tilt_rates(**kwargs):
 def load_multivariate(join='inner', method='savgol', window='12h'):
     """Load tilt rates, speed, stress, and tides in one dataframe."""
 
-    # load tilt rates and speed
+    # load all variables independently
     pres = bowstr_utils.load(resample='10min')
     tilt = load_tilt_rates(method=method, window=window)
     gnss = load_gnss_velocities(method=method, window=window).vh
     tide = bowstr_utils.load_pituffik_tides().groupby(level=0).mean()
 
-    # prepare joined dataframe using intersecting samples only
+    # prepare new index depending on join method
+    # NOTE mixed method will not work over changes in tilt sampling rate
     if join == 'inner':
         index = tilt.index.join(gnss.index, how='inner')
-        gnss = gnss.reindex(index)
-        pres = pres.reindex(index)
-        tilt = tilt.reindex(index)
-
-    # prepare joined dataframe interpolated to tilt samples
-    # NOTE this will not work over periods with mixed sampling rate
     elif join == 'mixed':
         index = tilt.index.join(gnss.index, how='left')
-        gnss = gnss.reindex(index).interpolate(limit=2, method='time')
-        pres = pres.reindex(index)
-        tilt = tilt.reindex(index)
-
-    # prepare joined dataframe interpolated to maximum sampling rate
     elif join == 'outer':
         index = tilt.index.join(gnss.index, how='outer')
         index = pd.date_range(index[0], index[-1], freq=index.diff().min())
-        gnss = gnss.reindex(index).interpolate(limit=2, method='time')
-        pres = pres.reindex(index).interpolate(limit=2, method='time')
-        tilt = tilt.reindex(index).interpolate(limit=2, method='time')
 
-    # tide is on a different grid, so upsample, interpolate, and downsample
+    # reindex (tide is on a different grid, so upsample and interpolate first)
+    gnss = gnss.reindex(index).interpolate(limit=2, method='time')
+    pres = pres.reindex(index).interpolate(limit=2, method='time')
+    tilt = tilt.reindex(index).interpolate(limit=2, method='time')
     tide = tide.reindex(tide.index.union(index)).interpolate(
         limit=2, method='time').reindex(index)
 
