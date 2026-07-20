@@ -11,7 +11,7 @@
 # bowdoin deformation figures (most outdated)
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowdef_, gnssv rates shear tilts) \
+		$(addprefix bowdef_, multi rates shear tilts) \
 		$(addprefix bowdef_ccorr_, inner mixed outer))
 
 # bowdoin stress figures
