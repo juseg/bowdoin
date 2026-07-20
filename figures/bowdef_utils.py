@@ -120,13 +120,9 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
     tide = bowstr_utils.load_pituffik_tides().groupby(level=0).mean()
 
     # prepare new index depending on join method
-    # NOTE mixed method will not work over changes in tilt sampling rate
-    if join == 'inner':
-        index = tilt.index.join(gnss.index, how='inner')
-    elif join == 'mixed':
-        index = tilt.index.join(gnss.index, how='left')
-    elif join == 'outer':
-        index = tilt.index.join(gnss.index, how='outer')
+    # NOTE mixed method may fail on variable tilt sampling rate
+    index = tilt.index.join(gnss.index, how=join.replace('mixed', 'left'))
+    if join == 'outer':
         index = pd.date_range(index[0], index[-1], freq=index.diff().min())
 
     # reindex (tide is on a different grid, so upsample and interpolate first)
