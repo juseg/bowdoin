@@ -30,25 +30,14 @@ def main():
     df = bowdef_utils.load_multivariate()
     df.gnss.vh.plot(ax=axes[0], color='tab:blue')
 
-    # read strain rate
-    # strain = read_gnss_strain_rate()
-    # strain.plot(ax=axes[1])
-
-    # highpass-filter stress series
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    pres = bowstr_utils.load(filt=None, resample='10min', tide=True)
-    tide = pres.pop('tide')
-    pres = pres / 1e3
-
-    # plot tilt rate
+    # plot tilt rates, stress and tide
     df.tilt.plot(ax=axes[1], legend=False)
-
-    # plot stress and tide data
-    pres.plot(ax=axes[2], legend=False)
-    tide.plot(ax=axes[3], c='C9')
+    (df.pres/1e3).plot(ax=axes[2], legend=False)
+    df.tide.plot(ax=axes[3], legend=False, c='C9')
 
     # add labels
-    for i, unit in enumerate(pres):
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    for i, unit in enumerate(df.pres):
         axes[2].text(
             1.01, 1.6-0.2*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
             color=f'C{i}', fontsize=6, fontweight='bold',
