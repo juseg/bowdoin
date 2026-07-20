@@ -43,7 +43,7 @@ def plot(couple='ti2sp', method='inner'):
     var = {'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    df = bowdef_utils.load_multivariate(join=method)
+    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
     df = df.loc['20150516':'20150815']
     df = df.dropna(how='all', axis=1)
 

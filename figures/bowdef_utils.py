@@ -110,11 +110,11 @@ def load_tilt_rates(**kwargs):
     return tilt
 
 
-def load_multivariate(join='inner', method='savgol', window='12h'):
+def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
     """Load tilt rates, speed, stress, and tides in one dataframe."""
 
     # load all variables independently
-    pres = bowstr_utils.load(resample='10min')
+    pres = bowstr_utils.load(filt=filt, resample='10min')
     tilt = load_tilt_rates(method=method, window=window)
     gnss = load_gnss_velocities(method=method, window=window).vh
     tide = bowstr_utils.load_pituffik_tides().groupby(level=0).mean()
