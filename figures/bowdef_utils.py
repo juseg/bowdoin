@@ -117,14 +117,15 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
     pres = bowstr_utils.load(filt=None, resample='10min', tide=True)
     tide = pres.pop('tide')
     tilt = load_tilt_rates(method=method, window=window)
-    gnss = load_gnss_velocities(method=method, window=window)
-    gnss.columns = pd.MultiIndex.from_product([['gnss'], gnss.columns])
+    gnss = load_gnss_velocities(method=method, window=window).vh
 
     # concatenate with a multi-index
     tilt = pd.concat(
         [pres, tilt], axis=1, keys=['pres', 'tilt'], names=['variable', 'unit'])
 
     # prepare joined dataframe using intersecting samples only
+    gnss = gnss.to_frame()
+    gnss.columns = pd.MultiIndex.from_product([['gnss'], ['vh']])
     if join == 'inner':
         tilt = tilt.join(gnss.groupby(level=0).mean(), how='inner')
         tilt = tilt.resample('30min').mean()
