@@ -130,7 +130,7 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
     # NOTE this will not work over periods with mixed sampling rate
     elif join == 'mixed':
         index = tilt.index.join(gnss.index, how='left')
-        gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
+        gnss = gnss.reindex(index).interpolate(limit=2, method='time')
         pres = pres.reindex(index)
         tilt = tilt.reindex(index)
 
@@ -138,8 +138,8 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
     elif join == 'outer':
         index = tilt.index.join(gnss.index, how='outer')
         index = pd.date_range(index[0], index[-1], freq=index.diff().min())
-        gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
-        pres = pres.reindex(index).interpolate(limit=2, method='linear')
+        gnss = gnss.reindex(index).interpolate(limit=2, method='time')
+        pres = pres.reindex(index).interpolate(limit=2, method='time')
 
     # tide is on a different grid, so upsample, interpolate, and downsample
     tide = tide.reindex(tide.index.union(index)).interpolate(
