@@ -26,18 +26,15 @@ def plot_time_series(ax, depth, df, var, ref):
     """Plot relevant time series on just as many subsubplots."""
 
     # initialize subsubplots
-    subaxes = bowstr_utils.subsubplots(ax.figure, [ax], nrows=10, sharey=False)[0]  # FIXME auto nrows
+    subaxes = bowstr_utils.subsubplots(
+        ax.figure, [ax], nrows=df[var].shape[1]+(ref!='tilt'), sharey=False)[0]
 
     # plot primary variable time series
     for i, unit in enumerate(df[var].columns):
         ax = subaxes[i]
-        color = 'tab:cyan' if unit == 'vh' else f'C{i}'
-        df[ref if unit == 'vh' else var, unit].plot(
-            ax=ax, color=color, legend=False)
+        df[var, unit].plot(ax=ax, color=f'C{i}', legend=False)
         ax.text(
-            1.08, 0.5,
-            '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vh' else
-            f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
+            1.08, 0.5, f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=f'C{i}',
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
@@ -50,11 +47,9 @@ def plot_time_series(ax, depth, df, var, ref):
     # plot reference variable time series
     if ref != 'tilt':
         ax = subaxes[-1]
-        color = 'tab:cyan'
-        df[ref].plot(ax=ax, color=color, legend=False)
+        df[ref].plot(ax=ax, color='tab:cyan', legend=False)
         ax.text(
-            1.08, 0.5,
-            '\nSurface\nspeed\n'r'($m\,a^{-1}$)', color=color,
+            1.08, 0.5, '\nSurface\nspeed\n'r'($m\,a^{-1}$)', color='tab:cyan',
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
@@ -62,7 +57,6 @@ def plot_time_series(ax, depth, df, var, ref):
         ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
         # ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))  # FIXME
         # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
-        ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # set labels and remove empty headlines in date tick labels
     subaxes[4].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
