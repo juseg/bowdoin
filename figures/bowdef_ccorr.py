@@ -22,30 +22,11 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     return df.corrwith(other, axis=1)
 
 
-def plot(couple='ti2sp', method='inner'):
-    """Main program called during execution."""
+def plot_time_series(ax, depth, df, var, ref):
+    """Plot relevant time series on just as many subsubplots."""
 
-    # initialize figure
-    fig = apl.figure_mm(figsize=(180, 90))
-    fig.subplots_mm(ncols=1, gridspec_kw={
-        'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
-    fig.subplots_mm(ncols=2, gridspec_kw={
-        'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
-    subaxes = bowstr_utils.subsubplots(
-        fig, fig.axes[:1], nrows=8, sharey=False)[0]
-
-    # add subfigure labels
-    bowtem_utils.add_subfig_label('(a)', ax=subaxes[-1], loc='sw')
-    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
-    bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
-
-    # load all variables
-    var = {'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
-    df = df.loc['20150516':'20150815']
-    df = df.dropna(how='all', axis=1)
+    # initialize subsubplots
+    subaxes = bowstr_utils.subsubplots(ax.figure, [ax], nrows=10, sharey=False)[0]  # FIXME auto nrows
 
     # plot primary variable time series
     for i, unit in enumerate(df[var].columns):
@@ -61,7 +42,7 @@ def plot(couple='ti2sp', method='inner'):
             rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
-        ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
+        ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
         # ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))  # FIXME
         # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
@@ -78,10 +59,43 @@ def plot(couple='ti2sp', method='inner'):
             rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
-        ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
+        ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
         # ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))  # FIXME
         # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
+
+    # set labels and remove empty headlines in date tick labels
+    subaxes[4].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
+    subaxes[-1].set_xlabel('')
+
+
+def plot(couple='ti2sp', method='inner'):
+    """Main program called during execution."""
+
+    # initialize figure
+    fig = apl.figure_mm(figsize=(180, 90))
+    fig.subplots_mm(ncols=1, gridspec_kw={
+        'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
+    fig.subplots_mm(ncols=2, gridspec_kw={
+        'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
+
+    # add subfigure labels
+    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], loc='sw')
+    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
+    bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
+
+    # load all variables
+    var = {'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
+    # df = df.loc['20140916':'20141016']  # all units, no gnss data
+    df = df.loc['20150516':'20150815']
+    # df = df.loc['20160601':'20160931']  # 2016 full gnss record
+    df = df.dropna(how='all', axis=1)
+
+    # plot time series
+    plot_time_series(fig.axes[0], depth, df, var, ref)
 
     # for each non-tide unit
     for i, unit in enumerate(df[var]):
@@ -117,10 +131,6 @@ def plot(couple='ti2sp', method='inner'):
     fig.axes[2].invert_yaxis()
     fig.axes[2].set_xlabel('phase delay (h)')
     fig.axes[2].set_ylabel('sensor depth (m)')
-
-    # set labels and remove empty headlines in date tick labels
-    subaxes[4].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
-    subaxes[-1].set_xlabel('')
 
     # save partial
     # fig.axes[1].set_visible(False)
