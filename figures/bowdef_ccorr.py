@@ -40,17 +40,18 @@ def plot(couple='ti2sp', method='inner'):
     bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
     # load all variables
-    var = 'tilt' if couple[:2] == 'tr' else 'pres'
+    var = {'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'sp': 'gnss', 'ti': 'tide'}[couple[3:]]
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(join=method)
     df = df.loc['20150516':'20150815']
     df = df.dropna(how='all', axis=1)
 
-    # plot time series
-    for i, unit in enumerate((*df[var].columns, 'vh')):
+    # plot primary variable time series
+    for i, unit in enumerate(df[var].columns):
         ax = subaxes[i]
         color = 'tab:cyan' if unit == 'vh' else f'C{i}'
-        df['gnss' if unit == 'vh' else var, unit].plot(
+        df[ref if unit == 'vh' else var, unit].plot(
             ax=ax, color=color, legend=False)
         ax.text(
             1.08, 0.5,
@@ -65,6 +66,22 @@ def plot(couple='ti2sp', method='inner'):
         # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
+    # plot reference variable time series
+    ax = subaxes[-1]
+    color = 'tab:cyan'
+    df[ref].plot(ax=ax, color=color, legend=False)
+    ax.text(
+        1.08, 0.5,
+        '\nSurface\nspeed\n'r'($m\,a^{-1}$)', color=color,
+        fontsize=6, fontweight='bold', ha='center', va='center',
+        rotation='vertical', transform=ax.transAxes)
+
+    # set axes properties
+    ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
+    # ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))  # FIXME
+    # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
+    ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
+
     # for each non-tide unit
     for i, unit in enumerate(df[var]):
         color = f'C{i}'
@@ -74,7 +91,7 @@ def plot(couple='ti2sp', method='inner'):
         ax = fig.axes[1]
         shift = 36 / pd.to_timedelta(
             pd.infer_freq(ts.index)).total_seconds() * 3600
-        xcorr = crosscorr(ts, df.gnss.vh, wmin=-shift, wmax=shift)
+        xcorr = crosscorr(ts, df[ref].squeeze(), wmin=-shift, wmax=shift)
         ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
 
         # find maximum correlation (a positive shift is a negative delay)
@@ -117,7 +134,7 @@ def plot(couple='ti2sp', method='inner'):
 
 def main():
     """Main program called during execution."""
-    couples = ['st2sp', 'tr2sp']  # add st2pt, tr2pt
+    couples = ['st2sp', 'tr2sp', 'st2ti', 'tr2ti']
     methods = ['inner', 'mixed', 'outer']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples, methods=methods)
     plotter()
