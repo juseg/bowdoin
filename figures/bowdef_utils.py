@@ -110,28 +110,32 @@ def load_tilt_rates(**kwargs):
     return tilt
 
 
-def load_tilt_rates_and_gnssv(join='inner', method='savgol', window='12h'):
-    """Load joint tilt rates and surface velocity data."""
+def load_multivariate(join='inner', method='savgol', window='12h'):
+    """Load tilt rates, speed, stress, and tides in one dataframe."""
 
-    # load surface velocities
+    # load all variables independently
+    pres = bowstr_utils.load(resample='10min')
     tilt = load_tilt_rates(method=method, window=window)
-    gnss = load_gnss_velocities(method=method, window=window)
+    gnss = load_gnss_velocities(method=method, window=window).vh
+    tide = bowstr_utils.load_pituffik_tides().groupby(level=0).mean()
 
-    # prepare joined dataframe using intersecting samples only
-    if join == 'inner':
-        tilt = tilt.join(gnss.vh.groupby(level=0).mean(), how='inner')
-        tilt = tilt.resample('30min').mean()
+    # prepare new index depending on join method
+    # NOTE mixed method may fail on variable tilt sampling rate
+    index = tilt.index.join(gnss.index, how=join.replace('mixed', 'left'))
+    if join == 'outer':
+        index = pd.date_range(index[0], index[-1], freq=index.diff().min())
 
-    # prepare joined dataframe interpolated to tilt samples
-    elif join == 'mixed':
-        tilt = tilt.join(
-            gnss.vh.resample('10min').interpolate(limit=2, method='linear'))
+    # reindex (tide is on a different grid, so upsample and interpolate first)
+    gnss = gnss.reindex(index).interpolate(limit=2, method='time')
+    pres = pres.reindex(index).interpolate(limit=2, method='time')
+    tilt = tilt.reindex(index).interpolate(limit=2, method='time')
+    tide = tide.reindex(tide.index.union(index)).interpolate(
+        limit=2, method='time').reindex(index)
 
-    # prepare joined dataframe interpolated to maximum sampling rate
-    elif join == 'outer':
-        tilt = tilt.join(gnss.vh.groupby(level=0).mean(), how='outer')
-        tilt = tilt.resample('5min').mean().interpolate(
-            limit=2, method='linear')
+    # concatenate with a multi-index
+    tilt = pd.concat(
+        [gnss, pres, tilt, tide], axis=1, keys=['gnss', 'pres', 'tilt', 'tide'],
+        names=['variable', 'unit'])
 
     # return tilt rates dataframe
     return tilt
