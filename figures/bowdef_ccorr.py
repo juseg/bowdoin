@@ -40,8 +40,8 @@ def plot_time_series(ax, depth, df, var, ref):
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
-        # ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))  # FIXME
-        # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
+        ax.set_ylim({'pres': (-20, 20), 'tilt': (2, 13)}[var])
+        ax.set_yticks({'pres': (-10, 10), 'tilt': (5, 10)}[var])
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # plot reference variable time series
@@ -57,8 +57,8 @@ def plot_time_series(ax, depth, df, var, ref):
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
-        # ax.set_ylim((250, 650) if unit == 'vh' else (2, 13))  # FIXME
-        # ax.set_yticks([300, 600] if unit == 'vh' else [5, 10])  # FIXME
+        ax.set_ylim({'gnss': (250, 560), 'tide': (-20, 20)}[ref])
+        ax.set_yticks({'gnss': (300, 600), 'tide': (-10, 10)}[ref])
 
     # set labels and remove empty headlines in date tick labels
     subaxes[df[var].shape[1]//2].set_ylabel({
