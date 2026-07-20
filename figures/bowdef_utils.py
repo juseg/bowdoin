@@ -114,39 +114,40 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
     """Load tilt rates, speed, stress, and tides in one dataframe."""
 
     # load tilt rates and speed
+    # FIXME load tide independently to avoid multiple resampling, and depending
+    # on bowsrt_utils.load, which would ideally be replaced with this loader.
     pres = bowstr_utils.load(filt=None, resample='10min', tide=True)
     tide = pres.pop('tide')
     tilt = load_tilt_rates(method=method, window=window)
     gnss = load_gnss_velocities(method=method, window=window).vh
 
-    # concatenate with a multi-index
-    tilt = pd.concat(
-        [pres, tilt], axis=1, keys=['pres', 'tilt'], names=['variable', 'unit'])
-
     # prepare joined dataframe using intersecting samples only
     if join == 'inner':
         index = tilt.index.join(gnss.index, how='inner')
-        tilt = tilt.reindex(index)
         gnss = gnss.reindex(index)
-        tilt['gnss', 'vh'] = gnss
-        # FIXME skip the 'vh' and just assign it to 'gnss' instead
-        # tilt = tilt.reindex(index).assign(gnss=gnss.reindex(index))
+        pres = pres.reindex(index)
+        tilt = tilt.reindex(index)
 
     # prepare joined dataframe interpolated to tilt samples
     # NOTE this will not work over periods with mixed sampling rate
     elif join == 'mixed':
         index = tilt.index.join(gnss.index, how='left')
-        tilt = tilt.reindex(index)
         gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
-        tilt['gnss', 'vh'] = gnss
+        pres = pres.reindex(index)
+        tilt = tilt.reindex(index)
 
     # prepare joined dataframe interpolated to maximum sampling rate
     elif join == 'outer':
         index = tilt.index.join(gnss.index, how='outer')
         index = pd.date_range(index[0], index[-1], freq=index.diff().min())
-        tilt = tilt.reindex(index).interpolate(limit=2, method='linear')
         gnss = gnss.reindex(index).interpolate(limit=2, method='linear')
-        tilt['gnss', 'vh'] = gnss
+        pres = pres.reindex(index).interpolate(limit=2, method='linear')
+        tilt = tilt.reindex(index).interpolate(limit=2, method='linear')
+
+    # concatenate with a multi-index
+    tilt = pd.concat(
+        [gnss, pres, tilt], axis=1, keys=['gnss', 'pres', 'tilt'],
+        names=['variable', 'unit'])
 
     # return tilt rates dataframe
     return tilt
