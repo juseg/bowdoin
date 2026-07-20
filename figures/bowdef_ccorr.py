@@ -18,7 +18,7 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     shifts = np.arange(wmin, wmax+1)
     df = pd.DataFrame(
         data=[series.shift(i, freq='infer') for i in shifts],
-        index=pd.to_timedelta(shifts*series.index.freq))
+        index=shifts*pd.to_timedelta(pd.infer_freq(series.index)))
     return df.corrwith(other, axis=1)
 
 
@@ -71,7 +71,8 @@ def plot(method='inner'):
 
         # plot (series.plot with deltas affected by #18910)
         ax = fig.axes[1]
-        shift = 36 / pd.to_timedelta(ts.index.freq).total_seconds() * 3600
+        shift = 36 / pd.to_timedelta(
+            pd.infer_freq(ts.index)).total_seconds() * 3600
         xcorr = crosscorr(ts, df.gnss.vh, wmin=-shift, wmax=shift)
         ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
 
