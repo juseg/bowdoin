@@ -12,7 +12,7 @@
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowdef_, multi rates shear tilts) \
-		$(addprefix bowdef_ccorr_, inner mixed outer))
+		$(addprefix bowdef_ccorr_, st2sp st2ti st2tr tr2sp tr2ti ))
 
 # bowdoin stress figures
 BOWSTR_FIGS = \
