@@ -86,9 +86,15 @@ def plot(couple='ti2sp', method='inner'):
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
-    # df = df.loc['20140916':'20141016']  # all units, no gnss data
-    df = df.loc['20150516':'20150815']
-    # df = df.loc['20160601':'20160931']  # 2016 full gnss record
+    # df = df.loc['20140701':'20140831']  # 2014 with gnss but before refreezing
+    # df = df.loc['20140916':'20141016']  # 2014 all units but no gnss data
+    df = df.loc['20150516':'20150815']  # 2015 full gnss record
+    # df = df.loc['20150527':'20150608']  # 2015 spring tidal buildup
+    # df = df.loc['20150704':'20150803']  # 2015 summer daily cycles
+    # df = df.loc['20150723':'20150803']  # 2015 summer daily zoom
+    # df = df.loc['20160601':'20160930']  # 2016 full gnss record
+    # df = df.loc['20160701':'20160830']  # 2016 summer daily cycles
+    # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
     df = df.dropna(how='all', axis=1)
 
     # plot time series
