@@ -20,10 +20,12 @@ def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
     smin = int(pd.to_timedelta(smin)/freq)
     smax = int(pd.to_timedelta(smax)/freq)
 
-    # return concatenation of cross-correlations
-    return pd.concat([
+    # compute correlations and phase delays
+    ccorr = pd.concat([
         correlate_series(df0[col], df1.get(col, df1.squeeze()), smin, smax)
         for col in df0], axis=1)
+    delay = -abs(ccorr).idxmax()
+    return ccorr, delay
 
 
 def correlate_series(series, other, smin, smax):
@@ -35,7 +37,7 @@ def correlate_series(series, other, smin, smax):
     return df.corrwith(other, axis=1).rename(series.name)
 
 
-def plot_correlations(ax0, xcorr):
+def plot_correlations(ax0, xcorr, delay):
     """Plot cross-correlations and phase delays."""
 
     # for each non-tide unit
@@ -46,9 +48,7 @@ def plot_correlations(ax0, xcorr):
         ax0.plot(-xcorr.index.total_seconds()/3600, xcorr[unit])
 
         # find maximum correlation (a positive shift is a negative delay)
-        shift = abs(xcorr[unit]).idxmax()
-        delay = -shift.total_seconds()/3600
-        ax0.plot(delay, xcorr[unit][shift], c=color, marker='o')
+        ax0.plot(delay[unit].total_seconds()/3600, xcorr[unit][-delay[unit]], c=color, marker='o')
 
     # set axes properties
     ax0.axvline(0.0, ls=':')
@@ -59,20 +59,17 @@ def plot_correlations(ax0, xcorr):
     ax0.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
 
 
-def plot_phase_delays(ax1, depth, xcorr):
+def plot_phase_delays(ax1, depth, delay):
     """Plot cross-correlations and phase delays."""
 
     # for each non-tide unit
-    for i, unit in enumerate(xcorr):
+    delay = delay.dt.total_seconds()/3600
+    for i, unit in enumerate(delay.index):
         color = f'C{i}'
 
-        # find maximum correlation (a positive shift is a negative delay)
-        shift = abs(xcorr[unit]).idxmax()
-        delay = -shift.total_seconds()/3600
-
         # plot phase delays
-        ax1.plot(delay, depth[unit], c=color, marker='o')
-        ax1.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
+        ax1.plot(delay[unit], depth[unit], c=color, marker='o')
+        ax1.text(delay[unit]+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
 
     # set axes properties
     ax1.axvline(0.0, ls=':')
@@ -158,12 +155,12 @@ def plot(couple='ti2sp', method='inner'):
     df = df.dropna(how='all', axis=1)
 
     # compute cross-correlations
-    correlation = correlate_dataframes(df[var], df[ref])
+    ccorr, delay = correlate_dataframes(df[var], df[ref])
 
     # plot time series
     plot_time_series(fig.axes[0], depth, df, var, ref)
-    plot_correlations(fig.axes[1], correlation)
-    plot_phase_delays(fig.axes[2], depth, correlation)
+    plot_correlations(fig.axes[1], ccorr, delay)
+    plot_phase_delays(fig.axes[2], depth, delay)
 
     # save partial
     # fig.axes[1].set_visible(False)
