@@ -37,45 +37,40 @@ def correlate_series(series, other, smin, smax):
     return df.corrwith(other, axis=1).rename(series.name)
 
 
-def plot_correlations(ax0, xcorr, delay):
+def plot_correlations(ax, ccorr, delay):
     """Plot cross-correlations and phase delays."""
 
-    # for each non-tide unit
-    for i, unit in enumerate(xcorr):
-        color = f'C{i}'
-
-        # plot (series.plot with deltas affected by #18910)
-        ax0.plot(-xcorr.index.total_seconds()/3600, xcorr[unit])
-
-        # find maximum correlation (a positive shift is a negative delay)
-        ax0.plot(delay[unit].total_seconds()/3600, xcorr[unit][-delay[unit]], c=color, marker='o')
+    # plot cross-correlation (series.plot with deltas affected by #18910)
+    ax.plot(-ccorr.index/pd.to_timedelta('1h'), ccorr)
+    for i, unit in enumerate(ccorr):
+        ax.plot(
+            delay[unit]/pd.to_timedelta('1h'), ccorr[unit][-delay[unit]],
+            color=f'C{i}', marker='o')
 
     # set axes properties
-    ax0.axvline(0.0, ls=':')
-    ax0.set_xticks(range(-36, 48, 12))
-    ax0.set_xlabel('time delay (h)')
-    ax0.set_ylabel('cross-correlation', labelpad=0)
-    ax0.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
-    ax0.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
+    ax.axvline(0.0, ls=':')
+    ax.set_xticks(range(-36, 48, 12))
+    ax.set_xlabel('time delay (h)')
+    ax.set_ylabel('cross-correlation', labelpad=0)
+    ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
+    ax.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
 
 
-def plot_phase_delays(ax1, depth, delay):
+def plot_phase_delays(ax, depth, delay):
     """Plot cross-correlations and phase delays."""
 
-    # for each non-tide unit
-    delay = delay.dt.total_seconds()/3600
+    # plot phase delays
+    delay = delay / pd.to_timedelta('1h')
     for i, unit in enumerate(delay.index):
-        color = f'C{i}'
-
-        # plot phase delays
-        ax1.plot(delay[unit], depth[unit], c=color, marker='o')
-        ax1.text(delay[unit]+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
+        ax.plot(delay[unit], depth[unit], color=f'C{i}', marker='o')
+        ax.text(delay[unit], depth[unit]-1, f' {unit}', color=f'C{i}')
 
     # set axes properties
-    ax1.axvline(0.0, ls=':')
-    ax1.invert_yaxis()
-    ax1.set_xlabel('phase delay (h)')
-    ax1.set_ylabel('sensor depth (m)')
+    ax.axvline(0.0, ls=':')
+    ax.invert_yaxis()
+    ax.set_xlabel('phase delay (h)')
+    ax.set_ylabel('sensor depth (m)')
+    ax.set_xlim(ax.get_xlim()[0], 1.2*ax.get_xlim()[1]-0.2*ax.get_xlim()[0])
 
 
 def plot_time_series(ax, depth, df, var, ref):
