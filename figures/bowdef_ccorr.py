@@ -12,6 +12,18 @@ import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
+def correlate_dataframes(df0, df1):
+    """Compute cross-correlations between columns of two dataframes."""
+
+    # FIXME allow shift_max argument as timedelta string
+    shift_max = 36 / pd.to_timedelta(pd.infer_freq(df0.index)).total_seconds() * 3600
+
+    # return concatenation of cross-correlations
+    return pd.concat([crosscorr(
+        df0[column], df1.get(column, df1.squeeze()),
+        wmin=-shift_max, wmax=shift_max)
+            for column in df0], axis=1)
+
 
 def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     """Return cross correlation for multiple lags."""
@@ -19,28 +31,23 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     df = pd.DataFrame(
         data=[series.shift(i, freq='infer') for i in shifts],
         index=shifts*pd.to_timedelta(pd.infer_freq(series.index)))
-    return df.corrwith(other, axis=1)
+    return df.corrwith(other, axis=1).rename(series.name)
 
 
-def plot_correlations(ax0, ax1, depth, df0, df1):
+def plot_correlations(ax0, ax1, depth, xcorr):
     """Plot cross-correlations and phase delays."""
 
     # for each non-tide unit
-    for i, unit in enumerate(df0):
+    for i, unit in enumerate(xcorr):
         color = f'C{i}'
-        ts = df0[unit]
-        ts_ref = df1[unit] if unit in df1 else df1.squeeze()
 
         # plot (series.plot with deltas affected by #18910)
-        shift = 36 / pd.to_timedelta(
-            pd.infer_freq(ts.index)).total_seconds() * 3600
-        xcorr = crosscorr(ts, ts_ref, wmin=-shift, wmax=shift)
-        ax0.plot(-xcorr.index.total_seconds()/3600, xcorr)
+        ax0.plot(-xcorr.index.total_seconds()/3600, xcorr[unit])
 
         # find maximum correlation (a positive shift is a negative delay)
-        shift = abs(xcorr).idxmax()
+        shift = abs(xcorr[unit]).idxmax()
         delay = -shift.total_seconds()/3600
-        ax0.plot(delay, xcorr[shift], c=color, marker='o')
+        ax0.plot(delay, xcorr[unit][shift], c=color, marker='o')
 
         # plot phase delays
         ax1.plot(delay, depth[unit], c=color, marker='o')
@@ -135,9 +142,12 @@ def plot(couple='ti2sp', method='inner'):
     # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
     df = df.dropna(how='all', axis=1)
 
+    # compute cross-correlations
+    correlation = correlate_dataframes(df[var], df[ref])
+
     # plot time series
     plot_time_series(fig.axes[0], depth, df, var, ref)
-    plot_correlations(fig.axes[1], fig.axes[2], depth, df[var], df[ref])
+    plot_correlations(fig.axes[1], fig.axes[2], depth, correlation)
 
     # save partial
     # fig.axes[1].set_visible(False)
