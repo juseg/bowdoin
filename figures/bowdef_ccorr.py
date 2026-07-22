@@ -174,8 +174,7 @@ def plot(couple='ti2sp', method='inner'):
 def main():
     """Main program called during execution."""
     couples = ['st2sp', 'st2ti', 'st2tr', 'tr2sp', 'tr2ti']
-    methods = ['inner', 'mixed', 'outer']
-    plotter = bowstr_utils.MultiPlotter(plot, couples=couples, methods=methods)
+    plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 
 
