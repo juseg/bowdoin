@@ -12,25 +12,26 @@ import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
-def correlate_dataframes(df0, df1):
+def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
     """Compute cross-correlations between columns of two dataframes."""
 
-    # FIXME allow shift_max argument as timedelta string
-    shift_max = 36 / pd.to_timedelta(pd.infer_freq(df0.index)).total_seconds() * 3600
+    # convert min and max shifts to integer
+    freq = pd.to_timedelta(pd.infer_freq(df0.index))
+    smin = int(pd.to_timedelta(smin)/freq)
+    smax = int(pd.to_timedelta(smax)/freq)
 
     # return concatenation of cross-correlations
-    return pd.concat([crosscorr(
-        df0[column], df1.get(column, df1.squeeze()),
-        wmin=-shift_max, wmax=shift_max)
-            for column in df0], axis=1)
+    return pd.concat([
+        correlate_series(df0[col], df1.get(col, df1.squeeze()), smin, smax)
+        for col in df0], axis=1)
 
 
-def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
+def correlate_series(series, other, smin, smax):
     """Return cross correlation for multiple lags."""
-    shifts = np.arange(wmin, wmax+1)
-    df = pd.DataFrame(
-        data=[series.shift(i, freq='infer') for i in shifts],
-        index=shifts*pd.to_timedelta(pd.infer_freq(series.index)))
+    shifts = np.arange(smin, smax+1)
+    data = (series.shift(i, freq='infer') for i in shifts)
+    index = shifts*pd.to_timedelta(pd.infer_freq(series.index))
+    df = pd.DataFrame(data=data, index=index)
     return df.corrwith(other, axis=1).rename(series.name)
 
 
