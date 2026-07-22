@@ -134,25 +134,27 @@ def plot(couple='ti2sp', method='inner'):
     bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
     # load all variables
-    var = {'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
+
+    # select time interval and drop empty records
     # df = df.loc['20140701':'20140831']  # 2014 with gnss but before refreezing
     # df = df.loc['20140916':'20141016']  # 2014 all units but no gnss data
-    df = df.loc['20150516':'20150815']  # 2015 full gnss record
     # df = df.loc['20150527':'20150608']  # 2015 spring tidal buildup
     # df = df.loc['20150704':'20150803']  # 2015 summer daily cycles
     # df = df.loc['20150723':'20150803']  # 2015 summer daily zoom
     # df = df.loc['20160601':'20160930']  # 2016 full gnss record
     # df = df.loc['20160701':'20160830']  # 2016 summer daily cycles
     # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
+    df = df.loc['20150516':'20150815']  # 2015 full gnss record
     df = df.dropna(how='all', axis=1)
 
-    # compute cross-correlations
+    # compute cross-correlations and phase delays
+    var = {'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
     ccorr, delay = correlate_dataframes(df[var], df[ref])
 
-    # plot time series
+    # plot time series, correlations and phase delays
     plot_time_series(fig.axes[0], depth, df, var, ref)
     plot_correlations(fig.axes[1], ccorr, delay)
     plot_phase_delays(fig.axes[2], depth, delay)
