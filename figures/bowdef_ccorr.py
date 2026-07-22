@@ -35,7 +35,7 @@ def correlate_series(series, other, smin, smax):
     return df.corrwith(other, axis=1).rename(series.name)
 
 
-def plot_correlations(ax0, ax1, depth, xcorr):
+def plot_correlations(ax0, xcorr):
     """Plot cross-correlations and phase delays."""
 
     # for each non-tide unit
@@ -50,10 +50,6 @@ def plot_correlations(ax0, ax1, depth, xcorr):
         delay = -shift.total_seconds()/3600
         ax0.plot(delay, xcorr[unit][shift], c=color, marker='o')
 
-        # plot phase delays
-        ax1.plot(delay, depth[unit], c=color, marker='o')
-        ax1.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
-
     # set axes properties
     ax0.axvline(0.0, ls=':')
     ax0.set_xticks(range(-36, 48, 12))
@@ -61,6 +57,24 @@ def plot_correlations(ax0, ax1, depth, xcorr):
     ax0.set_ylabel('cross-correlation', labelpad=0)
     ax0.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
     ax0.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
+
+
+def plot_phase_delays(ax1, depth, xcorr):
+    """Plot cross-correlations and phase delays."""
+
+    # for each non-tide unit
+    for i, unit in enumerate(xcorr):
+        color = f'C{i}'
+
+        # find maximum correlation (a positive shift is a negative delay)
+        shift = abs(xcorr[unit]).idxmax()
+        delay = -shift.total_seconds()/3600
+
+        # plot phase delays
+        ax1.plot(delay, depth[unit], c=color, marker='o')
+        ax1.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
+
+    # set axes properties
     ax1.axvline(0.0, ls=':')
     ax1.invert_yaxis()
     ax1.set_xlabel('phase delay (h)')
@@ -148,7 +162,8 @@ def plot(couple='ti2sp', method='inner'):
 
     # plot time series
     plot_time_series(fig.axes[0], depth, df, var, ref)
-    plot_correlations(fig.axes[1], fig.axes[2], depth, correlation)
+    plot_correlations(fig.axes[1], correlation)
+    plot_phase_delays(fig.axes[2], depth, correlation)
 
     # save partial
     # fig.axes[1].set_visible(False)
