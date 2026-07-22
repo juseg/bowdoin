@@ -22,12 +22,50 @@ def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
     return df.corrwith(other, axis=1)
 
 
+def plot_correlations(ax0, ax1, depth, df0, df1):
+    """Plot cross-correlations and phase delays."""
+
+    # for each non-tide unit
+    for i, unit in enumerate(df0):
+        color = f'C{i}'
+        ts = df0[unit]
+        ts_ref = df1[unit] if unit in df1 else df1.squeeze()
+
+        # plot (series.plot with deltas affected by #18910)
+        shift = 36 / pd.to_timedelta(
+            pd.infer_freq(ts.index)).total_seconds() * 3600
+        xcorr = crosscorr(ts, ts_ref, wmin=-shift, wmax=shift)
+        ax0.plot(-xcorr.index.total_seconds()/3600, xcorr)
+
+        # find maximum correlation (a positive shift is a negative delay)
+        shift = abs(xcorr).idxmax()
+        delay = -shift.total_seconds()/3600
+        ax0.plot(delay, xcorr[shift], c=color, marker='o')
+
+        # plot phase delays
+        ax1.plot(delay, depth[unit], c=color, marker='o')
+        ax1.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
+
+    # set axes properties
+    ax0.axvline(0.0, ls=':')
+    ax0.set_xticks(range(-36, 48, 12))
+    ax0.set_xlabel('time delay (h)')
+    ax0.set_ylabel('cross-correlation', labelpad=0)
+    ax0.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
+    ax0.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
+    ax1.axvline(0.0, ls=':')
+    ax1.invert_yaxis()
+    ax1.set_xlabel('phase delay (h)')
+    ax1.set_ylabel('sensor depth (m)')
+
+
 def plot_time_series(ax, depth, df, var, ref):
     """Plot relevant time series on just as many subsubplots."""
 
     # initialize subsubplots
     subaxes = bowstr_utils.subsubplots(
-        ax.figure, [ax], nrows=df[var].shape[1]+(ref!='tilt'), sharey=False)[0]
+        ax.figure, [ax], nrows=df[var].shape[1]+(df[ref].shape[1]==1),
+        sharey=False)[0]
 
     # plot primary variable time series
     for i, unit in enumerate(df[var].columns):
@@ -99,41 +137,7 @@ def plot(couple='ti2sp', method='inner'):
 
     # plot time series
     plot_time_series(fig.axes[0], depth, df, var, ref)
-
-    # for each non-tide unit
-    for i, unit in enumerate(df[var]):
-        color = f'C{i}'
-        ts = df[var][unit]
-        ts_ref = df.tilt[unit] if ref == 'tilt' else df[ref].squeeze()
-
-        # plot (series.plot with deltas affected by #18910)
-        ax = fig.axes[1]
-        shift = 36 / pd.to_timedelta(
-            pd.infer_freq(ts.index)).total_seconds() * 3600
-        xcorr = crosscorr(ts, ts_ref, wmin=-shift, wmax=shift)
-        ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
-
-        # find maximum correlation (a positive shift is a negative delay)
-        shift = abs(xcorr).idxmax()
-        delay = -shift.total_seconds()/3600
-        ax.plot(delay, xcorr[shift], c=color, marker='o')
-
-        # plot phase delays
-        ax = fig.axes[2]
-        ax.plot(delay, depth[unit], c=color, marker='o')
-        ax.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
-
-    # set axes properties
-    fig.axes[1].axvline(0.0, ls=':')
-    fig.axes[1].set_xticks(range(-36, 48, 12))
-    fig.axes[1].set_xlabel('time delay (h)')
-    fig.axes[1].set_ylabel('cross-correlation', labelpad=0)
-    fig.axes[1].xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
-    fig.axes[1].yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
-    fig.axes[2].axvline(0.0, ls=':')
-    fig.axes[2].invert_yaxis()
-    fig.axes[2].set_xlabel('phase delay (h)')
-    fig.axes[2].set_ylabel('sensor depth (m)')
+    plot_correlations(fig.axes[1], fig.axes[2], depth, df[var], df[ref])
 
     # save partial
     # fig.axes[1].set_visible(False)
