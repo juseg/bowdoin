@@ -28,7 +28,7 @@ def correlate_rolling_dataframes(df0, df1, window='14D', stride='7D'):
     # FIXME move delay computation out of correlate_dataframes
     series = (
         bowdef_ccorr.correlate_dataframes(
-            df0.loc[s], df1.loc[s], '-12h', '12h')[0].transpose().stack()
+            df0.loc[s], df1.loc[s], '-12h', '12h').transpose().stack()
         for s in slices)
     mcorr = pd.DataFrame(data=series, index=starts+window/2)
     return mcorr

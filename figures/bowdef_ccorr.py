@@ -21,11 +21,9 @@ def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
     smax = int(pd.to_timedelta(smax)/freq)
 
     # compute correlations and phase delays
-    ccorr = pd.concat([
+    return pd.concat([
         correlate_series(df0[col], df1.get(col, df1.squeeze()), smin, smax)
         for col in df0], axis=1)
-    delay = -abs(ccorr).idxmax()
-    return ccorr, delay
 
 
 def correlate_series(series, other, smin, smax):
@@ -166,7 +164,8 @@ def plot(couple='ti2sp', method='inner'):
     # compute cross-correlations and phase delays
     var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    ccorr, delay = correlate_dataframes(df[var], df[ref])
+    ccorr = correlate_dataframes(df[var], df[ref])
+    delay = -abs(ccorr).idxmax()
 
     # plot time series, correlations and phase delays
     plot_time_series(fig.axes[0], depth, df, var, ref)
