@@ -63,9 +63,7 @@ def plot_phase_delays(ax, depth, delay):
     delay = delay / pd.to_timedelta('1h')
     for i, unit in enumerate(delay.index):
         ax.plot(delay[unit], depth.get(unit, 0), color=f'C{i}', marker='o')
-        ax.text(
-            delay[unit], depth.get(unit, 0)-1, f' {unit.replace('vh', 'GNSS')}',
-            color=f'C{i}')
+        ax.text(delay[unit], depth.get(unit, 0)-1, f' {unit}', color=f'C{i}')
 
     # set axes properties
     ax.axvline(0.0, ls=':')
@@ -75,7 +73,7 @@ def plot_phase_delays(ax, depth, delay):
     ax.set_xlim(ax.get_xlim()[0], 1.2*ax.get_xlim()[1]-0.2*ax.get_xlim()[0])
 
     # force axes limits on surface speed
-    if 'vh' in delay:
+    if 'GNSS' in delay:
         ax.set_ylim(103, -23)
 
 
