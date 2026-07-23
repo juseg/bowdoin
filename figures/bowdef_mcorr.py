@@ -42,17 +42,13 @@ def plot(couple='ti2sp', method='inner'):
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
         'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
-    axes = bowstr_utils.subsubplots(fig, [ax], nrows=9)[0]
+    axes = bowstr_utils.subsubplots(fig, [ax], nrows=7)[0]
     cax = fig.add_axes_mm([100, 30, 60, 5])
 
     # load all variables
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
-
-    # subset
-    # df = df.drop(columns=['UI03', 'UI02'])
-    # pres = pres['20140901':'20150901']  # first year looks good
-    # tide = tide['20140901':'20150901']  # things get messy then
+    df = df.drop(columns=['UI03', 'UI02'], level=1)
 
     # compute cross-correlations and phase delays
     var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
