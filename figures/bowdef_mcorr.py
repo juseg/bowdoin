@@ -66,19 +66,30 @@ def plot_rolling_correlations(ax, cax, depth, mcorr):
 
         # add text label
         ax.text(
-            1.02, 0.5, 'Pituffik\ntide'r'$\,/\,$10' if unit == 'tide' else
-            f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
+            1.02, 0.5, f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
-
-    # add colorbar
-    cax.figure.colorbar(img, cax=cax, orientation='horizontal')
-    cax.set_xlabel('cross-correlation with Pituffik tide / 10')
 
     # set axes properties
     ax.set_xlim('20140701', '20170801')
     ax.set_yticks([0, 3, 6])
     axes[len(axes)//2].set_ylabel('phase delay (h)')
+
+    # return last image for the colorbar
+    return img
+
+
+def plot_colorbar(cax, img, var, ref):
+    """Plot colorbar with adapted text label."""
+
+    # add colorbar
+    labels = {
+        'gnss': r'speed ($m\,a^{-1}$)',
+        'pres': r'stress (kPa)',
+        'tide': r'tide$\,/\,$10',
+        'tilt': r'tilt rate ($°\,a^{-1}$)'}
+    cax.figure.colorbar(img, cax=cax, orientation='horizontal')
+    cax.set_xlabel(f'{labels[var]} vs {labels[ref]}')
 
 
 def plot(couple='ti2sp', method='inner'):
@@ -97,10 +108,11 @@ def plot(couple='ti2sp', method='inner'):
     # compute rolling-window cross-correlations
     var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    mcorr = correlate_rolling_dataframes(df[var], df.tide)
+    mcorr = correlate_rolling_dataframes(df[var], df[ref])
 
     # plot correlations and phase delays
-    plot_rolling_correlations(ax, cax, depth, mcorr)
+    img = plot_rolling_correlations(ax, cax, depth, mcorr)
+    plot_colorbar(cax, img, var, ref)
 
     # return figure
     return fig
