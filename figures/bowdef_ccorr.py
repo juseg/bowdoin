@@ -133,7 +133,7 @@ def plot_time_series(ax, depth, df, var, ref):
 
 
 def plot(couple='ti2sp', method='inner'):
-    """Main program called during execution."""
+    """Plot and return full figure for given options."""
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
