@@ -97,7 +97,7 @@ def plot(couple='ti2sp', method='inner'):
     # compute rolling-window cross-correlations
     var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    mcorr = correlate_rolling_dataframes(df.tilt, df.tide)
+    mcorr = correlate_rolling_dataframes(df[var], df.tide)
 
     # plot correlations and phase delays
     plot_rolling_correlations(ax, cax, depth, mcorr)
