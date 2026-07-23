@@ -34,44 +34,31 @@ def correlate_rolling_dataframes(df0, df1, window='14D', stride='7D'):
     return mcorr
 
 
-def plot(couple='ti2sp', method='inner'):
-    """Plot and return full figure for given options."""
+def plot_rolling_correlations(ax, cax, depth, mcorr):
+    """Plot rolling-window cross-correlations and phase delays."""
 
-    # initialize figure
-    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
-        'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
-    axes = bowstr_utils.subsubplots(fig, [ax], nrows=7)[0]
-    cax = fig.add_axes_mm([100, 30, 60, 5])
-
-    # load all variables
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
-    df = df.drop(columns=['UI03', 'UI02'], level=1)
-
-    # compute cross-correlations and phase delays
-    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    mcorr = correlate_rolling_dataframes(df.tilt, df.tide)
+    # initialize subsubplots
+    axes = bowstr_utils.subsubplots(ax.figure, [ax], nrows=7)[0]
 
     # for each unit
-    for i, unit in enumerate(df.tilt):
+    for i, unit in enumerate(mcorr.columns.levels[0]):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
 
         # plot cross correlation and zero contour
         corr = mcorr[unit].transpose()
+        dates = mpl.dates.date2num(mcorr.index)
+        shifts = -mcorr[unit].columns / pd.to_timedelta('1h')
         img = ax.imshow(
-            corr, aspect='auto', cmap='Greys_r', vmin=-1, vmax=1, extent=(
-                *mpl.dates.date2num((corr.columns[0], corr.columns[-1])),
-                *-corr.index[[-1, 0]].total_seconds()/3600))
+            mcorr[unit].transpose(), aspect='auto', cmap='Greys_r',
+            vmin=-1, vmax=1, extent=(*dates[[0, -1]], *shifts[[-1, 0]]))
         ax.contour(
-            mpl.dates.date2num(corr.columns),
-            -corr.index.total_seconds()/3600,
-            corr, colors=['0.25'], linestyles=['dashed'], levels=[0])
+            dates, shifts, mcorr[unit].transpose(), colors=['0.25'],
+            linestyles=['dashed'], levels=[0])
 
         # find maximum anticorrelation
         delay = -corr.dropna(axis=1, how='all').idxmin()
-        delay = delay.dt.total_seconds()/3600
+        delay = delay / pd.to_timedelta('1h')
         delay = delay.where(corr.min() <= -0.5)
         delay = delay.resample('1D').nearest()  # for compat with mpl.dates
         delay.plot(ax=ax, drawstyle='steps-mid', color='w', lw=2, alpha=0.5)
@@ -92,6 +79,28 @@ def plot(couple='ti2sp', method='inner'):
     ax.set_xlim('20140701', '20170801')
     ax.set_yticks([0, 3, 6])
     axes[len(axes)//2].set_ylabel('phase delay (h)')
+
+
+def plot(couple='ti2sp', method='inner'):
+    """Plot and return full figure for given options."""
+
+    # initialize figure
+    fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
+        'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
+    cax = fig.add_axes_mm([100, 30, 60, 5])
+
+    # load all variables
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
+    df = df.drop(columns=['UI03', 'UI02'], level=1)
+
+    # compute rolling-window cross-correlations
+    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    mcorr = correlate_rolling_dataframes(df.tilt, df.tide)
+
+    # plot correlations and phase delays
+    plot_rolling_correlations(ax, cax, depth, mcorr)
 
     # return figure
     return fig
