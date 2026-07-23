@@ -62,8 +62,10 @@ def plot_phase_delays(ax, depth, delay):
     # plot phase delays
     delay = delay / pd.to_timedelta('1h')
     for i, unit in enumerate(delay.index):
-        ax.plot(delay[unit], depth[unit], color=f'C{i}', marker='o')
-        ax.text(delay[unit], depth[unit]-1, f' {unit}', color=f'C{i}')
+        ax.plot(delay[unit], depth.get(unit, 0), color=f'C{i}', marker='o')
+        ax.text(
+            delay[unit], depth.get(unit, 0)-1, f' {unit.replace('vh', 'GNSS')}',
+            color=f'C{i}')
 
     # set axes properties
     ax.axvline(0.0, ls=':')
@@ -71,6 +73,10 @@ def plot_phase_delays(ax, depth, delay):
     ax.set_xlabel('phase delay (h)')
     ax.set_ylabel('sensor depth (m)')
     ax.set_xlim(ax.get_xlim()[0], 1.2*ax.get_xlim()[1]-0.2*ax.get_xlim()[0])
+
+    # force axes limits on surface speed
+    if 'vh' in delay:
+        ax.set_ylim(103, -23)
 
 
 def plot_time_series(ax, depth, df, var, ref):
@@ -81,19 +87,32 @@ def plot_time_series(ax, depth, df, var, ref):
         ax.figure, [ax], nrows=df[var].shape[1]+(df[ref].shape[1]==1),
         sharey=False)[0]
 
+    # hardcoded axes properties
+    ylabel = {'pres': 'stress (kPa)', 'tilt': r'tilt rate ($°\,a^{-1}$)'}
+    ylim = {
+        'gnss': (200, 700), 'pres': (-20, 20), 'tide': (-20, 20),
+        'tilt': (2, 13)}
+    yticks = {
+        'gnss': (300, 600), 'pres': (-10, 10), 'tide': (-10, 10),
+        'tilt': (5, 10)}
+    ytext = {
+        'gnss': '\nSurface\nspeed\n'r'($m\,a^{-1}$)',
+        'tide': 'Pituffik\ntide'r'$\,/\,$10'}
+
     # plot primary variable time series
     for i, unit in enumerate(df[var].columns):
         ax = subaxes[i]
         df[var, unit].plot(ax=ax, color=f'C{i}', legend=False)
         ax.text(
-            1.08, 0.5, f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=f'C{i}',
-            fontsize=6, fontweight='bold', ha='center', va='center',
-            rotation='vertical', transform=ax.transAxes)
+            1.08, 0.5,
+            ytext.get(var, f'{unit}\n{depth.get(unit, 0):.0f}'r'$\,$m'),
+            color=f'C{i}', fontsize=6, fontweight='bold', rotation='vertical',
+            ha='center', va='center', transform=ax.transAxes)
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
-        ax.set_ylim({'pres': (-20, 20), 'tilt': (2, 13)}[var])
-        ax.set_yticks({'pres': (-10, 10), 'tilt': (5, 10)}[var])
+        ax.set_ylim(ylim.get(var, None))
+        ax.set_yticks(yticks.get(var, ax.get_yticks()))
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # plot reference variable time series
@@ -101,20 +120,17 @@ def plot_time_series(ax, depth, df, var, ref):
         ax = subaxes[-1]
         df[ref].plot(ax=ax, color='tab:cyan', legend=False)
         ax.text(
-            1.08, 0.5, {
-                'gnss': '\nSurface\nspeed\n'r'($m\,a^{-1}$)',
-                'tide': 'Pituffik\ntide'r'$\,/\,$10'}[ref], color='tab:cyan',
+            1.08, 0.5, ytext.get(ref), color='tab:cyan',
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
         ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
-        ax.set_ylim({'gnss': (250, 560), 'tide': (-20, 20)}[ref])
-        ax.set_yticks({'gnss': (300, 600), 'tide': (-10, 10)}[ref])
+        ax.set_ylim(ylim.get(ref, None))
+        ax.set_yticks(yticks.get(ref, ax.get_yticks()))
 
     # set labels and remove empty headlines in date tick labels
-    subaxes[df[var].shape[1]//2].set_ylabel({
-        'pres': 'stress (kPa)', 'tilt': r'tilt rate ($°\,a^{-1}$)'}[var])
+    subaxes[df[var].shape[1]//2].set_ylabel(ylabel.get(var))
     subaxes[-1].set_xlabel('')
 
 
@@ -150,7 +166,7 @@ def plot(couple='ti2sp', method='inner'):
     df = df.dropna(how='all', axis=1)
 
     # compute cross-correlations and phase delays
-    var = {'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
     ccorr, delay = correlate_dataframes(df[var], df[ref])
 
@@ -173,7 +189,7 @@ def plot(couple='ti2sp', method='inner'):
 
 def main():
     """Main program called during execution."""
-    couples = ['st2sp', 'st2ti', 'st2tr', 'tr2sp', 'tr2ti']
+    couples = ['sp2ti', 'st2sp', 'st2ti', 'st2tr', 'tr2sp', 'tr2ti']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 
