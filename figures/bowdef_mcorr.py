@@ -15,24 +15,33 @@ import bowdef_utils
 import bowstr_utils
 
 
-def compute_rolling_correlation(series, other, window='14D', stride='7D'):
+def correlate_rolling_dataframes(df0, df1):
+    """Compute rolling-window cross-correlation between two dataframes."""
+    series = [correlate_rolling_series(
+        df0[col].dropna(), df1.squeeze().dropna()) for col in df0]
+    return pd.concat(series, axis=1, keys=df0.columns, names=['unit', 'shift'])
+
+
+def correlate_rolling_series(
+        series, other, window='14D', stride='7D', smin='-12h', smax='12h'):
     """Compute rolling-window cross-correlation between two series."""
 
     # convert min and max shifts to integer
-    smin = '-12h'
-    smax = '12h'
     freq = pd.to_timedelta(pd.infer_freq(series.index))
     smin = int(pd.to_timedelta(smin)/freq)
     smax = int(pd.to_timedelta(smax)/freq)
 
+    # prepare slices to subset series
+    index = series.index
     window = pd.to_timedelta(window)
-    starts = pd.date_range(
-        start=series.index[0], end=series.index[-1]-window, freq=stride)
+    starts = pd.date_range(start=index[0], end=index[-1]-window, freq=stride)
     slices = [slice(start, start+window) for start in starts]
-    corr = pd.DataFrame(
-        data=[bowdef_ccorr.correlate_series(series[s], other[s], smin, smax) for s in slices],
-        index=starts+window/2,
-        ).transpose()
+
+    # compute rolling-window cross-correlation
+    data = [
+        bowdef_ccorr.correlate_series(series[s], other[s], smin, smax)
+        for s in slices]
+    corr = pd.DataFrame(data=data, index=starts+window/2,)  #.transpose()
     return corr
 
 
@@ -53,17 +62,15 @@ def plot(couple='ti2sp', method='inner'):
     # compute cross-correlations and phase delays
     var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    mcorr = correlate_rolling_dataframes(df.tilt, df.tide)
 
     # for each unit
     for i, unit in enumerate(df.tilt):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
-        series = df.tilt[unit].dropna()
 
         # plot cross correlation and zero contour
-        tide = df.tide.squeeze().dropna()
-        corr = compute_rolling_correlation(series, tide)
-        print(series.shape, tide.shape, corr.shape)
+        corr = mcorr[unit].transpose()
         img = ax.imshow(
             corr, aspect='auto', cmap='Greys_r', vmin=-1, vmax=1, extent=(
                 *mpl.dates.date2num((corr.columns[0], corr.columns[-1])),
