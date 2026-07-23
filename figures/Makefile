@@ -12,7 +12,7 @@
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowdef_, multi rates shear tilts) \
-		$(addprefix bowdef_ccorr_, st2sp st2ti st2tr tr2sp tr2ti ))
+		$(addprefix bowdef_ccorr_, sp2ti st2sp st2ti st2tr tr2sp tr2ti))
 
 # bowdoin stress figures
 BOWSTR_FIGS = \
@@ -59,8 +59,8 @@ $(BOWSTR_FIGS): bowstr_utils.py
 OPT_RULE = %_$(2).png: %.py ; python $$< --$(1) $(2)
 $(foreach filter, 12hbp 12hhp 24hbp 24hhp deriv phase steps, \
   $(eval $(call OPT_RULE,filters,$(filter))))
-$(foreach method, inner mixed outer, \
-  $(eval $(call OPT_RULE,methods,$(method))))
+$(foreach couple, sp2ti st2sp st2ti st2tr tr2sp tr2ti, \
+  $(eval $(call OPT_RULE,couple,$(couple))))
 $(foreach method, stcwt stlsp stfft ticwt tilsp tifft, \
   $(eval $(call OPT_RULE,methods,$(method))))
 
