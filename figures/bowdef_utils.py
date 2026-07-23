@@ -110,14 +110,15 @@ def load_tilt_rates(**kwargs):
     return tilt
 
 
-def load_multivariate(join='inner', method='savgol', window='12h'):
+def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
     """Load tilt rates, speed, stress, and tides in one dataframe."""
 
     # load all variables independently
-    pres = bowstr_utils.load(resample='10min')
+    pres = bowstr_utils.load(filt=filt, resample='10min')
     tilt = load_tilt_rates(method=method, window=window)
-    gnss = load_gnss_velocities(method=method, window=window).vh
-    tide = bowstr_utils.load_pituffik_tides().groupby(level=0).mean()
+    gnss = load_gnss_velocities(method=method, window=window).vh.rename('GNSS')
+    tide = bowstr_utils.load_pituffik_tides().groupby(level=0).mean().rename(
+        'TIDE')
 
     # prepare new index depending on join method
     # NOTE mixed method may fail on variable tilt sampling rate
@@ -133,12 +134,9 @@ def load_multivariate(join='inner', method='savgol', window='12h'):
         limit=2, method='time').reindex(index)
 
     # concatenate with a multi-index
-    tilt = pd.concat(
+    return pd.concat(
         [gnss, pres, tilt, tide], axis=1, keys=['gnss', 'pres', 'tilt', 'tide'],
         names=['variable', 'unit'])
-
-    # return tilt rates dataframe
-    return tilt
 
 
 # ----------------------------------------------------------------------
