@@ -15,34 +15,23 @@ import bowdef_utils
 import bowstr_utils
 
 
-def correlate_rolling_dataframes(df0, df1):
+def correlate_rolling_dataframes(df0, df1, window='14D', stride='7D'):
     """Compute rolling-window cross-correlation between two dataframes."""
-    series = [correlate_rolling_series(
-        df0[col].dropna(), df1.squeeze().dropna()) for col in df0]
-    return pd.concat(series, axis=1, keys=df0.columns, names=['unit', 'shift'])
 
-
-def correlate_rolling_series(
-        series, other, window='14D', stride='7D', smin='-12h', smax='12h'):
-    """Compute rolling-window cross-correlation between two series."""
-
-    # convert min and max shifts to integer
-    freq = pd.to_timedelta(pd.infer_freq(series.index))
-    smin = int(pd.to_timedelta(smin)/freq)
-    smax = int(pd.to_timedelta(smax)/freq)
-
-    # prepare slices to subset series
-    index = series.index
+    # prepare rolling-window slicing
+    index = df0.index
     window = pd.to_timedelta(window)
     starts = pd.date_range(start=index[0], end=index[-1]-window, freq=stride)
     slices = [slice(start, start+window) for start in starts]
 
     # compute rolling-window cross-correlation
-    data = [
-        bowdef_ccorr.correlate_series(series[s], other[s], smin, smax)
-        for s in slices]
-    corr = pd.DataFrame(data=data, index=starts+window/2,)  #.transpose()
-    return corr
+    # FIXME move delay computation out of correlate_dataframes
+    series = (
+        bowdef_ccorr.correlate_dataframes(
+            df0.loc[s], df1.loc[s], '-12h', '12h')[0].transpose().stack()
+        for s in slices)
+    mcorr = pd.DataFrame(data=series, index=starts+window/2)
+    return mcorr
 
 
 def plot(couple='ti2sp', method='inner'):
