@@ -28,10 +28,19 @@ def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
 
 def correlate_series(series, other, smin, smax):
     """Return cross correlation for multiple lags."""
+
+    # prepare dataframe with shifted series
     shifts = np.arange(smin, smax+1)
     data = (series.shift(i, freq='infer') for i in shifts)
     index = shifts*pd.to_timedelta(pd.infer_freq(series.index))
     df = pd.DataFrame(data=data, index=index)
+
+    # workaround degrees of freedom RuntimeWarning
+    df, other = df.align(other, axis=1, join='inner')
+    if 1 in df.notna().sum(axis=1).values:
+        return pd.Series(data=-2, index=index, name=series.name)
+
+    # or return correlation series
     return df.corrwith(other, axis=1).rename(series.name)
 
 
