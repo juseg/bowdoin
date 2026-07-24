@@ -24,13 +24,11 @@ def correlate_rolling_dataframes(df0, df1, window='14D', stride='7D'):
     slices = [slice(start, start+window) for start in starts]
 
     # compute rolling-window cross-correlation
-    print("=== before")
     series = (
         bowdef_ccorr.correlate_dataframes(
             df0.loc[s], df1.loc[s], '-12h', '12h').transpose().stack()
         for s in slices)
     mcorr = pd.DataFrame(data=series, index=starts+window/2)
-    print("=== after")
     return mcorr
 
 

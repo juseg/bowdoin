@@ -35,7 +35,7 @@ def correlate_series(series, other, smin, smax):
     index = shifts*pd.to_timedelta(pd.infer_freq(series.index))
     df = pd.DataFrame(data=data, index=index)
 
-    # workaround degrees of freedom RuntimeWarning
+    # avoid some degrees of freedom RuntimeWarning
     df, other = df.align(other, axis=1, join='inner')
     if 1 in df.notna().sum(axis=1).values:
         return pd.Series(data=-2, index=index, name=series.name)
