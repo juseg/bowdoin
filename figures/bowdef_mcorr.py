@@ -7,7 +7,6 @@
 
 import absplots as apl
 import matplotlib as mpl
-import numpy as np
 import pandas as pd
 
 import bowdef_ccorr  # FIXME move contents to utils
@@ -25,23 +24,26 @@ def correlate_rolling_dataframes(df0, df1, window='14D', stride='7D'):
     slices = [slice(start, start+window) for start in starts]
 
     # compute rolling-window cross-correlation
-    # FIXME move delay computation out of correlate_dataframes
+    print("=== before")
     series = (
         bowdef_ccorr.correlate_dataframes(
             df0.loc[s], df1.loc[s], '-12h', '12h').transpose().stack()
         for s in slices)
     mcorr = pd.DataFrame(data=series, index=starts+window/2)
+    print("=== after")
     return mcorr
 
 
-def plot_rolling_correlations(ax, cax, depth, mcorr):
+def plot_rolling_correlations(ax, depth, mcorr):
     """Plot rolling-window cross-correlations and phase delays."""
 
     # initialize subsubplots
-    axes = bowstr_utils.subsubplots(ax.figure, [ax], nrows=7)[0]
+    units = mcorr.columns.levels[0]
+    axes = [ax] if len(units) == 1 else bowstr_utils.subsubplots(
+        ax.figure, [ax], nrows=len(units))[0]
 
     # for each unit
-    for i, unit in enumerate(mcorr.columns.levels[0]):
+    for i, unit in enumerate(units):
         ax = axes[i]
         color = f'C{i+2*(i > 3)}'
 
@@ -66,7 +68,8 @@ def plot_rolling_correlations(ax, cax, depth, mcorr):
 
         # add text label
         ax.text(
-            1.02, 0.5, f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
+            1.02, 0.5, r'surface speed ($m\,a^{-1}$)' if unit =='GNSS' else
+            f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
@@ -95,9 +98,13 @@ def plot_colorbar(cax, img, var, ref):
 def plot(couple='ti2sp', method='inner'):
     """Plot and return full figure for given options."""
 
+    # correlation variables
+    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
-        'left': 10, 'right': 7.5, 'bottom': 10, 'top': 2.5})
+        'left': 10, 'right': 7.5, 'bottom': 10+37.5*(var=='gnss'), 'top': 2.5})
     cax = fig.add_axes_mm([100, 30, 60, 5])
 
     # load all variables
@@ -106,12 +113,10 @@ def plot(couple='ti2sp', method='inner'):
     df = df.drop(columns=['UI03', 'UI02'], level=1)
 
     # compute rolling-window cross-correlations
-    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
     mcorr = correlate_rolling_dataframes(df[var], df[ref])
 
     # plot correlations and phase delays
-    img = plot_rolling_correlations(ax, cax, depth, mcorr)
+    img = plot_rolling_correlations(ax, depth, mcorr)
     plot_colorbar(cax, img, var, ref)
 
     # return figure
