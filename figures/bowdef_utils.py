@@ -15,18 +15,19 @@ import bowtem_utils
 # Signal processing methods
 # -------------------------
 
-def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
+def correlate_dataframes(frame, other, smin='-36h', smax='36h'):
     """Compute cross-correlations between columns of two dataframes."""
 
     # convert min and max shifts to integer
-    freq = pd.to_timedelta(pd.infer_freq(df0.index))
+    freq = pd.to_timedelta(pd.infer_freq(frame.index))
     smin = int(pd.to_timedelta(smin)/freq)
     smax = int(pd.to_timedelta(smax)/freq)
 
     # compute correlations and phase delays
     return pd.concat([
-        correlate_series(df0[col], df1.get(col, df1.squeeze()), smin, smax)
-        for col in df0], axis=1)
+        correlate_series(
+            frame[col], other.get(col, other.squeeze()), smin, smax)
+        for col in frame], axis=1)
 
 
 def correlate_series(series, other, smin, smax):
@@ -47,11 +48,11 @@ def correlate_series(series, other, smin, smax):
             series.name)
 
 
-def correlate_rolling_dataframes(df0, df1, window='5D', stride='5D'):
+def correlate_rolling_dataframes(frame, other, window='5D', stride='5D'):
     """Compute rolling-window cross-correlation between two dataframes."""
 
     # prepare rolling-window slicing
-    index = df0.index
+    index = frame.index
     window = pd.to_timedelta(window)
     starts = pd.date_range(start=index[0], end=index[-1]-window, freq=stride)
     slices = [slice(start, start+window) for start in starts]
@@ -59,7 +60,7 @@ def correlate_rolling_dataframes(df0, df1, window='5D', stride='5D'):
     # compute rolling-window cross-correlation
     series = (
         correlate_dataframes(
-            df0.loc[s], df1.loc[s], '-12h', '12h').transpose().stack()
+            frame.loc[s], other.loc[s], '-12h', '12h').transpose().stack()
         for s in slices)
     mcorr = pd.DataFrame(data=series, index=starts+window/2)
     return mcorr
