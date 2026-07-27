@@ -26,6 +26,26 @@ def compute_shear_profile(base, depth, exponent, constant):
     return shear
 
 
+def plot_strain_stress(ax, stress, strain, label, color=None):
+    """Plot strain rate vs stress data and fit a power law."""
+
+    # compute power fit
+    exponent, constant = compute_power_fit(stress, strain)
+    stress_fit = np.array([stress.min()*2/3, stress.max()*3/2])
+    strain_fit = constant*stress_fit**exponent
+
+    # plot markers and line
+    ax.plot(stress, strain, color=color, linestyle='', marker='+')
+    ax.plot(stress_fit, strain_fit, color=color, linestyle='--')
+
+    # add text label
+    textright = stress.max() < 0.1
+    ax.text(
+        (0.98+0.04*textright)*stress_fit[1*textright], strain_fit[1*textright],
+        f'{label}\nn = {exponent:.2f}', color=color, fontweight='bold',
+        ha='left' if textright else 'right', va='center')
+
+
 def main(start='2014-11-01', end='2015-11-01'):
     """Main program called during execution."""
 
@@ -48,33 +68,17 @@ def main(start='2014-11-01', end='2015-11-01'):
 
     # plot Schohn et al. 2025
     df = pd.read_csv('../data/native/schohn_etal_2025.csv', index_col='exp')
-    ax.plot(df['shear_stress'], df['strain_rate']*1e-8, color='0.5', linestyle='', marker='+')
+    plot_strain_stress(
+        ax, df['shear_stress'], df['strain_rate']*1e-8, 'Schohn et al. 2025',
+        color='0.5')
 
-    # plot power fit
-    exponent, constant = compute_power_fit(df['shear_stress'], df['strain_rate']*1e-8)
-    stress = np.array([0.04, 0.4])
-    ax.plot(stress, constant*stress**exponent, color='0.5', linestyle='--')
-    ax.text(
-        0.98*stress[0], 0.72*constant*stress[0]**exponent,
-        f'Schohn et al. 2025\nn = {exponent:.2f}', color='0.5', ha='right',
-        fontweight='bold')
-
-    # plot velocity profile
+    # plot Bowdoin data
     for bh in ('BH3', 'BH1'):
         mask = strain.notnull() & strain.index.str.startswith(
             'U' if bh == 'BH1' else 'L')
         color = f'C{mask.argmax()}'
         stress = 917 * 9.80665 * depth * np.sin(1.6*np.pi/180) * 1e-6
-        ax.plot(stress[mask], strain_rate[mask], color=color, linestyle='', marker='+')
-        # ax.text(1, 20, bh, color=color, fontweight='bold', ha='right')
-
-        # plot power fit
-        exponent, constant = compute_power_fit(stress[mask], strain_rate[mask])
-        stress = np.array([0.02, 0.1])
-        ax.plot(stress, constant*stress**exponent, color=color, linestyle='--')
-        ax.text(
-            1.02*stress[-1], 0.72*constant*stress[-1]**exponent,
-            f'{bh}\nn = {exponent:.2f}', color=color, fontweight='bold')
+        plot_strain_stress(ax, stress[mask], strain_rate[mask], bh, color=color)
 
     # set axes properties
     ax.set_xlabel('stress (MPa)')
