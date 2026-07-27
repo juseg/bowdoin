@@ -57,8 +57,8 @@ def plot_rolling_correlations(ax, depth, mcorr):
 
         # find maximum anticorrelation
         delay = -mcorr[unit].transpose().fillna(0).idxmin()
-        delay = delay / pd.to_timedelta('1h')
         delay = delay.where(mcorr[unit].transpose().fillna(0).min() <= -0.5)
+        delay = delay.resample('1D').nearest() / pd.to_timedelta('1h')
         delay.plot(ax=ax, drawstyle='steps-mid', color='w', lw=2, alpha=0.5)
         delay.plot(ax=ax, drawstyle='steps-mid', color=color)
 
@@ -69,10 +69,13 @@ def plot_rolling_correlations(ax, depth, mcorr):
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
+        # set axes properties
+        ax.tick_params(labelleft=ax.get_subplotspec().is_last_row())
+
     # set axes properties
     ax.set_xlim('20140701', '20170801')
     ax.set_yticks([-8, 0, 8])
-    axes[len(axes)//2].set_ylabel('phase delay (h)')
+    axes[len(axes)//2].set_ylabel('phase delay (h)', labelpad=6*(len(axes)>1))
 
     # return last image for the colorbar
     return img
