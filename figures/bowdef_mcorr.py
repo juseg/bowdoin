@@ -9,27 +9,8 @@ import absplots as apl
 import matplotlib as mpl
 import pandas as pd
 
-import bowdef_ccorr  # FIXME move contents to utils
 import bowdef_utils
 import bowstr_utils
-
-
-def correlate_rolling_dataframes(df0, df1, window='5D', stride='5D'):
-    """Compute rolling-window cross-correlation between two dataframes."""
-
-    # prepare rolling-window slicing
-    index = df0.index
-    window = pd.to_timedelta(window)
-    starts = pd.date_range(start=index[0], end=index[-1]-window, freq=stride)
-    slices = [slice(start, start+window) for start in starts]
-
-    # compute rolling-window cross-correlation
-    series = (
-        bowdef_ccorr.correlate_dataframes(
-            df0.loc[s], df1.loc[s], '-12h', '12h').transpose().stack()
-        for s in slices)
-    mcorr = pd.DataFrame(data=series, index=starts+window/2)
-    return mcorr
 
 
 def plot_rolling_correlations(ax, depth, mcorr):
@@ -112,7 +93,7 @@ def plot(couple='ti2sp', method='inner'):
     df = df.drop(columns=['UI03', 'UI02'], level=1)
 
     # compute rolling-window cross-correlations
-    mcorr = correlate_rolling_dataframes(df[var], df[ref])
+    mcorr = bowdef_utils.correlate_rolling_dataframes(df[var], df[ref])
 
     # plot correlations and phase delays
     img = plot_rolling_correlations(ax, depth, mcorr)

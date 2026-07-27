@@ -15,6 +15,56 @@ import bowtem_utils
 # Signal processing methods
 # -------------------------
 
+def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
+    """Compute cross-correlations between columns of two dataframes."""
+
+    # convert min and max shifts to integer
+    freq = pd.to_timedelta(pd.infer_freq(df0.index))
+    smin = int(pd.to_timedelta(smin)/freq)
+    smax = int(pd.to_timedelta(smax)/freq)
+
+    # compute correlations and phase delays
+    return pd.concat([
+        correlate_series(df0[col], df1.get(col, df1.squeeze()), smin, smax)
+        for col in df0], axis=1)
+
+
+def correlate_series(series, other, smin, smax):
+    """Return cross-correlation between two series."""
+
+    # prepare dataframe with shifted series
+    shifts = np.arange(smin, smax+1)
+    data = (series.shift(i, freq='infer') for i in shifts)
+    index = shifts*pd.to_timedelta(pd.infer_freq(series.index))
+    df = pd.DataFrame(data=data, index=index)
+
+    # return correlation series (min_periods=10 removes warnings and artefacts)
+    # NOTE in pandas >= 3 onwards one can pass min_periods to corrwith
+    # df.corrwith(other, axis=1).rename(series.name)  # RuntimeWarning
+    # df.corrwith(other, axis=1, min_periods=2).rename(series.name)  # pd >= 3
+    return df.apply(
+        lambda series: other.corr(series, min_periods=10), axis=1).rename(
+            series.name)
+
+
+def correlate_rolling_dataframes(df0, df1, window='5D', stride='5D'):
+    """Compute rolling-window cross-correlation between two dataframes."""
+
+    # prepare rolling-window slicing
+    index = df0.index
+    window = pd.to_timedelta(window)
+    starts = pd.date_range(start=index[0], end=index[-1]-window, freq=stride)
+    slices = [slice(start, start+window) for start in starts]
+
+    # compute rolling-window cross-correlation
+    series = (
+        correlate_dataframes(
+            df0.loc[s], df1.loc[s], '-12h', '12h').transpose().stack()
+        for s in slices)
+    mcorr = pd.DataFrame(data=series, index=starts+window/2)
+    return mcorr
+
+
 def filter_derive_dataframe(df, method='twopoint', window=None):
     """Derive a dataframe optionally using Savitsky-Golay filter."""
 

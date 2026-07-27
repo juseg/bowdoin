@@ -5,43 +5,11 @@
 
 """Plot Bowdoin deformation cross-correlation."""
 
-import numpy as np
 import pandas as pd
 import absplots as apl
 import bowdef_utils
 import bowtem_utils
 import bowstr_utils
-
-def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
-    """Compute cross-correlations between columns of two dataframes."""
-
-    # convert min and max shifts to integer
-    freq = pd.to_timedelta(pd.infer_freq(df0.index))
-    smin = int(pd.to_timedelta(smin)/freq)
-    smax = int(pd.to_timedelta(smax)/freq)
-
-    # compute correlations and phase delays
-    return pd.concat([
-        correlate_series(df0[col], df1.get(col, df1.squeeze()), smin, smax)
-        for col in df0], axis=1)
-
-
-def correlate_series(series, other, smin, smax):
-    """Return cross-correlation between two series."""
-
-    # prepare dataframe with shifted series
-    shifts = np.arange(smin, smax+1)
-    data = (series.shift(i, freq='infer') for i in shifts)
-    index = shifts*pd.to_timedelta(pd.infer_freq(series.index))
-    df = pd.DataFrame(data=data, index=index)
-
-    # return correlation series (min_periods=10 removes warnings and artefacts)
-    # NOTE in pandas >= 3 onwards one can pass min_periods to corrwith
-    # df.corrwith(other, axis=1).rename(series.name)  # RuntimeWarning
-    # df.corrwith(other, axis=1, min_periods=2).rename(series.name)  # pd >= 3
-    return df.apply(
-        lambda series: other.corr(series, min_periods=10), axis=1).rename(
-            series.name)
 
 
 def plot_correlations(ax, ccorr, delay):
@@ -173,7 +141,7 @@ def plot(couple='ti2sp', method='inner'):
     # compute cross-correlations and phase delays
     var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    ccorr = correlate_dataframes(df[var], df[ref])
+    ccorr = bowdef_utils.correlate_dataframes(df[var], df[ref])
     delay = -abs(ccorr).idxmax()
 
     # plot time series, correlations and phase delays
