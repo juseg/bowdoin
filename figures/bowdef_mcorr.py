@@ -46,7 +46,6 @@ def plot_rolling_correlations(ax, depth, mcorr):
         color = f'C{i+2*(i > 3)}'
 
         # plot cross correlation and zero contour
-        corr = mcorr[unit].transpose()
         dates = mpl.dates.date2num(mcorr.index)
         shifts = -mcorr[unit].columns / pd.to_timedelta('1h')
         img = ax.imshow(
@@ -57,10 +56,9 @@ def plot_rolling_correlations(ax, depth, mcorr):
             linestyles=['dashed'], levels=[0])
 
         # find maximum anticorrelation
-        delay = -corr.dropna(axis=1, how='all').idxmin()
+        delay = -mcorr[unit].transpose().fillna(0).idxmin()
         delay = delay / pd.to_timedelta('1h')
-        delay = delay.where(corr.min() <= -0.5)
-        delay = delay.resample('1D').nearest()  # for compat with mpl.dates
+        delay = delay.where(mcorr[unit].transpose().fillna(0).min() <= -0.5)
         delay.plot(ax=ax, drawstyle='steps-mid', color='w', lw=2, alpha=0.5)
         delay.plot(ax=ax, drawstyle='steps-mid', color=color)
 
