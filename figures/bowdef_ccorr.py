@@ -5,65 +5,110 @@
 
 """Plot Bowdoin deformation cross-correlation."""
 
-import numpy as np
 import pandas as pd
 import absplots as apl
-import bowdef_gnssv  # FIXME move contents to bowdef_utils
+import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
 
-def crosscorr(series, other, wmin=-72*1.5, wmax=72*1.5):
-    """Return cross correlation for multiple lags."""
-    shifts = np.arange(wmin, wmax+1)
-    df = pd.DataFrame(
-        data=[series.shift(i, freq='infer') for i in shifts],
-        index=pd.to_timedelta(shifts*series.index.freq))
-    return df.corrwith(other, axis=1)
+def plot_correlations(ax, ccorr, delay):
+    """Plot cross-correlations and phase delays."""
+
+    # plot cross-correlation (series.plot with deltas affected by #18910)
+    ax.plot(-ccorr.index/pd.to_timedelta('1h'), ccorr)
+    for i, unit in enumerate(ccorr):
+        ax.plot(
+            delay[unit]/pd.to_timedelta('1h'), ccorr[unit][-delay[unit]],
+            color=f'C{i}', marker='o')
+
+    # set axes properties
+    ax.axvline(0.0, ls=':')
+    ax.set_xticks(range(-36, 48, 12))
+    ax.set_xlabel('time delay (h)')
+    ax.set_ylabel('cross-correlation', labelpad=0)
+    ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
+    ax.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
 
 
-def load_rates(join='inner'):
-    """Load joint tilt rates and surface velocity data."""
-    # FIXME move to bowdef_utils or merge with bowstr_utils
-    # FIXME apply savgol filters after joining the data
+def plot_phase_delays(ax, depth, delay):
+    """Plot cross-correlations and phase delays."""
 
-    # load depth and tilt rates
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    kwargs = {'window_length': 72, 'polyorder': 2, 'delta': 1, 'deriv': 1}
-    tilx = bowdef_gnssv.savgol_dataframe(tilx, **kwargs)
-    tily = bowdef_gnssv.savgol_dataframe(tily, **kwargs)
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('10min').total_seconds()
+    # plot phase delays
+    delay = delay / pd.to_timedelta('1h')
+    for i, unit in enumerate(delay.index):
+        ax.plot(delay[unit], depth.get(unit, 0), color=f'C{i}', marker='o')
+        ax.text(delay[unit], depth.get(unit, 0)-1, f' {unit}', color=f'C{i}')
 
-    # load surface velocities
-    gnss = bowdef_gnssv.read_gnss_velocities()
+    # set axes properties
+    ax.axvline(0.0, ls=':')
+    ax.invert_yaxis()
+    ax.set_xlabel('phase delay (h)')
+    ax.set_ylabel('sensor depth (m)')
+    ax.set_xlim(ax.get_xlim()[0], 1.2*ax.get_xlim()[1]-0.2*ax.get_xlim()[0])
 
-    # prepare joined dataframe interpolated to tilt samples
-    if join == '10min':
-        tilt = tilt.join(
-            gnss.vhs.resample('10min').interpolate(limit=2, method='linear'))
-
-    # prepare joined dataframe using intersecting samples only
-    elif join == 'inner':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='inner')
-        tilt = tilt.resample('30min').mean()
-
-    # prepare joined dataframe interpolated to maximum sampling rate
-    elif join == 'outer':
-        tilt = tilt.join(gnss.vhs.groupby(level=0).mean(), how='outer')
-        tilt = tilt.resample('5min').mean().interpolate(
-            limit=2, method='linear')
-
-    # return tilt rates dataframe
-    return tilt
+    # force axes limits on surface speed
+    if 'GNSS' in delay:
+        ax.set_ylim(103, -23)
 
 
-def plot(method='inner'):
-    """Main program called during execution."""
+def plot_time_series(ax, depth, df, var, ref):
+    """Plot relevant time series on just as many subsubplots."""
+
+    # initialize subsubplots
+    subaxes = bowstr_utils.subsubplots(
+        ax.figure, [ax], nrows=df[var].shape[1]+(df[ref].shape[1]==1),
+        sharey=False)[0]
+
+    # hardcoded axes properties
+    ylabel = {'pres': 'stress (kPa)', 'tilt': r'tilt rate ($°\,a^{-1}$)'}
+    ylim = {
+        'gnss': (200, 700), 'pres': (-20, 20), 'tide': (-20, 20),
+        'tilt': (2, 13)}
+    yticks = {
+        'gnss': (300, 600), 'pres': (-10, 10), 'tide': (-10, 10),
+        'tilt': (5, 10)}
+    ytext = {
+        'gnss': '\nSurface\nspeed\n'r'($m\,a^{-1}$)',
+        'tide': 'Pituffik\ntide'r'$\,/\,$10'}
+
+    # plot primary variable time series
+    for i, unit in enumerate(df[var].columns):
+        ax = subaxes[i]
+        df[var, unit].plot(ax=ax, color=f'C{i}', legend=False)
+        ax.text(
+            1.08, 0.5,
+            ytext.get(var, f'{unit}\n{depth.get(unit, 0):.0f}'r'$\,$m'),
+            color=f'C{i}', fontsize=6, fontweight='bold', rotation='vertical',
+            ha='center', va='center', transform=ax.transAxes)
+
+        # set axes properties
+        ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
+        ax.set_ylim(ylim.get(var, None))
+        ax.set_yticks(yticks.get(var, ax.get_yticks()))
+        ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
+
+    # plot reference variable time series
+    if ref != 'tilt':
+        ax = subaxes[-1]
+        df[ref].plot(ax=ax, color='tab:cyan', legend=False)
+        ax.text(
+            1.08, 0.5, ytext.get(ref), color='tab:cyan',
+            fontsize=6, fontweight='bold', ha='center', va='center',
+            rotation='vertical', transform=ax.transAxes)
+
+        # set axes properties
+        ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
+        ax.set_ylim(ylim.get(ref, None))
+        ax.set_yticks(yticks.get(ref, ax.get_yticks()))
+
+    # set labels and remove empty headlines in date tick labels
+    subaxes[df[var].shape[1]//2].set_ylabel(ylabel.get(var))
+    subaxes[-1].set_xlabel('')
+
+
+def plot(couple='ti2sp', method='inner'):
+    """Plot and return full figure for given options."""
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
@@ -71,75 +116,38 @@ def plot(method='inner'):
         'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
     fig.subplots_mm(ncols=2, gridspec_kw={
         'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
-    subaxes = bowstr_utils.subsubplots(
-        fig, fig.axes[:1], nrows=8, sharey=False)[0]
 
     # add subfigure labels
-    bowtem_utils.add_subfig_label('(a)', ax=subaxes[-1], loc='sw')
+    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], loc='sw')
     bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
     bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
 
-    # load depth and tilt rates
+    # load all variables
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    tilt = load_rates(join=method)
-    tilt = tilt['20150516':'20150815']
-    tilt = tilt.dropna(how='all', axis=1)
+    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
 
-    # plot time series
-    for i, unit in enumerate(tilt):
-        ax = subaxes[i]
-        color = 'tab:cyan' if unit == 'vhs' else f'C{i}'
-        tilt[unit].plot(ax=ax, color=color, legend=False)
-        ax.text(
-            1.08, 0.5,
-            '\nSurface\nspeed\n'r'($m\,a^{-1}$)' if unit == 'vhs' else
-            f'{unit}\n{depth[unit]:.0f}'r'$\,$m', color=color,
-            fontsize=6, fontweight='bold', ha='center', va='center',
-            rotation='vertical', transform=ax.transAxes)
+    # select time interval and drop empty records
+    # df = df.loc['20140701':'20140831']  # 2014 with gnss but before refreezing
+    # df = df.loc['20140916':'20141016']  # 2014 all units but no gnss data
+    # df = df.loc['20150527':'20150608']  # 2015 spring tidal buildup
+    # df = df.loc['20150704':'20150803']  # 2015 summer daily cycles
+    # df = df.loc['20150723':'20150803']  # 2015 summer daily zoom
+    # df = df.loc['20160601':'20160930']  # 2016 full gnss record
+    # df = df.loc['20160701':'20160830']  # 2016 summer daily cycles
+    # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
+    df = df.loc['20150516':'20150815']  # 2015 full gnss record
+    df = df.dropna(how='all', axis=1)
 
-        # set axes properties
-        ax.get_lines()[0].set_clip_box(fig.axes[0].bbox)
-        ax.set_ylim((250, 650) if unit == 'vhs' else (2, 13))
-        ax.set_yticks([300, 600] if unit == 'vhs' else [5, 10])
-        ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
+    # compute cross-correlations and phase delays
+    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    ccorr = bowdef_utils.correlate_dataframes(df[var], df[ref])
+    delay = -abs(ccorr).idxmax()
 
-    # for each non-tide unit
-    gnss = tilt.pop('vhs')
-    for i, unit in enumerate(tilt):
-        color = f'C{i}'
-        ts = tilt[unit]
-
-        # plot (series.plot with deltas affected by #18910)
-        ax = fig.axes[1]
-        shift = 36 / pd.to_timedelta(ts.index.freq).total_seconds() * 3600
-        xcorr = crosscorr(ts, gnss, wmin=-shift, wmax=shift)
-        ax.plot(-xcorr.index.total_seconds()/3600, xcorr)
-
-        # find maximum correlation (a positive shift is a negative delay)
-        shift = abs(xcorr).idxmax()
-        delay = -shift.total_seconds()/3600
-        ax.plot(delay, xcorr[shift], c=color, marker='o')
-
-        # plot phase delays
-        ax = fig.axes[2]
-        ax.plot(delay, depth[unit], c=color, marker='o')
-        ax.text(delay+0.1, depth[unit]-1.0, unit, color=color, clip_on=True)
-
-    # set axes properties
-    fig.axes[1].axvline(0.0, ls=':')
-    fig.axes[1].set_xticks(range(-36, 48, 12))
-    fig.axes[1].set_xlabel('time delay (h)')
-    fig.axes[1].set_ylabel('cross-correlation', labelpad=0)
-    fig.axes[1].xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
-    fig.axes[1].yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
-    fig.axes[2].axvline(0.0, ls=':')
-    fig.axes[2].invert_yaxis()
-    fig.axes[2].set_xlabel('phase delay (h)')
-    fig.axes[2].set_ylabel('sensor depth (m)')
-
-    # set labels and remove empty headlines in date tick labels
-    subaxes[4].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
-    subaxes[-1].set_xlabel('')
+    # plot time series, correlations and phase delays
+    plot_time_series(fig.axes[0], depth, df, var, ref)
+    plot_correlations(fig.axes[1], ccorr, delay)
+    plot_phase_delays(fig.axes[2], depth, delay)
 
     # save partial
     # fig.axes[1].set_visible(False)
@@ -155,8 +163,8 @@ def plot(method='inner'):
 
 def main():
     """Main program called during execution."""
-    methods = ['10min', 'inner', 'outer']
-    plotter = bowstr_utils.MultiPlotter(plot, methods=methods)
+    couples = ['sp2ti', 'st2sp', 'st2ti', 'st2tr', 'tr2sp', 'tr2ti']
+    plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 
 

@@ -11,8 +11,9 @@
 # bowdoin deformation figures (most outdated)
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowdef_, gnssv rates shear tilts) \
-		$(addprefix bowdef_ccorr_, 10min inner outer))
+		$(addprefix bowdef_, multi rates shear tilts) \
+		$(addprefix bowdef_ccorr_, sp2ti st2sp st2ti st2tr tr2sp tr2ti) \
+		$(addprefix bowdef_mcorr_, sp2ti st2sp st2ti st2tr tr2sp tr2ti))
 
 # bowdoin stress figures
 BOWSTR_FIGS = \
@@ -48,7 +49,7 @@ all: $(ALL_FIGS)
 
 # dependencies
 $(ALL_FIGS): bowtem_utils.py matplotlibrc
-$(BOWDEF_FIGS): bowstr_utils.py
+$(BOWDEF_FIGS): bowdef_utils.py bowstr_utils.py
 $(BOWSTR_FIGS): bowstr_utils.py
 
 # default pattern rule
@@ -59,8 +60,8 @@ $(BOWSTR_FIGS): bowstr_utils.py
 OPT_RULE = %_$(2).png: %.py ; python $$< --$(1) $(2)
 $(foreach filter, 12hbp 12hhp 24hbp 24hhp deriv phase steps, \
   $(eval $(call OPT_RULE,filters,$(filter))))
-$(foreach method, 10min inner outer, \
-  $(eval $(call OPT_RULE,methods,$(method))))
+$(foreach couple, sp2ti st2sp st2ti st2tr tr2sp tr2ti, \
+  $(eval $(call OPT_RULE,couple,$(couple))))
 $(foreach method, stcwt stlsp stfft ticwt tilsp tifft, \
   $(eval $(call OPT_RULE,methods,$(method))))
 

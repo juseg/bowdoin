@@ -1,15 +1,13 @@
 #!/usr/bin/env python
-# Copyright (c) 2019-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2019-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
 """Plot Bowdoin deformation tilt rates."""
 
 import absplots as apl
-import numpy as np
-import pandas as pd
 
-import bowstr_utils
+import bowdef_utils
 
 
 def main():
@@ -20,11 +18,7 @@ def main():
         'left': 15, 'right': 2.5, 'bottom': 10, 'top': 2.5})
 
     # plot tilt rate
-    tilx = bowstr_utils.load(variable='tilx').resample('1D').mean().diff()
-    tily = bowstr_utils.load(variable='tily').resample('1D').mean().diff()
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
-    tilt = tilt[tilt.index >= '2014-07-17']
-    tilt *= 3600 * 24 * 365.25 / pd.to_timedelta('1D').total_seconds()
+    tilt = bowdef_utils.load_tilt_rates(method='savgol', window='12h')
     tilt.plot(ax=ax, xlabel='', ylabel=r'tilt rate ($°\,a^{-1}$)')
 
     # set axes properties
