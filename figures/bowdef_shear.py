@@ -10,6 +10,7 @@ import absplots as apl
 import matplotlib as mpl
 import numpy as np
 
+import bowdef_utils
 import bowstr_utils
 
 
@@ -86,12 +87,7 @@ def main(start='2014-11-01', end='2015-11-01'):
     # load total strain (do we need an util)
     depth = bowstr_utils.load(variable='dept').iloc[0]
     base = bowstr_utils.load(variable='base').iloc[0]
-    tilx = bowstr_utils.load(variable='tilx')
-    tily = bowstr_utils.load(variable='tily')
-    tilx = tilx.loc[end].mean() - tilx.loc[start].mean()
-    tily = tily.loc[end].mean() - tily.loc[start].mean()
-    costilt = np.cos(tilx) * np.cos(tily)
-    strain = 0.5 * (1 - costilt**2) ** 0.5 / costilt
+    strain = bowdef_utils.load_strain(start, end)
 
     # plot velocity profile
     for ax, bh in zip(axes, ('BH3', 'BH1')):

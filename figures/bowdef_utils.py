@@ -148,6 +148,16 @@ def load_gnss_velocities(**kwargs):
     return df
 
 
+def load_strain(start, end):
+    """Load total strain on custom interval."""
+    tilx = bowstr_utils.load(variable='tilx')
+    tily = bowstr_utils.load(variable='tily')
+    tilx = tilx.loc[end].mean() - tilx.loc[start].mean()
+    tily = tily.loc[end].mean() - tily.loc[start].mean()
+    costilt = np.cos(tilx) * np.cos(tily)
+    return 0.5 * (1 - costilt**2) ** 0.5 / costilt
+
+
 def load_tilt_rates(**kwargs):
     """Load resampled, interpolated, and filter-derived tilt rates."""
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
