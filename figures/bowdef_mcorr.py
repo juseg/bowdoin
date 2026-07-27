@@ -14,7 +14,7 @@ import bowdef_utils
 import bowstr_utils
 
 
-def correlate_rolling_dataframes(df0, df1, window='14D', stride='7D'):
+def correlate_rolling_dataframes(df0, df1, window='5D', stride='5D'):
     """Compute rolling-window cross-correlation between two dataframes."""
 
     # prepare rolling-window slicing
@@ -71,7 +71,7 @@ def plot_rolling_correlations(ax, depth, mcorr):
 
     # set axes properties
     ax.set_xlim('20140701', '20170801')
-    ax.set_yticks([0, 3, 6])
+    ax.set_yticks([-8, 0, 8])
     axes[len(axes)//2].set_ylabel('phase delay (h)')
 
     # return last image for the colorbar
