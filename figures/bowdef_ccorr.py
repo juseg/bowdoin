@@ -5,36 +5,11 @@
 
 """Plot Bowdoin deformation cross-correlation."""
 
-import numpy as np
 import pandas as pd
 import absplots as apl
 import bowdef_utils
 import bowtem_utils
 import bowstr_utils
-
-def correlate_dataframes(df0, df1, smin='-36h', smax='36h'):
-    """Compute cross-correlations between columns of two dataframes."""
-
-    # convert min and max shifts to integer
-    freq = pd.to_timedelta(pd.infer_freq(df0.index))
-    smin = int(pd.to_timedelta(smin)/freq)
-    smax = int(pd.to_timedelta(smax)/freq)
-
-    # compute correlations and phase delays
-    ccorr = pd.concat([
-        correlate_series(df0[col], df1.get(col, df1.squeeze()), smin, smax)
-        for col in df0], axis=1)
-    delay = -abs(ccorr).idxmax()
-    return ccorr, delay
-
-
-def correlate_series(series, other, smin, smax):
-    """Return cross correlation for multiple lags."""
-    shifts = np.arange(smin, smax+1)
-    data = (series.shift(i, freq='infer') for i in shifts)
-    index = shifts*pd.to_timedelta(pd.infer_freq(series.index))
-    df = pd.DataFrame(data=data, index=index)
-    return df.corrwith(other, axis=1).rename(series.name)
 
 
 def plot_correlations(ax, ccorr, delay):
@@ -133,7 +108,7 @@ def plot_time_series(ax, depth, df, var, ref):
 
 
 def plot(couple='ti2sp', method='inner'):
-    """Main program called during execution."""
+    """Plot and return full figure for given options."""
 
     # initialize figure
     fig = apl.figure_mm(figsize=(180, 90))
@@ -166,7 +141,8 @@ def plot(couple='ti2sp', method='inner'):
     # compute cross-correlations and phase delays
     var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    ccorr, delay = correlate_dataframes(df[var], df[ref])
+    ccorr = bowdef_utils.correlate_dataframes(df[var], df[ref])
+    delay = -abs(ccorr).idxmax()
 
     # plot time series, correlations and phase delays
     plot_time_series(fig.axes[0], depth, df, var, ref)
