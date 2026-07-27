@@ -31,20 +31,20 @@ def compute_shear_profile(base, depth, exponent, constant):
     return shear
 
 
-def plot_strain_stress(ax, stress, strain, label, color=None):
+def plot_strain_stress(ax, stress, strain_rate, label, color=None):
     """Plot strain rate vs stress data and fit a power law."""
 
     # compute power fit
-    exponent, constant = compute_power_fit(stress, strain)
+    exponent, constant = compute_power_fit(stress, strain_rate)
     stress_fit = np.array([stress.min()*2/3, stress.max()*3/2])
     strain_fit = constant*stress_fit**exponent
 
     # plot markers and line
-    ax.plot(stress, strain, color=color, linestyle='', marker='+')
+    ax.plot(stress, strain_rate, color=color, linestyle='', marker='+')
     ax.plot(stress_fit, strain_fit, color=color, linestyle='--')
 
     # add text label
-    textright = stress.max() < 0.1
+    textright = stress.max() < 100
     ax.text(
         (0.98+0.04*textright)*stress_fit[1*textright], strain_fit[1*textright],
         f'{label}\nn = {exponent:.2f}', color=color, fontweight='bold',
@@ -63,8 +63,8 @@ def main(start='2014-11-01', end='2015-11-01'):
     depth = bowstr_utils.load(variable='dept').iloc[0]
     strain = bowdef_utils.load_strain(start, end)
     time_delta = pd.to_datetime(end) - pd.to_datetime(start)
-    strain_rate = strain / time_delta.total_seconds()
-    stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-6
+    strain_rate = strain * pd.to_timedelta('365d') / time_delta
+    stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-3
 
     # plot Bowdoin data
     for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
@@ -74,13 +74,14 @@ def main(start='2014-11-01', end='2015-11-01'):
 
     # plot Schohn et al. 2025
     df = pd.read_csv('../data/native/schohn_etal_2025.csv', index_col='exp')
-    plot_strain_stress(
-        ax, df['shear_stress'], df['strain_rate']*1e-8, 'Schohn et al. 2025',
-        color='0.5')
+    stress = df['shear_stress'] * 1e3
+    strain_rate = df['strain_rate'] * 1e-8
+    strain_rate = strain_rate * pd.to_timedelta('365d') / pd.to_timedelta('1s')
+    plot_strain_stress(ax, stress, strain_rate, 'Schohn et al. 2025', color='0.5')
 
     # set axes properties
-    ax.set_xlabel('stress (MPa)')
-    ax.set_ylabel('strain rate ($s^{-1}$)')
+    ax.set_xlabel('stress (kPa)')
+    ax.set_ylabel('strain rate ($a^{-1}$)')
     ax.set_xscale('log')
     ax.set_yscale('log')
 
