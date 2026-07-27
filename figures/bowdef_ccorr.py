@@ -35,12 +35,12 @@ def correlate_series(series, other, smin, smax):
     index = shifts*pd.to_timedelta(pd.infer_freq(series.index))
     df = pd.DataFrame(data=data, index=index)
 
-    # return series of cross-correlation
+    # return correlation series (min_periods=10 removes warnings and artefacts)
     # NOTE in pandas >= 3 onwards one can pass min_periods to corrwith
     # df.corrwith(other, axis=1).rename(series.name)  # RuntimeWarning
     # df.corrwith(other, axis=1, min_periods=2).rename(series.name)  # pd >= 3
     return df.apply(
-        lambda series: other.corr(series, min_periods=2), axis=1).rename(
+        lambda series: other.corr(series, min_periods=10), axis=1).rename(
             series.name)
 
 
