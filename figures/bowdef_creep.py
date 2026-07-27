@@ -7,7 +7,6 @@
 
 
 import absplots as apl
-import matplotlib as mpl
 import numpy as np
 import pandas as pd
 
@@ -25,55 +24,6 @@ def compute_shear_profile(base, depth, exponent, constant):
     power = exponent + 1
     shear = 2 * constant / power * (base**power - depth**power)
     return shear
-
-
-def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
-    """Fit and plot tilt velocity profile."""
-
-    # compute and plot discrete and extrapolated shear profiles
-    exponent, constant = compute_power_fit(depth, strain)
-    depth_int = np.linspace(0, base, 51)
-    shear_int = compute_shear_profile(base, depth_int, exponent, constant)
-    shear = compute_shear_profile(base, depth, exponent, constant)
-    plot_shear_profile_lines(ax, base, depth_int, shear_int, color=color)
-    plot_shear_profile_markers(ax, depth, shear, strain, color=color)
-
-    # print total shear and surface motion fraction for EGU26 abstract
-    # print(shear_int[0], shear_int[0] / 356.412 * 100)
-
-    # add fit values
-    ax.text(
-        shear_int[0]-1, 20, f'n = {exponent:.2f}', color=color,
-        fontweight='bold')
-
-
-def plot_shear_profile_lines(ax, base, depth, shear, color='C0'):
-    """Plot and fill continuous shear profile line."""
-    ax.fill_betweenx(depth, 0, shear, color=color, alpha=0.25)
-    ax.plot(shear, depth, color=color)
-    ax.plot([0, shear[0]], [0, 0], color=color)
-    ax.plot([0, 0], [base, 0], 'k-_')
-
-
-def plot_shear_profile_markers(ax, depth, shear, strain, color='C0'):
-    """Mark tilt units on shear profile with rotated rectangles."""
-    for i, unit in enumerate(depth.index):
-        unit_color = f'C{i+int(color[1])}'
-        bbox = ax.get_window_extent()
-        ratio = bbox.width / bbox.height * ax.get_data_ratio()
-        angle = np.arctan(2*strain[unit]*ratio)
-        vertices = [(1, 2), (-1, 2), (-1, -2), (1, -2), (1, 2)]
-        transform = mpl.transforms.Affine2D().rotate_deg(angle * 180 / np.pi)
-        marker = mpl.markers.MarkerStyle(vertices, transform=transform)
-        ax.plot(
-            shear[unit], depth[unit], color=unit_color, mec=color,
-            marker=marker, ms=20)
-        offset = np.sin(angle) + 0.5 * np.cos(angle)
-        ax.annotate(
-            '', xy=(shear[unit] - offset, depth[unit]),
-            xytext=(0, depth[unit]), arrowprops={
-                'arrowstyle': '-|>', 'color': color, 'linewidth': 1,
-                'linestyle': 'dashed'})
 
 
 def main(start='2014-11-01', end='2015-11-01'):
