@@ -102,11 +102,11 @@ def main(start='2014-11-01', end='2015-11-01'):
             ax, stress[mask], strain_rate[mask], bh, color=f'C{mask.argmax()}')
 
     # plot Schohn et al. 2025
-    df = pd.read_csv('../data/native/schohn_etal_2025.csv', index_col='exp')
-    stress = df['shear_stress'] * 1e3
-    strain_rate = df['strain_rate'] * 1e-8
-    strain_rate = strain_rate * pd.to_timedelta('365d') / pd.to_timedelta('1s')
-    plot_strain_stress(ax, stress, strain_rate, 'Schohn et al. 2025', color='0.5')
+    df = load_schohn_etal_2025()
+    plot_strain_stress(
+        ax, 1e3*df.shear_stress,
+        1e-8*df.strain_rate*pd.to_timedelta('365d')/pd.to_timedelta('1s'),
+        'Schohn et al. 2025', color='0.5')
 
     # set axes properties
     ax.set_xlabel('stress (kPa)')
