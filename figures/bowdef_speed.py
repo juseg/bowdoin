@@ -6,6 +6,7 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
+import pandas as pd
 
 import bowdef_utils
 import bowdef_shear  # FIXME move imports to utils
@@ -40,30 +41,38 @@ def main():
     strain = strain.reindex(index).interpolate(limit=2, method='time')
 
     # subset for testing
-    strain = strain.drop(columns=['UI03', 'UI02'])
-    depth = depth.drop(index=['UI03', 'UI02'])
+    # strain = strain.drop(columns=['UI03', 'UI02'])
+    # depth = depth.drop(index=['UI03', 'UI02'])
 
     # plot surface speed
     speed.plot(ax=axes[0], color='tab:blue')
 
     # for each borehole
-    for bh in ('BH3', 'BH1'):
-        mask = depth.index.str.startswith('U' if bh == 'BH1' else 'L')
+    for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
+        mask = (strain.count() > 0) & strain.columns.str.startswith(prefix)
 
         # compute shear and basal speed
         coefs = strain.apply(
-            lambda s: bowdef_shear.compute_power_fit(depth[mask], s[mask]), axis=1)
-        exponent = coefs.apply(lambda t: t[0])
-        constant = coefs.apply(lambda t: t[1])
-        power = exponent + 1
-        shear = 2 * constant / power * base[f'{bh}B']**power
+            lambda series: pd.Series(
+                data=bowdef_shear.compute_power_fit(depth[mask], series[mask]),
+                index=['exponent', 'constant']), axis=1)
+        power = coefs.exponent + 1
+        shear = 2 * coefs.constant / power * base[f'{bh}B']**power
         basal = speed - shear
-        ratio = shear / speed
+        ratio = shear / speed * 100
 
         # plot shear and basal speeds
-        color = f'C{mask.argmax()}'
-        shear.plot(ax=axes[1], color=color)
-        ratio.plot(ax=axes[2], color=color)
+        shear.plot(ax=axes[1], color=f'C{mask.argmax()}')
+        ratio.plot(ax=axes[2], color=f'C{mask.argmax()}')
+
+    # set axes properties
+    axes[0].grid(which='minor')
+    axes[1].grid(which='minor')
+    axes[2].grid(which='minor')
+    axes[2].set_xlabel('')
+    axes[0].set_ylabel(r'surface velocity ($m\,a^{-1}$)', labelpad=0)
+    axes[1].set_ylabel(r'shear velocity ($m\,a^{-1}$)')
+    axes[2].set_ylabel('shear ratio (%)')
 
     # save
     fig.savefig(__file__[:-3])
