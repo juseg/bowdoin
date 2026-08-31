@@ -40,17 +40,10 @@ def main():
     depth = bowstr_utils.load(variable='dept').iloc[0]
     base = bowstr_utils.load(variable='base').iloc[0]
 
-    # limit to a given period
-    strain = strain.loc['20150516':'20150815']  # 2015 full gnss record
-
     # reindex to intersection
     index = strain.index.join(speed.index, how='inner')
     speed = speed.reindex(index).interpolate(limit=2, method='time')
     strain = strain.reindex(index).interpolate(limit=2, method='time')
-
-    # subset for testing
-    # strain = strain.drop(columns=['UI03', 'UI02'])
-    # depth = depth.drop(index=['UI03', 'UI02'])
 
     # plot surface speed
     speed.plot(ax=axes[0], color='tab:blue')
