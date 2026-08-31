@@ -60,7 +60,7 @@ def main():
         power = coefs.exponent + 1
         shear = 2 * coefs.constant / power * base[f'{bh}B']**power
         basal = speed - shear
-        ratio = shear / speed * 100
+        ratio = 100 - 100 * shear / speed
 
         # plot shear and basal speeds
         shear.plot(ax=axes[1], color=f'C{mask.argmax()}')
@@ -73,7 +73,10 @@ def main():
     axes[2].set_xlabel('')
     axes[0].set_ylabel(r'surface velocity ($m\,a^{-1}$)', labelpad=0)
     axes[1].set_ylabel(r'shear velocity ($m\,a^{-1}$)')
-    axes[2].set_ylabel('shear ratio (%)')
+    axes[2].set_ylabel('sliding ratio (%)')
+    axes[0].set_xlim('20140701', '20170801')
+    axes[1].set_ylim(5, 55)
+    axes[2].set_ylim(92.5, 97.5)
 
     # save
     fig.savefig(__file__[:-3])
