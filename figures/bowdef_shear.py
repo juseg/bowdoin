@@ -14,12 +14,6 @@ import bowdef_utils
 import bowstr_utils
 
 
-def compute_power_fit(depth, strain):
-    """Fit to a power law strain = constant * depth ** exponent."""
-    exponent, constant = np.polyfit(np.log(depth), np.log(strain), 1)
-    return exponent, np.exp(constant)
-
-
 def compute_shear_profile(base, depth, exponent, constant):
     """Compute horizontal shear profile from fitted exponent and constant."""
     power = exponent + 1
@@ -31,7 +25,7 @@ def plot_shear_profile(ax, base, depth, strain, color='tab:blue'):
     """Fit and plot tilt velocity profile."""
 
     # compute and plot discrete and extrapolated shear profiles
-    exponent, constant = compute_power_fit(depth, strain)
+    exponent, constant = bowdef_utils.compute_power_fit(depth, strain)
     depth_int = np.linspace(0, base, 51)
     shear_int = compute_shear_profile(base, depth_int, exponent, constant)
     shear = compute_shear_profile(base, depth, exponent, constant)

@@ -18,19 +18,6 @@ GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
 SLOPE = 1.6             # Bowdoin slope,        °               (Sug24)
 
 
-def compute_power_fit(depth, strain):
-    """Fit to a power law strain = constant * depth ** exponent."""
-    exponent, constant = np.polyfit(np.log(depth), np.log(strain), 1)
-    return exponent, np.exp(constant)
-
-
-def compute_shear_profile(base, depth, exponent, constant):
-    """Compute horizontal shear profile from fitted exponent and constant."""
-    power = exponent + 1
-    shear = 2 * constant / power * (base**power - depth**power)
-    return shear
-
-
 def load_schohn_etal_2025():
     """Load Schohn et al data in a dataframe."""
     columns = [
@@ -64,7 +51,7 @@ def plot_strain_stress(ax, stress, strain_rate, label, color=None):
     """Plot strain rate vs stress data and fit a power law."""
 
     # compute power fit
-    exponent, constant = compute_power_fit(stress, strain_rate)
+    exponent, constant = bowdef_utils.compute_power_fit(stress, strain_rate)
     stress_fit = np.array([stress.min()*2/3, stress.max()*3/2])
     strain_fit = constant*stress_fit**exponent
 
