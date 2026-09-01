@@ -17,12 +17,6 @@ import bowtem_utils
 
 def compute_power_fit(depth, strain):
     """Fit to a power law strain = constant * depth ** exponent."""
-    exponent, constant = np.polyfit(np.log(depth), np.log(strain), 1)
-    return exponent, np.exp(constant)
-
-
-def compute_power_fit_nan(depth, strain):
-    """Fit to a power law strain = constant * depth ** exponent."""
     log_strain = np.log(strain.dropna())
     log_depth = np.log(depth.reindex(log_strain.index))
     exponent, constant = np.polyfit(log_depth, log_strain, 1)

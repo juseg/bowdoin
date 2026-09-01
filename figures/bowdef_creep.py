@@ -83,8 +83,8 @@ def main(start='2014-11-01', end='2015-11-01'):
     stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-3
 
     # plot Bowdoin data
-    for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
-        mask = strain.notnull() & strain.index.str.startswith(prefix)
+    for bh in ('BH3', 'BH1'):
+        mask = strain.index.str.startswith('U' if bh == 'BH1' else 'L')
         plot_strain_stress(
             ax, stress[mask], strain_rate[mask], bh, color=f'C{mask.argmax()}')
 

@@ -85,8 +85,7 @@ def main(start='2014-11-01', end='2015-11-01'):
 
     # plot velocity profile
     for ax, bh in zip(axes, ('BH3', 'BH1')):
-        mask = strain.notnull() & strain.index.str.startswith(
-            'U' if bh == 'BH1' else 'L')
+        mask = strain.index.str.startswith('U' if bh == 'BH1' else 'L')
         color = f'C{mask.argmax()}'
         plot_shear_profile(
             ax, base[f'{bh}B'], depth[mask], strain[mask], color=color)
