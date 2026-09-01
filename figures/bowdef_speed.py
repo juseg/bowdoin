@@ -6,12 +6,18 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
-import numpy as np
 import pandas as pd
 
 import bowdef_utils
 import bowstr_utils
 import bowtem_utils
+
+
+def compute_power_fit_dataframe(depth, strain):
+    """Fit to a power law strain = constant * depth ** exponent."""
+    return strain.dropna(axis=0, how='all').apply(lambda series: pd.Series(
+        data=bowdef_utils.compute_power_fit(depth, series),
+        index=['exponent', 'constant']), axis=1)
 
 
 def main():
@@ -45,10 +51,7 @@ def main():
         mask = strain.columns.str.startswith(prefix)
 
         # compute shear and basal speed
-        coefs = strain.apply(
-            lambda series: pd.Series(
-                data=bowdef_utils.compute_power_fit(depth[mask], series[mask]),
-                index=['exponent', 'constant']), axis=1)
+        coefs = compute_power_fit_dataframe(depth[mask], strain.loc[:, mask])
         power = coefs.exponent + 1
         shear = 2 * coefs.constant / power * base[f'{bh}B']**power
         ratio = 100 - 100 * shear / speed
