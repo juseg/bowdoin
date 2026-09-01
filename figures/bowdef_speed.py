@@ -14,14 +14,6 @@ import bowstr_utils
 import bowtem_utils
 
 
-def compute_power_fit_nan(depth, strain):
-    """Fit to a power law strain = constant * depth ** exponent."""
-    log_strain = np.log(strain.dropna())
-    log_depth = np.log(depth.reindex(log_strain.index))
-    exponent, constant = np.polyfit(log_depth, log_strain, 1)
-    return exponent, np.exp(constant)
-
-
 def main():
     """Main program called during execution."""
 
@@ -50,16 +42,15 @@ def main():
 
     # for each borehole
     for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
-        mask = (strain.count() > 0) & strain.columns.str.startswith(prefix)
+        mask = strain.columns.str.startswith(prefix)
 
         # compute shear and basal speed
         coefs = strain.apply(
             lambda series: pd.Series(
-                data=compute_power_fit_nan(depth, series),
+                data=bowdef_utils.compute_power_fit(depth[mask], series[mask]),
                 index=['exponent', 'constant']), axis=1)
         power = coefs.exponent + 1
         shear = 2 * coefs.constant / power * base[f'{bh}B']**power
-        basal = speed - shear
         ratio = 100 - 100 * shear / speed
 
         # plot shear and basal speeds
