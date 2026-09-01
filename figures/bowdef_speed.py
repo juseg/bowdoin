@@ -25,12 +25,13 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 120), nrows=3, sharex=True, gridspec_kw={
-            'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
-            'height_ratios': (1, 1, 1), 'hspace': 2.5})
+        figsize=(180, 120), nrows=4, sharex=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'hspace': 2.5})
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+    bowtem_utils.add_subfig_labels(
+        axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # load strain rates and speed
     strain = bowdef_utils.load_strain_rates(method='savgol', window='12h')
@@ -59,18 +60,24 @@ def main():
         # plot shear and basal speeds
         shear.plot(ax=axes[1], color=f'C{mask.argmax()}')
         ratio.plot(ax=axes[2], color=f'C{mask.argmax()}')
+        coefs.exponent.plot(ax=axes[3], color=f'C{mask.argmax()}')
 
     # set axes properties
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
-    axes[2].set_xlabel('')
-    axes[0].set_ylabel(r'surface velocity ($m\,a^{-1}$)', labelpad=0)
-    axes[1].set_ylabel(r'shear velocity ($m\,a^{-1}$)')
-    axes[2].set_ylabel('sliding ratio (%)')
+    axes[3].grid(which='minor')
+    axes[3].set_xlabel('')
+    axes[0].set_ylabel(r'surface ($m\,a^{-1}$)', labelpad=0)
+    axes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
+    axes[2].set_ylabel('slip ratio (%)')
+    axes[3].set_ylabel('flow exponent', labelpad=8)
     axes[0].set_xlim('20140701', '20170801')
+    # axes[0].set_xlim('20150601', '20150930')
+    # axes[0].set_xlim('20160601', '20160930')
     axes[1].set_ylim(5, 55)
     axes[2].set_ylim(92.5, 97.5)
+    axes[3].set_ylim(-0.5, 4.5)
 
     # save
     fig.savefig(__file__[:-3])
