@@ -15,6 +15,14 @@ import bowtem_utils
 # Signal processing methods
 # -------------------------
 
+def compute_power_fit(depth, strain):
+    """Fit to a power law strain = constant * depth ** exponent."""
+    log_strain = np.log(strain.dropna())
+    log_depth = np.log(depth.reindex(log_strain.index))
+    exponent, constant = np.polyfit(log_depth, log_strain, 1)
+    return exponent, np.exp(constant)
+
+
 def correlate_dataframes(frame, other, smin='-36h', smax='36h'):
     """Compute cross-correlations between columns of two dataframes."""
 
@@ -154,6 +162,18 @@ def load_strain(start, end):
     tily = bowstr_utils.load(variable='tily')
     tilx = tilx.loc[end].mean() - tilx.loc[start].mean()
     tily = tily.loc[end].mean() - tily.loc[start].mean()
+    costilt = np.cos(tilx) * np.cos(tily)
+    return 0.5 * (1 - costilt**2) ** 0.5 / costilt
+
+
+def load_strain_rates(**kwargs):
+    """Load resampled, interpolated, and filter-derived strain rates."""
+    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
+    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    tilx = tilx.interpolate(limit_area='inside', method='linear')
+    tily = tily.interpolate(limit_area='inside', method='linear')
+    tilx = filter_derive_dataframe(tilx, **kwargs)
+    tily = filter_derive_dataframe(tily, **kwargs)
     costilt = np.cos(tilx) * np.cos(tily)
     return 0.5 * (1 - costilt**2) ** 0.5 / costilt
 
