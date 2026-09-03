@@ -6,6 +6,7 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
+import matplotlib as mpl
 import pandas as pd
 
 import bowdef_utils
@@ -43,6 +44,39 @@ def main():
     index = strain.index.join(speed.index, how='inner')
     speed = speed.reindex(index).interpolate(limit=2, method='time')
     strain = strain.reindex(index).interpolate(limit=2, method='time')
+
+    # plot new sentinel velocity
+    df = pd.read_csv(
+        '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
+        index_col='YYYY-MM-DD (avg)', parse_dates=True, engine='python')
+    print(df.index)
+    print(speed.index)
+    dt = pd.to_timedelta(df['time-diff (days)'], unit='D')
+    mid = df.index
+    vel = df['vel (m/a)']
+    err = df['vel_error (m/a)']
+    mask = dt <= pd.to_timedelta('12D')
+    axes[0].errorbar(
+        mpl.dates.date2num(mid[mask]), vel[mask],
+        xerr=dt[mask]/pd.to_timedelta('1d')/2, yerr=err[mask],
+        c='tab:pink', ls='', lw=0.5, zorder=4, alpha=0.75)
+    axes[0].errorbar(
+        mpl.dates.date2num(mid[-mask]), vel[-mask],
+        xerr=dt[-mask]/pd.to_timedelta('1d')/2, yerr=err[-mask],
+        c='tab:purple', ls='', lw=0.5, zorder=4, alpha=0.75)
+
+    # plot landsat velocity
+    df = pd.read_csv('../data/satellite/bowdoin-landsat.csv',
+                     parse_dates=['start', 'end'])
+    dt = df['end'] - df['start']
+    mid = df['start'] + dt/2
+    vel = df['vel']
+    err = df['err']
+    mid = pd.DatetimeIndex(mid)
+    axes[0].errorbar(
+        mpl.dates.date2num(mid), vel,
+        xerr=dt/pd.to_timedelta('1d')/2, yerr=err,
+        c='tab:orange', lw=0.5, ls='', zorder=3, alpha=0.75)
 
     # plot surface speed
     speed.plot(ax=axes[0], color='tab:blue')
