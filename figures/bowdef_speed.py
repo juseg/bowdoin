@@ -6,7 +6,6 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
-import matplotlib as mpl
 import pandas as pd
 
 import bowdef_utils
@@ -19,6 +18,39 @@ def compute_power_fit_dataframe(depth, strain):
     return strain.dropna(axis=0, how='all').apply(lambda series: pd.Series(
         data=bowdef_utils.compute_power_fit(depth, series),
         index=['exponent', 'constant']), axis=1)
+
+
+def load_landsat_velocities():
+    """Load surface velocities from Landsat feature-tracking."""
+    df = pd.read_csv(
+        '../data/satellite/bowdoin-landsat.csv', parse_dates=['start', 'end'])
+    df = df.assign(delay=df.end-df.start)
+    df = df.set_index(df.start+df.delay/2)
+    df = df.assign(delay=df.delay/pd.to_timedelta('1d'))
+    df = df.rename(columns={'vel': 'speed', 'err': 'error'})
+    return df
+
+
+def load_sentinel_velocities():
+    """Load surface velocities from Sentinel feature-tracking."""
+    df = pd.read_csv(
+        '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
+        engine='python', index_col='YYYY-MM-DD (avg)',
+        parse_dates=['YYYY-MM-DD (1st)', 'YYYY-MM-DD (2nd)'])
+    df = df.rename_axis(None).rename(columns={
+        'time-diff (days)': 'delay', 'vel (m/a)': 'speed',
+        'vel_error (m/a)': 'error', 'YYYY-MM-DD (1st)': 'start',
+        'YYYY-MM-DD (2nd)': 'end'})
+    return df
+
+
+def plot_satellite_velocities(ax, df, color=None):
+    """Plot satellite velocities from dataframe."""
+    index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)  # works
+    xerr = (df.end-df.start)/2/pd.to_timedelta('1'+ax.xaxis.freq)  # works
+    return ax.errorbar(
+        index, df.speed, xerr=xerr, yerr=df.error,
+        alpha=0.75, color=color, linestyle='', linewidth=0.5, zorder=4)
 
 
 def main():
@@ -45,41 +77,15 @@ def main():
     speed = speed.reindex(index).interpolate(limit=2, method='time')
     strain = strain.reindex(index).interpolate(limit=2, method='time')
 
-    # plot new sentinel velocity
-    df = pd.read_csv(
-        '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
-        index_col='YYYY-MM-DD (avg)', parse_dates=True, engine='python')
-    print(df.index)
-    print(speed.index)
-    dt = pd.to_timedelta(df['time-diff (days)'], unit='D')
-    mid = df.index
-    vel = df['vel (m/a)']
-    err = df['vel_error (m/a)']
-    mask = dt <= pd.to_timedelta('12D')
-    axes[0].errorbar(
-        mpl.dates.date2num(mid[mask]), vel[mask],
-        xerr=dt[mask]/pd.to_timedelta('1d')/2, yerr=err[mask],
-        c='tab:pink', ls='', lw=0.5, zorder=4, alpha=0.75)
-    axes[0].errorbar(
-        mpl.dates.date2num(mid[-mask]), vel[-mask],
-        xerr=dt[-mask]/pd.to_timedelta('1d')/2, yerr=err[-mask],
-        c='tab:purple', ls='', lw=0.5, zorder=4, alpha=0.75)
-
-    # plot landsat velocity
-    df = pd.read_csv('../data/satellite/bowdoin-landsat.csv',
-                     parse_dates=['start', 'end'])
-    dt = df['end'] - df['start']
-    mid = df['start'] + dt/2
-    vel = df['vel']
-    err = df['err']
-    mid = pd.DatetimeIndex(mid)
-    axes[0].errorbar(
-        mpl.dates.date2num(mid), vel,
-        xerr=dt/pd.to_timedelta('1d')/2, yerr=err,
-        c='tab:orange', lw=0.5, ls='', zorder=3, alpha=0.75)
-
     # plot surface speed
     speed.plot(ax=axes[0], color='tab:blue')
+
+    # plot satellite velocities
+    landsat = load_landsat_velocities()
+    sentinel = load_sentinel_velocities()
+    plot_satellite_velocities(axes[0], landsat, color='tab:orange')
+    plot_satellite_velocities(axes[0], sentinel, color='tab:purple')
+    sat = pd.concat([landsat, sentinel])
 
     # for each borehole
     for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
