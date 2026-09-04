@@ -102,6 +102,21 @@ def main():
         ratio.plot(ax=axes[2], color=f'C{mask.argmax()}')
         coefs.exponent.plot(ax=axes[3], color=f'C{mask.argmax()}')
 
+        # compute mean shear over satellite intevals
+        sat_shear = sat.assign(
+            speed=sat.apply(
+                lambda row: shear[row.start: row.end].mean(), axis=1),
+            error=sat.apply(
+                lambda row: shear[row.start: row.end].std(), axis=1))
+        plot_satellite_velocities(axes[1], sat_shear, color='0.75')
+
+        # plot satellite slip ratio
+        sat_ratio = sat.assign(
+            speed=100-100*sat_shear.speed/sat.speed,
+            error=100*sat_shear.speed*(
+                1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2)))
+        plot_satellite_velocities(axes[2], sat_ratio, color=f'C{mask.argmax()}')
+
     # set axes properties
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
