@@ -50,17 +50,20 @@ def plot_cross_wavelet_transform(ax, series, other, wavelet='cmor1-1'):
     (18+0*series.resample('1D').mean()).plot(ax=ax, visible=False)
 
 
-def plot_colorbar(cax, img, var, ref):
-    """Plot colorbar with adapted text label."""
+def plot_colorbar(cax, var, ref):
+    """Plot standalone phase delay colorbar."""
 
-    # add colorbar
+    # prepare scalar mappable
+    # FIXME centre on green and make it a 2D complex image
+    norm = mpl.colors.Normalize(vmin=0, vmax=360)
+    mappable = mpl.cm.ScalarMappable(norm=norm, cmap='hsv')
     labels = {
-        'gnss': r'speed ($m\,a^{-1}$)',
-        'pres': r'stress (kPa)',
-        'tide': r'tide$\,/\,$10',
-        'tilt': r'tilt rate ($°\,a^{-1}$)'}
-    cax.figure.colorbar(img, cax=cax, orientation='horizontal')
-    cax.set_xlabel(f'{labels[var]} vs {labels[ref]}')
+        'gnss': 'speed', 'pres': 'stress', 'tide': 'tide', 'tilt': 'tilt rate'}
+
+    # plot colorbar
+    cax.figure.colorbar(mappable, cax=cax, orientation='horizontal')
+    cax.set_xlabel(f'{labels[var]} vs {labels[ref]} phase delay (°)')
+    cax.set_xticks(np.linspace(0, 360, 7))
 
 
 def plot(couple='ti2sp', method='inner'):
@@ -109,7 +112,7 @@ def plot(couple='ti2sp', method='inner'):
     axes[len(axes)//2].set_ylabel('period (h)', labelpad=6*(len(axes)>1))
 
     # add colorbar
-    # plot_colorbar(cax, img, var, ref)  # FIXME
+    plot_colorbar(cax, var, ref)
 
     # return figure
     return fig
