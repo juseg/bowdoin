@@ -100,29 +100,26 @@ def main():
         color = mpl.color_sequences['tab20'][mask.argmax()*2]
         light = mpl.color_sequences['tab20'][mask.argmax()*2+1]
 
-        # compute shear and basal speed
+        # compute shear and slip ratio from geopositioning
         coefs = compute_power_fit_dataframe(depth[mask], strain.loc[:, mask])
         power = coefs.exponent + 1
         shear = 2 * coefs.constant / power * base[f'{bh}B']**power
         ratio = 100 - 100 * shear / speed
 
-        # plot shear and basal speeds
+        # plot shear and slip ratio from geopositioning
         shear.plot(ax=axes[1], color=color)
         ratio.plot(ax=axes[2], color=color)
         coefs.exponent.plot(ax=axes[3], color=color)
 
-        # compute mean shear over satellite intevals
-        sat_shear = sat.assign(
+        # compute and plot slip ratio from satellite
+        shear = sat.assign(
             speed=compute_interval_aggregates(shear, sat, func='mean'),
             error=compute_interval_aggregates(shear, sat, func='std'))
-        plot_satellite(axes[1], sat_shear, color=light)
-
-        # plot satellite slip ratio
-        sat_ratio = sat.assign(
-            speed=100-100*sat_shear.speed/sat.speed,
-            error=100*sat_shear.speed*(
+        ratio = sat.assign(
+            speed=100-100*shear.speed/sat.speed,
+            error=100*shear.speed*(
                 1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2)))
-        plot_satellite(axes[2], sat_ratio, color=light)
+        plot_satellite(axes[2], ratio, color=light)
 
     # set axes properties
     axes[0].grid(which='minor')
