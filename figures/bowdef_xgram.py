@@ -14,6 +14,25 @@ import bowdef_utils
 import bowstr_utils
 
 
+def colorize_complex_array(array):
+    """Compute rgb visualization from a complex array."""
+
+    # extract the phase and power
+    power = np.abs(array)
+    phase = np.angle(array, deg=True)
+
+    # colorize (after https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_HSV)
+    hue = (1/3 + phase/360) % 1  # red < green=0 < blue
+    lightness = 1 - power / power.max()
+    value = 2 * lightness.clip(0, 0.5)
+    saturation = 2 * (1-np.divide(
+        lightness, value, out=np.ones_like(lightness), where=value!=0))
+    hsv = np.stack([hue, saturation, value], axis=-1)
+
+    # return rgb image
+    return mpl.colors.hsv_to_rgb(hsv)
+
+
 def plot_cross_wavelet_transform(ax, series, other, wavelet='cmor1-1'):
     """Plot spectrogram from wavelet coherence transform."""
 
@@ -29,19 +48,9 @@ def plot_cross_wavelet_transform(ax, series, other, wavelet='cmor1-1'):
     cwt0, freqs = pywt.cwt(series, scales, wavelet, sampling_period=sampling)
     cwt1, freqs = pywt.cwt(other, scales, wavelet, sampling_period=sampling)
     xwt = cwt0 * np.conj(cwt1)
-    power = np.abs(xwt)
-    phase = np.angle(xwt, deg=True)
-
-    # colorize (after https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_HSL)
-    hue = (1/3 + phase/360) % 1  # red < green=0 < blue
-    lightness = 1 - power / power.max()
-    value = 2 * lightness.clip(0, 0.5)
-    with np.errstate(invalid='ignore'):
-        saturation = 2 * (1 - lightness / value)
-    hsv = np.stack([hue, saturation, value], axis=-1)
-    rgb = mpl.colors.hsv_to_rgb(hsv)
 
     # plot wavelet transform
+    rgb = colorize_complex_array(xwt)
     ax.imshow(rgb, aspect='auto', origin='lower', extent=[
         *mpl.dates.date2num((series.index[0], series.index[-1])),
         1.5*1/freqs[0]-0.5*1/freqs[1], 1.5*1/freqs[-1]-0.5*1/freqs[-2]])
