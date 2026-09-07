@@ -6,6 +6,7 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
+import matplotlib as mpl
 import pandas as pd
 
 import bowdef_utils
@@ -50,13 +51,13 @@ def load_sentinel_velocities():
     return df
 
 
-def plot_satellite_velocities(ax, df, color=None):
+def plot_satellite(ax, df, color=None):
     """Plot satellite velocities from dataframe."""
-    index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)  # works
-    xerr = (df.end-df.start)/2/pd.to_timedelta('1'+ax.xaxis.freq)  # works
+    index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)
+    xerr = (df.end-df.start)/2/pd.to_timedelta('1'+ax.xaxis.freq)
     return ax.errorbar(
         index, df.speed, xerr=xerr, yerr=df.error,
-        alpha=0.75, color=color, linestyle='', linewidth=0.5, zorder=4)
+        color=color, linestyle='', linewidth=0.5, zorder=0)
 
 
 def main():
@@ -84,18 +85,20 @@ def main():
     strain = strain.reindex(index).interpolate(limit=2, method='time')
 
     # plot surface speed
-    speed.plot(ax=axes[0], color='tab:blue')
+    speed.plot(ax=axes[0], color='tab:orange')
 
     # plot satellite velocities
     landsat = load_landsat_velocities()
     sentinel = load_sentinel_velocities()
-    plot_satellite_velocities(axes[0], landsat, color='tab:orange')
-    plot_satellite_velocities(axes[0], sentinel, color='tab:purple')
+    plot_satellite(axes[0], landsat, color=mpl.color_sequences['tab20'][3])
+    plot_satellite(axes[0], sentinel, color=mpl.color_sequences['tab20'][11])
     sat = pd.concat([landsat, sentinel])
 
     # for each borehole
     for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
         mask = strain.columns.str.startswith(prefix)
+        color = mpl.color_sequences['tab20'][mask.argmax()*2]
+        light = mpl.color_sequences['tab20'][mask.argmax()*2+1]
 
         # compute shear and basal speed
         coefs = compute_power_fit_dataframe(depth[mask], strain.loc[:, mask])
@@ -104,22 +107,22 @@ def main():
         ratio = 100 - 100 * shear / speed
 
         # plot shear and basal speeds
-        shear.plot(ax=axes[1], color=f'C{mask.argmax()}')
-        ratio.plot(ax=axes[2], color=f'C{mask.argmax()}')
-        coefs.exponent.plot(ax=axes[3], color=f'C{mask.argmax()}')
+        shear.plot(ax=axes[1], color=color)
+        ratio.plot(ax=axes[2], color=color)
+        coefs.exponent.plot(ax=axes[3], color=color)
 
         # compute mean shear over satellite intevals
         sat_shear = sat.assign(
             speed=compute_interval_aggregates(shear, sat, func='mean'),
             error=compute_interval_aggregates(shear, sat, func='std'))
-        plot_satellite_velocities(axes[1], sat_shear, color='0.75')
+        plot_satellite(axes[1], sat_shear, color=light)
 
         # plot satellite slip ratio
         sat_ratio = sat.assign(
             speed=100-100*sat_shear.speed/sat.speed,
             error=100*sat_shear.speed*(
                 1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2)))
-        plot_satellite_velocities(axes[2], sat_ratio, color=f'C{mask.argmax()}')
+        plot_satellite(axes[2], sat_ratio, color=light)
 
     # set axes properties
     axes[0].grid(which='minor')
