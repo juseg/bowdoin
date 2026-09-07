@@ -94,32 +94,38 @@ def main():
     plot_satellite(axes[0], sentinel, color=mpl.color_sequences['tab20'][11])
     sat = pd.concat([landsat, sentinel])
 
+    # compute shear and slip ratio from geopositioning
+    coefs = strain.T.groupby(strain.columns.str[0]).apply(
+            lambda df: compute_power_fit_dataframe(depth[df.index], df.T))
+    coefs = coefs.rename({'L': 'BH1', 'U': 'BH3'})
+    coefs = coefs.rename_axis(index=['borehole', 'date'])
+    power = coefs.exponent + 1
+    base = base.set_axis(base.index.str[:3]).rename_axis('borehole')
+    shear = 2 * coefs.constant / power * base**power
+    ratio = 100 - 100 * shear / speed
+
     # for each borehole
     for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
         mask = strain.columns.str.startswith(prefix)
         color = mpl.color_sequences['tab20'][mask.argmax()*2]
         light = mpl.color_sequences['tab20'][mask.argmax()*2+1]
 
-        # compute shear and slip ratio from geopositioning
-        coefs = compute_power_fit_dataframe(depth[mask], strain.loc[:, mask])
-        power = coefs.exponent + 1
-        shear = 2 * coefs.constant / power * base[f'{bh}B']**power
-        ratio = 100 - 100 * shear / speed
+        # compute and plot slip ratio from satellite
+        sat_shear = sat.assign(
+            speed=compute_interval_aggregates(shear[bh], sat, func='mean'),
+            error=compute_interval_aggregates(shear[bh], sat, func='std'))
+        sat_ratio = sat.assign(
+            speed=100-100*sat_shear.speed/sat.speed,
+            error=100*sat_shear.speed*(
+                1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2)))
 
         # plot shear and slip ratio from geopositioning
-        shear.plot(ax=axes[1], color=color)
-        ratio.plot(ax=axes[2], color=color)
-        coefs.exponent.plot(ax=axes[3], color=color)
+        shear[bh].plot(ax=axes[1], color=color)
+        ratio[bh].plot(ax=axes[2], color=color)
+        coefs.exponent[bh].plot(ax=axes[3], color=color)
 
         # compute and plot slip ratio from satellite
-        shear = sat.assign(
-            speed=compute_interval_aggregates(shear, sat, func='mean'),
-            error=compute_interval_aggregates(shear, sat, func='std'))
-        ratio = sat.assign(
-            speed=100-100*shear.speed/sat.speed,
-            error=100*shear.speed*(
-                1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2)))
-        plot_satellite(axes[2], ratio, color=light)
+        plot_satellite(axes[2], sat_ratio, color=light)
 
     # set axes properties
     axes[0].grid(which='minor')
