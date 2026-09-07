@@ -62,17 +62,19 @@ def plot_cross_wavelet_transform(ax, series, other, wavelet='cmor1-1'):
 def plot_colorbar(cax, var, ref):
     """Plot standalone phase delay colorbar."""
 
-    # prepare scalar mappable
-    # FIXME centre on green and make it a 2D complex image
-    norm = mpl.colors.Normalize(vmin=0, vmax=360)
-    mappable = mpl.cm.ScalarMappable(norm=norm, cmap='hsv')
+    # plot 2d gradient image
+    phase = np.linspace(-np.pi, np.pi, 90)
+    power = np.linspace(0, 1, 21)
+    rgb = colorize_complex_array(power[:, None] * np.exp(phase*1j))
+    cax.imshow(rgb, aspect='auto', origin='lower', extent=[-182, 182, 0, 1])
+
+    # set axes properties
     labels = {
         'gnss': 'speed', 'pres': 'stress', 'tide': 'tide', 'tilt': 'tilt rate'}
-
-    # plot colorbar
-    cax.figure.colorbar(mappable, cax=cax, orientation='horizontal')
     cax.set_xlabel(f'{labels[var]} vs {labels[ref]} phase delay (°)')
-    cax.set_xticks(np.linspace(0, 360, 7))
+    cax.set_xlim(-180, 180)
+    cax.set_xticks(np.linspace(-180, 180, 7))
+    cax.set_yticks([])
 
 
 def plot(couple='ti2sp', method='inner'):
