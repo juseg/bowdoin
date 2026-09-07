@@ -87,7 +87,7 @@ def plot(couple='ti2sp', method='inner'):
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
         'left': 10, 'right': 7.5, 'bottom': 10+37.5*(var=='gnss'), 'top': 2.5})
-    cax = fig.add_axes_mm([100, 30, 60, 5])
+    cax = fig.add_axes_mm([100, 30, 60, 5], zorder=2)
 
     # load all variables
     depth = bowstr_utils.load(variable='dept').iloc[0]
