@@ -20,6 +20,12 @@ def compute_power_fit_dataframe(depth, strain):
         index=['exponent', 'constant']), axis=1)
 
 
+def compute_interval_aggregates(series, intervals, **kwargs):
+    """Aggregate series over intervals defined in a dataframe."""
+    return intervals.apply(
+        lambda row: series[row.start: row.end].aggregate(**kwargs), axis=1)
+
+
 def load_landsat_velocities():
     """Load surface velocities from Landsat feature-tracking."""
     df = pd.read_csv(
@@ -104,10 +110,8 @@ def main():
 
         # compute mean shear over satellite intevals
         sat_shear = sat.assign(
-            speed=sat.apply(
-                lambda row: shear[row.start: row.end].mean(), axis=1),
-            error=sat.apply(
-                lambda row: shear[row.start: row.end].std(), axis=1))
+            speed=compute_interval_aggregates(shear, sat, func='mean'),
+            error=compute_interval_aggregates(shear, sat, func='std'))
         plot_satellite_velocities(axes[1], sat_shear, color='0.75')
 
         # plot satellite slip ratio
