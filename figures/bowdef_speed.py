@@ -96,9 +96,9 @@ def main():
     speed = bowdef_utils.load_gnss_velocities(method='savgol', window='12h').vh
 
     # reindex to intersection
-    index = shear.index.join(speed.index, how='inner')
-    speed = speed.reindex(index).interpolate(limit=2, method='time')
-    shear = shear.reindex(index).interpolate(limit=2, method='time')
+    index = shear.index.intersection(speed.index)
+    speed = speed.reindex(index)
+    shear = shear.reindex(index)
 
     # plot surface speed (FIXME before interpolate?)
     speed.plot(ax=axes[0], color='tab:orange')
