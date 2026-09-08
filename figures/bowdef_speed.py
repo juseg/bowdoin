@@ -107,19 +107,16 @@ def main():
     plot_satellite(axes[0], sentinel, color=mpl.color_sequences['tab20'][11])
     sat = pd.concat([landsat, sentinel])
 
+    # compute slip ratio from satellite and propagate uncertainties
+    sat_shear_speed = compute_interval_aggregates(shear, sat, func='mean')
+    sat_ratio_speed = 100 - 100 * sat_shear_speed.divide(sat.speed, axis=0)
+    sat_ratio_error = 100 * sat_shear_speed.multiply(
+        1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
+
     # for each borehole
     for bh in ['BH3', 'BH1']:
         color = mpl.color_sequences['tab20'][{'BH1': 0, 'BH3': 12}[bh]]
         light = mpl.color_sequences['tab20'][{'BH1': 1, 'BH3': 13}[bh]]
-
-        # compute and plot slip ratio from satellite
-        sat_shear = sat.assign(
-            speed=compute_interval_aggregates(shear[bh], sat, func='mean'),
-            error=compute_interval_aggregates(shear[bh], sat, func='std'))
-        sat_ratio = sat.assign(
-            speed=100-100*sat_shear.speed/sat.speed,
-            error=100*sat_shear.speed*(
-                1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2)))
 
         # plot shear and slip ratio from geopositioning
         shear[bh].plot(ax=axes[1], color=color)
@@ -127,7 +124,8 @@ def main():
         # coefs.exponent[bh].plot(ax=axes[3], color=color)  FIXME
 
         # compute and plot slip ratio from satellite
-        plot_satellite(axes[2], sat_ratio, color=light)
+        plot_satellite(axes[2], sat.assign(
+            speed=sat_ratio_speed[bh], error=sat_ratio_error[bh]), color=light)
 
     # set axes properties
     axes[0].grid(which='minor')
