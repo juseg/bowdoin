@@ -91,16 +91,13 @@ def main():
     bowtem_utils.add_subfig_labels(
         axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
-    # load shear and speed
+    # load shear and surface speeds and compute ratio where they intersect
     shear = load_shear_velocities(method='savgol', window='12h')
     speed = bowdef_utils.load_gnss_velocities(method='savgol', window='12h').vh
-
-    # reindex to intersection
     index = shear.index.intersection(speed.index)
-    speed_reindexed = speed.reindex(index)
-    shear_reindexed = shear.reindex(index)
+    ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
-    # plot surface speed (FIXME before interpolate?)
+    # plot surface speed
     speed.plot(ax=axes[0], color='tab:orange')
 
     # plot satellite velocities
@@ -109,9 +106,6 @@ def main():
     plot_satellite(axes[0], landsat, color=mpl.color_sequences['tab20'][3])
     plot_satellite(axes[0], sentinel, color=mpl.color_sequences['tab20'][11])
     sat = pd.concat([landsat, sentinel])
-
-    # compute shear and slip ratio from geopositioning
-    ratio = 100 - 100 * shear_reindexed.divide(speed_reindexed, axis=0)
 
     # for each borehole
     for bh in ['BH3', 'BH1']:
