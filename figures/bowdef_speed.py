@@ -69,13 +69,13 @@ def load_shear_velocities(**kwargs):
     return 2 * coefs.constant / (coefs.exponent+1) * base**(coefs.exponent+1)
 
 
-def plot_satellite(ax, df, color=None):
+def plot_satellite(ax, df, **kwargs):
     """Plot satellite velocities from dataframe."""
     index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)
     xerr = (df.end-df.start)/2/pd.to_timedelta('1'+ax.xaxis.freq)
     return ax.errorbar(
         index, df.speed, xerr=xerr, yerr=df.error,
-        color=color, linestyle='', linewidth=0.5, zorder=0)
+        linestyle='', linewidth=0.5, zorder=0, **kwargs)
 
 
 def main():
@@ -97,14 +97,16 @@ def main():
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
+    # FIXME move all computation before plotting
+
     # plot surface speed
     speed.plot(ax=axes[0], color='tab:orange')
 
     # plot satellite velocities
-    landsat = load_landsat_velocities()
-    sentinel = load_sentinel_velocities()
-    plot_satellite(axes[0], landsat, color=mpl.color_sequences['tab20'][3])
-    plot_satellite(axes[0], sentinel, color=mpl.color_sequences['tab20'][11])
+    landsat = load_landsat_velocities().assign(source='landsat')
+    sentinel = load_sentinel_velocities().assign(source='sentinel')
+    plot_satellite(axes[0], landsat, color=mpl.color_sequences['tab20'][3], label='Landsat')
+    plot_satellite(axes[0], sentinel, color=mpl.color_sequences['tab20'][11], label='Sentinel')
     sat = pd.concat([landsat, sentinel])
 
     # compute slip ratio from satellite and propagate uncertainties
@@ -128,6 +130,7 @@ def main():
             speed=sat_ratio_speed[bh], error=sat_ratio_error[bh]), color=light)
 
     # set axes properties
+    axes[0].legend()
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
