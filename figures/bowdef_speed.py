@@ -51,6 +51,24 @@ def load_sentinel_velocities():
     return df
 
 
+def load_shear_velocities(**kwargs):
+    """Load internal deformation velocity from tilt rates."""
+
+    # load strain rates and speed
+    strain = bowdef_utils.load_strain_rates(**kwargs)
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    base = bowstr_utils.load(variable='base').iloc[0]
+
+    # group by borehole and fit a power law (axis=1 is deprecated)
+    coefs = strain.T.groupby(strain.columns.str[0]).apply(
+        lambda df: compute_power_fit_dataframe(depth[df.index], df.T).T)
+    coefs = coefs.rename({'L': 'BH1', 'U': 'BH3'}).swaplevel(0, 1).T
+
+    # return shear velocities (FIXME and exponent)
+    base = base.set_axis(base.index.str[:3])
+    return 2 * coefs.constant / (coefs.exponent+1) * base**(coefs.exponent+1)
+
+
 def plot_satellite(ax, df, color=None):
     """Plot satellite velocities from dataframe."""
     index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)
@@ -73,18 +91,17 @@ def main():
     bowtem_utils.add_subfig_labels(
         axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
-    # load strain rates and speed
+    # load shear and speed
+    shear = load_shear_velocities(method='savgol', window='12h')
     strain = bowdef_utils.load_strain_rates(method='savgol', window='12h')
     speed = bowdef_utils.load_gnss_velocities(method='savgol', window='12h').vh
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    base = bowstr_utils.load(variable='base').iloc[0]
 
     # reindex to intersection
-    index = strain.index.join(speed.index, how='inner')
+    index = shear.index.join(speed.index, how='inner')
     speed = speed.reindex(index).interpolate(limit=2, method='time')
-    strain = strain.reindex(index).interpolate(limit=2, method='time')
+    shear = shear.reindex(index).interpolate(limit=2, method='time')
 
-    # plot surface speed
+    # plot surface speed (FIXME before interpolate?)
     speed.plot(ax=axes[0], color='tab:orange')
 
     # plot satellite velocities
@@ -95,14 +112,7 @@ def main():
     sat = pd.concat([landsat, sentinel])
 
     # compute shear and slip ratio from geopositioning
-    coefs = strain.T.groupby(strain.columns.str[0]).apply(
-            lambda df: compute_power_fit_dataframe(depth[df.index], df.T))
-    coefs = coefs.rename({'L': 'BH1', 'U': 'BH3'})
-    coefs = coefs.rename_axis(index=['borehole', 'date'])
-    power = coefs.exponent + 1
-    base = base.set_axis(base.index.str[:3]).rename_axis('borehole')
-    shear = 2 * coefs.constant / power * base**power
-    ratio = 100 - 100 * shear / speed
+    ratio = 100 - 100 * shear.divide(speed, axis=0)
 
     # for each borehole
     for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
@@ -122,7 +132,7 @@ def main():
         # plot shear and slip ratio from geopositioning
         shear[bh].plot(ax=axes[1], color=color)
         ratio[bh].plot(ax=axes[2], color=color)
-        coefs.exponent[bh].plot(ax=axes[3], color=color)
+        # coefs.exponent[bh].plot(ax=axes[3], color=color)  FIXME
 
         # compute and plot slip ratio from satellite
         plot_satellite(axes[2], sat_ratio, color=light)
