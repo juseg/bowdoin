@@ -97,8 +97,6 @@ def main():
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
-    # FIXME move all computation before plotting
-
     # plot surface speed
     speed.plot(ax=axes[0], color='tab:orange')
 
@@ -115,19 +113,15 @@ def main():
     sat_ratio_error = 100 * sat_shear_speed.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
 
-    # for each borehole
+    # plot shear and slip ratio from geopositioning
+    shear.plot(ax=axes[1], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'})
+    ratio.plot(ax=axes[2], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'}, legend=False)
+
+    # plot slip ratio from satellite
     for bh in ['BH3', 'BH1']:
-        color = mpl.color_sequences['tab20'][{'BH1': 0, 'BH3': 12}[bh]]
-        light = mpl.color_sequences['tab20'][{'BH1': 1, 'BH3': 13}[bh]]
-
-        # plot shear and slip ratio from geopositioning
-        shear[bh].plot(ax=axes[1], color=color)
-        ratio[bh].plot(ax=axes[2], color=color)
-        # coefs.exponent[bh].plot(ax=axes[3], color=color)  FIXME
-
-        # compute and plot slip ratio from satellite
         plot_satellite(axes[2], sat.assign(
-            speed=sat_ratio_speed[bh], error=sat_ratio_error[bh]), color=light)
+            speed=sat_ratio_speed[bh], error=sat_ratio_error[bh]),
+            color=mpl.color_sequences['tab20'][{'BH1': 1, 'BH3': 13}[bh]])
 
     # set axes properties
     axes[0].legend()
