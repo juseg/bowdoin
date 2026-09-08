@@ -6,6 +6,7 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
+import matplotlib as mpl
 import pandas as pd
 
 import bowdef_utils
@@ -18,6 +19,64 @@ def compute_power_fit_dataframe(depth, strain):
     return strain.dropna(axis=0, how='all').apply(lambda series: pd.Series(
         data=bowdef_utils.compute_power_fit(depth, series),
         index=['exponent', 'constant']), axis=1)
+
+
+def compute_interval_aggregates(series, intervals, **kwargs):
+    """Aggregate series over intervals defined in a dataframe."""
+    return intervals.apply(
+        lambda row: series[row.start: row.end].aggregate(**kwargs), axis=1)
+
+
+def load_landsat_velocities():
+    """Load surface velocities from Landsat feature-tracking."""
+    df = pd.read_csv(
+        '../data/satellite/bowdoin-landsat.csv', parse_dates=['start', 'end'])
+    df = df.assign(delay=df.end-df.start)
+    df = df.set_index(df.start+df.delay/2)
+    df = df.assign(delay=df.delay/pd.to_timedelta('1d'))
+    df = df.rename(columns={'vel': 'speed', 'err': 'error'})
+    return df
+
+
+def load_sentinel_velocities():
+    """Load surface velocities from Sentinel feature-tracking."""
+    df = pd.read_csv(
+        '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
+        engine='python', index_col='YYYY-MM-DD (avg)',
+        parse_dates=['YYYY-MM-DD (1st)', 'YYYY-MM-DD (2nd)'])
+    df = df.rename_axis(None).rename(columns={
+        'time-diff (days)': 'delay', 'vel (m/a)': 'speed',
+        'vel_error (m/a)': 'error', 'YYYY-MM-DD (1st)': 'start',
+        'YYYY-MM-DD (2nd)': 'end'})
+    return df
+
+
+def load_shear_velocities(**kwargs):
+    """Load internal deformation velocity from tilt rates."""
+
+    # load strain rates and speed
+    strain = bowdef_utils.load_strain_rates(**kwargs)
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    base = bowstr_utils.load(variable='base').iloc[0]
+
+    # group by borehole and fit a power law (axis=1 is deprecated)
+    coefs = strain.T.groupby(strain.columns.str[0]).apply(
+        lambda df: compute_power_fit_dataframe(depth[df.index], df.T).T)
+    coefs = coefs.rename({'L': 'BH1', 'U': 'BH3'}).swaplevel(0, 1).T
+
+    # return shear velocities
+    base = base.set_axis(base.index.str[:3])
+    shear = 2 * coefs.constant / (coefs.exponent+1) * base**(coefs.exponent+1)
+    return shear, coefs.exponent
+
+
+def plot_satellite(ax, df, **kwargs):
+    """Plot satellite velocities from dataframe."""
+    index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)
+    xerr = (df.end-df.start)/2/pd.to_timedelta('1'+ax.xaxis.freq)
+    return ax.errorbar(
+        index, df.speed, xerr=xerr, yerr=df.error,
+        linestyle='', linewidth=0.5, zorder=0, **kwargs)
 
 
 def main():
@@ -33,36 +92,42 @@ def main():
     bowtem_utils.add_subfig_labels(
         axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
-    # load strain rates and speed
-    strain = bowdef_utils.load_strain_rates(method='savgol', window='12h')
+    # load shear and surface speeds and compute ratio where they intersect
+    shear, exponent = load_shear_velocities(method='savgol', window='12h')
     speed = bowdef_utils.load_gnss_velocities(method='savgol', window='12h').vh
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    base = bowstr_utils.load(variable='base').iloc[0]
+    index = shear.index.intersection(speed.index)
+    ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
-    # reindex to intersection
-    index = strain.index.join(speed.index, how='inner')
-    speed = speed.reindex(index).interpolate(limit=2, method='time')
-    strain = strain.reindex(index).interpolate(limit=2, method='time')
+    # load velocities from landsat and sentinel images
+    landsat = load_landsat_velocities().assign(source='landsat')
+    sentinel = load_sentinel_velocities().assign(source='sentinel')
+    sat = pd.concat([landsat, sentinel])
 
-    # plot surface speed
-    speed.plot(ax=axes[0], color='tab:blue')
+    # compute slip ratio from satellite and propagate uncertainties
+    sat_shear = compute_interval_aggregates(shear, sat, func='mean')
+    sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
+    sat_error = 100 * sat_shear.multiply(
+        1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
 
-    # for each borehole
-    for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
-        mask = strain.columns.str.startswith(prefix)
+    # plot surface speed, shear and slip ratio from geopositioning
+    color_dict = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
+    speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
+    shear.plot(ax=axes[1], color=color_dict, legend=False)
+    ratio.plot(ax=axes[2], color=color_dict)
+    exponent.plot(ax=axes[3], color=color_dict, legend=False)
 
-        # compute shear and basal speed
-        coefs = compute_power_fit_dataframe(depth[mask], strain.loc[:, mask])
-        power = coefs.exponent + 1
-        shear = 2 * coefs.constant / power * base[f'{bh}B']**power
-        ratio = 100 - 100 * shear / speed
-
-        # plot shear and basal speeds
-        shear.plot(ax=axes[1], color=f'C{mask.argmax()}')
-        ratio.plot(ax=axes[2], color=f'C{mask.argmax()}')
-        coefs.exponent.plot(ax=axes[3], color=f'C{mask.argmax()}')
+    # plot surface speed and slip ratio from satellite
+    tab20 = mpl.color_sequences['tab20']
+    plot_satellite(axes[0], landsat, color=tab20[3], label='Landsat')
+    plot_satellite(axes[0], sentinel, color=tab20[11], label='Sentinel')
+    plot_satellite(axes[2], sat.assign(
+        speed=sat_speed['BH1'], error=sat_error['BH1']), color=tab20[1])
+    plot_satellite(axes[2], sat.assign(
+        speed=sat_speed['BH3'], error=sat_error['BH3']), color=tab20[13])
 
     # set axes properties
+    axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
+    axes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
