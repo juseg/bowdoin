@@ -97,8 +97,8 @@ def main():
 
     # reindex to intersection
     index = shear.index.intersection(speed.index)
-    speed = speed.reindex(index)
-    shear = shear.reindex(index)
+    speed_reindexed = speed.reindex(index)
+    shear_reindexed = shear.reindex(index)
 
     # plot surface speed (FIXME before interpolate?)
     speed.plot(ax=axes[0], color='tab:orange')
@@ -111,7 +111,7 @@ def main():
     sat = pd.concat([landsat, sentinel])
 
     # compute shear and slip ratio from geopositioning
-    ratio = 100 - 100 * shear.divide(speed, axis=0)
+    ratio = 100 - 100 * shear_reindexed.divide(speed_reindexed, axis=0)
 
     # for each borehole
     for bh in ['BH3', 'BH1']:
