@@ -64,9 +64,10 @@ def load_shear_velocities(**kwargs):
         lambda df: compute_power_fit_dataframe(depth[df.index], df.T).T)
     coefs = coefs.rename({'L': 'BH1', 'U': 'BH3'}).swaplevel(0, 1).T
 
-    # return shear velocities (FIXME and exponent)
+    # return shear velocities
     base = base.set_axis(base.index.str[:3])
-    return 2 * coefs.constant / (coefs.exponent+1) * base**(coefs.exponent+1)
+    shear = 2 * coefs.constant / (coefs.exponent+1) * base**(coefs.exponent+1)
+    return shear, coefs.exponent
 
 
 def plot_satellite(ax, df, **kwargs):
@@ -92,7 +93,7 @@ def main():
         axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # load shear and surface speeds and compute ratio where they intersect
-    shear = load_shear_velocities(method='savgol', window='12h')
+    shear, exponent = load_shear_velocities(method='savgol', window='12h')
     speed = bowdef_utils.load_gnss_velocities(method='savgol', window='12h').vh
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
@@ -112,6 +113,7 @@ def main():
     speed.plot(ax=axes[0], color='tab:orange')
     shear.plot(ax=axes[1], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'})
     ratio.plot(ax=axes[2], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'}, legend=False)
+    exponent.plot(ax=axes[3], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'}, legend=False)
 
     # plot surface speed and slip ratio from satellite
     plot_satellite(axes[0], landsat, color=mpl.color_sequences['tab20'][3], label='Landsat')
