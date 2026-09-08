@@ -98,33 +98,36 @@ def main():
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
-    # load satellite velocities
+    # load velocities from landsat and sentinel images
     landsat = load_landsat_velocities().assign(source='landsat')
     sentinel = load_sentinel_velocities().assign(source='sentinel')
     sat = pd.concat([landsat, sentinel])
 
     # compute slip ratio from satellite and propagate uncertainties
-    sat_shear_speed = compute_interval_aggregates(shear, sat, func='mean')
-    sat_ratio_speed = 100 - 100 * sat_shear_speed.divide(sat.speed, axis=0)
-    sat_ratio_error = 100 * sat_shear_speed.multiply(
+    sat_shear = compute_interval_aggregates(shear, sat, func='mean')
+    sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
+    sat_error = 100 * sat_shear.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
 
     # plot surface speed, shear and slip ratio from geopositioning
-    speed.plot(ax=axes[0], color='tab:orange')
-    shear.plot(ax=axes[1], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'})
-    ratio.plot(ax=axes[2], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'}, legend=False)
-    exponent.plot(ax=axes[3], color={'BH1': 'tab:blue', 'BH3': 'tab:pink'}, legend=False)
+    color_dict = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
+    speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
+    shear.plot(ax=axes[1], color=color_dict, legend=False)
+    ratio.plot(ax=axes[2], color=color_dict)
+    exponent.plot(ax=axes[3], color=color_dict, legend=False)
 
     # plot surface speed and slip ratio from satellite
-    plot_satellite(axes[0], landsat, color=mpl.color_sequences['tab20'][3], label='Landsat')
-    plot_satellite(axes[0], sentinel, color=mpl.color_sequences['tab20'][11], label='Sentinel')
-    for bh in ['BH3', 'BH1']:
-        plot_satellite(axes[2], sat.assign(
-            speed=sat_ratio_speed[bh], error=sat_ratio_error[bh]),
-            color=mpl.color_sequences['tab20'][{'BH1': 1, 'BH3': 13}[bh]])
+    tab20 = mpl.color_sequences['tab20']
+    plot_satellite(axes[0], landsat, color=tab20[3], label='Landsat')
+    plot_satellite(axes[0], sentinel, color=tab20[11], label='Sentinel')
+    plot_satellite(axes[2], sat.assign(
+        speed=sat_speed['BH1'], error=sat_error['BH1']), color=tab20[1])
+    plot_satellite(axes[2], sat.assign(
+        speed=sat_speed['BH3'], error=sat_error['BH3']), color=tab20[13])
 
     # set axes properties
-    axes[0].legend()
+    axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
+    axes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
