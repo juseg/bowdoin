@@ -93,7 +93,6 @@ def main():
 
     # load shear and speed
     shear = load_shear_velocities(method='savgol', window='12h')
-    strain = bowdef_utils.load_strain_rates(method='savgol', window='12h')
     speed = bowdef_utils.load_gnss_velocities(method='savgol', window='12h').vh
 
     # reindex to intersection
@@ -115,10 +114,9 @@ def main():
     ratio = 100 - 100 * shear.divide(speed, axis=0)
 
     # for each borehole
-    for bh, prefix in zip(['BH3', 'BH1'], ['U', 'L']):
-        mask = strain.columns.str.startswith(prefix)
-        color = mpl.color_sequences['tab20'][mask.argmax()*2]
-        light = mpl.color_sequences['tab20'][mask.argmax()*2+1]
+    for bh in ['BH3', 'BH1']:
+        color = mpl.color_sequences['tab20'][{'BH1': 0, 'BH3': 12}[bh]]
+        light = mpl.color_sequences['tab20'][{'BH1': 1, 'BH3': 13}[bh]]
 
         # compute and plot slip ratio from satellite
         sat_shear = sat.assign(
