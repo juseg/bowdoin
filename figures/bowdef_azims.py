@@ -5,6 +5,8 @@
 
 """Plot Bowdoin deformation tilt azimuths."""
 
+# FIXME consider plotting azimuths alongside tilt rates
+
 import absplots as apl
 
 import bowdef_utils

@@ -11,7 +11,7 @@
 # bowdoin deformation figures (most outdated)
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowdef_, creep multi rates shear speed tilts) \
+		$(addprefix bowdef_, azims creep multi rates shear speed tilts) \
 		$(addprefix bowdef_ccorr_, sp2ti st2sp st2ti st2tr tr2sp tr2ti) \
 		$(addprefix bowdef_mcorr_, sp2ti st2sp st2ti st2tr tr2sp tr2ti) \
 		$(addprefix bowdef_xgram_, sp2ti st2sp st2ti st2tr tr2sp tr2ti))
