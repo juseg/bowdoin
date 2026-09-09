@@ -178,6 +178,19 @@ def load_strain_rates(**kwargs):
     return 0.5 * (1 - costilt**2) ** 0.5 / costilt
 
 
+def load_tilt_azimuth(**kwargs):
+    """Load resampled, interpolated, and filter-derived tilt direction."""
+    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
+    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    tilx = tilx.interpolate(limit_area='inside', method='linear')
+    tily = tily.interpolate(limit_area='inside', method='linear')
+    tilx = filter_derive_dataframe(tilx, **kwargs)
+    tily = filter_derive_dataframe(tily, **kwargs)
+    azimuth = np.atan2(-np.sin(tilx)*np.cos(tily), np.sin(tily)) * 180 / np.pi
+    azimuth = azimuth[azimuth.index >= '2014-07-17']
+    return azimuth
+
+
 def load_tilt_rates(**kwargs):
     """Load resampled, interpolated, and filter-derived tilt rates."""
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
