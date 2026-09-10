@@ -89,7 +89,7 @@ def plot_time_series(ax, depth, df, var, ref):
         ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
 
     # plot reference variable time series
-    if ref != 'tilt':
+    if df[ref].shape[1] == 1:
         ax = subaxes[-1]
         df[ref].plot(ax=ax, color='tab:cyan', legend=False)
         ax.text(
@@ -139,10 +139,13 @@ def plot(couple='ti2sp', method='inner'):
     df = df.dropna(how='all', axis=1)
 
     # compute cross-correlations and phase delays
-    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    var = {'az': 'azim', 'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'az': 'azim', 'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
     ccorr = bowdef_utils.correlate_dataframes(df[var], df[ref])
     delay = -abs(ccorr).idxmax()
+
+    # to keep the delay between -6 and 6 hours use
+    # delay = -ccorr[abs(ccorr.index) < pd.to_timedelta('6h')].idxmax()
 
     # plot time series, correlations and phase delays
     plot_time_series(fig.axes[0], depth, df, var, ref)
@@ -163,7 +166,9 @@ def plot(couple='ti2sp', method='inner'):
 
 def main():
     """Main program called during execution."""
-    couples = ['sp2ti', 'st2sp', 'st2ti', 'st2tr', 'tr2sp', 'tr2ti']
+    couples = [
+        'az2sp', 'az2ti', 'sp2ti', 'st2sp', 'st2az', 'st2ti', 'st2tr',
+        'tr2sp', 'tr2ti']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 

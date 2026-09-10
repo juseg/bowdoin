@@ -67,6 +67,7 @@ def plot_colorbar(cax, img, var, ref):
 
     # add colorbar
     labels = {
+        'azim': 'azimuth (°)',
         'gnss': r'speed ($m\,a^{-1}$)',
         'pres': r'stress (kPa)',
         'tide': r'tide$\,/\,$10',
@@ -79,8 +80,8 @@ def plot(couple='ti2sp', method='inner'):
     """Plot and return full figure for given options."""
 
     # correlation variables
-    var = {'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    var = {'az': 'azim', 'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
+    ref = {'az': 'azim', 'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
 
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
@@ -105,7 +106,9 @@ def plot(couple='ti2sp', method='inner'):
 
 def main():
     """Main program called during execution."""
-    couples = ['sp2ti', 'st2sp', 'st2ti', 'st2tr', 'tr2sp', 'tr2ti']
+    couples = [
+        'az2sp', 'az2ti', 'sp2ti', 'st2sp', 'st2az', 'st2ti', 'st2tr',
+        'tr2sp', 'tr2ti']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 
