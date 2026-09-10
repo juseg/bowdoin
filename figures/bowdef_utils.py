@@ -178,6 +178,19 @@ def load_strain_rates(**kwargs):
     return 0.5 * (1 - costilt**2) ** 0.5 / costilt
 
 
+def load_tilt_azimuth(**kwargs):
+    """Load resampled, interpolated, and filter-derived tilt direction."""
+    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
+    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    tilx = tilx.interpolate(limit_area='inside', method='linear')
+    tily = tily.interpolate(limit_area='inside', method='linear')
+    tilx = filter_derive_dataframe(tilx, **kwargs)
+    tily = filter_derive_dataframe(tily, **kwargs)
+    azimuth = np.atan2(-np.sin(tilx)*np.cos(tily), np.sin(tily)) * 180 / np.pi
+    azimuth = azimuth[azimuth.index >= '2014-07-17']
+    return azimuth
+
+
 def load_tilt_rates(**kwargs):
     """Load resampled, interpolated, and filter-derived tilt rates."""
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
@@ -196,6 +209,7 @@ def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
 
     # load all variables independently
     pres = bowstr_utils.load(filt=filt, resample='10min')
+    azim = load_tilt_azimuth(method=method, window=window)
     tilt = load_tilt_rates(method=method, window=window)
     gnss = load_gnss_velocities(method=method, window=window).vh.rename('GNSS')
     tide = bowstr_utils.load_pituffik_tides().groupby(level=0).mean().rename(
@@ -210,13 +224,15 @@ def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
     # reindex (tide is on a different grid, so upsample and interpolate first)
     gnss = gnss.reindex(index).interpolate(limit=2, method='time')
     pres = pres.reindex(index).interpolate(limit=2, method='time')
+    azim = azim.reindex(index).interpolate(limit=2, method='time')
     tilt = tilt.reindex(index).interpolate(limit=2, method='time')
     tide = tide.reindex(tide.index.union(index)).interpolate(
         limit=2, method='time').reindex(index)
 
     # concatenate with a multi-index
     return pd.concat(
-        [gnss, pres, tilt, tide], axis=1, keys=['gnss', 'pres', 'tilt', 'tide'],
+        [azim, gnss, pres, tilt, tide], axis=1,
+        keys=['azim', 'gnss', 'pres', 'tilt', 'tide'],
         names=['variable', 'unit'])
 
 
