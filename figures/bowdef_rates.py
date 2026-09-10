@@ -16,8 +16,7 @@ def main():
     # initialize figure
     fig, axes = apl.subplots_mm(
         figsize=(180, 90), nrows=2, sharex=True, gridspec_kw={
-            'left': 15, 'right': 2.5, 'bottom': 10, 'top': 2.5, 'hspace': 2.5,
-            'height_ratios': (2, 1)})
+            'left': 15, 'right': 2.5, 'bottom': 10, 'top': 2.5, 'hspace': 2.5})
 
     # plot tilt rate
     tilt = bowdef_utils.load_tilt_rates(method='savgol', window='12h')
@@ -33,6 +32,11 @@ def main():
     axes[0].set_ylim(-1, 21)
     axes[1].set_xlim('20140701', '20170801')
     axes[1].set_yticks([-180, 0, 180])
+
+    # zoom on July 2015
+    # axes[0].set_xlim('20150701', '20150731')
+    # axes[1].set_ylim(-60, 120)
+    # axes[1].set_yticks([-30, 0, 30, 60, 90])
 
     # save
     fig.savefig(__file__[:-3])
