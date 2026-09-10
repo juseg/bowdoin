@@ -12,7 +12,7 @@
 # FIXME user better names for multivariate figures
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowdef_, azims creep multi rates shear speed tilts) \
+		$(addprefix bowdef_, creep multi rates shear speed tilts) \
 		$(addprefix bowdef_ccorr_, az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti) \
 		$(addprefix bowdef_mcorr_, az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti) \
 		$(addprefix bowdef_xgram_, az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti))
