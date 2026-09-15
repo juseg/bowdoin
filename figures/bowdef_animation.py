@@ -49,14 +49,17 @@ def load_tilt_rates_rotated(start='2015', end='2017', **kwargs):
     return tilx, tily
 
 
-def update(date, lines, tilx, tily):
+def update(date, collections, lines, tilx, tily):
     """Update 3D lines with dated tilt values."""
-    for i, line in enumerate(lines):
-        x = np.array([0, tilx.loc[date].iloc[i]])
-        y = np.array([0, tily.loc[date].iloc[i]])
+    for coll, line in zip(collections, lines):
+        unit = line.get_label()
+        x = np.array([0, tilx.loc[date, unit]])
+        y = np.array([0, tily.loc[date, unit]])
         z = line.get_data_3d()[2]
-        array = np.stack([x, y, z])
-        line.set_data_3d(array)
+        xyz_vertical = np.stack([0*x, 0*y, z])
+        xyz_tilted = np.stack([x, y, z])
+        coll.set_verts([np.concatenate((xyz_vertical.T, xyz_tilted.T[::-1]))])
+        line.set_data_3d(xyz_tilted)
 
 
 def main():
@@ -73,17 +76,28 @@ def main():
 
     # plot dummy arrows
     for unit, color in zip(depth.index, matplotlib.color_sequences['tab10']):
-        ax = axes[{'U': 0, 'L': 1}[unit[0]]]
-        ax.plot([0, 0], [0, 0], [depth[unit], depth[unit]-10], color=color)
+        x = [0, 1]
+        y = [0, 0]
+        z = [depth[unit], depth[unit]-50]
+        ax = axes[{'L': 0, 'U': 1}[unit[0]]]
+        ax.fill_between(x, y, z, x, y, z, alpha=0.5, color=color)
+        ax.plot(x, y, z, color=color, label=unit)
 
         # set axes properties
-        ax.set(xlim3d=(-1, 11), xlabel='mean-parallel')
-        ax.set(ylim3d=(-1, 1), ylabel='mean-orthogonal')
-        ax.set(zlim3d=(250, 0), zlabel='vertical')
+        ax.set_proj_type('ortho')
+        ax.set(xlim3d=(-1, 21), xlabel='mean-parallel')
+        ax.set(ylim3d=(-0.5, 0.5), ylabel='mean-orthogonal')
+        ax.set(zlim3d=(275, 75), zlabel='vertical')
+        ax.view_init(azim=60)
+        ax.set_title({'L': 'BH1', 'U': 'BH3'}[unit[0]])
+
+    # FIXME add single legend
+    # ax.legend()
 
     # plot one frame
+    collections = axes[0].collections + axes[1].collections
     lines = axes[0].lines + axes[1].lines
-    update(tilx.index[0], lines, tilx, tily)
+    update(tilx.index[0], collections, lines, tilx, tily)
 
     # save
     fig.savefig(__file__[:-3])
