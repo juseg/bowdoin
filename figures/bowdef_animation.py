@@ -7,7 +7,6 @@
 
 import absplots as apl
 import matplotlib.animation
-import matplotlib.pyplot as plt
 import numpy as np
 
 import bowdef_utils
@@ -68,12 +67,16 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 90), ncols=2, subplot_kw={'projection': '3d'})
+        figsize=(192, 108), ncols=2, subplot_kw={'projection': '3d'})
 
     # load unit depths and tilt rates
     depth = bowstr_utils.load(variable='dept').iloc[0]
     tilx, tily = load_tilt_rates_rotated(
-        start='20150527', end='20150608', method='savgol', window='12h')
+        start='20150601', end='20150930', method='savgol', window='12h')
+
+    # add additional smoothing
+    tilx = tilx.resample('1h').mean()
+    tily = tily.resample('1h').mean()
 
     # plot dummy arrows
     for unit, color in zip(depth.index, matplotlib.color_sequences['tab10']):
@@ -87,7 +90,7 @@ def main():
         # set axes properties
         ax.set_proj_type('ortho')
         ax.set(xlim3d=(-1, 21), xlabel='mean-parallel')
-        ax.set(ylim3d=(-0.5, 0.5), ylabel='mean-orthogonal')
+        ax.set(ylim3d=(-2.2, 2.2), ylabel='mean-orthogonal')
         ax.set(zlim3d=(275, 75), zlabel='vertical')
         ax.view_init(azim=60)
         ax.set_title({'L': 'BH1', 'U': 'BH3'}[unit[0]])
@@ -96,19 +99,17 @@ def main():
     fig.legend(bbox_to_anchor=[0, 0, 1, 0.90], loc='upper center', ncols=3)
     text = fig.text(0.5, 0.1, 'date', ha='center')
 
-    # plot one frame
+    # save a preview
     collections = axes[0].collections + axes[1].collections
     lines = axes[0].lines + axes[1].lines
-    update(tilx.index[0], collections, lines, tilx, tily)
-
-    # save
+    update(tilx.index[0], collections, lines, text, tilx, tily)
     fig.savefig(__file__[:-3])
 
-    # assemble animation
-    matplotlib.animation.FuncAnimation(
-        fig, update, fargs=(lines, tilx, tily), frames=tilx.index,
-        interval=5)
-    plt.show()
+    # save animation
+    ani = matplotlib.animation.FuncAnimation(
+        fig, update, fargs=(collections, lines, text, tilx, tily),
+        frames=tilx.index)
+    ani.save(__file__[:-3] + '.mp4', fps=24)
 
 
 if __name__ == '__main__':
