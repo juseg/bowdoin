@@ -49,7 +49,7 @@ def load_tilt_rates_rotated(start='2015', end='2017', **kwargs):
     return tilx, tily
 
 
-def update(date, collections, lines, tilx, tily):
+def update(date, collections, lines, text, tilx, tily):
     """Update 3D lines with dated tilt values."""
     for coll, line in zip(collections, lines):
         unit = line.get_label()
@@ -60,6 +60,7 @@ def update(date, collections, lines, tilx, tily):
         xyz_tilted = np.stack([x, y, z])
         coll.set_verts([np.concatenate((xyz_vertical.T, xyz_tilted.T[::-1]))])
         line.set_data_3d(xyz_tilted)
+        text.set_text(f'{date:%d %b %Y\n%H:%M}')
 
 
 def main():
@@ -91,8 +92,9 @@ def main():
         ax.view_init(azim=60)
         ax.set_title({'L': 'BH1', 'U': 'BH3'}[unit[0]])
 
-    # FIXME add single legend
-    # ax.legend()
+    # add common legend and date label
+    fig.legend(bbox_to_anchor=[0, 0, 1, 0.90], loc='upper center', ncols=3)
+    text = fig.text(0.5, 0.1, 'date', ha='center')
 
     # plot one frame
     collections = axes[0].collections + axes[1].collections
