@@ -25,9 +25,11 @@ def main():
         colors=['tab:blue', 'tab:pink'], season='summer')
 
     # plot velocity contours
-    filename = '../data/satellite/bowdoin-landsat/16072015_17082015.tif'
-    img = xr.open_dataarray(filename).squeeze()
-    img = img.where(img!=65535)
+    prefix = '../data/satellite/bowdoin-landsat-uv/16072015_17082015_161111_1117'
+    u = xr.open_dataarray(prefix+'_f_u.nc').squeeze().where(lambda x: x!=65535)
+    v = xr.open_dataarray(prefix+'_f_v.nc').squeeze().where(lambda x: x!=65535)
+    img = (u**2+v**2)**0.5
+
     # img = (img.differentiate('x')**2 + img.differentiate('y')**2)**0.5
     # img.plot.imshow(ax=ax, add_labels=False, alpha=0.75, cmap='Reds')
     img.plot.contour(ax=ax, add_labels=False, alpha=0.75, cmap='Reds')
