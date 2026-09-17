@@ -7,6 +7,7 @@
 
 
 import absplots as apl
+import matplotlib as mpl
 import matplotlib.animation
 import pandas as pd
 import xarray as xr
@@ -14,9 +15,10 @@ import xarray as xr
 
 def func(frame, fig, ds):
     ds = ds.isel(time=frame)
-    print(frame, ds.time.dt.strftime('%d %b %Y').values)
-    fig.axes[0].images[0].set_data((ds.u**2+ds.v**2)**0.5)
-    fig.texts[0].set_text(ds.time.dt.strftime('%d %b %Y').values)
+    quiver = next(
+        c for c in fig.axes[0].collections if isinstance(c, mpl.quiver.Quiver))
+    quiver.set_UVC(ds.u.T, ds.v.T)
+    fig.axes[0].set_title(ds.time.dt.strftime('%d %b %Y').values)
 
 
 def main():
@@ -25,7 +27,7 @@ def main():
     # initialize figure
     fig, axes = apl.subplots_mm(
         figsize=(192, 108), ncols=2, sharex=True, sharey=True, gridspec_kw={
-            'left': 2.5, 'bottom': 2.5, 'right': 2.5, 'top': 2.5, 'wspace': 2.5})
+            'left': 2.5, 'bottom': 2.5, 'right': 2.5, 'top': 5, 'wspace': 2.5})
 
     # open images in multi-file dataset
     # note: choose between using datetime and pd.to_datetime
@@ -51,13 +53,16 @@ def main():
     v = ds.sel(time=ds.title.str.contains('v')).drop_vars('title')  # .z.rename('v')
     ds = xr.merge([u.rename(z='u'), v.rename(z='v')], compat='no_conflicts')
 
-    # select 2015 images and sort by date
+    # crop to Bowdoin tongue, select 2015 images, and sort by date
+    ds = ds.sel(x=slice(505e3, 515e3), y=slice(8630e3, 8620e3))
     ds = ds.where(ds.time.dt.year==2015, drop=True).sortby('time')
 
     # plot first frame
-    ((ds.u[0]**2+ds.v[0]**2)**0.5).plot.imshow(
-        ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75)
-    fig.text(0.25, 0.1, 'text')
+    # eef[0].plot.imshow(ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75)
+    ds.isel(time=0).plot.quiver(x='x', y='y', u='u', v='v', ax=axes[0], alpha=0.75)
+
+    # set axes properties
+    axes[0].set_aspect('equal')
 
     # save
     fig.savefig(__file__[:-3])
