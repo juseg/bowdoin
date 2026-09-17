@@ -12,6 +12,8 @@ import matplotlib.animation
 import pandas as pd
 import xarray as xr
 
+import bowtem_utils
+
 
 def func(frame, fig, ds):
     ds = ds.isel(time=frame)
@@ -56,6 +58,11 @@ def main():
     # crop to Bowdoin tongue, select 2015 images, and sort by date
     ds = ds.sel(x=slice(505e3, 515e3), y=slice(8630e3, 8620e3))
     ds = ds.where(ds.time.dt.year==2015, drop=True).sortby('time')
+
+    # plot background map FIXME allow plotting no boreholes
+    bowtem_utils.plot_bowdoin_map(
+        fig.axes[0], boreholes=['bh1', 'bh3'],
+        colors=['tab:blue', 'tab:pink'], season='summer')
 
     # plot first frame
     # eef[0].plot.imshow(ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75)
