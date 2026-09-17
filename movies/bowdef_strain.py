@@ -23,7 +23,7 @@ def func(frame, fig, ds):
     quiver = next(
         c for c in fig.axes[0].collections if isinstance(c, mpl.quiver.Quiver))
     quiver.set_UVC(now.u.T, now.v.T)
-    fig.axes[0].images[1].set_data(now.speed)
+    fig.axes[0].images[1].set_data(now.eeh)
     fig.axes[0].set_title(now.time.dt.strftime('%d %b %Y').values)
     hbars = fig.axes[1].collections[0]
     hbars.set_alpha(np.arange(len(ds.time)) <= frame)
@@ -81,13 +81,20 @@ def main():
     gdf = gdf.to_crs('+proj=utm +zone=19')
     gdf.plot(ax=axes[0], marker='*', markersize=60)
 
+    # compute effective strain rate
+    du_dx = ds.u.differentiate("x")
+    du_dy = ds.u.differentiate("y")
+    dv_dx = ds.v.differentiate("x")
+    dv_dy = ds.v.differentiate("y")
+    ds = ds.assign(eeh=(2*(du_dx**2+dv_dy**2)+(du_dy+dv_dx)**2)**0.5)
+
     # plot first frame
-    ds = ds.assign(speed=(ds.u**2+ds.v**2)**0.5)
-    ds.speed[0].plot.imshow(ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75)
+    ds.eeh[0].plot.imshow(ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75)
     ds.isel(time=0).plot.quiver(x='x', y='y', u='u', v='v', ax=axes[0], alpha=0.75)
 
     # plot time series FIXME a bit similar to errorbar plot from dataframe
     dsi = ds.interp(x=gdf.geometry.x, y=gdf.geometry.y)
+    dsi = dsi.assign(speed=(dsi.u**2+dsi.v**2)**0.5)
     dsi = dsi.assign(error=1)
     dsi = dsi.squeeze()
     df = dsi.to_dataframe()
