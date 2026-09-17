@@ -24,7 +24,7 @@ def func(frame, fig, ds):
         c for c in fig.axes[0].collections if isinstance(c, mpl.quiver.Quiver))
     quiver.set_UVC(now.u.T, now.v.T)
     fig.axes[0].images[1].set_data(now.eeh)
-    fig.axes[0].set_title(now.time.dt.strftime('%d %b %Y').values)
+    fig.axes[0].texts[1].set_text(now.time.dt.strftime('%d %b %Y').values)
     hbars = fig.axes[1].collections[0]
     hbars.set_alpha(np.arange(len(ds.time)) <= frame)
     vbars = fig.axes[1].collections[1]
@@ -35,13 +35,14 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig = apl.figure_mm(figsize=(180, 90))
-    fig.add_axes_mm([2.5, 2.5, 60, 85])
-    fig.add_axes_mm([77.5, 12.5, 100, 75])
-    axes = fig.axes
+    fig = apl.figure_mm(figsize=(192, 108))
+    fig.add_axes_mm([3, 3, 72, 102])
+    fig.add_axes_mm([93, 9, 96, 96])
+    fig.add_axes_mm([96, 66, 6, 30])
 
     # add subfigure labels
     bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
+    bowtem_utils.add_subfig_label('...', ax=fig.axes[0], color='w', loc='sw')
     bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='k')
 
     # open images in multi-file dataset
@@ -79,7 +80,7 @@ def main():
     gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
     gdf = gdf.set_index('name').loc[['B14BH1']]
     gdf = gdf.to_crs('+proj=utm +zone=19')
-    gdf.plot(ax=axes[0], marker='*', markersize=60)
+    gdf.plot(ax=fig.axes[0], marker='*', markersize=60)
 
     # compute effective strain rate
     du_dx = ds.u.differentiate("x")
@@ -89,8 +90,11 @@ def main():
     ds = ds.assign(eeh=(2*(du_dx**2+dv_dy**2)+(du_dy+dv_dx)**2)**0.5)
 
     # plot first frame
-    ds.eeh[0].plot.imshow(ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75)
-    ds.isel(time=0).plot.quiver(x='x', y='y', u='u', v='v', ax=axes[0], alpha=0.75)
+    ds.eeh[0].plot.imshow(
+        ax=fig.axes[0], add_labels=False, alpha=0.75, cbar_ax=fig.axes[2],
+        cmap='Reds', vmin=0, vmax=1)
+    quiver = ds.isel(time=0).plot.quiver(
+        x='x', y='y', u='u', v='v', ax=fig.axes[0], add_guide=False, alpha=0.75)
 
     # plot time series FIXME a bit similar to errorbar plot from dataframe
     dsi = ds.interp(x=gdf.geometry.x, y=gdf.geometry.y)
@@ -98,11 +102,18 @@ def main():
     dsi = dsi.assign(error=1)
     dsi = dsi.squeeze()
     df = dsi.to_dataframe()
-    df.speed.resample('1D').mean().interpolate(method='linear').plot(ax=axes[1], alpha=0.25)
-    bowdef_speed.plot_satellite(axes[1], df, color='tab:blue')
+    df.speed.resample('1D').mean().interpolate(method='linear').plot(ax=fig.axes[1], alpha=0.25)
+    bowdef_speed.plot_satellite(fig.axes[1], df, color='tab:blue')
 
     # set axes properties
-    axes[0].set_aspect('equal')
+    fig.axes[0].set_aspect('equal')
+    fig.axes[0].set_title('')
+    fig.axes[0].set_xlabel('')
+    fig.axes[0].set_ylabel('')
+    fig.axes[1].set_xlabel('')
+    fig.axes[1].set_xlim('20150301', '20150930')
+    fig.axes[1].set_ylabel(r'velocity magnitude ($m\,a^{-1}$)')
+    fig.axes[2].set_ylabel(r'horizontal effective strain rate ($a^{-1}$)')
 
     # save
     fig.savefig(__file__[:-3])
