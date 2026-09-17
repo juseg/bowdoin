@@ -7,29 +7,41 @@
 
 
 import absplots as apl
+import geopandas as gpd
 import matplotlib as mpl
 import matplotlib.animation
+import numpy as np
 import pandas as pd
 import xarray as xr
 
 import bowtem_utils
+import bowdef_speed  # FIXME move errorbar plot to utils
 
 
 def func(frame, fig, ds):
-    ds = ds.isel(time=frame)
+    now = ds.isel(time=frame)
     quiver = next(
         c for c in fig.axes[0].collections if isinstance(c, mpl.quiver.Quiver))
-    quiver.set_UVC(ds.u.T, ds.v.T)
-    fig.axes[0].set_title(ds.time.dt.strftime('%d %b %Y').values)
+    quiver.set_UVC(now.u.T, now.v.T)
+    fig.axes[0].set_title(now.time.dt.strftime('%d %b %Y').values)
+    hbars = fig.axes[1].collections[0]
+    hbars.set_alpha(np.arange(len(ds.time)) <= frame)
+    vbars = fig.axes[1].collections[1]
+    vbars.set_alpha(np.arange(len(ds.time)) <= frame)
 
 
 def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, axes = apl.subplots_mm(
-        figsize=(192, 108), ncols=2, sharex=True, sharey=True, gridspec_kw={
-            'left': 2.5, 'bottom': 2.5, 'right': 2.5, 'top': 5, 'wspace': 2.5})
+    fig = apl.figure_mm(figsize=(180, 90))
+    fig.add_axes_mm([2.5, 2.5, 60, 85])
+    fig.add_axes_mm([77.5, 12.5, 100, 75])
+    axes = fig.axes
+
+    # add subfigure labels
+    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
+    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='k')
 
     # open images in multi-file dataset
     # note: choose between using datetime and pd.to_datetime
@@ -60,13 +72,26 @@ def main():
     ds = ds.where(ds.time.dt.year==2015, drop=True).sortby('time')
 
     # plot background map FIXME allow plotting no boreholes
-    bowtem_utils.plot_bowdoin_map(
-        fig.axes[0], boreholes=['bh1', 'bh3'],
-        colors=['tab:blue', 'tab:pink'], season='summer')
+    bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=['bh1'], season='summer')
+
+    # interpolate to borehole location FIXME get precise location from GNSS
+    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
+    gdf = gdf.set_index('name').loc[['B14BH1']]
+    gdf = gdf.to_crs('+proj=utm +zone=19')
+    gdf.plot(ax=axes[0], marker='*', markersize=60)
 
     # plot first frame
     # eef[0].plot.imshow(ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75)
     ds.isel(time=0).plot.quiver(x='x', y='y', u='u', v='v', ax=axes[0], alpha=0.75)
+    # ds = ds.isel(time=slice(0, 10))
+
+    # plot time series FIXME a bit similar to errorbar plot from dataframe
+    dsi = ds.interp(x=gdf.geometry.x, y=gdf.geometry.y)
+    dsi = dsi.assign(speed=(dsi.u**2+dsi.v**2)**0.5, error=1)
+    dsi = dsi.squeeze()
+    df = dsi.to_dataframe()
+    df.speed.resample('1D').mean().interpolate(method='linear').plot(ax=axes[1], alpha=0.25)
+    bowdef_speed.plot_satellite(axes[1], df, color='tab:blue')
 
     # set axes properties
     axes[0].set_aspect('equal')
