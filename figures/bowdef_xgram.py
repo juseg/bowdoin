@@ -106,7 +106,9 @@ def plot(couple='ti2sp', method='inner'):
         color = f'C{i+2*(i > 3)}'
 
         # plot wavelet coherence transform
-        plot_cross_wavelet_transform(ax, df[var][unit], df[ref].get(unit, df[ref].squeeze()))
+        plot_cross_wavelet_transform(
+            ax, df[var][unit],
+            df[ref].get('LI05' if ref == var else unit, df[ref].squeeze()))
 
         # add text label
         ax.text(
@@ -134,7 +136,7 @@ def main():
     """Main program called during execution."""
     couples = [
         'az2sp', 'az2ti', 'sp2ti', 'st2sp', 'st2az', 'st2ti', 'st2tr',
-        'tr2sp', 'tr2ti']
+        'tr2sp', 'tr2ti', 'tr2tr']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 
