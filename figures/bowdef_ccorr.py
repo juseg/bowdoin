@@ -141,7 +141,8 @@ def plot(couple='ti2sp', method='inner'):
     # compute cross-correlations and phase delays
     var = {'az': 'azim', 'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
     ref = {'az': 'azim', 'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
-    ccorr = bowdef_utils.correlate_dataframes(df[var], df[ref])
+    ccorr = bowdef_utils.correlate_dataframes(
+        df[var], df[ref]['LI05'] if ref == var else df[ref])
     delay = -abs(ccorr).idxmax()
 
     # to keep the delay between -6 and 6 hours use
@@ -168,7 +169,7 @@ def main():
     """Main program called during execution."""
     couples = [
         'az2sp', 'az2ti', 'sp2ti', 'st2sp', 'st2az', 'st2ti', 'st2tr',
-        'tr2sp', 'tr2ti']
+        'tr2sp', 'tr2ti', 'tr2tr']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 
