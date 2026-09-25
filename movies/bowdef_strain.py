@@ -106,9 +106,12 @@ def main():
     gnss.vh.plot(ax=fig.axes[1], color='tab:orange')
 
     # plot time series FIXME a bit similar to errorbar plot from dataframe
+    # FIXME get a better error estimate from new images
     dsi = ds.interp(x=ds.gnssx, y=ds.gnssy)
     dsi = dsi.assign(speed=(dsi.u**2+dsi.v**2)**0.5)
-    dsi = dsi.assign(error=1)
+    # estimate error as 0.2 pixel (3 m) over the pair interval, assuming
+    # feature-tracking on 15 m Landsat 8 panchromatic images
+    dsi = dsi.assign(error=3 * 365 / dsi.days.dt.days)
     dsi = dsi.squeeze()
     df = dsi.to_dataframe()
     bowdef_speed.plot_satellite(fig.axes[1], df, color='tab:blue')
