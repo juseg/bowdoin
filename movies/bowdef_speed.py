@@ -37,21 +37,8 @@ def update(date, artists, frames, gnss, ds):
     artists['curve'].set_ydata(gnss.vh.where(gnss.index <= date))
 
 
-def main():
-    """Main program called during execution."""
-
-    # initialize figure
-    fig = apl.figure_mm(figsize=(192, 108))
-    fig.add_axes_mm([3, 3, 72, 102])
-    fig.add_axes_mm([90, 9, 99, 96])
-    fig.add_axes_mm([96, 66, 6, 30])
-
-    # add subfigure labels
-    artists = {}
-    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
-    artists['label'] = bowtem_utils.add_subfig_label(
-        '...', ax=fig.axes[0], color='w', loc='sw')
-    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='k')
+def open_landsat_pairs():
+    """Open Landsat velocity pairs with intervals, errors, and speed."""
 
     # open 2015 images in multi-file dataset
     ds = xr.open_mfdataset(
@@ -84,6 +71,13 @@ def main():
     # compute velocity magnitude
     ds = ds.assign(speed=(ds.u**2+ds.v**2)**0.5)
 
+    # return dataset
+    return ds
+
+
+def average_daily_frames(ds):
+    """Average pairs covering each day and mask poorly covered pixels."""
+
     # average pairs covering each daily frame, weighted by inverse variance
     dates = pd.date_range(
         ds.time[0].values, ds.time[-1].values, freq='1D', normalize=True)
@@ -97,6 +91,30 @@ def main():
     frames = frames.where(coverage >= 0.5)
     frames = frames.transpose('date', 'y', 'x')
     frames = frames.assign(speed=(frames.u**2+frames.v**2)**0.5)
+
+    # return dates and frames
+    return dates, frames
+
+
+def main():
+    """Main program called during execution."""
+
+    # initialize figure
+    fig = apl.figure_mm(figsize=(192, 108))
+    fig.add_axes_mm([3, 3, 72, 102])
+    fig.add_axes_mm([90, 9, 99, 96])
+    fig.add_axes_mm([96, 66, 6, 30])
+
+    # add subfigure labels
+    artists = {}
+    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
+    artists['label'] = bowtem_utils.add_subfig_label(
+        '...', ax=fig.axes[0], color='w', loc='sw')
+    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='k')
+
+    # open landsat pairs and average them to daily frames
+    ds = open_landsat_pairs()
+    dates, frames = average_daily_frames(ds)
 
     # plot background map
     bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=[], season='summer')
