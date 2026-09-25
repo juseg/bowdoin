@@ -15,7 +15,8 @@ import bowdef_utils
 import bowtem_utils
 
 
-def func(date, artists, frames, gnss, ds):
+def update(date, artists, frames, gnss, ds):
+    """Update artists for the corresponding date."""
     now = frames.sel(date=date)
     artists['quiver'].set_UVC(now.u.T, now.v.T)
     artists['image'].set_data(now.speed)
@@ -34,7 +35,7 @@ def main():
     # initialize figure
     fig = apl.figure_mm(figsize=(192, 108))
     fig.add_axes_mm([3, 3, 72, 102])
-    fig.add_axes_mm([93, 9, 96, 96])
+    fig.add_axes_mm([90, 9, 99, 96])
     fig.add_axes_mm([96, 66, 6, 30])
 
     # add subfigure labels
@@ -95,23 +96,29 @@ def main():
     # plot first frame
     artists['image'] = frames.speed[0].plot.imshow(
         ax=fig.axes[0], add_labels=False, alpha=0.75, cbar_ax=fig.axes[2],
-        cmap='Blues', vmin=0, vmax=600)
+        cmap='Blues', extend='max', vmin=0, vmax=600)
     artists['quiver'] = frames.isel(date=0).plot.quiver(
-        x='x', y='y', u='u', v='v', ax=fig.axes[0], add_guide=False, alpha=0.75)
+        x='x', y='y', u='u', v='v', ax=fig.axes[0], add_guide=False,
+        color='0.25', scale=2, scale_units='x')
+    fig.axes[0].quiverkey(
+        artists['quiver'], 0.85, 0.125, 500, r'500$\,m\,a^{-1}$', color='w',
+        labelcolor='w', labelpos='S')
     artists['star'], = fig.axes[0].plot(
         gnss.x[dates[0]], gnss.y[dates[0]], marker='*', markersize=8,
         color='tab:orange')
 
     # plot gnss velocity first (higher-frequency pandas plots clear the axes)
-    gnss.vh.plot(ax=fig.axes[1], color='tab:orange')
+    gnss.vh.plot(ax=fig.axes[1], color='tab:orange', label='GNSS')
     artists['curve'] = fig.axes[1].lines[-1]
 
     # plot satellite velocity at gnss location
     df = ds.interp(x=ds.gnssx, y=ds.gnssy).to_dataframe()
-    errorbar = bowdef_utils.plot_errorbar(fig.axes[1], df, color='tab:blue')
+    errorbar = bowdef_utils.plot_errorbar(
+        fig.axes[1], df, color='tab:blue', label='Landsat 8')
     artists['bars'] = errorbar.lines[2]
 
     # set axes properties
+    fig.axes[1].legend(loc='upper right')
     fig.axes[0].set_aspect('equal')
     fig.axes[0].set_title('')
     fig.axes[0].set_xlabel('')
@@ -121,12 +128,14 @@ def main():
     fig.axes[1].set_ylabel(r'velocity magnitude ($m\,a^{-1}$)')
     fig.axes[2].set_ylabel(r'velocity magnitude ($m\,a^{-1}$)')
 
-    # save
+    # save last frame as still image
+    fargs = (artists, frames, gnss, ds)
+    update(dates[-1], *fargs)
     fig.savefig(__file__[:-3])
 
     # animate at daily intervals
     ani = matplotlib.animation.FuncAnimation(
-        fig, func, fargs=(artists, frames, gnss, ds), frames=dates)
+        fig, update, fargs=fargs, frames=dates)
     ani.save(__file__[:-3]+'.mp4', fps=10)
 
 
