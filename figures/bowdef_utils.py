@@ -145,15 +145,33 @@ def load_gnss_velocities(**kwargs):
     # strain = (distance.diff(1) - distance.diff(-1)) / 2.0
     # strain_rate = (ldf.fvh - udf.fvh) / distance
 
-    # read gnss data, including backward-difference velocity
+    # read gnss data (only positions are used below)
     df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
 
-    # derive horizontal velocity
-    vel = filter_derive_dataframe(df[['x', 'y']], **kwargs)
-    df['vh'] = (vel['x']**2 + vel['y']**2)**0.5
+    # find antenna resets as offsets > 1m on short intervals
+    pos = df[['x', 'y', 'z']].dropna()
+    seconds = pos.index.to_series().diff().dt.total_seconds()
+    displacement = (pos.diff()**2).sum(axis=1, min_count=3)**0.5
+    resets = pos.index[(displacement > 1) & (seconds <= 2*3600)]
 
-    # return the whole dataframe
-    return df
+    # remove offsets as diff between fits over days before and after reset
+    interval = pd.to_timedelta('1D')
+    for date in resets:
+        before = pos.loc[date-interval:date].iloc[:-1]
+        after = pos.loc[date:date+interval]
+        before = np.polyfit((before.index-date).total_seconds(), before, 1)
+        after = np.polyfit((after.index-date).total_seconds(), after, 1)
+        pos.loc[date:] -= after[1] - before[1]
+
+    # restore regular index and interpolate gaps
+    pos = pos.reindex(df.index)
+
+    # derive horizontal velocity
+    vel = filter_derive_dataframe(pos, **kwargs)
+    vel = vel.assign(vh=(vel.x**2 + vel.y**2)**0.5)
+
+    # return velocity
+    return vel
 
 
 def load_strain(start, end):
