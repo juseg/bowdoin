@@ -70,15 +70,6 @@ def load_shear_velocities(**kwargs):
     return shear, coefs.exponent
 
 
-def plot_satellite(ax, df, **kwargs):
-    """Plot satellite velocities from dataframe."""
-    index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)
-    xerr = (df.end-df.start)/2/pd.to_timedelta('1'+ax.xaxis.freq)
-    return ax.errorbar(
-        index, df.speed, xerr=xerr, yerr=df.error,
-        linestyle='', linewidth=0.5, zorder=0, **kwargs)
-
-
 def main():
     """Main program called during execution."""
 
@@ -118,11 +109,11 @@ def main():
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
-    plot_satellite(axes[0], landsat, color=tab20[3], label='Landsat')
-    plot_satellite(axes[0], sentinel, color=tab20[11], label='Sentinel')
-    plot_satellite(axes[2], sat.assign(
+    bowdef_utils.plot_errorbar(axes[0], landsat, color=tab20[3], label='Landsat')
+    bowdef_utils.plot_errorbar(axes[0], sentinel, color=tab20[11], label='Sentinel')
+    bowdef_utils.plot_errorbar(axes[2], sat.assign(
         speed=sat_speed['BH1'], error=sat_error['BH1']), color=tab20[1])
-    plot_satellite(axes[2], sat.assign(
+    bowdef_utils.plot_errorbar(axes[2], sat.assign(
         speed=sat_speed['BH3'], error=sat_error['BH3']), color=tab20[13])
 
     # set axes properties

@@ -13,7 +13,6 @@ import xarray as xr
 
 import bowdef_utils
 import bowtem_utils
-import bowdef_speed  # FIXME move errorbar plot to utils
 
 
 def func(date, artists, frames, gnss, ds):
@@ -109,7 +108,7 @@ def main():
 
     # plot satellite velocity at gnss location
     df = ds.interp(x=ds.gnssx, y=ds.gnssy).to_dataframe()
-    errorbar = bowdef_speed.plot_satellite(fig.axes[1], df, color='tab:blue')
+    errorbar = bowdef_utils.plot_errorbar(fig.axes[1], df, color='tab:blue')
     artists['bars'] = errorbar.lines[2]
 
     # set axes properties
