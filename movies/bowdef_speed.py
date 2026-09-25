@@ -28,10 +28,13 @@ def update(date, artists, frames, gnss, ds):
     artists['marker'].set_data([gnss.x[date]], [gnss.y[date]])
     artists['marker'].set_alpha(0.5+0.5*gnss.measured[str(date.date())].any())
 
-    # update timeseries and errorbar transparency
+    # update errorbar transparency and timeseries (highlight pairs covering
+    # the current date, fade past pairs, and hide future pairs)
+    started = ds.start.values <= date
+    ongoing = started & (date <= ds.end.values)
+    artists['bars'][0].set_alpha(0.5*started+0.5*ongoing)
+    artists['bars'][1].set_alpha(0.5*started+0.5*ongoing)
     artists['curve'].set_ydata(gnss.vh.where(gnss.index <= date))
-    artists['bars'][0].set_alpha(ds.time.values <= date)
-    artists['bars'][1].set_alpha(ds.time.values <= date)
 
 
 def main():
