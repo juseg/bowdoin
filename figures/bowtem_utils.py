@@ -352,7 +352,7 @@ def plot_bowdoin_map(ax, boreholes=None, colors=None, season='spring'):
     """Draw boreholes location map with Sentinel image background."""
 
     # default boreholes and colors
-    boreholes = boreholes or list(COLOURS.keys())[:-1]
+    boreholes = list(COLOURS.keys())[:-1] if boreholes is None else boreholes
     colors = colors or list(COLOURS.values())[:-1]
 
     # select default color and seasonal image
