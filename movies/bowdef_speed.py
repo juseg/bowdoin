@@ -25,8 +25,8 @@ def update(date, artists, frames, gnss, ds):
 
     # update map date label and station marker
     artists['label'].set_text(date.strftime('%d %b %Y'))
-    artists['star'].set_data([gnss.x[date]], [gnss.y[date]])
-    artists['star'].set_alpha(0.5+0.5*gnss.measured[str(date.date())].any())
+    artists['marker'].set_data([gnss.x[date]], [gnss.y[date]])
+    artists['marker'].set_alpha(0.5+0.5*gnss.measured[str(date.date())].any())
 
     # update timeseries and errorbar transparency
     artists['curve'].set_ydata(gnss.vh.where(gnss.index <= date))
@@ -110,9 +110,8 @@ def main():
     fig.axes[0].quiverkey(
         artists['quiver'], 0.85, 0.125, 500, r'500$\,m\,a^{-1}$', color='w',
         labelcolor='w', labelpos='S')
-    artists['star'], = fig.axes[0].plot(
-        gnss.x[dates[0]], gnss.y[dates[0]], marker='*', markersize=8,
-        color='tab:orange')
+    artists['marker'], = fig.axes[0].plot(
+        gnss.x[dates[0]], gnss.y[dates[0]], marker='o', color='tab:orange')
 
     # plot gnss velocity first (higher-frequency pandas plots clear the axes)
     artists['curve'] = gnss.vh.plot(
