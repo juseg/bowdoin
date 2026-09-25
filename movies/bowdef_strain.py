@@ -76,8 +76,8 @@ def main():
     ds = ds.sel(x=slice(505e3, 515e3), y=slice(8630e3, 8620e3))
     ds = ds.where(ds.time.dt.year==2015, drop=True).sortby('time')
 
-    # plot background map FIXME allow plotting no boreholes
-    bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=['bh1'], season='summer')
+    # plot background map
+    bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=[], season='summer')
 
     # interpolate gnss positions across data gaps and to image dates
     gnss = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
