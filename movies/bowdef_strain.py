@@ -7,13 +7,13 @@
 
 
 import absplots as apl
-import geopandas as gpd
 import matplotlib as mpl
 import matplotlib.animation
 import numpy as np
 import pandas as pd
 import xarray as xr
 
+import bowdef_utils
 import bowtem_utils
 import bowdef_speed  # FIXME move errorbar plot to utils
 
@@ -25,6 +25,7 @@ def func(frame, fig, ds):
     quiver.set_UVC(now.u.T, now.v.T)
     fig.axes[0].images[1].set_data(now.eeh)
     fig.axes[0].texts[1].set_text(now.time.dt.strftime('%d %b %Y').values)
+    fig.axes[0].lines[-1].set_data([now.gnssx], [now.gnssy])
     hbars = fig.axes[1].collections[0]
     hbars.set_alpha(np.arange(len(ds.time)) <= frame)
     vbars = fig.axes[1].collections[1]
@@ -76,11 +77,11 @@ def main():
     # plot background map FIXME allow plotting no boreholes
     bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=['bh1'], season='summer')
 
-    # interpolate to borehole location FIXME get precise location from GNSS
-    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
-    gdf = gdf.set_index('name').loc[['B14BH1']]
-    gdf = gdf.to_crs('+proj=utm +zone=19')
-    gdf.plot(ax=fig.axes[0], marker='*', markersize=60)
+    # interpolate gnss positions (across data gaps) to image dates
+    gnss = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
+    xy = gnss[['x', 'y']].interpolate(method='time', limit_area='inside')
+    xy = xy.reindex(ds.time.values, method='nearest')
+    ds = ds.assign(gnssx=('time', xy.x.values), gnssy=('time', xy.y.values))
 
     # compute effective strain rate
     du_dx = ds.u.differentiate("x")
@@ -95,6 +96,10 @@ def main():
         cmap='Reds', vmin=0, vmax=1)
     quiver = ds.isel(time=0).plot.quiver(
         x='x', y='y', u='u', v='v', ax=fig.axes[0], add_guide=False, alpha=0.75)
+    fig.axes[0].plot(ds.gnssx[0], ds.gnssy[0], marker='*', markersize=8)
+
+    # plot gnss velocity first (higher-frequency pandas plots clear the axes)
+    gnss.vh.plot(ax=fig.axes[1], color='tab:orange')
 
     # plot time series FIXME a bit similar to errorbar plot from dataframe
     dsi = ds.interp(x=gdf.geometry.x, y=gdf.geometry.y)
