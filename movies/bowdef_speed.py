@@ -87,6 +87,11 @@ def main():
     date = xr.DataArray(dates, dims='date', coords={'date': dates})
     weights = ((ds.start <= date) & (date <= ds.end)) / ds.error**2
     frames = ds[['u', 'v']].weighted(weights).mean('time')
+
+    # mask pixels where pairs with data carry less than half of the weight,
+    # mostly beyond the calving front and along the glacier margins
+    coverage = ds.u.notnull().weighted(weights).mean('time')
+    frames = frames.where(coverage >= 0.5)
     frames = frames.transpose('date', 'y', 'x')
     frames = frames.assign(speed=(frames.u**2+frames.v**2)**0.5)
 
