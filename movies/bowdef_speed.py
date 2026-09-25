@@ -17,16 +17,21 @@ import bowtem_utils
 
 def update(date, artists, frames, gnss, ds):
     """Update artists for the corresponding date."""
+
+    # update map image and quiver (it stores arrows in xy order)
     now = frames.sel(date=date)
     artists['quiver'].set_UVC(now.u.T, now.v.T)
     artists['image'].set_data(now.speed)
+
+    # update map date label and station marker
     artists['label'].set_text(date.strftime('%d %b %Y'))
     artists['star'].set_data([gnss.x[date]], [gnss.y[date]])
-    artists['star'].set_alpha(
-        1 if gnss.measured[str(date.date())].any() else 0.5)
+    artists['star'].set_alpha(0.5+0.5*gnss.measured[str(date.date())].any())
+
+    # update timeseries and errorbar transparency
     artists['curve'].set_ydata(gnss.vh.where(gnss.index <= date))
-    for bars in artists['bars']:
-        bars.set_alpha(ds.time.values <= date)
+    artists['bars'][0].set_alpha(ds.time.values <= date)
+    artists['bars'][1].set_alpha(ds.time.values <= date)
 
 
 def main():
@@ -53,9 +58,11 @@ def main():
 
     # extract intervals and velocity components
     ds = ds.assign(start=xr.DataArray(
-        pd.to_datetime(ds.title.str[0:8], format='%d%m%Y').values, dims='time'))
+        data=pd.to_datetime(ds.title.str[0:8], format='%d%m%Y').values,
+        dims='time'))
     ds = ds.assign(end=xr.DataArray(
-        pd.to_datetime(ds.title.str[9:17], format='%d%m%Y').values, dims='time'))
+        data=pd.to_datetime(ds.title.str[9:17], format='%d%m%Y').values,
+        dims='time'))
     ds = ds.assign(days=ds.end-ds.start)
     ds = ds.assign(time=ds.start+ds.days/2)
     u = ds.sel(time=ds.title.str.contains('u')).drop_vars('title')
@@ -64,7 +71,7 @@ def main():
 
     # crop to Bowdoin tongue, select 2015 images, and sort by date
     ds = ds.sel(x=slice(505e3, 515e3), y=slice(8630e3, 8620e3))
-    ds = ds.where(ds.time.dt.year==2015, drop=True).sortby('time').load()
+    ds = ds.where(ds.time.dt.year == 2015, drop=True).sortby('time').load()
 
     # estimate error as 0.2 pixel (3 m) over the pair interval, assuming
     # feature-tracking on 15 m Landsat 8 panchromatic images
@@ -108,8 +115,8 @@ def main():
         color='tab:orange')
 
     # plot gnss velocity first (higher-frequency pandas plots clear the axes)
-    gnss.vh.plot(ax=fig.axes[1], color='tab:orange', label='GNSS')
-    artists['curve'] = fig.axes[1].lines[-1]
+    artists['curve'] = gnss.vh.plot(
+        ax=fig.axes[1], color='tab:orange', label='GNSS').lines[-1]
 
     # plot satellite velocity at gnss location
     df = ds.interp(x=ds.gnssx, y=ds.gnssy).to_dataframe()
@@ -124,9 +131,10 @@ def main():
     fig.axes[0].set_xlabel('')
     fig.axes[0].set_ylabel('')
     fig.axes[1].set_xlabel('')
-    fig.axes[1].set_xlim('20150301', '20150930')
-    fig.axes[1].set_ylabel(r'velocity magnitude ($m\,a^{-1}$)')
-    fig.axes[2].set_ylabel(r'velocity magnitude ($m\,a^{-1}$)')
+    fig.axes[1].set_xlim(
+        dates[0].to_period('M').start_time, dates[-1].to_period('M').end_time)
+    fig.axes[1].set_ylabel(r'surface velocity ($m\,a^{-1}$)')
+    fig.axes[2].set_ylabel(r'interpolated velocity ($m\,a^{-1}$)')
 
     # save last frame as still image
     fargs = (artists, frames, gnss, ds)
