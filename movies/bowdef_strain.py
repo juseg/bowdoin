@@ -102,7 +102,7 @@ def main():
     gnss.vh.plot(ax=fig.axes[1], color='tab:orange')
 
     # plot time series FIXME a bit similar to errorbar plot from dataframe
-    dsi = ds.interp(x=gdf.geometry.x, y=gdf.geometry.y)
+    dsi = ds.interp(x=ds.gnssx, y=ds.gnssy)
     dsi = dsi.assign(speed=(dsi.u**2+dsi.v**2)**0.5)
     dsi = dsi.assign(error=1)
     dsi = dsi.squeeze()
