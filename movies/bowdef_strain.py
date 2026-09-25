@@ -9,7 +9,6 @@
 import absplots as apl
 import matplotlib as mpl
 import matplotlib.animation
-import numpy as np
 import pandas as pd
 import xarray as xr
 
@@ -18,18 +17,19 @@ import bowtem_utils
 import bowdef_speed  # FIXME move errorbar plot to utils
 
 
-def func(frame, fig, ds):
-    now = ds.isel(time=frame)
+def func(date, fig, ds, gnss):
+    now = ds.isel(time=abs(ds.time-date.to_datetime64()).argmin('time').item())
     quiver = next(
         c for c in fig.axes[0].collections if isinstance(c, mpl.quiver.Quiver))
     quiver.set_UVC(now.u.T, now.v.T)
     fig.axes[0].images[1].set_data(now.eeh)
-    fig.axes[0].texts[1].set_text(now.time.dt.strftime('%d %b %Y').values)
-    fig.axes[0].lines[-1].set_data([now.gnssx], [now.gnssy])
+    fig.axes[0].texts[1].set_text(date.strftime('%d %b %Y'))
+    fig.axes[0].lines[-1].set_data([gnss.x[date]], [gnss.y[date]])
+    fig.axes[1].lines[0].set_ydata(gnss.vh.where(gnss.index <= date))
     hbars = fig.axes[1].collections[0]
-    hbars.set_alpha(np.arange(len(ds.time)) <= frame)
+    hbars.set_alpha(ds.time.values <= date)
     vbars = fig.axes[1].collections[1]
-    vbars.set_alpha(np.arange(len(ds.time)) <= frame)
+    vbars.set_alpha(ds.time.values <= date)
 
 
 def main():
@@ -77,9 +77,10 @@ def main():
     # plot background map FIXME allow plotting no boreholes
     bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=['bh1'], season='summer')
 
-    # interpolate gnss positions (across data gaps) to image dates
+    # interpolate gnss positions across data gaps and to image dates
     gnss = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
     xy = gnss[['x', 'y']].interpolate(method='time', limit_area='inside')
+    gnss = gnss.assign(x=xy.x, y=xy.y)
     xy = xy.reindex(ds.time.values, method='nearest')
     ds = ds.assign(gnssx=('time', xy.x.values), gnssy=('time', xy.y.values))
 
@@ -123,9 +124,11 @@ def main():
     # save
     fig.savefig(__file__[:-3])
 
-    # animate
+    # animate at daily intervals, showing the nearest image
+    dates = pd.date_range(
+        ds.time[0].values, ds.time[-1].values, freq='1D', normalize=True)
     ani = matplotlib.animation.FuncAnimation(
-        fig, func, fargs=(fig, ds), frames=len(ds.time))
+        fig, func, fargs=(fig, ds, gnss), frames=dates)
     ani.save(__file__[:-3]+'.mp4', fps=10)
 
 
