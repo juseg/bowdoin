@@ -24,7 +24,9 @@ def func(date, fig, ds, gnss):
     quiver.set_UVC(now.u.T, now.v.T)
     fig.axes[0].images[1].set_data(now.eeh)
     fig.axes[0].texts[1].set_text(date.strftime('%d %b %Y'))
-    fig.axes[0].lines[-1].set_data([gnss.x[date]], [gnss.y[date]])
+    star = fig.axes[0].lines[-1]
+    star.set_data([gnss.x[date]], [gnss.y[date]])
+    star.set_alpha(1 if gnss.measured[str(date.date())].any() else 0.5)
     fig.axes[1].lines[0].set_ydata(gnss.vh.where(gnss.index <= date))
     hbars = fig.axes[1].collections[0]
     hbars.set_alpha(ds.time.values <= date)
@@ -80,7 +82,7 @@ def main():
     # interpolate gnss positions across data gaps and to image dates
     gnss = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
     xy = gnss[['x', 'y']].interpolate(method='time', limit_area='inside')
-    gnss = gnss.assign(x=xy.x, y=xy.y)
+    gnss = gnss.assign(x=xy.x, y=xy.y, measured=gnss.x.notna())
     xy = xy.reindex(ds.time.values, method='nearest')
     ds = ds.assign(gnssx=('time', xy.x.values), gnssy=('time', xy.y.values))
 
@@ -97,7 +99,8 @@ def main():
         cmap='Reds', vmin=0, vmax=1)
     quiver = ds.isel(time=0).plot.quiver(
         x='x', y='y', u='u', v='v', ax=fig.axes[0], add_guide=False, alpha=0.75)
-    fig.axes[0].plot(ds.gnssx[0], ds.gnssy[0], marker='*', markersize=8)
+    fig.axes[0].plot(
+        ds.gnssx[0], ds.gnssy[0], marker='*', markersize=8, color='tab:orange')
 
     # plot gnss velocity first (higher-frequency pandas plots clear the axes)
     gnss.vh.plot(ax=fig.axes[1], color='tab:orange')
@@ -108,7 +111,6 @@ def main():
     dsi = dsi.assign(error=1)
     dsi = dsi.squeeze()
     df = dsi.to_dataframe()
-    df.speed.resample('1D').mean().interpolate(method='linear').plot(ax=fig.axes[1], alpha=0.25)
     bowdef_speed.plot_satellite(fig.axes[1], df, color='tab:blue')
 
     # set axes properties
