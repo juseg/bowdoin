@@ -50,26 +50,25 @@ def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig = apl.figure_mm(figsize=(150, 90))
-    fig.add_axes_mm([2.5, 2.5, 60, 85])
-    fig.add_axes_mm([65, 2.5, 60, 85])
-    fig.add_axes_mm([127.5, 2.5, 4, 85])
+    fig, axes = apl.subplots_mm(
+        figsize=(180, 90), ncols=2, sharex=True, sharey=True, gridspec_kw={
+            'left': 2.5, 'bottom': 2.5, 'right': 23, 'top': 2.5, 'wspace': 2.5})
+    cax = fig.add_axes_mm([159.5, 2.5, 4, 85])
 
     # add subfigure labels
-    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
-    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='w')
+    bowtem_utils.add_subfig_labels(axes=axes, colors='w')
 
     # open landsat pairs
     ds = bowdef_utils.open_landsat_pairs()
 
     # plot effective strain rates at lowest and highest velocities
-    for ax, month in zip(fig.axes, ['2015-04', '2015-06']):
+    for ax, month in zip(axes, ['2015-04', '2015-06']):
         label = pd.to_datetime(month).strftime('%B %Y')
         mean = compute_monthly_average(ds, month)
         eff = compute_effective_strain_rate(mean.u, mean.v)
         bowtem_utils.plot_bowdoin_map(ax, boreholes=[], season='summer')
         eff.plot.imshow(
-            ax=ax, add_labels=False, alpha=0.75, cbar_ax=fig.axes[2],
+            ax=ax, add_labels=False, alpha=0.75, cbar_ax=cax,
             cmap='Reds', extend='both', norm=mcolors.LogNorm(0.03, 1))
         bowtem_utils.add_subfig_label(
             f'{label}\n{mean.pairs} pairs', ax=ax, color='w', loc='sw')
@@ -77,10 +76,11 @@ def main():
               f', 99th pct {eff.quantile(0.99).item():.3f} a-1')
 
     # set axes properties
-    for ax in fig.axes[:2]:
+    for ax in axes:
         ax.set_aspect('equal')
+        ax.set_xlim(510e3-17e3/6*76/85, 510e3+17e3/6*76/85)
         ax.set_title('')
-    fig.axes[2].set_ylabel(r'effective strain rate ($a^{-1}$)')
+    cax.set_ylabel(r'effective strain rate ($a^{-1}$)')
 
     # save
     fig.savefig(__file__[:-3])
