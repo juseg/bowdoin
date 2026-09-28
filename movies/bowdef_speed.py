@@ -40,16 +40,16 @@ def update(date, artists, frames, gnss, ds):
 def average_daily_frames(ds):
     """Average pairs covering each day and mask poorly covered pixels."""
 
-    # average pairs covering each daily frame, weighted by inverse variance
+    # average pairs covering each daily frame
     dates = pd.date_range(
         ds.time[0].values, ds.time[-1].values, freq='1D', normalize=True)
     date = xr.DataArray(dates, dims='date', coords={'date': dates})
-    weights = ((ds.start <= date) & (date <= ds.end)) / ds.error**2
-    frames = ds[['u', 'v']].weighted(weights).mean('time')
+    covering = ((ds.start <= date) & (date <= ds.end)).astype(float)
+    frames = ds[['u', 'v']].weighted(covering).mean('time')
 
-    # mask pixels where pairs with data carry less than half of the weight,
+    # mask pixels where less than half of the covering pairs have data,
     # mostly beyond the calving front and along the glacier margins
-    coverage = ds.u.notnull().weighted(weights).mean('time')
+    coverage = ds.u.notnull().weighted(covering).mean('time')
     frames = frames.where(coverage >= 0.5)
     frames = frames.transpose('date', 'y', 'x')
     frames = frames.assign(speed=(frames.u**2+frames.v**2)**0.5)
