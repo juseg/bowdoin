@@ -7,6 +7,7 @@
 import numpy as np
 import pandas as pd
 import scipy as sp
+import xarray as xr
 
 import bowstr_utils
 import bowtem_utils
@@ -234,6 +235,44 @@ def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
         [azim, gnss, pres, tilt, tide], axis=1,
         keys=['azim', 'gnss', 'pres', 'tilt', 'tide'],
         names=['variable', 'unit'])
+
+
+def open_landsat_pairs():
+    """Open Landsat velocity pairs with intervals, errors, and speed."""
+
+    # open 2015 images in multi-file dataset
+    ds = xr.open_mfdataset(
+        '../data/satellite/bowdoin-landsat-uv/*2015_*2015_*.nc',
+        combine='nested', combine_attrs='drop_conflicts', concat_dim='time',
+        preprocess=lambda ds: ds.assign(title=ds.title.split('/')[-1]))
+
+    # extract intervals and velocity components
+    ds = ds.assign(start=xr.DataArray(
+        data=pd.to_datetime(ds.title.str[0:8], format='%d%m%Y').values,
+        dims='time'))
+    ds = ds.assign(end=xr.DataArray(
+        data=pd.to_datetime(ds.title.str[9:17], format='%d%m%Y').values,
+        dims='time'))
+    ds = ds.assign(days=ds.end-ds.start)
+    ds = ds.assign(time=ds.start+ds.days/2)
+    u = ds.sel(time=ds.title.str.contains('u')).drop_vars('title')
+    v = ds.sel(time=ds.title.str.contains('v')).drop_vars('title')
+    ds = xr.merge([u.rename(z='u'), v.rename(z='v')], compat='no_conflicts')
+
+    # crop to Bowdoin tongue, select 2015 images, and sort by date
+    ds = ds.sel(x=slice(505e3, 515e3), y=slice(8630e3, 8620e3))
+    ds = ds.where(ds.time.dt.year == 2015, drop=True).sortby('time').load()
+
+    # estimate error as 0.2 pixel (3 m) over the pair interval, assuming
+    # feature-tracking on 15 m Landsat 8 panchromatic images
+    # FIXME get a better error estimate from new images
+    ds = ds.assign(error=3 * 365 / ds.days.dt.days)
+
+    # compute velocity magnitude
+    ds = ds.assign(speed=(ds.u**2+ds.v**2)**0.5)
+
+    # return dataset
+    return ds
 
 
 # Plot methods
