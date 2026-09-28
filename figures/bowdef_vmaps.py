@@ -3,59 +3,84 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin velocity gradient from Landsat images."""
+"""Plot Bowdoin spring and summer strain rates from Landsat images."""
 
 
 import absplots as apl
-import xarray as xr
+import matplotlib.colors as mcolors
+import pandas as pd
 
+import bowdef_utils
 import bowtem_utils
 
 
-def main():
-    """Main program called during execution."""
+def compute_monthly_average(ds, month):
+    """Average pairs within a month excluding poorly covered pixels."""
 
-    # initialize figure
-    fig, axes = apl.subplots_mm(
-        figsize=(180, 90), ncols=2, sharex=True, sharey=True, gridspec_kw={
-            'left': 2.5, 'bottom': 2.5, 'right': 2.5, 'top': 2.5, 'wspace': 2.5})
+    # select monthly data
+    ds = ds[['u', 'v']].sel(time=month)
 
-    # add subfigure labels
-    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
-    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='k')
+    # compute average excluding pixels with less than half coverage
+    # (mostly beyond the calving front and along the glacier margins)
+    mean = ds.mean('time').where(ds.u.notnull().mean('time') >= 0.5)
 
-    # plot image data
-    bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=[], season='summer')
+    # return monthly average and number of pairs
+    return mean.assign_attrs(pairs=ds.sizes['time'])
 
-    # plot velocity contours
-    prefix = '../data/satellite/bowdoin-landsat-uv/16072015_17082015_161111_1117'
-    u = xr.open_dataarray(prefix+'_f_u.nc').squeeze().where(lambda x: x!=65535)
-    v = xr.open_dataarray(prefix+'_f_v.nc').squeeze().where(lambda x: x!=65535)
 
-    # compute rotated strain rates
+def compute_effective_strain_rate(u, v):
+    """Compute effective strain rate from velocity components."""
+
+    # compute velocity gradients
     du_dx = u.differentiate('x')
     du_dy = u.differentiate('y')
     dv_dx = v.differentiate('x')
     dv_dy = v.differentiate('y')
-
-    # compute effective strain rate
-    eff = (2*(du_dx**2+dv_dy**2)+(du_dy+dv_dx)**2)**0.5
 
     # to compute rotated strain rates instead
     # epp = (u**2*du_dx+u*v*(du_dy+dv_dx)+v**2*dv_dy) / (u**2+v**2)
     # eoo = (v**2*du_dx-u*v*(du_dy+dv_dx)+ u**2*dv_dy) / (u**2+v**2)
     # epo = (u*v*(dv_dy-du_dx)+0.5*(u**2-v**2)*(du_dy+dv_dx)) / (u**2+v**2)
 
-    # long_strain.plot.contour(ax=ax, add_labels=False, alpha=0.75)
-    # tran_strain.plot.contour(ax=ax, add_labels=False, alpha=0.75)
-    # shear_strain.plot.contour(ax=ax, add_labels=False, alpha=0.75)
+    # return effective strain rate
+    return (2*(du_dx**2+dv_dy**2)+(du_dy+dv_dx)**2)**0.5
 
-    # plot
-    eff.plot.imshow(ax=axes[0], add_colorbar=False, add_labels=False, alpha=0.75, cmap='Reds')
+
+def main():
+    """Main program called during execution."""
+
+    # initialize figure
+    fig = apl.figure_mm(figsize=(150, 90))
+    fig.add_axes_mm([2.5, 2.5, 60, 85])
+    fig.add_axes_mm([65, 2.5, 60, 85])
+    fig.add_axes_mm([127.5, 2.5, 4, 85])
+
+    # add subfigure labels
+    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], color='w')
+    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='w')
+
+    # open landsat pairs
+    ds = bowdef_utils.open_landsat_pairs()
+
+    # plot effective strain rates at lowest and highest velocities
+    for ax, month in zip(fig.axes, ['2015-04', '2015-06']):
+        label = pd.to_datetime(month).strftime('%B %Y')
+        mean = compute_monthly_average(ds, month)
+        eff = compute_effective_strain_rate(mean.u, mean.v)
+        bowtem_utils.plot_bowdoin_map(ax, boreholes=[], season='summer')
+        eff.plot.imshow(
+            ax=ax, add_labels=False, alpha=0.75, cbar_ax=fig.axes[2],
+            cmap='Reds', extend='both', norm=mcolors.LogNorm(0.03, 1))
+        bowtem_utils.add_subfig_label(
+            f'{label}\n{mean.pairs} pairs', ax=ax, color='w', loc='sw')
+        print(f'{label}: {mean.pairs} pairs, median {eff.median().item():.3f}'
+              f', 99th pct {eff.quantile(0.99).item():.3f} a-1')
 
     # set axes properties
-    for ax in axes:
+    for ax in fig.axes[:2]:
         ax.set_aspect('equal')
+        ax.set_title('')
+    fig.axes[2].set_ylabel(r'effective strain rate ($a^{-1}$)')
 
     # save
     fig.savefig(__file__[:-3])
