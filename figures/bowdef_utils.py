@@ -236,6 +236,18 @@ def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
         names=['variable', 'unit'])
 
 
+# Plot methods
+# ------------
+
+def plot_errorbar(ax, df, **kwargs):
+    """Plot error bars from dataframe using start, end, and error columns."""
+    index = ax.xaxis.get_converter().convert(df.index, None, ax.xaxis)
+    xerr = (df.end-df.start)/2/pd.to_timedelta('1'+ax.xaxis.freq)
+    return ax.errorbar(
+        index, df.speed, xerr=xerr, yerr=df.error,
+        linestyle='', linewidth=0.5, zorder=0, **kwargs)
+
+
 # ----------------------------------------------------------------------
 
 # FIXME untested broken code below duplicating bowtem_utils and other projects

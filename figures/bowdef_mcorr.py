@@ -94,7 +94,8 @@ def plot(couple='ti2sp', method='inner'):
     df = df.drop(columns=['UI03', 'UI02'], level=1)
 
     # compute rolling-window cross-correlations
-    mcorr = bowdef_utils.correlate_rolling_dataframes(df[var], df[ref])
+    mcorr = bowdef_utils.correlate_rolling_dataframes(
+        df[var], df[ref]['LI05'] if ref == var else df[ref])
 
     # plot correlations and phase delays
     img = plot_rolling_correlations(ax, depth, mcorr)
@@ -108,7 +109,7 @@ def main():
     """Main program called during execution."""
     couples = [
         'az2sp', 'az2ti', 'sp2ti', 'st2sp', 'st2az', 'st2ti', 'st2tr',
-        'tr2sp', 'tr2ti']
+        'tr2sp', 'tr2ti', 'tr2tr']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 
