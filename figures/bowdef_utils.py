@@ -105,9 +105,9 @@ def filter_savgol_dataframe(df, window_length, *args, **kwargs):
     freq = pd.to_timedelta(pd.infer_freq(df.index))
     kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
 
-    # convert string window length to integer
+    # convert string window length to odd integer (centred window)
     if isinstance(window_length, str):
-        window_length = int(pd.to_timedelta(window_length)/freq)
+        window_length = int(pd.to_timedelta(window_length)/freq) // 2 * 2 + 1
 
     # return concatenation of filtered series
     return pd.concat([filter_savgol_series(
