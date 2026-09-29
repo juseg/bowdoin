@@ -311,6 +311,26 @@ def read_gps_data(method='backward'):
     # resample with 15 minute frequency and fill with NaN
     df = df.resample('15min').mean()
 
+    # find antenna resets as offsets > 1m on short intervals
+    pos = df[['x', 'y', 'z']].dropna()
+    seconds = pos.index.to_series().diff().dt.total_seconds()
+    displacement = (pos.diff()**2).sum(axis=1, min_count=3)**0.5
+    resets = pos.index[(displacement > 1) & (seconds <= 2*3600)]
+
+    # remove offsets as diff between fits over days before and after reset
+    interval = pd.to_timedelta('1D')
+    for date in resets:
+        before = pos.loc[date-interval:date].iloc[:-1]
+        after = pos.loc[date:date+interval]
+        before = np.polyfit((before.index-date).total_seconds(), before, 1)
+        after = np.polyfit((after.index-date).total_seconds(), after, 1)
+        pos.loc[date:] -= after[1] - before[1]
+
+    # replace positions by corrected ones and update lon/lat accordingly
+    df[['x', 'y', 'z']] = pos.reindex(df.index)
+    df['lon'], df['lat'] = trans.transform(
+        df['x'].values, df['y'].values, direction='INVERSE')
+
     # compute cartesian velocity in meters per year
     v = df[['x', 'y', 'z']]
     if method == 'backward':
