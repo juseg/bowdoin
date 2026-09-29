@@ -3,11 +3,11 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin spring and summer strain rates from Landsat images."""
+"""Plot Bowdoin April and June strain rates from Landsat images."""
 
 
 import absplots as apl
-import matplotlib.colors as mcolors
+import matplotlib as mpl
 import pandas as pd
 
 import bowdef_utils
@@ -65,7 +65,7 @@ def main():
         bowtem_utils.plot_bowdoin_map(ax, boreholes=[], season='summer')
         eff.plot.imshow(
             ax=ax, add_labels=False, alpha=0.75, cbar_ax=cax,
-            cmap='Reds', extend='both', norm=mcolors.LogNorm(0.03, 1))
+            cmap='Reds', extend='both', norm=mpl.colors.LogNorm(10**-1.5, 1))
         bowdef_utils.plot_velocity_quiver(ax, mean)
 
         # plot borehole locations interpolated to the monthly average
@@ -85,6 +85,9 @@ def main():
         ax.set_aspect('equal')
         ax.set_title('')
     cax.set_ylabel(r'effective strain rate ($a^{-1}$)')
+    cax.yaxis.set_minor_locator(mpl.ticker.NullLocator())
+    cax.yaxis.set_major_locator(mpl.ticker.LogLocator(base=10**0.5))
+    cax.yaxis.set_major_formatter('{x:.1g}')
 
     # save
     fig.savefig(__file__[:-3])
