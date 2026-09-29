@@ -287,6 +287,18 @@ def plot_errorbar(ax, df, **kwargs):
         linestyle='', linewidth=0.5, zorder=0, **kwargs)
 
 
+def plot_velocity_quiver(ax, ds, **kwargs):
+    """Plot velocity arrows from u and v variables with a 500 m/a key."""
+    kwargs = {'color': '0.25', 'scale': 2, 'scale_units': 'x', **kwargs}
+    quiver = ds.plot.quiver(
+        x='x', y='y', u='u', v='v', ax=ax, add_guide=False, **kwargs)
+    ax.quiverkey(
+        quiver, 0.85, 0.175, 500, r'500$\,m\,a^{-1}$', color='w',
+        labelcolor='w', labelpos='S')
+    ax.set_xlabel('')
+    ax.set_ylabel('')
+    return quiver
+
 # ----------------------------------------------------------------------
 
 # FIXME untested broken code below duplicating bowtem_utils and other projects

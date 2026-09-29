@@ -70,6 +70,7 @@ def main():
         eff.plot.imshow(
             ax=ax, add_labels=False, alpha=0.75, cbar_ax=cax,
             cmap='Reds', extend='both', norm=mcolors.LogNorm(0.03, 1))
+        bowdef_utils.plot_velocity_quiver(ax, mean)
         bowtem_utils.add_subfig_label(
             f'{label}\n{mean.pairs} pairs', ax=ax, color='w', loc='sw')
         print(f'{label}: {mean.pairs} pairs, median {eff.median().item():.3f}'
