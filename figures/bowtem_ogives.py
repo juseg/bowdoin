@@ -8,11 +8,9 @@
 from scipy import stats
 import hyoga  # noqa pylint: disable=unused-import
 import geopandas as gpd
-import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
 import absplots as apl
-import pyproj
 import bowtem_utils
 
 
@@ -36,38 +34,6 @@ def init_figure():
 
     # return figure and axes
     return fig, grid, cax, pfax
-
-
-def project_borehole_locations(date, crs):
-    """
-    Estimate borehole locations for a given date based their initial positions
-    measured by hand-held GPS and the continuous D-GPS record at BH1.
-    """
-
-    # read initial positions from GPX file
-    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
-    gdf = gdf.set_index('name').to_crs(crs)
-    gdf = gdf[gdf.index.str.startswith('B14')]
-    gdf = gdf.set_index(gdf.index.str[3:].str.lower())
-    initial = gdf.geometry.get_coordinates()
-
-    # interpolate DEM date BH1 location from continuous GPS
-    trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
-    gps = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
-    gps = gps.interpolate().loc[date].mean()
-    gps['x'], gps['y'] = trans.transform(gps.lon, gps.lat)
-    gps = gps[['x', 'y']]
-
-    # compute DEM date positions from BH1 displacement with time mutliplier
-    displacement = gps - initial.loc['bh1']
-    date = pd.to_datetime(date, utc=True)
-    date_init = pd.to_datetime(gdf.time)
-    multiplier = (date - date_init.bh1) / (date - date_init)
-    displacement = displacement.apply(lambda x: x*multiplier).T
-    projected = initial + displacement
-
-    # return initial and projected locations
-    return initial, projected
 
 
 def project_location(x, y, loc):
@@ -128,7 +94,8 @@ def main():
     # plot borehole locations on the map
     ax = grid[0]
     crs = '+proj=stere +lat_0=90 +lon_0=-45 +lat_ts=70'
-    initial, projected = project_borehole_locations(st0[5:13], crs=crs)
+    initial, projected = bowtem_utils.project_borehole_locations(
+        st0[5:13], crs=crs)
     for bh in ('bh1', 'bh2', 'bh3'):
         color = bowtem_utils.COLOURS[bh]
         ax.plot(*initial.loc[bh], color='0.25', marker='+')
