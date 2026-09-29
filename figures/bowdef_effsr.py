@@ -71,10 +71,18 @@ def main():
             ax=ax, add_labels=False, alpha=0.75, cbar_ax=cax,
             cmap='Reds', extend='both', norm=mcolors.LogNorm(0.03, 1))
         bowdef_utils.plot_velocity_quiver(ax, mean)
+
+        # plot borehole locations interpolated to the monthly average
+        _, projected = bowtem_utils.project_borehole_locations(
+            month, crs='+proj=utm +zone=19')
+        for bh, point in zip(['bh1', 'bh3'], ['se', 'nw']):
+            ax.plot(*projected.loc[bh], color='0.25', marker='o')
+            bowtem_utils.annotate_by_compass(
+                bh.upper(), ax=ax, color='0.25', fontweight='bold',
+                xy=projected.loc[bh], point=point)
+
         bowtem_utils.add_subfig_label(
             f'{label}\n{mean.pairs} pairs', ax=ax, color='w', loc='sw')
-        print(f'{label}: {mean.pairs} pairs, median {eff.median().item():.3f}'
-              f', 99th pct {eff.quantile(0.99).item():.3f} a-1')
 
     # set axes properties
     for ax in axes:
