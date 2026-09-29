@@ -51,9 +51,9 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 90), ncols=2, sharex=True, sharey=True, gridspec_kw={
-            'left': 2.5, 'bottom': 2.5, 'right': 23, 'top': 2.5, 'wspace': 2.5})
-    cax = fig.add_axes_mm([159.5, 2.5, 4, 85])
+        figsize=(150, 90), ncols=2, sharex=True, sharey=True, gridspec_kw={
+            'left': 2.5, 'bottom': 2.5, 'right': 25, 'top': 2.5, 'wspace': 2.5})
+    cax = fig.add_axes_mm([127.5, 2.5, 5, 85])
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes=axes, colors='w')
@@ -79,7 +79,6 @@ def main():
     # set axes properties
     for ax in axes:
         ax.set_aspect('equal')
-        ax.set_xlim(510e3-17e3/6*76/85, 510e3+17e3/6*76/85)
         ax.set_title('')
     cax.set_ylabel(r'effective strain rate ($a^{-1}$)')
 
