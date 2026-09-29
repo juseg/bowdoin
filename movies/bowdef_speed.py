@@ -37,57 +37,19 @@ def update(date, artists, frames, gnss, ds):
     artists['curve'].set_ydata(gnss.vh.where(gnss.index <= date))
 
 
-def open_landsat_pairs():
-    """Open Landsat velocity pairs with intervals, errors, and speed."""
-
-    # open 2015 images in multi-file dataset
-    ds = xr.open_mfdataset(
-        '../data/satellite/bowdoin-landsat-uv/*2015_*2015_*.nc',
-        combine='nested', combine_attrs='drop_conflicts', concat_dim='time',
-        preprocess=lambda ds: ds.assign(title=ds.title.split('/')[-1]))
-
-    # extract intervals and velocity components
-    ds = ds.assign(start=xr.DataArray(
-        data=pd.to_datetime(ds.title.str[0:8], format='%d%m%Y').values,
-        dims='time'))
-    ds = ds.assign(end=xr.DataArray(
-        data=pd.to_datetime(ds.title.str[9:17], format='%d%m%Y').values,
-        dims='time'))
-    ds = ds.assign(days=ds.end-ds.start)
-    ds = ds.assign(time=ds.start+ds.days/2)
-    u = ds.sel(time=ds.title.str.contains('u')).drop_vars('title')
-    v = ds.sel(time=ds.title.str.contains('v')).drop_vars('title')
-    ds = xr.merge([u.rename(z='u'), v.rename(z='v')], compat='no_conflicts')
-
-    # crop to Bowdoin tongue, select 2015 images, and sort by date
-    ds = ds.sel(x=slice(505e3, 515e3), y=slice(8630e3, 8620e3))
-    ds = ds.where(ds.time.dt.year == 2015, drop=True).sortby('time').load()
-
-    # estimate error as 0.2 pixel (3 m) over the pair interval, assuming
-    # feature-tracking on 15 m Landsat 8 panchromatic images
-    # FIXME get a better error estimate from new images
-    ds = ds.assign(error=3 * 365 / ds.days.dt.days)
-
-    # compute velocity magnitude
-    ds = ds.assign(speed=(ds.u**2+ds.v**2)**0.5)
-
-    # return dataset
-    return ds
-
-
 def average_daily_frames(ds):
     """Average pairs covering each day and mask poorly covered pixels."""
 
-    # average pairs covering each daily frame, weighted by inverse variance
+    # average pairs covering each daily frame
     dates = pd.date_range(
         ds.time[0].values, ds.time[-1].values, freq='1D', normalize=True)
     date = xr.DataArray(dates, dims='date', coords={'date': dates})
-    weights = ((ds.start <= date) & (date <= ds.end)) / ds.error**2
-    frames = ds[['u', 'v']].weighted(weights).mean('time')
+    covering = ((ds.start <= date) & (date <= ds.end)).astype(float)
+    frames = ds[['u', 'v']].weighted(covering).mean('time')
 
-    # mask pixels where pairs with data carry less than half of the weight,
+    # mask pixels where less than half of the covering pairs have data,
     # mostly beyond the calving front and along the glacier margins
-    coverage = ds.u.notnull().weighted(weights).mean('time')
+    coverage = ds.u.notnull().weighted(covering).mean('time')
     frames = frames.where(coverage >= 0.5)
     frames = frames.transpose('date', 'y', 'x')
     frames = frames.assign(speed=(frames.u**2+frames.v**2)**0.5)
@@ -113,7 +75,7 @@ def main():
     bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], color='k')
 
     # open landsat pairs and average them to daily frames
-    ds = open_landsat_pairs()
+    ds = bowdef_utils.open_landsat_pairs()
     dates, frames = average_daily_frames(ds)
 
     # plot background map
@@ -130,12 +92,8 @@ def main():
     artists['image'] = frames.speed[0].plot.imshow(
         ax=fig.axes[0], add_labels=False, alpha=0.75, cbar_ax=fig.axes[2],
         cmap='Blues', extend='max', vmin=0, vmax=600)
-    artists['quiver'] = frames.isel(date=0).plot.quiver(
-        x='x', y='y', u='u', v='v', ax=fig.axes[0], add_guide=False,
-        color='0.25', scale=2, scale_units='x')
-    fig.axes[0].quiverkey(
-        artists['quiver'], 0.85, 0.125, 500, r'500$\,m\,a^{-1}$', color='w',
-        labelcolor='w', labelpos='S')
+    artists['quiver'] = bowdef_utils.plot_velocity_quiver(
+        fig.axes[0], frames.isel(date=0))
     artists['marker'], = fig.axes[0].plot(
         gnss.x[dates[0]], gnss.y[dates[0]], marker='o', color='tab:orange')
 
@@ -153,8 +111,6 @@ def main():
     fig.axes[1].legend(loc='upper right')
     fig.axes[0].set_aspect('equal')
     fig.axes[0].set_title('')
-    fig.axes[0].set_xlabel('')
-    fig.axes[0].set_ylabel('')
     fig.axes[1].set_xlabel('')
     fig.axes[1].set_xlim(
         dates[0].to_period('M').start_time, dates[-1].to_period('M').end_time)

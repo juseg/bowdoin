@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import numpy as np
 import pandas as pd
+import pyproj
 import xarray as xr
 
 # Global parameters
@@ -343,6 +344,38 @@ def estimate_closure_state(borehole, temp):
     return pd.DataFrame({
         'date': closure_dates, 'temp': closure_temps,
         'time': closure_dates - drilling_date})
+
+
+def project_borehole_locations(date, crs):
+    """
+    Estimate borehole locations for a given date based their initial positions
+    measured by hand-held GPS and the continuous D-GPS record at BH1.
+    """
+
+    # read initial positions from GPX file
+    gdf = gpd.read_file('../data/locations.gpx', layer='waypoints')
+    gdf = gdf.set_index('name').to_crs(crs)
+    gdf = gdf[gdf.index.str.startswith('B14')]
+    gdf = gdf.set_index(gdf.index.str[3:].str.lower())
+    initial = gdf.geometry.get_coordinates()
+
+    # interpolate DEM date BH1 location from continuous GPS
+    trans = pyproj.Transformer.from_crs('+proj=lonlat', crs)
+    gps = load('../data/processed/bowdoin.bh1.gps.csv')
+    gps = gps.interpolate().loc[date].mean()
+    gps['x'], gps['y'] = trans.transform(gps.lon, gps.lat)
+    gps = gps[['x', 'y']]
+
+    # compute DEM date positions from BH1 displacement with time mutliplier
+    displacement = gps - initial.loc['bh1']
+    date = pd.to_datetime(date, utc=True)
+    date_init = pd.to_datetime(gdf.time)
+    multiplier = (date - date_init.bh1) / (date - date_init)
+    displacement = displacement.apply(lambda x: x*multiplier).T
+    projected = initial + displacement
+
+    # return initial and projected locations
+    return initial, projected
 
 
 # Complete plot methods
