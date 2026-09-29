@@ -114,18 +114,27 @@ def filter_savgol_dataframe(df, window_length, *args, **kwargs):
         df[column], window_length, *args, **kwargs) for column in df], axis=1)
 
 
-def filter_savgol_series(series, *args, **kwargs):
-    """Apply Savitsky-Golay filter on series trimmed from NaNs."""
+def filter_savgol_series(series, window_length, *args, **kwargs):
+    """Apply Savitsky-Golay filter on each continuous stretch of a series."""
 
     # strip initial and final nan values
     first = series.first_valid_index()
     last = series.last_valid_index()
     series = series.loc[first:last]
 
+    # label continuous stretches of valid values
+    valid = series.notna()
+    labels = (valid != valid.shift()).cumsum()[valid]
+
+    # filter stretches at least as long as window, leave others as nan
+    filtered = pd.Series(index=series.index, name=series.name, dtype=float)
+    for _, stretch in series[valid].groupby(labels):
+        if len(stretch) >= window_length:
+            filtered[stretch.index] = sp.signal.savgol_filter(
+                stretch, window_length, *args, **kwargs)
+
     # return new series with filtered values
-    return pd.Series(
-        data=sp.signal.savgol_filter(series, *args, **kwargs),
-        index=series.index, name=series.name)
+    return filtered
 
 
 # Data loading methods
