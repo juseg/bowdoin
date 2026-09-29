@@ -37,11 +37,6 @@ def compute_effective_strain_rate(u, v):
     dv_dx = v.differentiate('x')
     dv_dy = v.differentiate('y')
 
-    # to compute rotated strain rates instead
-    # epp = (u**2*du_dx+u*v*(du_dy+dv_dx)+v**2*dv_dy) / (u**2+v**2)
-    # eoo = (v**2*du_dx-u*v*(du_dy+dv_dx)+ u**2*dv_dy) / (u**2+v**2)
-    # epo = (u*v*(dv_dy-du_dx)+0.5*(u**2-v**2)*(du_dy+dv_dx)) / (u**2+v**2)
-
     # return effective strain rate
     return (2*(du_dx**2+dv_dy**2)+(du_dy+dv_dx)**2)**0.5
 
@@ -52,7 +47,8 @@ def main():
     # initialize figure
     fig, axes = apl.subplots_mm(
         figsize=(150, 90), ncols=2, sharex=True, sharey=True, gridspec_kw={
-            'left': 2.5, 'bottom': 2.5, 'right': 25, 'top': 2.5, 'wspace': 2.5})
+            'left': 2.5, 'bottom': 2.5, 'right': 25, 'top': 2.5,
+            'wspace': 2.5})
     cax = fig.add_axes_mm([127.5, 2.5, 5, 85])
 
     # add subfigure labels
@@ -76,9 +72,9 @@ def main():
         _, projected = bowtem_utils.project_borehole_locations(
             month, crs='+proj=utm +zone=19')
         for bh, point in zip(['bh1', 'bh3'], ['se', 'nw']):
-            ax.plot(*projected.loc[bh], color='0.25', marker='o')
+            ax.plot(*projected.loc[bh], color='1', marker='o')
             bowtem_utils.annotate_by_compass(
-                bh.upper(), ax=ax, color='0.25', fontweight='bold',
+                bh.upper(), ax=ax, color='w', fontweight='bold',
                 xy=projected.loc[bh], point=point)
 
         bowtem_utils.add_subfig_label(
