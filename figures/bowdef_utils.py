@@ -95,8 +95,74 @@ def filter_derive_dataframe(df, method='twopoint', window=None):
         return filter_savgol_dataframe(
             df, window, polyorder=2, delta=delta, deriv=1)
 
+    # compute Gaussian kernel-weighted local polynomial derivative
+    if method == 'kernel':
+        return filter_kernel_dataframe(
+            df, window, polyorder=2, delta=delta, deriv=1)
+
     # other methods are unknown
-    raise ValueError("Unkown derivation method {method}.")
+    raise ValueError(f"Unknown derivation method {method}.")
+
+
+def filter_kernel_dataframe(df, sigma, *args, **kwargs):
+    """Apply kernel-weighted local polynomial fit on each dataframe series."""
+
+    # infer sampling frequency in years
+    freq = pd.to_timedelta(pd.infer_freq(df.index))
+    kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
+
+    # convert string kernel standard deviation to number of samples
+    if isinstance(sigma, str):
+        sigma = pd.to_timedelta(sigma)/freq
+
+    # return concatenation of filtered series
+    return pd.concat([filter_kernel_series(
+        df[column], sigma, *args, **kwargs) for column in df], axis=1)
+
+
+def filter_kernel_series(
+        series, sigma, polyorder=2, deriv=0, delta=1.0, truncate=3.0,
+        coverage=0.5):
+    """Apply Gaussian kernel-weighted local polynomial fit on a series.
+
+    At each sample, fit a polynomial to valid values within the kernel
+    support, weighted by a Gaussian of standard deviation sigma (in samples),
+    and return its value or derivative. Missing values get zero weight, so
+    no interpolation is needed across data gaps. Results are masked where the
+    valid kernel weight falls below a fraction coverage of the total.
+    """
+
+    # prepare kernel on sample offsets, and masked and centred values
+    # (centring avoids precision loss on large values such as UTM northings)
+    radius = int(truncate*sigma + 0.5)
+    offsets = np.arange(-radius, radius+1)
+    kernel = np.exp(-0.5*(offsets/sigma)**2)
+    valid = series.notna().to_numpy()
+    values = np.where(valid, series-series.mean(), 0)
+
+    # compute weighted moments of offsets and values as convolutions, noting
+    # that offsets are reversed in convolution: sum_j kernel[j] (-offset[j])^p
+    def convolve(signal, power):
+        return np.convolve(signal, kernel*(-offsets)**power, mode='same')
+    moments = [convolve(valid, power) for power in range(2*polyorder+1)]
+    targets = [convolve(values, power) for power in range(polyorder+1)]
+
+    # solve local normal equations (Hankel matrix of moments) where covered
+    matrix = np.stack([np.stack(
+        moments[i:i+polyorder+1], axis=-1) for i in range(polyorder+1)],
+        axis=-2)
+    covered = moments[0] >= coverage * kernel.sum()
+    coefs = np.full((len(series), polyorder+1), np.nan)
+    coefs[covered] = np.linalg.solve(
+        matrix[covered], np.stack(targets, axis=-1)[covered, :, None])[..., 0]
+
+    # the deriv-th coefficient times deriv! is the local derivative
+    filtered = coefs[:, deriv] * sp.special.factorial(deriv) / delta**deriv
+    if deriv == 0:
+        filtered += series.mean()
+
+    # return new series with filtered values
+    return pd.Series(filtered, index=series.index, name=series.name)
 
 
 def filter_savgol_dataframe(df, window_length, *args, **kwargs):
