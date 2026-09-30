@@ -106,27 +106,36 @@ def filter_savgol_dataframe(df, window_length, *args, **kwargs):
     freq = pd.to_timedelta(pd.infer_freq(df.index))
     kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
 
-    # convert string window length to integer
+    # convert string window length to odd integer (centred window)
     if isinstance(window_length, str):
-        window_length = int(pd.to_timedelta(window_length)/freq)
+        window_length = int(pd.to_timedelta(window_length)/freq) // 2 * 2 + 1
 
     # return concatenation of filtered series
     return pd.concat([filter_savgol_series(
         df[column], window_length, *args, **kwargs) for column in df], axis=1)
 
 
-def filter_savgol_series(series, *args, **kwargs):
-    """Apply Savitsky-Golay filter on series trimmed from NaNs."""
+def filter_savgol_series(series, window_length, *args, **kwargs):
+    """Apply Savitsky-Golay filter on each continuous stretch of a series."""
 
     # strip initial and final nan values
     first = series.first_valid_index()
     last = series.last_valid_index()
     series = series.loc[first:last]
 
+    # label continuous stretches of valid values
+    valid = series.notna()
+    labels = (valid != valid.shift()).cumsum()[valid]
+
+    # filter stretches at least as long as window, leave others as nan
+    filtered = pd.Series(index=series.index, name=series.name, dtype=float)
+    for _, stretch in series[valid].groupby(labels):
+        if len(stretch) >= window_length:
+            filtered[stretch.index] = sp.signal.savgol_filter(
+                stretch, window_length, *args, **kwargs)
+
     # return new series with filtered values
-    return pd.Series(
-        data=sp.signal.savgol_filter(series, *args, **kwargs),
-        index=series.index, name=series.name)
+    return filtered
 
 
 # Data loading methods
@@ -146,15 +155,15 @@ def load_gnss_velocities(**kwargs):
     # strain = (distance.diff(1) - distance.diff(-1)) / 2.0
     # strain_rate = (ldf.fvh - udf.fvh) / distance
 
-    # read gnss data, including backward-difference velocity
+    # read reset-corrected gnss positions
     df = bowtem_utils.load('../data/processed/bowdoin.bh1.gps.csv')
 
     # derive horizontal velocity
-    vel = filter_derive_dataframe(df[['x', 'y']], **kwargs)
-    df['vh'] = (vel['x']**2 + vel['y']**2)**0.5
+    vel = filter_derive_dataframe(df[['x', 'y', 'z']], **kwargs)
+    vel = vel.assign(vh=(vel.x**2 + vel.y**2)**0.5)
 
-    # return the whole dataframe
-    return df
+    # return velocity
+    return vel
 
 
 def load_strain(start, end):
