@@ -9,7 +9,6 @@ import absplots as apl
 import geopandas as gpd
 import matplotlib as mpl
 import matplotlib.animation
-import matplotlib.pyplot as plt
 import numpy as np
 
 import bowstr_utils
@@ -62,10 +61,9 @@ class CustomAnimation():
         depth = bowstr_utils.load(variable='dept').iloc[0][self.pres.columns]
         elev = surf[depth.index.str[0]].values - depth
         dist = depth.index.str[0].map(dist).to_series(index=depth.index)
-        colors = plt.get_cmap('tab10')(range(len(elev)))
+        colors = mpl.color_sequences['tab10'][:len(elev)]
         self.scatter = ax.scatter(dist, elev, c=colors, alpha=0.75)
-        for i, unit in enumerate(elev.index):
-            color = 'C%d' % i
+        for unit, color in zip(elev.index, colors):
             ax.text(dist[unit]+0.02, elev[unit], unit, color=color,
                     fontweight='bold', va='center')
 
