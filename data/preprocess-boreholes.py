@@ -6,7 +6,6 @@
 """Preprocess Bowdoin 2014 to 2017 borehole data."""
 
 import os
-import gpxpy
 import numpy as np
 import pandas as pd
 import pyproj
@@ -24,6 +23,9 @@ GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
 DRILLING_DATES = None  # FIXME
 INITIAL_DEPTHS = dict(bh1=272.0, bh2=262.0, bh3=252.0)
 
+# mean time of initial BH1 and BH3 GPS survey, used to date initial depths
+REFERENCE_DATE = '2014-07-20 09:15:00+00:00'
+
 # data logger names
 INCLINOMETER_LOGGERS = dict(lower='BOWDOIN-1', upper='BOWDOIN-2')
 PIEZOMETER_LOGGERS = dict(lower='drucksens073303', upper='drucksens094419')
@@ -39,98 +41,6 @@ INITIAL_WATER_TIMING = dict(bh1='2014-07-17 18:07:00',  # assumed
 RECALIB_INTERVALS = dict(bh1=('2014-07-20 18:00', '2014-07-21 02:00'),
                          bh2=('2014-07-18 00:00', '2014-07-22 00:00'),
                          bh3=('2014-07-23 12:00', '2014-07-23 20:00'))
-
-
-# Borehole location methods
-# -------------------------
-
-def borehole_distances(upper='bh1', lower='bh3'):
-    """
-    Compute the time evolution of the distance between two boreholes.
-
-    Parameters
-    ----------
-    upper: string
-        The name of the upper borehole.
-    lower: string
-        The name of the lower borehole.
-    """
-    # FIXME: Borehole distances will become unnecessary when using RADAR data.
-
-    # initialize empty data series
-    upper_x = pd.Series(dtype='float64')
-    upper_y = pd.Series(dtype='float64')
-    lower_x = pd.Series(dtype='float64')
-    lower_y = pd.Series(dtype='float64')
-
-    # read GPX file
-    trans = pyproj.Transformer.from_crs('+proj=lonlat', '+proj=utm +zone=19')
-    with open('../data/locations.gpx', 'r') as gpx_file:
-        for wpt in gpxpy.parse(gpx_file).waypoints:
-            if upper.upper() in wpt.name:
-                upper_x[wpt.time], upper_y[wpt.time] = \
-                    trans.transform(wpt.longitude, wpt.latitude)
-            elif lower.upper() in wpt.name:
-                lower_x[wpt.time], lower_y[wpt.time] = \
-                    trans.transform(wpt.longitude, wpt.latitude)
-
-    # assume UTC timezone when missing
-    lower_x.index = pd.to_datetime(lower_x.index, utc=True)
-    lower_y.index = pd.to_datetime(lower_y.index, utc=True)
-    upper_x.index = pd.to_datetime(upper_x.index, utc=True)
-    upper_y.index = pd.to_datetime(upper_y.index, utc=True)
-
-    # sort by date
-    for series in upper_x, upper_y, lower_x, lower_y:
-        series.sort_index(inplace=True)
-
-    # ensure series have same length
-    assert len(upper_x) == len(upper_y) == len(lower_x) == len(lower_y)
-
-    # compute distances
-    distances = ((upper_x.values-lower_x.values)**2 +
-                 (upper_y.values-lower_y.values)**2)**0.5
-
-    # get average dates
-    avg_dates = lower_x.index + (upper_x.index-lower_x.index)/2
-
-    # return as a pandas series
-    distances = pd.Series(index=avg_dates, data=distances).sort_index()
-    distances.index.name = 'date'
-    return distances
-
-
-def borehole_thinning(uz, lz, distances):
-    """Estimate thinning based on distance between boreholes."""
-    # FIXME: In practice this area conservation approach is not working.
-    # FIXME: Besides one should include ice melt in the computation.
-    dz = (uz+lz) / 2 * (distances.iloc[0]/distances-1)
-    return dz
-
-
-def borehole_base_evol(upper='bh1', lower='bh3'):
-    """
-    Compute the time evolution of the depths of two boreholes based on the
-    evolution of the distance between the two boreholes and assuming
-    conservation of the area of the long-section between them.
-    """
-    # FIXME: In practice this area conservation approach is not working.
-    # FIXME: Instead it should be possible to use ice-penetrating RADAR data.
-
-    # get initial borehole base
-    ubase = INITIAL_DEPTHS[upper]
-    lbase = INITIAL_DEPTHS[lower]
-
-    # compute time-dependent depths
-    distances = borehole_distances(upper=upper, lower=lower)
-    thinning = borehole_thinning(ubase, lbase, distances)
-
-    # apply thinning and rename data series
-    ubase = (thinning+ubase).rename(upper.upper()+'B')
-    lbase = (thinning+lbase).rename(lower.upper()+'B')
-
-    # return depth data series
-    return ubase, lbase
 
 
 # Sensor depth methods
@@ -185,23 +95,16 @@ def locate_piezometers(borehole, wlev):
     return depth
 
 
-def sensor_depths_evol(upper_dept, lower_dept, upper='bh1', lower='bh3'):
-    """Return time-dependent sensor depths as data frames."""
+def initial_depths(depths):
+    """Return initial depths as a one-row dataframe at the reference date."""
+    index = pd.DatetimeIndex([REFERENCE_DATE], name='date')
+    return pd.DataFrame([depths.values], index=index, columns=depths.index)
 
-    # get initial borebole depths
-    ubase = INITIAL_DEPTHS[upper]
-    lbase = INITIAL_DEPTHS[lower]
 
-    # compute time-dependent depths
-    distances = borehole_distances(upper=upper, lower=lower)
-    thinning = borehole_thinning(ubase, lbase, distances)
-
-    # apply thinning
-    upper_dept = thinning.apply(lambda d: upper_dept * (1+d/ubase))
-    lower_dept = thinning.apply(lambda d: lower_dept * (1+d/lbase))
-
-    # return depth data series
-    return upper_dept, lower_dept
+def initial_base(borehole):
+    """Return initial borehole base depth as a one-row dataframe."""
+    return initial_depths(pd.Series({
+        borehole.upper()+'B': INITIAL_DEPTHS[borehole]}))
 
 
 def locate_thermistors():
@@ -607,19 +510,16 @@ def main():
     bh3_thr_manu += bh3_thr_corr
     bh3_thr_temp += bh3_thr_corr
 
-    # compute borehole base evolution
-    # FIXME: base depths should be independent of instrument type
-    bh1_inc_base, bh3_inc_base = borehole_base_evol(upper='bh1', lower='bh3')
-    bh2_pzm_base, bh3_pzm_base = borehole_base_evol(upper='bh2', lower='bh3')
-    bh2_thr_base, bh3_thr_base = borehole_base_evol(upper='bh2', lower='bh3')
-
-    # compute sensor depths evolution
-    bh1_inc_dept, bh3_inc_dept = sensor_depths_evol(
-        bh1_inc_dept, bh3_inc_dept, upper='bh1', lower='bh3')
-    bh2_pzm_dept, bh3_pzm_dept = sensor_depths_evol(
-        bh2_pzm_dept, bh3_pzm_dept, upper='bh2', lower='bh3')
-    bh2_thr_dept, bh3_thr_dept = sensor_depths_evol(
-        bh2_thr_dept, bh3_thr_dept, upper='bh2', lower='bh3')
+    # convert initial depths to dataframes
+    bh1_inc_base, bh3_inc_base = initial_base('bh1'), initial_base('bh3')
+    bh2_pzm_base, bh3_pzm_base = initial_base('bh2'), initial_base('bh3')
+    bh2_thr_base, bh3_thr_base = initial_base('bh2'), initial_base('bh3')
+    bh1_inc_dept = initial_depths(bh1_inc_dept)
+    bh3_inc_dept = initial_depths(bh3_inc_dept)
+    bh2_pzm_dept = initial_depths(bh2_pzm_dept)
+    bh3_pzm_dept = initial_depths(bh3_pzm_dept)
+    bh2_thr_dept = initial_depths(bh2_thr_dept)
+    bh3_thr_dept = initial_depths(bh3_thr_dept)
 
     # export to csv, force header on time series
     # FIXME: base depths should be independent of instrument type

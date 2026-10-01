@@ -6,7 +6,7 @@
 # ---------
 
 # satellite data from Daiki
-SAT_FILES = satellite/bowdoin-landsat.csv satellite/bowdoin-landsat-uv.csv
+SAT_FILES = satellite/bowdoin-landsat.csv satellite/bowdoin-landsat-uv
 
 
 # Rules
@@ -28,8 +28,13 @@ processed: preprocess-boreholes.py
 satellite/bowdoin-%.csv: preprocess-%.py
 	python $<
 
+# extract landsat velocity components from Daiki
+satellite/bowdoin-landsat-uv: satellite/bowdoin-landsat-uv.zip
+	unzip -nq -d satellite $<
+	touch $@
+
 # clean up
 # FIXME: use similar paradigm as for other projects
 .PHONY: clean
 clean:
-	rm -rf external processed satellite/bowdoin-landsat satellite/bowdoin-landsat-uv $(SAT_FILES)
+	rm -rf external processed satellite/bowdoin-landsat $(SAT_FILES)

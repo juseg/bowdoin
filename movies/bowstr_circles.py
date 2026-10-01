@@ -5,21 +5,13 @@
 
 """Plot Bowdoin tides pressure circles animation."""
 
-import sys
-import os.path
-import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import absplots as apl
+import geopandas as gpd
+import matplotlib as mpl
+import matplotlib.animation
+import numpy as np
 
-# import figure utils by relative path
-# pylint: disable=import-error, no-name-in-module, wrong-import-position
-sys.path.append(os.path.join('..', 'figures'))
-import util.com  # noqa
-import util.geo  # noqa
-import util.str  # noqa
-# pylint: enable=import-error, no-name-in-module, wrong-import-position
-# pylint: disable=no-member
+import bowstr_utils
 
 
 class CustomAnimation():
@@ -29,11 +21,11 @@ class CustomAnimation():
         """Construct the animation."""
 
         # load filtered pressure series
-        pres = util.str.load().resample('1H').mean()
+        pres = bowstr_utils.load().resample('1h').mean()
         pres = pres['20150302':'20150329'].dropna(axis=1)
-        pres = util.str.filter(pres, cutoff=1/12)
+        pres = bowstr_utils.butter(pres, cutoff=1/12)
         self.pres = pres
-        tide = util.str.load_pituffik_tides(unit='m').resample('1H').mean()
+        tide = bowstr_utils.load_pituffik_tides(unit='m').resample('1h').mean()
         self.tide = tide
 
         # initialize figure
@@ -56,24 +48,23 @@ class CustomAnimation():
         fig, ax = apl.subplots_mm(figsize=(96, 54), dpi=508)
 
         # plot vertical lines symbolising the boreholes
-        locations = util.geo.read_locations_dict('../data/locations.gpx')
-        for bh in ('bh1', 'bh3'):
-            surf = locations['B14'+bh.upper()].elevation
-            base = surf - util.com.load_file(
-                '../data/processed/bowdoin.{}.inc.base.csv'.format(bh)
-                ).iloc[0].squeeze()
-            dist = dict(bh1=2, bh3=1.84)[bh]
-            ax.plot([dist, dist], [base, surf], 'k-_')
+        locations = gpd.read_file('../data/locations.gpx', layer='waypoints')
+        surf = locations.set_index('name').ele[['B14BH1', 'B14BH3']]
+        surf = surf.set_axis(['U', 'L'])
+        base = bowstr_utils.load(variable='base').iloc[0]
+        base = base.set_axis(base.index.str[2].map({'1': 'U', '3': 'L'}))
+        dist = {'U': 2, 'L': 1.84}
+        for bh in ('U', 'L'):
+            ax.plot([dist[bh]]*2, [surf[bh]-base[bh], surf[bh]], 'k-_')
 
         # add scatter plot
-        elev = surf - util.str.load(variable='dept').iloc[0]
-        elev = elev[self.pres.columns]
-        dist = 1.84 + elev.index.to_series().str.startswith('U') * 0.16
-        colors = plt.get_cmap('tab10')(range(len(elev)))
+        depth = bowstr_utils.load(variable='dept').iloc[0][self.pres.columns]
+        elev = surf[depth.index.str[0]].values - depth
+        dist = depth.index.str[0].map(dist).to_series(index=depth.index)
+        colors = mpl.color_sequences['tab10'][:len(elev)]
         self.scatter = ax.scatter(dist, elev, c=colors, alpha=0.75)
-        for i, unit in enumerate(elev.index):
-            color = 'C%d' % i
-            ax.text(dist[i]+0.02, elev[unit], unit, color=color,
+        for unit, color in zip(elev.index, colors):
+            ax.text(dist[unit]+0.02, elev[unit], unit, color=color,
                     fontweight='bold', va='center')
 
         # add sea level
