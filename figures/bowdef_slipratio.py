@@ -38,7 +38,7 @@ def load_shear_velocities(**kwargs):
     # group by borehole and fit a power law (axis=1 is deprecated)
     coefs = strain.T.groupby(strain.columns.str[0]).apply(
         lambda df: compute_power_fit_dataframe(depth[df.index], df.T).T)
-    coefs = coefs.rename({'L': 'BH1', 'U': 'BH3'}).swaplevel(0, 1).T
+    coefs = coefs.rename({'L': 'BH3', 'U': 'BH1'}).swaplevel(0, 1).T
 
     # return shear velocities
     base = base.set_axis(base.index.str[:3])
