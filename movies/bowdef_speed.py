@@ -82,7 +82,7 @@ def main():
     bowtem_utils.plot_bowdoin_map(fig.axes[0], boreholes=[], season='summer')
 
     # interpolate gnss positions across data gaps and to image dates
-    gnss = bowdef_utils.load_gnss_velocities(method='savgol', window='12h')
+    gnss = bowdef_utils.load_gnss_velocities(method='kernel', window='3h')
     xy = gnss[['x', 'y']].interpolate(method='time', limit_area='inside')
     gnss = gnss.assign(x=xy.x, y=xy.y, measured=gnss.x.notna())
     xy = xy.reindex(ds.time.values, method='nearest')

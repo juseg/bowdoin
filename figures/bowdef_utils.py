@@ -271,7 +271,7 @@ def load_tilt_rates(**kwargs):
     return tilt
 
 
-def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
+def load_multivariate(join='inner', filt=None, method='kernel', window='3h'):
     """Load tilt rates, speed, stress, and tides in one dataframe."""
 
     # load all variables independently

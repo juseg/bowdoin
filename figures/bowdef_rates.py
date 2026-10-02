@@ -19,11 +19,11 @@ def main():
             'left': 15, 'right': 2.5, 'bottom': 10, 'top': 2.5, 'hspace': 2.5})
 
     # plot tilt rate
-    tilt = bowdef_utils.load_tilt_rates(method='savgol', window='12h')
+    tilt = bowdef_utils.load_tilt_rates(method='kernel', window='3h')
     tilt.plot(ax=axes[0], xlabel='', ylabel=r'tilt rate ($°\,a^{-1}$)')
 
     # plot tilt azimuth
-    azimuth = bowdef_utils.load_tilt_azimuth(method='savgol', window='12h')
+    azimuth = bowdef_utils.load_tilt_azimuth(method='kernel', window='3h')
     azimuth.plot(ax=axes[1], legend=False, xlabel='', ylabel='tilt azimuth (°)')
 
     # set axes properties

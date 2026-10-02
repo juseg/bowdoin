@@ -84,8 +84,8 @@ def main():
         axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # load shear and surface speeds and compute ratio where they intersect
-    shear, exponent = load_shear_velocities(method='savgol', window='12h')
-    speed = bowdef_utils.load_gnss_velocities(method='savgol', window='12h').vh
+    shear, exponent = load_shear_velocities(method='kernel', window='3h')
+    speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
