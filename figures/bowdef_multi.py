@@ -36,9 +36,9 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 180), nrows=6, sharex=True, gridspec_kw={
-            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
-            'height_ratios': (3, 3, 2, 2, 2, 1), 'hspace': 2.5})
+        figsize=(180, 210), nrows=6, sharex=True, gridspec_kw={
+            'left': 20, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'height_ratios': (3, 3, 3, 3, 3, 1.5), 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
@@ -84,12 +84,13 @@ def main():
     axes[3].grid(which='minor')
     axes[4].grid(which='minor')
     axes[5].set_xlabel('')
-    axes[0].set_ylabel(r'velocity ($m\,a^{-1}$)', labelpad=0)
-    axes[1].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
-    axes[2].set_ylabel('pressure head (m)')
-    axes[3].set_ylabel('air temp. (°C)')
-    axes[4].set_ylabel('surface height (cm)')
-    axes[5].set_ylabel('tide (m)')
+    axes[0].set_ylabel('Bowdoin Glacier\n' r'velocity ($m\,a^{-1}$)')
+    axes[1].set_ylabel('Bowdoin Glacier\n' r'tilt rate ($°\,a^{-1}$)')
+    axes[2].set_ylabel('Bowdoin Glacier\nbasal water\npressure head (m)')
+    axes[3].set_ylabel('Qaanaaq Ice Cap\nair temp. (°C)')
+    axes[4].set_ylabel('Qaanaaq Ice Cap\nsurface height (cm)')
+    axes[5].set_ylabel('Pituffik\ntide (m)')
+    fig.align_ylabels(axes)
     axes[0].set_xlim('20140701', '20170801')
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
