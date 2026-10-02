@@ -141,20 +141,21 @@ def filter_kernel_series(
     valid = series.notna().to_numpy()
     values = np.where(valid, series-series.mean(), 0)
 
-    # weighted sums of offsets and values as convolutions (reversed offsets)
+    # weighted sums of offset powers (s) and values times offset powers (t)
+    # as convolutions (reversed offsets)
     def convolve(signal, power):
         return np.convolve(signal, kernel*(-offsets)**power, mode='same')
-    s0, s1, s2 = (convolve(valid, power) for power in range(3))
-    t0, t1 = (convolve(values, power) for power in range(2))
+    s = [convolve(valid, power) for power in range(3)]
+    t = [convolve(values, power) for power in range(2)]
 
     # solve weighted least squares for the local line where well spread
     with np.errstate(divide='ignore', invalid='ignore'):
-        covered = s2/s0 - (s1/s0)**2 >= (spread*sigma)**2
         if deriv == 0:
-            filtered = (s2*t0 - s1*t1) / (s0*s2 - s1**2) + series.mean()
+            filtered = (s[2]*t[0]-s[1]*t[1]) / (s[0]*s[2]-s[1]**2)
+            filtered += series.mean()
         else:
-            filtered = (s0*t1 - s1*t0) / (s0*s2 - s1**2) / delta
-    filtered[~covered] = np.nan
+            filtered = (s[0]*t[1]-s[1]*t[0]) / (s[0]*s[2]-s[1]**2) / delta
+        filtered[~(s[2]/s[0]-(s[1]/s[0])**2 >= (spread*sigma)**2)] = np.nan
 
     # return new series with filtered values
     return pd.Series(filtered, index=series.index, name=series.name)
