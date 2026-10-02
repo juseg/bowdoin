@@ -27,30 +27,6 @@ def compute_interval_aggregates(series, intervals, **kwargs):
         lambda row: series[row.start: row.end].aggregate(**kwargs), axis=1)
 
 
-def load_landsat_velocities():
-    """Load surface velocities from Landsat feature-tracking."""
-    df = pd.read_csv(
-        '../data/satellite/bowdoin-landsat.csv', parse_dates=['start', 'end'])
-    df = df.assign(delay=df.end-df.start)
-    df = df.set_index(df.start+df.delay/2)
-    df = df.assign(delay=df.delay/pd.to_timedelta('1d'))
-    df = df.rename(columns={'vel': 'speed', 'err': 'error'})
-    return df
-
-
-def load_sentinel_velocities():
-    """Load surface velocities from Sentinel feature-tracking."""
-    df = pd.read_csv(
-        '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
-        engine='python', index_col='YYYY-MM-DD (avg)',
-        parse_dates=['YYYY-MM-DD (1st)', 'YYYY-MM-DD (2nd)'])
-    df = df.rename_axis(None).rename(columns={
-        'time-diff (days)': 'delay', 'vel (m/a)': 'speed',
-        'vel_error (m/a)': 'error', 'YYYY-MM-DD (1st)': 'start',
-        'YYYY-MM-DD (2nd)': 'end'})
-    return df
-
-
 def load_shear_velocities(**kwargs):
     """Load internal deformation velocity from tilt rates."""
 
@@ -90,8 +66,9 @@ def main():
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
     # load velocities from landsat and sentinel images
-    landsat = load_landsat_velocities().assign(source='landsat')
-    sentinel = load_sentinel_velocities().assign(source='sentinel')
+    landsat = bowdef_utils.load_landsat_velocities().assign(source='landsat')
+    sentinel = bowdef_utils.load_sentinel_velocities().assign(
+        source='sentinel')
     sat = pd.concat([landsat, sentinel])
 
     # compute slip ratio from satellite and propagate uncertainties

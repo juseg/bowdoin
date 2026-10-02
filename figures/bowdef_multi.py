@@ -6,6 +6,7 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
+import matplotlib as mpl
 import pandas as pd
 
 import bowdef_utils
@@ -44,9 +45,18 @@ def main():
 
     # plot borehole velocity
     df = bowdef_utils.load_gnss_velocities(method='twopoint')
-    df.vh.plot(ax=axes[0], color='0.9')
+    df.vh.plot(ax=axes[0], color='0.9', label='_nolegend_')
     df = bowdef_utils.load_multivariate()
     df.gnss.plot(ax=axes[0], color='tab:blue', legend=False)
+
+    # plot satellite velocities
+    tab20 = mpl.color_sequences['tab20']
+    bowdef_utils.plot_errorbar(
+        axes[0], bowdef_utils.load_landsat_velocities(), color=tab20[3],
+        label='Landsat')
+    bowdef_utils.plot_errorbar(
+        axes[0], bowdef_utils.load_sentinel_velocities(), color=tab20[11],
+        label='Sentinel')
 
     # plot tilt rates, pressure head, air temperature and tide
     df.tilt.plot(ax=axes[1], legend=False)
@@ -56,8 +66,9 @@ def main():
     axes[3].axhline(0, c='k', lw=0.5)
     (df.tide/1e1).plot(ax=axes[4], legend=False, c='C9')
 
-    # add tilt unit and borehole legends
+    # add velocity, tilt unit and borehole legends
     depth = bowstr_utils.load(variable='dept').iloc[0]
+    axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
     axes[1].legend(
         [f'{unit} ({depth[unit]:.0f}' r'$\,$m)' for unit in df.tilt],
         loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1), ncol=3)
