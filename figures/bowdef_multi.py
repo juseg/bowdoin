@@ -66,7 +66,8 @@ def main():
     aws.T1.plot(ax=axes[3], c='C3')
     axes[3].axhline(0, c='k', lw=0.5)
     aws.sh.plot(ax=axes[4], c='C5')
-    (df.tide/1e1).plot(ax=axes[5], legend=False, c='C9')
+    tide = bowstr_utils.load_pituffik_tides(unit='m').resample('10min').mean()
+    (tide-tide.mean()).plot(ax=axes[5], c='C9')
 
     # add velocity, tilt unit and borehole legends
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -88,7 +89,8 @@ def main():
     axes[2].set_ylabel('pressure head (m)')
     axes[3].set_ylabel('air temp. (°C)')
     axes[4].set_ylabel('surface height (cm)')
-    axes[5].set_ylabel('tide / 10 (kPa)', labelpad=0)
+    axes[5].set_ylabel('tide (m)')
+    axes[0].set_xlim('20140701', '20170801')
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
     axes[2].set_ylim(190, 260)
