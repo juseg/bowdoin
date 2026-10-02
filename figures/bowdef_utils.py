@@ -95,17 +95,16 @@ def filter_derive_dataframe(df, method='twopoint', window=None):
         return filter_savgol_dataframe(
             df, window, polyorder=2, delta=delta, deriv=1)
 
-    # compute Gaussian kernel-weighted local polynomial derivative
+    # compute Gaussian kernel-weighted local linear derivative
     if method == 'kernel':
-        return filter_kernel_dataframe(
-            df, window, polyorder=2, delta=delta, deriv=1)
+        return filter_kernel_dataframe(df, window, delta=delta, deriv=1)
 
     # other methods are unknown
     raise ValueError(f"Unknown derivation method {method}.")
 
 
 def filter_kernel_dataframe(df, sigma, *args, **kwargs):
-    """Apply kernel-weighted local polynomial fit on each dataframe series."""
+    """Apply kernel-weighted local linear fit on each series in a dataframe."""
 
     # infer sampling frequency in years
     freq = pd.to_timedelta(pd.infer_freq(df.index))
@@ -121,15 +120,15 @@ def filter_kernel_dataframe(df, sigma, *args, **kwargs):
 
 
 def filter_kernel_series(
-        series, sigma, polyorder=2, deriv=0, delta=1.0, truncate=3.0,
-        coverage=0.5):
-    """Apply Gaussian kernel-weighted local polynomial fit on a series.
+        series, sigma, deriv=0, delta=1.0, truncate=3.0, coverage=0.5):
+    """Apply Gaussian kernel-weighted local linear fit on a series.
 
-    At each sample, fit a polynomial to valid values within the kernel
-    support, weighted by a Gaussian of standard deviation sigma (in samples),
-    and return its value or derivative. Missing values get zero weight, so
-    no interpolation is needed across data gaps. Results are masked where the
-    valid kernel weight falls below a fraction coverage of the total.
+    At each sample, fit a line to valid values within the kernel support,
+    weighted by a Gaussian of standard deviation sigma (in samples), and
+    return its value (deriv=0) or slope (deriv=1). Missing values get zero
+    weight, so no interpolation is needed across data gaps. Results are
+    masked where the valid kernel weight falls below a fraction coverage of
+    the total.
     """
 
     # prepare kernel on sample offsets, and masked and centred values
@@ -140,26 +139,20 @@ def filter_kernel_series(
     valid = series.notna().to_numpy()
     values = np.where(valid, series-series.mean(), 0)
 
-    # compute weighted moments of offsets and values as convolutions, noting
-    # that offsets are reversed in convolution: sum_j kernel[j] (-offset[j])^p
+    # weighted sums of offsets and values as convolutions (reversed offsets)
     def convolve(signal, power):
         return np.convolve(signal, kernel*(-offsets)**power, mode='same')
-    moments = [convolve(valid, power) for power in range(2*polyorder+1)]
-    targets = [convolve(values, power) for power in range(polyorder+1)]
+    s0, s1, s2 = (convolve(valid, power) for power in range(3))
+    t0, t1 = (convolve(values, power) for power in range(2))
 
-    # solve local normal equations (Hankel matrix of moments) where covered
-    matrix = np.stack([np.stack(
-        moments[i:i+polyorder+1], axis=-1) for i in range(polyorder+1)],
-        axis=-2)
-    covered = moments[0] >= coverage * kernel.sum()
-    coefs = np.full((len(series), polyorder+1), np.nan)
-    coefs[covered] = np.linalg.solve(
-        matrix[covered], np.stack(targets, axis=-1)[covered, :, None])[..., 0]
-
-    # the deriv-th coefficient times deriv! is the local derivative
-    filtered = coefs[:, deriv] * sp.special.factorial(deriv) / delta**deriv
-    if deriv == 0:
-        filtered += series.mean()
+    # solve weighted least squares for the local line where covered
+    covered = s0 >= coverage * kernel.sum()
+    with np.errstate(divide='ignore', invalid='ignore'):
+        if deriv == 0:
+            filtered = (s2*t0 - s1*t1) / (s0*s2 - s1**2) + series.mean()
+        else:
+            filtered = (s0*t1 - s1*t0) / (s0*s2 - s1**2) / delta
+    filtered[~covered] = np.nan
 
     # return new series with filtered values
     return pd.Series(filtered, index=series.index, name=series.name)
