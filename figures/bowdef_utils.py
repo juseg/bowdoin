@@ -92,36 +92,91 @@ def filter_derive_dataframe(df, method='twopoint', window=None):
 
     # compute Savitzky–Golay filtered derivative
     if method == 'savgol':
-        return filter_savgol_dataframe(
-            df, window, polyorder=2, delta=delta, deriv=1)
+        return filter_savgol_dataframe(df, window, polyorder=2, deriv=1)
+
+    # compute Gaussian kernel-weighted local linear derivative
+    if method == 'kernel':
+        return filter_kernel_dataframe(df, window, deriv=1)
 
     # other methods are unknown
-    raise ValueError("Unkown derivation method {method}.")
+    raise ValueError(f"Unknown derivation method {method}.")
 
 
-def filter_savgol_dataframe(df, window_length, *args, **kwargs):
+def filter_kernel_dataframe(df, sigma, *args, **kwargs):
+    """Apply kernel-weighted local linear fit on each series in a dataframe."""
+
+    return pd.concat([filter_kernel_series(
+        df[column], sigma, *args, **kwargs) for column in df], axis=1)
+
+
+def filter_kernel_series(series, sigma, deriv=0, truncate=3.0, spread=0.8):
+    """Apply Gaussian kernel-weighted local linear fit on a series.
+
+    At each sample, fit a line to valid values within the kernel support,
+    weighted by a Gaussian of standard deviation sigma (a duration such as
+    '3h'), and return its value (deriv=0) or slope (deriv=1, per year).
+    Missing values get zero weight, so no interpolation is needed across data
+    gaps. Results are masked where the kernel-weighted time spread (standard
+    deviation) of valid values falls below a fraction spread of sigma, its
+    value for a full window. This masks run ends and short isolated runs, but
+    not uniformly sparse sampling.
+    """
+
+    # infer sampling interval and convert standard deviation to samples
+    freq = pd.to_timedelta(pd.infer_freq(series.index))
+    sigma = pd.to_timedelta(sigma) / freq
+
+    # prepare kernel on sample offsets, and masked and centred values
+    # (centring avoids precision loss on large values such as UTM northings)
+    radius = int(truncate*sigma + 0.5)
+    offsets = np.arange(-radius, radius+1)
+    kernel = np.exp(-0.5*(offsets/sigma)**2)
+    valid = series.notna().to_numpy()
+    values = np.where(valid, series-series.mean(), 0)
+
+    # weighted sums of offset powers (ws) and values times offset powers (vs)
+    # as convolutions (reversed offsets)
+    def convolve(signal, power):
+        return np.convolve(signal, kernel*(-offsets)**power, mode='same')
+    ws = [convolve(valid, power) for power in range(3)]
+    vs = [convolve(values, power) for power in range(2)]
+
+    # solve weighted least squares for the local line where well spread
+    with np.errstate(divide='ignore', invalid='ignore'):
+        if deriv == 0:
+            filtered = (ws[2]*vs[0]-ws[1]*vs[1]) / (ws[0]*ws[2]-ws[1]**2)
+            filtered += series.mean()
+        else:
+            filtered = (ws[0]*vs[1]-ws[1]*vs[0]) / (ws[0]*ws[2]-ws[1]**2)
+            filtered *= pd.Timedelta('365d') / freq
+        filtered[~(ws[2]/ws[0]-(ws[1]/ws[0])**2 >= (spread*sigma)**2)] = np.nan
+
+    # return new series with filtered values
+    return pd.Series(filtered, index=series.index, name=series.name)
+
+
+def filter_savgol_dataframe(df, window, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
-
-    # infer sampling frequency in years
-    freq = pd.to_timedelta(pd.infer_freq(df.index))
-    kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
-
-    # convert string window length to odd integer (centred window)
-    if isinstance(window_length, str):
-        window_length = int(pd.to_timedelta(window_length)/freq) // 2 * 2 + 1
-
-    # return concatenation of filtered series
     return pd.concat([filter_savgol_series(
-        df[column], window_length, *args, **kwargs) for column in df], axis=1)
+        df[column], window, *args, **kwargs) for column in df], axis=1)
 
 
-def filter_savgol_series(series, window_length, *args, **kwargs):
-    """Apply Savitsky-Golay filter on each continuous stretch of a series."""
+def filter_savgol_series(series, window, *args, **kwargs):
+    """Apply Savitsky-Golay filter on each continuous stretch of a series.
+
+    The window is a duration such as '12h', converted to an odd number of
+    samples (rounding even counts up). Derivatives are per year.
+    """
 
     # strip initial and final nan values
     first = series.first_valid_index()
     last = series.last_valid_index()
     series = series.loc[first:last]
+
+    # infer sampling interval and convert window to odd number of samples
+    freq = pd.to_timedelta(pd.infer_freq(series.index))
+    delta = freq/pd.Timedelta('365d')
+    window_length = int(pd.to_timedelta(window)/freq) // 2 * 2 + 1
 
     # label continuous stretches of valid values
     valid = series.notna()
@@ -132,7 +187,7 @@ def filter_savgol_series(series, window_length, *args, **kwargs):
     for _, stretch in series[valid].groupby(labels):
         if len(stretch) >= window_length:
             filtered[stretch.index] = sp.signal.savgol_filter(
-                stretch, window_length, *args, **kwargs)
+                stretch, window_length, *args, delta=delta, **kwargs)
 
     # return new series with filtered values
     return filtered
@@ -177,44 +232,46 @@ def load_strain(start, end):
 
 
 def load_strain_rates(**kwargs):
-    """Load resampled, interpolated, and filter-derived strain rates."""
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    tilx = filter_derive_dataframe(tilx, **kwargs)
-    tily = filter_derive_dataframe(tily, **kwargs)
+    """Load strain rates from filter-derived tilt component rates."""
+    tilx, tily = load_tilt_component_rates(**kwargs)
     costilt = np.cos(tilx) * np.cos(tily)
     return 0.5 * (1 - costilt**2) ** 0.5 / costilt
 
 
 def load_tilt_azimuth(**kwargs):
-    """Load resampled, interpolated, and filter-derived tilt direction."""
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    tilx = filter_derive_dataframe(tilx, **kwargs)
-    tily = filter_derive_dataframe(tily, **kwargs)
+    """Load tilt direction from filter-derived tilt component rates."""
+    tilx, tily = load_tilt_component_rates(**kwargs)
     azimuth = np.atan2(-np.sin(tilx)*np.cos(tily), np.sin(tily)) * 180 / np.pi
     azimuth = azimuth[azimuth.index >= '2014-07-17']
     return azimuth
 
 
-def load_tilt_rates(**kwargs):
-    """Load resampled, interpolated, and filter-derived tilt rates."""
+def load_tilt_component_rates(method='twopoint', window=None):
+    """Load resampled and filter-derived tilt rate components."""
+
+    # load tilt components resampled on a regular 10-min grid
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    tilx = filter_derive_dataframe(tilx, **kwargs)
-    tily = filter_derive_dataframe(tily, **kwargs)
+
+    # interpolate across gaps except for the gap-aware kernel fit
+    if method != 'kernel':
+        tilx = tilx.interpolate(limit_area='inside', method='linear')
+        tily = tily.interpolate(limit_area='inside', method='linear')
+
+    # return filter-derived tilt rate components
+    return (filter_derive_dataframe(tilx, method=method, window=window),
+            filter_derive_dataframe(tily, method=method, window=window))
+
+
+def load_tilt_rates(**kwargs):
+    """Load tilt rates from filter-derived tilt component rates."""
+    tilx, tily = load_tilt_component_rates(**kwargs)
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     return tilt
 
 
-def load_multivariate(join='inner', filt=None, method='savgol', window='12h'):
+def load_multivariate(join='inner', filt=None, method='kernel', window='3h'):
     """Load tilt rates, speed, stress, and tides in one dataframe."""
 
     # load all variables independently
