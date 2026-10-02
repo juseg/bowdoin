@@ -105,14 +105,6 @@ def filter_derive_dataframe(df, method='twopoint', window=None):
 def filter_kernel_dataframe(df, sigma, *args, **kwargs):
     """Apply kernel-weighted local linear fit on each series in a dataframe."""
 
-    # infer sampling frequency
-    freq = pd.to_timedelta(pd.infer_freq(df.index))
-
-    # convert string kernel standard deviation to number of samples
-    if isinstance(sigma, str):
-        sigma = pd.to_timedelta(sigma)/freq
-
-    # return concatenation of filtered series
     return pd.concat([filter_kernel_series(
         df[column], sigma, *args, **kwargs) for column in df], axis=1)
 
@@ -122,17 +114,18 @@ def filter_kernel_series(
     """Apply Gaussian kernel-weighted local linear fit on a series.
 
     At each sample, fit a line to valid values within the kernel support,
-    weighted by a Gaussian of standard deviation sigma (in samples), and
-    return its value (deriv=0) or slope (deriv=1, per year). Missing values
-    get zero weight, so no interpolation is needed across data gaps. Results
-    are masked where the kernel-weighted time spread (standard deviation) of
-    valid values falls below a fraction spread of sigma, its value for a
-    full window. This masks run ends and short isolated runs, but not
-    uniformly sparse sampling.
+    weighted by a Gaussian of standard deviation sigma (a duration such as
+    '3h'), and return its value (deriv=0) or slope (deriv=1, per year).
+    Missing values get zero weight, so no interpolation is needed across data
+    gaps. Results are masked where the kernel-weighted time spread (standard
+    deviation) of valid values falls below a fraction spread of sigma, its
+    value for a full window. This masks run ends and short isolated runs, but
+    not uniformly sparse sampling.
     """
 
-    # infer sampling interval in years
-    delta = pd.to_timedelta(pd.infer_freq(series.index)) / pd.Timedelta('365d')
+    # infer sampling interval and convert standard deviation to samples
+    freq = pd.to_timedelta(pd.infer_freq(series.index))
+    sigma = pd.to_timedelta(sigma) / freq
 
     # prepare kernel on sample offsets, and masked and centred values
     # (centring avoids precision loss on large values such as UTM northings)
@@ -155,38 +148,35 @@ def filter_kernel_series(
             filtered = (s[2]*t[0]-s[1]*t[1]) / (s[0]*s[2]-s[1]**2)
             filtered += series.mean()
         else:
-            filtered = (s[0]*t[1]-s[1]*t[0]) / (s[0]*s[2]-s[1]**2) / delta
+            filtered = (s[0]*t[1]-s[1]*t[0]) / (s[0]*s[2]-s[1]**2)
+            filtered *= pd.Timedelta('365d') / freq
         filtered[~(s[2]/s[0]-(s[1]/s[0])**2 >= (spread*sigma)**2)] = np.nan
 
     # return new series with filtered values
     return pd.Series(filtered, index=series.index, name=series.name)
 
 
-def filter_savgol_dataframe(df, window_length, *args, **kwargs):
+def filter_savgol_dataframe(df, window, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
-
-    # infer sampling frequency
-    freq = pd.to_timedelta(pd.infer_freq(df.index))
-
-    # convert string window length to odd integer (centred window)
-    if isinstance(window_length, str):
-        window_length = int(pd.to_timedelta(window_length)/freq) // 2 * 2 + 1
-
-    # return concatenation of filtered series
     return pd.concat([filter_savgol_series(
-        df[column], window_length, *args, **kwargs) for column in df], axis=1)
+        df[column], window, *args, **kwargs) for column in df], axis=1)
 
 
-def filter_savgol_series(series, window_length, *args, **kwargs):
-    """Apply Savitsky-Golay filter on each continuous stretch of a series."""
+def filter_savgol_series(series, window, *args, **kwargs):
+    """Apply Savitsky-Golay filter on each continuous stretch of a series.
+
+    The window is a duration such as '12h', converted to an odd number of
+    samples (rounding even counts up). Derivatives are per year.
+    """
 
     # strip initial and final nan values
     first = series.first_valid_index()
     last = series.last_valid_index()
     series = series.loc[first:last]
 
-    # infer sampling interval in years
-    delta = pd.to_timedelta(pd.infer_freq(series.index)) / pd.Timedelta('365d')
+    # infer sampling interval and convert window to odd number of samples
+    freq = pd.to_timedelta(pd.infer_freq(series.index))
+    window_length = int(pd.to_timedelta(window)/freq) // 2 * 2 + 1
 
     # label continuous stretches of valid values
     valid = series.notna()
@@ -197,7 +187,8 @@ def filter_savgol_series(series, window_length, *args, **kwargs):
     for _, stretch in series[valid].groupby(labels):
         if len(stretch) >= window_length:
             filtered[stretch.index] = sp.signal.savgol_filter(
-                stretch, window_length, *args, delta=delta, **kwargs)
+                stretch, window_length, *args,
+                delta=freq/pd.Timedelta('365d'), **kwargs)
 
     # return new series with filtered values
     return filtered
