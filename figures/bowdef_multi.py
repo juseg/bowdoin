@@ -6,10 +6,29 @@
 """Plot Bowdoin deformation against GNSS velocity."""
 
 import absplots as apl
+import matplotlib as mpl
+import pandas as pd
 
 import bowdef_utils
 import bowstr_utils
 import bowtem_utils
+
+
+def load_weather_station():
+    """Load SIGMA-B hourly air temperature and surface height."""
+    return pd.read_csv(
+        '../data/external/SIGMA_AWS_SiteB_2012-2020_Lv1_3.csv',
+        index_col='date', parse_dates=True, usecols=['date', 'T1', 'sh'],
+        na_values=(-9999, -9998, -8888)).rename_axis(None)
+
+
+def load_water_levels():
+    """Load hourly piezometer pressure head."""
+    wlev = pd.concat([bowtem_utils.load(
+        f'../data/processed/bowdoin.{bh}.pzm.wlev.csv')
+        for bh in ('bh2', 'bh3')], axis=1)
+    wlev = wlev.rename(columns={'UP': 'BH2', 'LP': 'BH3'})
+    return wlev[wlev > 0].resample('1h').mean()
 
 
 def main():
@@ -17,48 +36,64 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 120), nrows=4, sharex=True, gridspec_kw={
-            'left': 12.5, 'right': 12.5, 'bottom': 12.5, 'top': 2.5,
-            'height_ratios': (3, 3, 2, 1), 'hspace': 2.5})
+        figsize=(180, 180), nrows=6, sharex=True, gridspec_kw={
+            'left': 20, 'right': 2.5, 'bottom': 10, 'top': 2.5,
+            'height_ratios': [2]*5+[1], 'hspace': 2.5})
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+    bowtem_utils.add_subfig_labels(axes)
 
     # plot borehole velocity
-    df = bowdef_utils.load_gnss_velocities(method='twopoint')
-    df.vh.plot(ax=axes[0], color='0.9')
     df = bowdef_utils.load_multivariate()
-    df.gnss.plot(ax=axes[0], color='tab:blue', legend=False)
+    df.gnss.plot(ax=axes[0], color='tab:orange', legend=False)
 
-    # plot tilt rates, stress and tide
+    # plot satellite velocities
+    tab20 = mpl.color_sequences['tab20']
+    bowdef_utils.plot_errorbar(
+        axes[0], bowdef_utils.load_landsat_velocities(), color=tab20[0],
+        label='Landsat')
+    bowdef_utils.plot_errorbar(
+        axes[0], bowdef_utils.load_sentinel_velocities(), color=tab20[1],
+        label='Sentinel')
+
+    # plot tilt rates, pressure head, air temperature, surface height and tide
     df.tilt.plot(ax=axes[1], legend=False)
-    (df.pres/1e3).plot(ax=axes[2], legend=False)
-    (df.tide/1e1).plot(ax=axes[3], legend=False, c='C9')
+    load_water_levels().plot(
+        ax=axes[2], color={'BH2': 'tab:blue', 'BH3': 'tab:pink'})
+    aws = load_weather_station()['20140701':'20170801']
+    aws.T1.plot(ax=axes[3], c='tab:red')
+    axes[3].axhline(0, c='k', lw=0.5)
+    aws.sh.plot(ax=axes[4], c='tab:blue')
+    tide = bowstr_utils.load_pituffik_tides(unit='m').resample('10min').mean()
+    (tide-tide.mean()).plot(ax=axes[5], c='C9')
 
-    # add labels
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    for i, unit in enumerate(df.pres):
-        axes[2].text(
-            1.01, 1.6-0.2*i, f'{unit}\n{depth[unit]:.0f}' r'$\,$m',
-            color=f'C{i}', fontsize=6, fontweight='bold',
-            transform=axes[2].transAxes)
-    axes[3].text(
-        1.01, 0, 'Pituffik\ntide'+r'$\,/\,$10', color='C9',
-        fontsize=6, fontweight='bold', transform=axes[3].transAxes)
+    # add velocity, tilt unit and borehole legends
+    axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
+    axes[1].legend(ncol=3)
+    axes[2].legend()
 
-    # set axes limits
+    # set axes properties
+    fig.align_ylabels(axes)
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
-    axes[3].set_xlabel('')
-    axes[0].set_ylabel(r'velocity ($m\,a^{-1}$)', labelpad=0)
-    axes[1].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
-    axes[2].set_ylabel('stress (MPa)')
-    axes[3].set_ylabel('tide (kPa)', labelpad=0)
+    axes[3].grid(which='minor')
+    axes[4].grid(which='minor')
+    axes[5].grid(which='minor')
+    axes[5].set_xlabel('')
+    axes[0].set_ylabel('Bowdoin Glacier\n' r'velocity ($m\,a^{-1}$)')
+    axes[1].set_ylabel('Bowdoin Glacier\n' r'tilt rate ($°\,a^{-1}$)')
+    axes[2].set_ylabel('Bowdoin Glacier\npressure head (m)')
+    axes[3].set_ylabel('Qaanaaq Ice Cap\nair temp. (°C)')
+    axes[4].set_ylabel('Qaanaaq Ice Cap\nheight (cm)')
+    axes[5].set_ylabel('Pituffik\ntide (m)')
+    axes[0].set_xlim('20140701', '20170801')
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
-    axes[2].set_ylim(-0.15, 3.15)
-    axes[3].set_ylim(-2.4, 2.4)
+    axes[2].set_ylim(190, 260)
+    axes[3].set_ylim(-45, 15)
+    axes[4].set_ylim(-60, 140)
+    axes[5].set_ylim(-2.4, 2.4)
 
     # zoom on tidal oscillations
     # axes[0].set_xlim('20160801', '20161001')

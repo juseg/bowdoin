@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2016-2025, Julien Seguinot (juseg.dev)
+# Copyright (c) 2016-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -71,12 +71,8 @@ done
 # Bowdoin deformation paper data
 # ------------------------------
 
-# SIGMA-B automatic weather station data
-for year in 20{14..17}
-do
-    serv="https://mri-2.mri-jma.go.jp/owncloud/index.php"
-    root="$serv/s/60a7ce6376755287e4ec6a7eb4d5a839/download?path=%2F&files="
-    dest="SIGMA_AWS_SiteB_${year}_level0_final.xls"
-    orig="$root$dest"
-    [ -f "$dest" ] || wget $orig -O $dest
-done
+# SIGMA-B automatic weather station quality-controlled level 1.3 data
+# (Nishimura et al., 2023, https://doi.org/10.17592/001.2022041306)
+root="https://ads.nipr.ac.jp/api/v1/metadata/A20220413-006/1.20/data/DATA"
+dest="SIGMA_AWS_SiteB_2012-2020_Lv1_3.csv"
+[ -f "$dest" ] || wget "$root?path=$dest" -O $dest

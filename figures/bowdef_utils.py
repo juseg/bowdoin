@@ -221,6 +221,30 @@ def load_gnss_velocities(**kwargs):
     return vel
 
 
+def load_landsat_velocities():
+    """Load surface velocities from Landsat feature-tracking."""
+    df = pd.read_csv(
+        '../data/satellite/bowdoin-landsat.csv', parse_dates=['start', 'end'])
+    df = df.assign(delay=df.end-df.start)
+    df = df.set_index(df.start+df.delay/2)
+    df = df.assign(delay=df.delay/pd.to_timedelta('1d'))
+    df = df.rename(columns={'vel': 'speed', 'err': 'error'})
+    return df
+
+
+def load_sentinel_velocities():
+    """Load surface velocities from Sentinel feature-tracking."""
+    df = pd.read_csv(
+        '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
+        engine='python', index_col='YYYY-MM-DD (avg)',
+        parse_dates=['YYYY-MM-DD (1st)', 'YYYY-MM-DD (2nd)'])
+    df = df.rename_axis(None).rename(columns={
+        'time-diff (days)': 'delay', 'vel (m/a)': 'speed',
+        'vel_error (m/a)': 'error', 'YYYY-MM-DD (1st)': 'start',
+        'YYYY-MM-DD (2nd)': 'end'})
+    return df
+
+
 def load_strain(start, end):
     """Load total strain on custom interval."""
     tilx = bowstr_utils.load(variable='tilx')
