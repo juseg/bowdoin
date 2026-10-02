@@ -36,26 +36,24 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 210), nrows=6, sharex=True, gridspec_kw={
-            'left': 20, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
-            'height_ratios': (3, 3, 3, 3, 3, 1.5), 'hspace': 2.5})
+        figsize=(180, 180), nrows=6, sharex=True, gridspec_kw={
+            'left': 20, 'right': 2.5, 'bottom': 10, 'top': 2.5,
+            'height_ratios': [2]*5+[1], 'hspace': 2.5})
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+    bowtem_utils.add_subfig_labels(axes)
 
     # plot borehole velocity
-    df = bowdef_utils.load_gnss_velocities(method='twopoint')
-    df.vh.plot(ax=axes[0], color='0.9', label='_nolegend_')
     df = bowdef_utils.load_multivariate()
-    df.gnss.plot(ax=axes[0], color='tab:blue', legend=False)
+    df.gnss.plot(ax=axes[0], color='tab:orange', legend=False)
 
     # plot satellite velocities
     tab20 = mpl.color_sequences['tab20']
     bowdef_utils.plot_errorbar(
-        axes[0], bowdef_utils.load_landsat_velocities(), color=tab20[3],
+        axes[0], bowdef_utils.load_landsat_velocities(), color=tab20[0],
         label='Landsat')
     bowdef_utils.plot_errorbar(
-        axes[0], bowdef_utils.load_sentinel_velocities(), color=tab20[11],
+        axes[0], bowdef_utils.load_sentinel_velocities(), color=tab20[1],
         label='Sentinel')
 
     # plot tilt rates, pressure head, air temperature, surface height and tide
@@ -63,34 +61,32 @@ def main():
     load_water_levels().plot(
         ax=axes[2], color={'BH2': 'tab:blue', 'BH3': 'tab:pink'})
     aws = load_weather_station()
-    aws.T1.plot(ax=axes[3], c='C3')
+    aws.T1.plot(ax=axes[3], c='tab:red')
     axes[3].axhline(0, c='k', lw=0.5)
-    aws.sh.plot(ax=axes[4], c='C5')
+    aws.sh.plot(ax=axes[4], c='tab:blue')
     tide = bowstr_utils.load_pituffik_tides(unit='m').resample('10min').mean()
     (tide-tide.mean()).plot(ax=axes[5], c='C9')
 
     # add velocity, tilt unit and borehole legends
-    depth = bowstr_utils.load(variable='dept').iloc[0]
     axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
-    axes[1].legend(
-        [f'{unit} ({depth[unit]:.0f}' r'$\,$m)' for unit in df.tilt],
-        loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1), ncol=3)
-    axes[2].legend(loc='lower right', bbox_to_anchor=(0, 0, 11/12, 1))
+    axes[1].legend(ncol=3)
+    axes[2].legend()
 
-    # set axes limits
+    # set axes properties
+    fig.align_ylabels(axes)
     axes[0].grid(which='minor')
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
     axes[3].grid(which='minor')
     axes[4].grid(which='minor')
+    axes[5].grid(which='minor')
     axes[5].set_xlabel('')
     axes[0].set_ylabel('Bowdoin Glacier\n' r'velocity ($m\,a^{-1}$)')
     axes[1].set_ylabel('Bowdoin Glacier\n' r'tilt rate ($°\,a^{-1}$)')
-    axes[2].set_ylabel('Bowdoin Glacier\nbasal water\npressure head (m)')
+    axes[2].set_ylabel('Bowdoin Glacier\npressure head (m)')
     axes[3].set_ylabel('Qaanaaq Ice Cap\nair temp. (°C)')
-    axes[4].set_ylabel('Qaanaaq Ice Cap\nsurface height (cm)')
+    axes[4].set_ylabel('Qaanaaq Ice Cap\nheight (cm)')
     axes[5].set_ylabel('Pituffik\ntide (m)')
-    fig.align_ylabels(axes)
     axes[0].set_xlim('20140701', '20170801')
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
