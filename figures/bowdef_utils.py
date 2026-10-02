@@ -109,8 +109,7 @@ def filter_kernel_dataframe(df, sigma, *args, **kwargs):
         df[column], sigma, *args, **kwargs) for column in df], axis=1)
 
 
-def filter_kernel_series(
-        series, sigma, deriv=0, truncate=3.0, spread=0.8):
+def filter_kernel_series(series, sigma, deriv=0, truncate=3.0, spread=0.8):
     """Apply Gaussian kernel-weighted local linear fit on a series.
 
     At each sample, fit a line to valid values within the kernel support,
@@ -135,22 +134,22 @@ def filter_kernel_series(
     valid = series.notna().to_numpy()
     values = np.where(valid, series-series.mean(), 0)
 
-    # weighted sums of offset powers (s) and values times offset powers (t)
+    # weighted sums of offset powers (ws) and values times offset powers (vs)
     # as convolutions (reversed offsets)
     def convolve(signal, power):
         return np.convolve(signal, kernel*(-offsets)**power, mode='same')
-    s = [convolve(valid, power) for power in range(3)]
-    t = [convolve(values, power) for power in range(2)]
+    ws = [convolve(valid, power) for power in range(3)]
+    vs = [convolve(values, power) for power in range(2)]
 
     # solve weighted least squares for the local line where well spread
     with np.errstate(divide='ignore', invalid='ignore'):
         if deriv == 0:
-            filtered = (s[2]*t[0]-s[1]*t[1]) / (s[0]*s[2]-s[1]**2)
+            filtered = (ws[2]*vs[0]-ws[1]*vs[1]) / (ws[0]*ws[2]-ws[1]**2)
             filtered += series.mean()
         else:
-            filtered = (s[0]*t[1]-s[1]*t[0]) / (s[0]*s[2]-s[1]**2)
+            filtered = (ws[0]*vs[1]-ws[1]*vs[0]) / (ws[0]*ws[2]-ws[1]**2)
             filtered *= pd.Timedelta('365d') / freq
-        filtered[~(s[2]/s[0]-(s[1]/s[0])**2 >= (spread*sigma)**2)] = np.nan
+        filtered[~(ws[2]/ws[0]-(ws[1]/ws[0])**2 >= (spread*sigma)**2)] = np.nan
 
     # return new series with filtered values
     return pd.Series(filtered, index=series.index, name=series.name)
@@ -176,6 +175,7 @@ def filter_savgol_series(series, window, *args, **kwargs):
 
     # infer sampling interval and convert window to odd number of samples
     freq = pd.to_timedelta(pd.infer_freq(series.index))
+    delta = freq/pd.Timedelta('365d')
     window_length = int(pd.to_timedelta(window)/freq) // 2 * 2 + 1
 
     # label continuous stretches of valid values
@@ -187,8 +187,7 @@ def filter_savgol_series(series, window, *args, **kwargs):
     for _, stretch in series[valid].groupby(labels):
         if len(stretch) >= window_length:
             filtered[stretch.index] = sp.signal.savgol_filter(
-                stretch, window_length, *args,
-                delta=freq/pd.Timedelta('365d'), **kwargs)
+                stretch, window_length, *args, delta=delta, **kwargs)
 
     # return new series with filtered values
     return filtered
