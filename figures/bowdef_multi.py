@@ -60,7 +60,7 @@ def main():
     df.tilt.plot(ax=axes[1], legend=False)
     load_water_levels().plot(
         ax=axes[2], color={'BH2': 'tab:blue', 'BH3': 'tab:pink'})
-    aws = load_weather_station()
+    aws = load_weather_station()['20140701':'20170801']
     aws.T1.plot(ax=axes[3], c='tab:red')
     axes[3].axhline(0, c='k', lw=0.5)
     aws.sh.plot(ax=axes[4], c='tab:blue')
