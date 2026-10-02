@@ -238,38 +238,40 @@ def load_strain(start, end):
 
 
 def load_strain_rates(**kwargs):
-    """Load resampled, interpolated, and filter-derived strain rates."""
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    tilx = filter_derive_dataframe(tilx, **kwargs)
-    tily = filter_derive_dataframe(tily, **kwargs)
+    """Load strain rates from filter-derived tilt component rates."""
+    tilx, tily = load_tilt_component_rates(**kwargs)
     costilt = np.cos(tilx) * np.cos(tily)
     return 0.5 * (1 - costilt**2) ** 0.5 / costilt
 
 
 def load_tilt_azimuth(**kwargs):
-    """Load resampled, interpolated, and filter-derived tilt direction."""
-    tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
-    tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    tilx = filter_derive_dataframe(tilx, **kwargs)
-    tily = filter_derive_dataframe(tily, **kwargs)
+    """Load tilt direction from filter-derived tilt component rates."""
+    tilx, tily = load_tilt_component_rates(**kwargs)
     azimuth = np.atan2(-np.sin(tilx)*np.cos(tily), np.sin(tily)) * 180 / np.pi
     azimuth = azimuth[azimuth.index >= '2014-07-17']
     return azimuth
 
 
-def load_tilt_rates(**kwargs):
-    """Load resampled, interpolated, and filter-derived tilt rates."""
+def load_tilt_component_rates(method='twopoint', window=None):
+    """Load resampled and filter-derived tilt rate components."""
+
+    # load tilt components resampled on a regular 10-min grid
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
-    tilx = tilx.interpolate(limit_area='inside', method='linear')
-    tily = tily.interpolate(limit_area='inside', method='linear')
-    tilx = filter_derive_dataframe(tilx, **kwargs)
-    tily = filter_derive_dataframe(tily, **kwargs)
+
+    # interpolate across gaps except for the gap-aware kernel fit
+    if method != 'kernel':
+        tilx = tilx.interpolate(limit_area='inside', method='linear')
+        tily = tily.interpolate(limit_area='inside', method='linear')
+
+    # return filter-derived tilt rate components
+    return (filter_derive_dataframe(tilx, method=method, window=window),
+            filter_derive_dataframe(tily, method=method, window=window))
+
+
+def load_tilt_rates(**kwargs):
+    """Load tilt rates from filter-derived tilt component rates."""
+    tilx, tily = load_tilt_component_rates(**kwargs)
     tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     return tilt
