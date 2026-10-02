@@ -92,12 +92,11 @@ def filter_derive_dataframe(df, method='twopoint', window=None):
 
     # compute Savitzky–Golay filtered derivative
     if method == 'savgol':
-        return filter_savgol_dataframe(
-            df, window, polyorder=2, delta=delta, deriv=1)
+        return filter_savgol_dataframe(df, window, polyorder=2, deriv=1)
 
     # compute Gaussian kernel-weighted local linear derivative
     if method == 'kernel':
-        return filter_kernel_dataframe(df, window, delta=delta, deriv=1)
+        return filter_kernel_dataframe(df, window, deriv=1)
 
     # other methods are unknown
     raise ValueError(f"Unknown derivation method {method}.")
@@ -106,9 +105,8 @@ def filter_derive_dataframe(df, method='twopoint', window=None):
 def filter_kernel_dataframe(df, sigma, *args, **kwargs):
     """Apply kernel-weighted local linear fit on each series in a dataframe."""
 
-    # infer sampling frequency in years
+    # infer sampling frequency
     freq = pd.to_timedelta(pd.infer_freq(df.index))
-    kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
 
     # convert string kernel standard deviation to number of samples
     if isinstance(sigma, str):
@@ -120,18 +118,21 @@ def filter_kernel_dataframe(df, sigma, *args, **kwargs):
 
 
 def filter_kernel_series(
-        series, sigma, deriv=0, delta=1.0, truncate=3.0, spread=0.8):
+        series, sigma, deriv=0, truncate=3.0, spread=0.8):
     """Apply Gaussian kernel-weighted local linear fit on a series.
 
     At each sample, fit a line to valid values within the kernel support,
     weighted by a Gaussian of standard deviation sigma (in samples), and
-    return its value (deriv=0) or slope (deriv=1). Missing values get zero
-    weight, so no interpolation is needed across data gaps. Results are
-    masked where the kernel-weighted time spread (standard deviation) of
+    return its value (deriv=0) or slope (deriv=1, per year). Missing values
+    get zero weight, so no interpolation is needed across data gaps. Results
+    are masked where the kernel-weighted time spread (standard deviation) of
     valid values falls below a fraction spread of sigma, its value for a
     full window. This masks run ends and short isolated runs, but not
     uniformly sparse sampling.
     """
+
+    # infer sampling interval in years
+    delta = pd.to_timedelta(pd.infer_freq(series.index)) / pd.Timedelta('365d')
 
     # prepare kernel on sample offsets, and masked and centred values
     # (centring avoids precision loss on large values such as UTM northings)
@@ -164,9 +165,8 @@ def filter_kernel_series(
 def filter_savgol_dataframe(df, window_length, *args, **kwargs):
     """Apply Savitsky-Golay filter on each series in a dataframe."""
 
-    # infer sampling frequency in years
+    # infer sampling frequency
     freq = pd.to_timedelta(pd.infer_freq(df.index))
-    kwargs.setdefault('delta', freq/pd.to_timedelta('365d'))
 
     # convert string window length to odd integer (centred window)
     if isinstance(window_length, str):
@@ -185,6 +185,9 @@ def filter_savgol_series(series, window_length, *args, **kwargs):
     last = series.last_valid_index()
     series = series.loc[first:last]
 
+    # infer sampling interval in years
+    delta = pd.to_timedelta(pd.infer_freq(series.index)) / pd.Timedelta('365d')
+
     # label continuous stretches of valid values
     valid = series.notna()
     labels = (valid != valid.shift()).cumsum()[valid]
@@ -194,7 +197,7 @@ def filter_savgol_series(series, window_length, *args, **kwargs):
     for _, stretch in series[valid].groupby(labels):
         if len(stretch) >= window_length:
             filtered[stretch.index] = sp.signal.savgol_filter(
-                stretch, window_length, *args, **kwargs)
+                stretch, window_length, *args, delta=delta, **kwargs)
 
     # return new series with filtered values
     return filtered
