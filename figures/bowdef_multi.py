@@ -14,12 +14,12 @@ import bowstr_utils
 import bowtem_utils
 
 
-def load_air_temperature():
-    """Load SIGMA-B weather station hourly air temperature."""
+def load_weather_station():
+    """Load SIGMA-B hourly air temperature and surface height."""
     return pd.read_csv(
         '../data/external/SIGMA_AWS_SiteB_2012-2020_Lv1_3.csv',
-        index_col='date', parse_dates=True, usecols=['date', 'T1'],
-        na_values=(-9999, -9998, -8888)).T1.rename_axis(None)
+        index_col='date', parse_dates=True, usecols=['date', 'T1', 'sh'],
+        na_values=(-9999, -9998, -8888)).rename_axis(None)
 
 
 def load_water_levels():
@@ -36,9 +36,9 @@ def main():
 
     # initialize figure
     fig, axes = apl.subplots_mm(
-        figsize=(180, 160), nrows=5, sharex=True, gridspec_kw={
+        figsize=(180, 180), nrows=6, sharex=True, gridspec_kw={
             'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
-            'height_ratios': (3, 3, 2, 2, 1), 'hspace': 2.5})
+            'height_ratios': (3, 3, 2, 2, 2, 1), 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels(axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
@@ -58,13 +58,15 @@ def main():
         axes[0], bowdef_utils.load_sentinel_velocities(), color=tab20[11],
         label='Sentinel')
 
-    # plot tilt rates, pressure head, air temperature and tide
+    # plot tilt rates, pressure head, air temperature, surface height and tide
     df.tilt.plot(ax=axes[1], legend=False)
     load_water_levels().plot(
         ax=axes[2], color={'BH2': 'tab:blue', 'BH3': 'tab:pink'})
-    load_air_temperature().plot(ax=axes[3], c='C3')
+    aws = load_weather_station()
+    aws.T1.plot(ax=axes[3], c='C3')
     axes[3].axhline(0, c='k', lw=0.5)
-    (df.tide/1e1).plot(ax=axes[4], legend=False, c='C9')
+    aws.sh.plot(ax=axes[4], c='C5')
+    (df.tide/1e1).plot(ax=axes[5], legend=False, c='C9')
 
     # add velocity, tilt unit and borehole legends
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -79,17 +81,20 @@ def main():
     axes[1].grid(which='minor')
     axes[2].grid(which='minor')
     axes[3].grid(which='minor')
-    axes[4].set_xlabel('')
+    axes[4].grid(which='minor')
+    axes[5].set_xlabel('')
     axes[0].set_ylabel(r'velocity ($m\,a^{-1}$)', labelpad=0)
     axes[1].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
     axes[2].set_ylabel('pressure head (m)')
     axes[3].set_ylabel('air temp. (°C)')
-    axes[4].set_ylabel('tide / 10 (kPa)', labelpad=0)
+    axes[4].set_ylabel('surface height (cm)')
+    axes[5].set_ylabel('tide / 10 (kPa)', labelpad=0)
     axes[0].set_ylim(-50, 950)
     axes[1].set_ylim(-1, 21)
     axes[2].set_ylim(190, 260)
     axes[3].set_ylim(-45, 15)
-    axes[4].set_ylim(-2.4, 2.4)
+    axes[4].set_ylim(-60, 140)
+    axes[5].set_ylim(-2.4, 2.4)
 
     # zoom on tidal oscillations
     # axes[0].set_xlim('20160801', '20161001')
