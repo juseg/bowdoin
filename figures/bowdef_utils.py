@@ -120,15 +120,17 @@ def filter_kernel_dataframe(df, sigma, *args, **kwargs):
 
 
 def filter_kernel_series(
-        series, sigma, deriv=0, delta=1.0, truncate=3.0, coverage=0.5):
+        series, sigma, deriv=0, delta=1.0, truncate=3.0, spread=0.8):
     """Apply Gaussian kernel-weighted local linear fit on a series.
 
     At each sample, fit a line to valid values within the kernel support,
     weighted by a Gaussian of standard deviation sigma (in samples), and
     return its value (deriv=0) or slope (deriv=1). Missing values get zero
     weight, so no interpolation is needed across data gaps. Results are
-    masked where the valid kernel weight falls below a fraction coverage of
-    the total.
+    masked where the kernel-weighted time spread (standard deviation) of
+    valid values falls below a fraction spread of sigma, its value for a
+    full window. This masks run ends and short isolated runs, but not
+    uniformly sparse sampling.
     """
 
     # prepare kernel on sample offsets, and masked and centred values
@@ -145,9 +147,9 @@ def filter_kernel_series(
     s0, s1, s2 = (convolve(valid, power) for power in range(3))
     t0, t1 = (convolve(values, power) for power in range(2))
 
-    # solve weighted least squares for the local line where covered
-    covered = s0 >= coverage * kernel.sum()
+    # solve weighted least squares for the local line where well spread
     with np.errstate(divide='ignore', invalid='ignore'):
+        covered = s2/s0 - (s1/s0)**2 >= (spread*sigma)**2
         if deriv == 0:
             filtered = (s2*t0 - s1*t1) / (s0*s2 - s1**2) + series.mean()
         else:
