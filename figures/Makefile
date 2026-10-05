@@ -10,7 +10,8 @@
 
 # bowdoin deformation figures
 BOWDEF_COUPLES = \
-	az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti tr2tr
+	speed_tides stress_speed stress_tides stress_tilts \
+	tilts_speed tilts_tides tilts_tilts
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowdef_, \
