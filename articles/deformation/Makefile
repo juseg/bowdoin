@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2021, Julien Seguinot (juseg.github.io)
+# Copyright (c) 2019-2026, Julien Seguinot (juseg.dev)
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
@@ -9,7 +9,7 @@
 # ---------
 
 PAPER = bowdoin-deformation
-BIB = ../../../references/references.bib
+BIB = references.bib
 REV = $(shell git describe --abbrev=0 --match=bowstr*)
 
 
