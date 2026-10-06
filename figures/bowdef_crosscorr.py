@@ -107,7 +107,7 @@ def plot_time_series(ax, depth, df, var, ref):
     subaxes[-1].set_xlabel('')
 
 
-def plot(couple='ti2sp', method='inner'):
+def plot(couple='tilts_speed', method='inner'):
     """Plot and return full figure for given options."""
 
     # initialize figure
@@ -139,8 +139,8 @@ def plot(couple='ti2sp', method='inner'):
     df = df.dropna(how='all', axis=1)
 
     # compute cross-correlations and phase delays
-    var = {'az': 'azim', 'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'az': 'azim', 'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    keys = dict(tilts='tilt', speed='gnss', stress='pres', tides='tide')
+    var, ref = (keys[k] for k in couple.split('_'))
     ccorr = bowdef_utils.correlate_dataframes(
         df[var], df[ref]['LI05'] if ref == var else df[ref])
     delay = -abs(ccorr).idxmax()
@@ -168,8 +168,8 @@ def plot(couple='ti2sp', method='inner'):
 def main():
     """Main program called during execution."""
     couples = [
-        'az2sp', 'az2ti', 'sp2ti', 'st2sp', 'st2az', 'st2ti', 'st2tr',
-        'tr2sp', 'tr2ti', 'tr2tr']
+        'speed_tides', 'stress_speed', 'stress_tides', 'stress_tilts',
+        'tilts_speed', 'tilts_tides', 'tilts_tilts']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 

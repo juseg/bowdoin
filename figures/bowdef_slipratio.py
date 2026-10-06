@@ -3,7 +3,7 @@
 # Creative Commons Attribution-ShareAlike 4.0 International License
 # (CC BY-SA 4.0, http://creativecommons.org/licenses/by-sa/4.0/)
 
-"""Plot Bowdoin deformation against GNSS velocity."""
+"""Plot Bowdoin surface and shear velocities and slip ratio."""
 
 import absplots as apl
 import matplotlib as mpl

@@ -67,7 +67,6 @@ def plot_colorbar(cax, img, var, ref):
 
     # add colorbar
     labels = {
-        'azim': 'azimuth (°)',
         'gnss': r'speed ($m\,a^{-1}$)',
         'pres': r'stress (kPa)',
         'tide': r'tide$\,/\,$10',
@@ -76,12 +75,12 @@ def plot_colorbar(cax, img, var, ref):
     cax.set_xlabel(f'{labels[var]} vs {labels[ref]}')
 
 
-def plot(couple='ti2sp', method='inner'):
+def plot(couple='tilts_speed', method='inner'):
     """Plot and return full figure for given options."""
 
     # correlation variables
-    var = {'az': 'azim', 'sp': 'gnss', 'st': 'pres', 'tr': 'tilt'}[couple[:2]]
-    ref = {'az': 'azim', 'sp': 'gnss', 'ti': 'tide', 'tr': 'tilt'}[couple[3:]]
+    keys = dict(tilts='tilt', speed='gnss', stress='pres', tides='tide')
+    var, ref = (keys[k] for k in couple.split('_'))
 
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(180, 90), gridspec_kw={
@@ -108,8 +107,8 @@ def plot(couple='ti2sp', method='inner'):
 def main():
     """Main program called during execution."""
     couples = [
-        'az2sp', 'az2ti', 'sp2ti', 'st2sp', 'st2az', 'st2ti', 'st2tr',
-        'tr2sp', 'tr2ti', 'tr2tr']
+        'speed_tides', 'stress_speed', 'stress_tides', 'stress_tilts',
+        'tilts_speed', 'tilts_tides', 'tilts_tilts']
     plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
     plotter()
 

@@ -111,7 +111,13 @@
 % ----------------------------------------------------------------------
 
 \subsection{Bowdoin Glacier}
+
+    Fig.~\ref{fig:boreholes}a --- Bowdoin map.
+
 \subsection{Instrumentation}
+
+    Fig.~\ref{fig:boreholes}b,c --- borehole setup.
+
 \subsection{Tilt rates}
 \subsection{Shear velocities}
 \subsection{Surface velocities}
@@ -121,8 +127,18 @@
 % ----------------------------------------------------------------------
 
 \subsection{Tilt rates}
+
+    Fig.~\ref{fig:tiltrates} --- tilt rates.
+
 \subsection{Shear velocities}
+
+    Fig.~\ref{fig:shearprofile} --- annual shear profiles.
+
+    Fig.~\ref{fig:slipratio} --- shear velocity time series.
+
 \subsection{Phase delays}
+
+    Fig.~\ref{fig:crosscorr} --- cross-correlation.
 
 % ----------------------------------------------------------------------
 \section{Discussion}
@@ -131,6 +147,8 @@
 \subsection{Slip ratio}
 \subsection{Stress coupling}
 \subsection{Creep regime}
+
+    Fig.~\ref{fig:powerlaws} --- creep diagram.
 
 % ----------------------------------------------------------------------
 \section{Conclusions}
@@ -161,6 +179,107 @@
 \clearpage
 % ----------------------------------------------------------------------
 
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_boreholes}}
+      \caption{%
+        \textbf{(a)}
+          Bowdoin borehole locations from drilling in July 2014 to dismantling
+          in July 2017 and background satellite image from 2017 Mar.~10,
+          17:41:29 UTC. Contains modified Copernicus Sentinel data, processed
+          with Sentinelflow. \todo{add Landsat surface velocity}
+        \textbf{(b)}
+          Initially observed ice thickness and sensor unit depths inferred
+          from water-pressure measurements.
+        \textbf{(c)}
+          Three-dimensional rendering of digital sensor units
+          \citep[DIBOSS,][]{Ryser.2014, Ryser.etal.2014, Ryser.etal.2014a},
+          including thermistors, piezometers and inclinometers.}
+      \label{fig:boreholes}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_tiltrates}}
+      \caption{%
+        \textbf{(a)}
+          Tilt rates of all tilt units, computed by Gaussian kernel-weighted
+          local linear regression using a 3\,h standard deviation.
+        \textbf{(b)}
+          Tilt azimuth. \todo{move azimuth panel to bonus figure, add
+          temperature, fade pre-closure records and zoom insets}}
+      \label{fig:tiltrates}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_shearprofile}}
+      \caption{%
+        \textbf{(a, b)}
+          Total tilt over a one-year period (rotated symbols) and shear
+          deformation (solid curves) extrapolated by a power-law fit of strain
+          against initial depth from 2014 Nov.~1 to 2015 Nov.~1, in
+          BH3 (a) and BH1 (b).
+          \todo{add subfigure labels, perhaps include as an inset in
+          Fig.~\ref{fig:slipratio} or \ref{fig:powerlaws}}}
+      \label{fig:shearprofile}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_slipratio}}
+      \caption{%
+        \textbf{(a)}
+          Surface speed from GNSS (kernel-weighted regression, 3\,h
+          standard deviation), and from Landsat-8 and Sentinel-1 feature
+          tracking, with horizontal error bars spanning each image pair
+          interval.
+          \todo{Landsat errors are a placeholder (3\,m per pair interval)
+          until updated data arrive}
+        \textbf{(b)}
+          Shear velocity in BH1 and BH3, from power-law fits of
+          tilt-derived strain rates against depth, integrated over ice
+          thickness.
+          \todo{fade pre-closure noise, fade or mask spikes in shear and
+          exponent from fits on fewer than three sensors, require a minimum
+          number of sensors}
+        \textbf{(c)}
+          Slip ratio (one minus the ratio of shear to surface speed) from
+          GNSS, and from satellite image pairs with shear velocity averaged
+          over each pair interval.
+        \textbf{(d)}
+          Flow exponent of the power-law fits.
+          \todo{quantify flow exponent uncertainty, most likely dominated by
+          power-law misfit and ice-thickness errors rather than tilt noise, not
+          sure how to deal with it yet}}
+      \label{fig:slipratio}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_crosscorr_tilts_speed}}
+      \caption{%
+        \textbf{(a)}
+          Extract of kernel-weighted-regressed (3\,h) tilt rates and surface
+          speed over the 2015 GNSS record, from 2015 May~16 to Aug.~15.
+        \textbf{(b)}
+          Cross-correlation between each tilt rate series and surface
+          speed. Coloured dots indicate the maximum absolute correlation.
+        \textbf{(c)}
+          Corresponding phase delay plotted against initial sensor depth.
+          \todo{understand delays, which shift by several hours with the
+          smoothing window (Gaussian 1.5 to 6\,h) and may need a band-pass,
+          e.g.\ a difference of kernel fits}}
+      \label{fig:crosscorr}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_powerlaws}}
+      \caption{%
+          Annual mean strain rate from 2014 Nov.~1 to 2015 Nov.~1
+          against driving stress $\rho g d \sin\alpha$ ($\alpha = 1.6^\circ$)
+          for BH1 and BH3 tilt units, with power-law fits and exponents $n$,
+          compared to laboratory experiments on temperate ice by Schohn et
+          al.~(2025).
+          \todo{reduce figure size, add Schohn et al.~(2025) and the slope
+          source to references}}
+      \label{fig:powerlaws}
+    \end{figure}
 
 % ----------------------------------------------------------------------
 % Tables

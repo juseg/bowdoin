@@ -9,18 +9,22 @@
 # -------
 
 # bowdoin deformation figures
-# FIXME user better names for multivariate figures
+BOWDEF_COUPLES = \
+	speed_tides stress_speed stress_tides stress_tilts \
+	tilts_speed tilts_tides tilts_tilts
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowdef_, creep effsr multi rates shear speed tilts) \
-		$(addprefix bowdef_ccorr_, az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti tr2tr) \
-		$(addprefix bowdef_mcorr_, az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti tr2tr) \
-		$(addprefix bowdef_xgram_, az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti tr2tr))
+		$(addprefix bowdef_, \
+			boreholes multivars powerlaws satellite shearprofile slipratio \
+			tiltangle tiltrates) \
+		$(addprefix bowdef_crosscorr_, $(BOWDEF_COUPLES)) \
+		$(addprefix bowdef_rollxcorr_, $(BOWDEF_COUPLES)) \
+		$(addprefix bowdef_xwavelets_, $(BOWDEF_COUPLES)))
 
 # bowdoin stress figures
 BOWSTR_FIGS = \
 	$(addsuffix .png, \
-		$(addprefix bowstr_, bores nofil tides) \
+		$(addprefix bowstr_, nofil tides) \
 		$(addprefix bowstr_ccorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
 		$(addprefix bowstr_lines_, 12hbp 12hhp 24hbp 24hhp deriv phase steps) \
 		$(addprefix bowstr_mcorr_, 12hbp 12hhp 24hbp 24hhp deriv phase) \
@@ -62,7 +66,7 @@ $(BOWSTR_FIGS): bowstr_utils.py
 OPT_RULE = %_$(2).png: %.py ; python $$< --$(1) $(2)
 $(foreach filter, 12hbp 12hhp 24hbp 24hhp deriv phase steps, \
   $(eval $(call OPT_RULE,filters,$(filter))))
-$(foreach couple, az2sp az2ti sp2ti st2sp st2az st2ti st2tr tr2sp tr2ti tr2tr, \
+$(foreach couple, $(BOWDEF_COUPLES), \
   $(eval $(call OPT_RULE,couple,$(couple))))
 $(foreach method, stcwt stlsp stfft ticwt tilsp tifft, \
   $(eval $(call OPT_RULE,methods,$(method))))
