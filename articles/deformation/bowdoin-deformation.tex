@@ -186,17 +186,14 @@
           Bowdoin borehole locations from drilling in July 2014 to dismantling
           in July 2017 and background satellite image from 2017 March 10,
           17:41:29 UTC. Contains modified Copernicus Sentinel data, processed
-          with Sentinelflow.
-          \todo{add Landsat surface velocity}
+          with Sentinelflow. \todo{add Landsat surface velocity}
         \textbf{(b)}
-          Initially observed ice thickness and depth of the tilt units along
-          an approximate flow line.
-          \todo{panel still shows the stress paper setup, check labels for
-          tilt units}
+          Initially observed ice thickness and sensors unit depths inferred
+          from water-pressure measurements.
         \textbf{(c)}
           Three-dimensional rendering of digital sensor units
           \citep[DIBOSS,][]{Ryser.2014, Ryser.etal.2014, Ryser.etal.2014a},
-          containing the tilt sensors.}
+          including thermistors, piezometers and inclinometers.}
       \label{fig:boreholes}
     \end{figure}
 
@@ -204,14 +201,11 @@
       \centerline{\includegraphics{bowdef_tiltrates}}
       \caption{%
         \textbf{(a)}
-          Tilt rates of all tilt units, computed by kernel-weighted local
-          linear regression with a Gaussian kernel of 3\,h standard
-          deviation.
+          Tilt rates of all tilt units, computed by Gaussian kernel-weighted
+          local linear regression using a 3\,h standard deviation.
         \textbf{(b)}
-          Tilt azimuth.
-          \todo{remove azimuth panel (bonus direction figure), mask
-          pre-freeze records, add zoom on daily variations, add subfigure
-          labels}}
+          Tilt azimuth. \todo{move azimuth panel to bonus figure, add
+          temperature, fade pre-closure records and zoom insets}}
       \label{fig:tiltrates}
     \end{figure}
 
@@ -219,14 +213,11 @@
       \centerline{\includegraphics{bowdef_shearprofile}}
       \caption{%
         \textbf{(a, b)}
-          Total shear deformation from 2014 November 1 to 2015 November 1
-          in BH3 (a) and BH1 (b). Rotated markers show the displacement and
-          tilt of each unit. Shaded curves show the power-law fit of strain
-          against depth, extrapolated to the surface and to the bed, with
-          the fitted exponent $n$.
-          \todo{add subfigure labels, decide whether to keep a standalone
-          figure or include as an inset in Fig.~\ref{fig:slipratio} or
-          \ref{fig:powerlaws}}}
+          Total tilt over a one-year period (rotated symbols) and shear
+          deformation (solid curves) extrapolated by a power-law fit of strain
+          against initial depth between 1 Nov 2014 to 1 Nov 2015.
+          \todo{add subfigure labels, perhaps include as an inset in
+          Fig.~\ref{fig:slipratio} or \ref{fig:powerlaws}}}
       \label{fig:shearprofile}
     \end{figure}
 
@@ -235,7 +226,7 @@
       \caption{%
         \textbf{(a)}
           Surface speed from GNSS (kernel-weighted regression, 3\,h
-          standard deviation), and from Landsat and Sentinel feature
+          standard deviation), and from Landsat~8 and Sentinel~1 feature
           tracking, with horizontal error bars spanning each image pair
           interval.
           \todo{Landsat errors are a placeholder (3\,m per pair interval)
@@ -244,17 +235,18 @@
           Shear velocity in BH1 and BH3, from power-law fits of
           tilt-derived strain rates against depth, integrated over ice
           thickness.
-          \todo{spikes in shear and exponent from fits on fewer than three
-          sensors, require a minimum number of sensors}
+          \todo{fade pre-closure noise, fade or mask spikes in shear and
+          exponent from fits on fewer than three sensors, require a minimum
+          number of sensors.}
         \textbf{(c)}
           Slip ratio (one minus the ratio of shear to surface speed) from
           GNSS, and from satellite image pairs with shear velocity averaged
           over each pair interval.
         \textbf{(d)}
           Flow exponent of the power-law fits.
-          \note{the flow exponent is a side result and partly sensor noise;
-          its uncertainty is dominated by power-law misfit and ice-thickness
-          errors rather than tilt noise}}
+          \note{the flow exponent is partly sensor noise; its uncertainty is
+          dominated by power-law misfit and ice-thickness errors rather than
+          tilt noise (Claude).}}
       \label{fig:slipratio}
     \end{figure}
 
@@ -263,7 +255,7 @@
       \caption{%
         \textbf{(a)}
           Extract of 24\,h band-pass-filtered tilt rates and surface speed
-          from 2015 May 16 to August 15 (complete 2015 GNSS record).
+          over the 2015 GNSS record, from May 16 to August 15.
         \textbf{(b)}
           Cross-correlation between each tilt rate series and surface
           speed. Coloured dots indicate the maximum absolute correlation.
