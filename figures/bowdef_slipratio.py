@@ -38,12 +38,20 @@ def load_shear_velocities(**kwargs):
     # group by borehole and fit a power law (axis=1 is deprecated)
     coefs = strain.T.groupby(strain.columns.str[0]).apply(
         lambda df: compute_power_fit_dataframe(depth[df.index], df.T).T)
-    coefs = coefs.rename({'L': 'BH1', 'U': 'BH3'}).swaplevel(0, 1).T
+    coefs = coefs.rename({'L': 'BH3', 'U': 'BH1'}).swaplevel(0, 1).T
 
     # return shear velocities
     base = base.set_axis(base.index.str[:3])
     shear = 2 * coefs.constant / (coefs.exponent+1) * base**(coefs.exponent+1)
     return shear, coefs.exponent
+
+
+def plot_faded(ax, df, dates, colors):
+    """Plot dataframe columns with faded records before given dates."""
+    for bh, series in df.items():
+        series[:dates[bh]].plot(
+            ax=ax, alpha=0.25, color=colors[bh], label='_nolegend_')
+        series[dates[bh]:].plot(ax=ax, color=colors[bh])
 
 
 def main():
@@ -77,12 +85,17 @@ def main():
     sat_error = 100 * sat_shear.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
 
+    # load latest freezing date in each borehole
+    dates = bowstr_utils.load_freezing_dates()
+    dates = dates.groupby(dates.index.str[0]).max()
+    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
+
     # plot surface speed, shear and slip ratio from geopositioning
     color_dict = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
     speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
-    shear.plot(ax=axes[1], color=color_dict, legend=False)
-    ratio.plot(ax=axes[2], color=color_dict)
-    exponent.plot(ax=axes[3], color=color_dict, legend=False)
+    plot_faded(axes[1], shear, dates, color_dict)
+    plot_faded(axes[2], ratio, dates, color_dict)
+    plot_faded(axes[3], exponent, dates, color_dict)
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']

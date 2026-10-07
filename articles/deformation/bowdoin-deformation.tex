@@ -98,6 +98,8 @@
     to seasonal time scales, resulting in a near-constant ratio of
     twenty-to-one between basal sliding and internal
     shear deformation over the whole measurement period.
+    \todo{check ratio after the borehole label fix (BH1 slip ratio now
+    94--95\,\%, about 17--19 to one) and the UI04 tilt offset correction}
 
 \end{abstract}
 
@@ -184,9 +186,10 @@
       \caption{%
         \textbf{(a)}
           Bowdoin borehole locations from drilling in July 2014 to dismantling
-          in July 2017 and background satellite image from 2017 Mar.~10,
-          17:41:29 UTC. Contains modified Copernicus Sentinel data, processed
-          with Sentinelflow. \todo{add Landsat surface velocity}
+          in July 2017 and background satellite image from 2016 Aug.~8,
+          17:59:15 UTC. Contains modified Copernicus Sentinel data, processed
+          with Sentinelflow. Contours show the 2015 mean surface speed
+          (m\,a$^{-1}$) from Landsat-8 feature tracking.
         \textbf{(b)}
           Initially observed ice thickness and sensor unit depths inferred
           from water-pressure measurements.
@@ -203,9 +206,13 @@
         \textbf{(a)}
           Tilt rates of all tilt units, computed by Gaussian kernel-weighted
           local linear regression using a 3\,h standard deviation.
-        \textbf{(b)}
-          Tilt azimuth. \todo{move azimuth panel to bonus figure, add
-          temperature, fade pre-closure records and zoom insets}}
+        \textbf{(b, c)}
+          Zoom on tilt rates from June to August 2015 (b) and 2016 (c).
+        \textbf{(d)}
+          Temperature of all tilt units, hourly mean, labelled with initial
+          unit depths. In panels (a) and (d), faded records precede freezing,
+          when temperature reaches 80\,\% of its minimum. Grey bands mark
+          summer field campaigns.}
       \label{fig:tiltrates}
     \end{figure}
 
@@ -217,8 +224,9 @@
           deformation (solid curves) extrapolated by a power-law fit of strain
           against initial depth from 2014 Nov.~1 to 2015 Nov.~1, in
           BH3 (a) and BH1 (b).
-          \todo{add subfigure labels, perhaps include as an inset in
-          Fig.~\ref{fig:slipratio} or \ref{fig:powerlaws}}}
+          \todo{replace with winter and summer shear velocity profiles in a
+          side column of Fig.~\ref{fig:slipratio}, with matching periods in
+          Fig.~\ref{fig:powerlaws}}}
       \label{fig:shearprofile}
     \end{figure}
 
@@ -235,10 +243,10 @@
         \textbf{(b)}
           Shear velocity in BH1 and BH3, from power-law fits of
           tilt-derived strain rates against depth, integrated over ice
-          thickness.
-          \todo{fade pre-closure noise, fade or mask spikes in shear and
-          exponent from fits on fewer than three sensors, require a minimum
-          number of sensors}
+          thickness. Faded records in (b--d) precede freezing of the last
+          tilt unit in each borehole.
+          \todo{fade or mask spikes in shear and exponent from fits on fewer
+          than three sensors, require a minimum number of sensors}
         \textbf{(c)}
           Slip ratio (one minus the ratio of shear to surface speed) from
           GNSS, and from satellite image pairs with shear velocity averaged
@@ -272,12 +280,13 @@
       \centerline{\includegraphics{bowdef_powerlaws}}
       \caption{%
           Annual mean strain rate from 2014 Nov.~1 to 2015 Nov.~1
-          against driving stress $\rho g d \sin\alpha$ ($\alpha = 1.6^\circ$)
+          against driving stress $\rho g d \sin\alpha$
+          ($\alpha = 1.6^\circ$, \citealp{Sugiyama.etal.2015})
           for BH1 and BH3 tilt units, with power-law fits and exponents $n$,
-          compared to laboratory experiments on temperate ice by Schohn et
-          al.~(2025).
-          \todo{reduce figure size, add Schohn et al.~(2025) and the slope
-          source to references}}
+          compared to laboratory experiments on temperate ice by
+          \citet{Schohn.etal.2025}.
+          \todo{reduce figure size, with winter and summer fits matching
+          Fig.~\ref{fig:slipratio}}}
       \label{fig:powerlaws}
     \end{figure}
 
