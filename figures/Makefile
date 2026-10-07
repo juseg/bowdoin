@@ -57,6 +57,7 @@ all: $(ALL_FIGS)
 $(ALL_FIGS): bowtem_utils.py matplotlibrc
 $(BOWDEF_FIGS): bowdef_utils.py bowstr_utils.py
 $(BOWSTR_FIGS): bowstr_utils.py
+bowstr_nofil.png: bowdef_utils.py
 
 # default pattern rule
 %.png: %.py
