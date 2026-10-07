@@ -39,11 +39,12 @@ def plot_speed_contours(ax):
     ds = bowdef_utils.open_landsat_pairs()
     speed = ds.speed.mean('time').where(ds.speed.notnull().mean('time') >= 0.5)
 
-    # plot labelled contours
+    # plot contours below borehole markers and label them away from boreholes
     contours = speed.plot.contour(
-        ax=ax, add_labels=False, colors='0.25', levels=range(100, 2000, 100),
-        linewidths=0.5)
-    ax.clabel(contours, fmt='%d', fontsize=6)
+        ax=ax, add_labels=False, alpha=0.75, colors='tab:orange',
+        levels=range(100, 600, 100), linewidths=1.5, zorder=0.5)
+    ax.clabel(contours, fmt='%d', fontsize=6, manual=[
+        (511.2e3, 8623.5e3), (510.4e3, 8625.5e3), (509.2e3, 8623.6e3)])
 
 
 def plot_long_profile(ax):
