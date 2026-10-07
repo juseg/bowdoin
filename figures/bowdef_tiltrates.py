@@ -58,13 +58,13 @@ def main():
     # plot tilt rate and temperature in main panels
     plot_faded(axes[0], tilt, dates)
     plot_faded(axes[1], temp, dates)
-    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=0.02)
-    bowtem_utils.add_field_campaigns(ax=axes[1])
+    bowtem_utils.add_field_campaigns(ax=axes[0], color='0.75')
+    bowtem_utils.add_field_campaigns(ax=axes[1], color='0.75')
 
     # plot summer zooms in insets
     for ax, year in zip(insets, [2015, 2016]):
         tilt.plot(ax=ax, legend=False, xlabel='')
-        bowtem_utils.add_field_campaigns(ax=ax)
+        bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
         ax.set_xlim(f'{year}0601', f'{year}0901')
         ax.set_ylim(-1, 21)
         ax.set_xticklabels([])
@@ -73,8 +73,6 @@ def main():
         axes[0].indicate_inset_zoom(ax)
 
     # add unit labels
-    add_unit_labels(axes[0], tilt, depth, offsets={
-        'UI02': -4, 'UI03': 4, 'UI05': -4, 'UI07': 4})
     add_unit_labels(axes[1], temp, depth, offsets={'UI02': 3, 'UI03': -3})
 
     # set axes properties
