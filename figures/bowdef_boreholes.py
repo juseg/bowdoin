@@ -8,6 +8,7 @@
 import absplots as apl
 import matplotlib.pyplot as plt
 
+import bowdef_utils
 import bowstr_utils
 import bowtem_utils
 
@@ -29,6 +30,20 @@ def subplots():
 
     # return figure
     return fig
+
+
+def plot_speed_contours(ax):
+    """Draw mean Landsat surface speed contours on map axes."""
+
+    # average speed over pairs excluding poorly covered pixels
+    ds = bowdef_utils.open_landsat_pairs()
+    speed = ds.speed.mean('time').where(ds.speed.notnull().mean('time') >= 0.5)
+
+    # plot labelled contours
+    contours = speed.plot.contour(
+        ax=ax, add_labels=False, colors='0.25', levels=range(100, 2000, 100),
+        linewidths=0.5)
+    ax.clabel(contours, fmt='%d', fontsize=6)
 
 
 def plot_long_profile(ax):
@@ -101,6 +116,7 @@ def main():
     bowtem_utils.plot_bowdoin_map(
         fig.axes[0], boreholes=['bh1', 'bh3'],
         colors=['tab:blue', 'tab:pink'], season='summer')
+    plot_speed_contours(fig.axes[0])
     bowtem_utils.plot_greenland_map(fig.axes[1], color='w')
     plot_long_profile(fig.axes[2])
     plot_unit_casing(fig.axes[3])
