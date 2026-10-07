@@ -12,6 +12,7 @@ import numpy as np
 
 import bowdef_utils
 import bowstr_utils
+import bowtem_utils
 
 
 def compute_shear_profile(base, depth, exponent, constant):
@@ -77,6 +78,8 @@ def main(start='2014-11-01', end='2015-11-01'):
     fig, axes = apl.subplots_mm(
         figsize=(180, 90), ncols=2, sharex=True, sharey=True, gridspec_kw={
             'left': 15, 'bottom': 10, 'right': 2.5, 'top': 2.5, 'wspace': 2.5})
+    bowtem_utils.add_subfig_labels(
+        axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # load total strain (do we need an util)
     depth = bowstr_utils.load(variable='dept').iloc[0]
