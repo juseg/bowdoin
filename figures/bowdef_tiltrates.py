@@ -8,6 +8,7 @@
 import absplots as apl
 
 import bowdef_utils
+import bowstr_utils
 
 
 def main():
@@ -22,21 +23,15 @@ def main():
     tilt = bowdef_utils.load_tilt_rates(method='kernel', window='3h')
     tilt.plot(ax=axes[0], xlabel='', ylabel=r'tilt rate ($°\,a^{-1}$)')
 
-    # plot tilt azimuth
-    azimuth = bowdef_utils.load_tilt_azimuth(method='kernel', window='3h')
-    azimuth.plot(ax=axes[1], legend=False, xlabel='', ylabel='tilt azimuth (°)')
+    # plot temperature
+    temp = bowstr_utils.load(variable='temp').resample('1h').mean()
+    temp.plot(ax=axes[1], legend=False, xlabel='', ylabel='temperature (°C)')
 
     # set axes properties
     axes[0].legend(loc='upper right', ncols=2)
     axes[0].set_xlim('20140701', '20170801')
     axes[0].set_ylim(-1, 21)
-    axes[1].set_xlim('20140701', '20170801')
-    axes[1].set_yticks([-180, 0, 180])
-
-    # zoom on July 2015
-    # axes[0].set_xlim('20150701', '20150731')
-    # axes[1].set_ylim(-60, 120)
-    # axes[1].set_yticks([-30, 0, 30, 60, 90])
+    axes[1].set_ylim(-6.5, 0.5)
 
     # save
     fig.savefig(__file__[:-3])
