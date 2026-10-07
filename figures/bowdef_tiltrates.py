@@ -82,8 +82,8 @@ def main():
     axes[1].set_ylim(-6.5, 0.5)
 
     # mark insets
-    for ax in insets:
-        bowdef_utils.add_inset_indicator(axes[0], ax, connectors=(1, 3))
+    bowdef_utils.add_inset_indicator(axes[0], insets[0], connectors=(0, 2))
+    bowdef_utils.add_inset_indicator(axes[0], insets[1], connectors=(1, 2))
 
     # save
     fig.savefig(__file__[:-3])
