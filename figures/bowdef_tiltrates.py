@@ -39,15 +39,14 @@ def main():
         nrows=2, figsize=(180, 120), sharex=True, gridspec_kw={
             'left': 12.5, 'right': 2.5, 'bottom': 10, 'top': 2.5,
             'height_ratios': (3, 1), 'hspace': 2.5})
-    insets = [
-        axes[0].inset_axes([0.07, 0.56, 0.38, 0.4]),
-        axes[0].inset_axes([0.65, 0.56, 0.33, 0.4])]
+    insets = fig.subplots_mm(ncols=2, gridspec_kw={
+        'left': 42.5, 'right': 5, 'bottom': 85, 'top': 5, 'wspace': 12.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_label(ax=axes[0], text='(a)')
     bowtem_utils.add_subfig_label(ax=axes[1], text='(d)')
-    bowtem_utils.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
-    bowtem_utils.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
+    bowtem_utils.add_subfig_label(ax=insets[0], text='(b)')
+    bowtem_utils.add_subfig_label(ax=insets[1], text='(c)')
 
     # load tilt rate, temperature, depth and freezing dates
     depth = bowstr_utils.load(variable='dept').iloc[0]
@@ -66,7 +65,7 @@ def main():
         tilt.plot(ax=ax, legend=False, xlabel='')
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
         ax.set_xlim(f'{year}0601', f'{year}0901')
-        ax.set_ylim(-1, 21)
+        ax.set_ylim(0, 21)
         ax.set_xticklabels([])
         ax.set_yticklabels([])
         ax.grid(which='minor')
@@ -80,7 +79,7 @@ def main():
     axes[1].set_ylabel('temperature (°C)')
     axes[1].set_xlabel('')
     axes[0].set_xlim('20140701', '20171201')
-    axes[0].set_ylim(-1, 35)
+    axes[0].set_ylim(-5/6, 30+5/6)
     axes[1].set_ylim(-6.5, 0.5)
 
     # save
