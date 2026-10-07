@@ -6,7 +6,6 @@
 """Plot Bowdoin deformation tilt rates."""
 
 import absplots as apl
-import matplotlib as mpl
 
 import bowdef_utils
 import bowstr_utils
@@ -21,57 +20,70 @@ def plot_faded(ax, df, dates):
         series[dates[unit]:].plot(ax=ax, color=f'C{i}')
 
 
-def mark_zoom(ax, zoom):
-    """Indicate zoom on main axes and connect it to zoom axes below."""
-    indicator = ax.indicate_inset_zoom(zoom, edgecolor='0.75', alpha=1)
-    for connector in indicator.connectors:
-        connector.set_visible(False)
-    for x, corner in zip(zoom.get_xlim(), (0, 1)):
-        ax.figure.add_artist(mpl.patches.ConnectionPatch(
-            xyA=(x, 0), coordsA=ax.get_xaxis_transform(),
-            xyB=(corner, 1), coordsB=zoom.transAxes, color='0.75'))
+def add_unit_labels(ax, data, depth, offsets=None):
+    """Add unit labels at the end of each line."""
+    offsets = offsets or {}
+    for i, unit in enumerate(data):
+        last = data[unit].dropna().tail(1)
+        ax.annotate(
+            fr'{unit}, {depth[unit]:.0f}$\,$m', color=f'C{i}', fontsize=6,
+            fontweight='bold', textcoords='offset points', va='center',
+            xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)))
 
 
 def main():
     """Main program called during execution."""
 
-    # initialize figure with tilt rate, summer zooms and temperature axes
-    fig = apl.figure_mm(figsize=(180, 150))
-    axes = [
-        fig.add_axes_mm([15, 102.5, 162.5, 45]),
-        fig.add_axes_mm([15, 57.5, 77.5, 35]),
-        fig.add_axes_mm([100, 57.5, 77.5, 35]),
-        fig.add_axes_mm([15, 10, 162.5, 37.5])]
-    bowtem_utils.add_subfig_labels(
-        axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+    # initialize figure
+    fig, axes = apl.subplots_mm(
+        nrows=2, figsize=(180, 120), sharex=True, gridspec_kw={
+            'left': 12.5, 'right': 2.5, 'bottom': 10, 'top': 2.5,
+            'height_ratios': (3, 1), 'hspace': 2.5})
+    insets = [
+        axes[0].inset_axes([0.07, 0.56, 0.38, 0.4]),
+        axes[0].inset_axes([0.65, 0.56, 0.33, 0.4])]
 
-    # load tilt rate, temperature and freezing dates
+    # add subfigure labels
+    bowtem_utils.add_subfig_label(ax=axes[0], text='(a)')
+    bowtem_utils.add_subfig_label(ax=axes[1], text='(d)')
+    bowtem_utils.add_subfig_label(ax=insets[0], text='(b)', loc='sw')
+    bowtem_utils.add_subfig_label(ax=insets[1], text='(c)', loc='sw')
+
+    # load tilt rate, temperature, depth and freezing dates
+    depth = bowstr_utils.load(variable='dept').iloc[0]
     tilt = bowdef_utils.load_tilt_rates(method='kernel', window='3h')
     temp = bowstr_utils.load(variable='temp').resample('1h').mean()
     dates = bowstr_utils.load_freezing_dates()
 
-    # plot tilt rate and temperature
+    # plot tilt rate and temperature in main panels
     plot_faded(axes[0], tilt, dates)
-    plot_faded(axes[3], temp, dates)
+    plot_faded(axes[1], temp, dates)
+    bowtem_utils.add_field_campaigns(ax=axes[0], ytext=0.02)
+    bowtem_utils.add_field_campaigns(ax=axes[1])
 
-    # plot summer zooms
-    for ax, year in zip(axes[1:3], [2015, 2016]):
+    # plot summer zooms in insets
+    for ax, year in zip(insets, [2015, 2016]):
         tilt.plot(ax=ax, legend=False, xlabel='')
+        bowtem_utils.add_field_campaigns(ax=ax)
         ax.set_xlim(f'{year}0601', f'{year}0901')
         ax.set_ylim(-1, 21)
-        mark_zoom(axes[0], ax)
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        ax.grid(which='minor')
+        axes[0].indicate_inset_zoom(ax)
+
+    # add unit labels
+    add_unit_labels(axes[0], tilt, depth, offsets={
+        'UI02': -4, 'UI03': 4, 'UI05': -4, 'UI07': 4})
+    add_unit_labels(axes[1], temp, depth, offsets={'UI02': 3, 'UI03': -3})
 
     # set axes properties
-    axes[3].legend(loc='upper right', ncols=5)
     axes[0].set_ylabel(r'tilt rate ($°\,a^{-1}$)')
-    axes[3].set_ylabel('temperature (°C)')
-    axes[0].set_xlabel('')
-    axes[3].set_xlabel('')
-    axes[0].set_xlim('20140701', '20170801')
-    axes[3].set_xlim('20140701', '20170801')
-    axes[0].set_ylim(-1, 21)
-    axes[2].tick_params(labelleft=False)
-    axes[3].set_ylim(-6.5, 0.5)
+    axes[1].set_ylabel('temperature (°C)')
+    axes[1].set_xlabel('')
+    axes[0].set_xlim('20140701', '20171201')
+    axes[0].set_ylim(-1, 35)
+    axes[1].set_ylim(-6.5, 0.5)
 
     # save
     fig.savefig(__file__[:-3])
