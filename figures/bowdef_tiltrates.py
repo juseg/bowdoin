@@ -6,7 +6,6 @@
 """Plot Bowdoin deformation tilt rates."""
 
 import absplots as apl
-import matplotlib as mpl
 
 import bowdef_utils
 import bowstr_utils
@@ -30,23 +29,6 @@ def add_unit_labels(ax, data, depth, offsets=None):
             fr'{unit}, {depth[unit]:.0f}$\,$m', color=f'C{i}', fontsize=6,
             fontweight='bold', textcoords='offset points', va='center',
             xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)))
-
-
-def mark_inset(ax, inset, gap=2):
-    """Mark inset time span below the inset and connect it to the inset."""
-
-    # box from inset bottom limit to a gap below the inset lower edge
-    (x0, x1), y0 = inset.get_xlim(), inset.get_ylim()[0]
-    y1 = ax.transData.inverted().transform(
-        inset.transAxes.transform((0, 0)))[1] - gap
-    ax.add_patch(mpl.patches.Rectangle(
-        (x0, y0), x1-x0, y1-y0, ec='0.75', fc='none'))
-
-    # connect box top corners to inset bottom corners
-    for x, corner in zip((x0, x1), (0, 1)):
-        ax.figure.add_artist(mpl.patches.ConnectionPatch(
-            xyA=(x, y1), coordsA=ax.transData,
-            xyB=(corner, 0), coordsB=inset.transAxes, color='0.75'))
 
 
 def main():
@@ -99,9 +81,9 @@ def main():
     axes[0].set_ylim(-5/6, 30+5/6)
     axes[1].set_ylim(-6.5, 0.5)
 
-    # mark insets (after setting axes limits)
+    # mark insets
     for ax in insets:
-        mark_inset(axes[0], ax)
+        bowdef_utils.add_inset_indicator(axes[0], ax, connectors=(1, 3))
 
     # save
     fig.savefig(__file__[:-3])
