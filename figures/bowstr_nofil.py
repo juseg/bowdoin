@@ -6,7 +6,7 @@
 """Plot Bowdoin stress time series."""
 
 import absplots as apl
-import matplotlib as mpl
+import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
@@ -29,28 +29,6 @@ def add_unit_labels(ax, data, depth, offsets=None):
             fr'{unit}, {depth[unit]:.0f}$\,$m', color=f'C{i}', fontsize=6,
             fontweight='bold', textcoords='offset points', va='center',
             xy=(last.index[0], last.iloc[0]), xytext=(4, offsets.get(unit, 0)))
-
-
-def add_inset_indicator(ax, inset, connectors=None):
-    """Add inset indicator with custom connector visibility.
-
-    The clip_on property is overriden by matplotlib if it detects that some
-    other styling properties are the same for the indicator rectangle as for
-    the connectors, so we trick matplotlib into believing that the rectangle
-    has a different linestyle by using the 'dashed' style for the connectors
-    and the matching dashed pattern tuple for the rectangle; this works
-    (https://github.com/matplotlib/matplotlib/issues/30642).
-    """
-    dashes = mpl.rcParams['lines.dashed_pattern']
-    indicator = ax.indicate_inset(inset_ax=inset, ls='dashed')
-    indicator.rectangle.set_clip_on(True)
-    indicator.rectangle.set_clip_box(ax.bbox)
-    indicator.rectangle.set_linestyle((0, dashes))
-    if connectors is not None:
-        for i, connector in enumerate(indicator.connectors):
-            connector.set_clip_on(False)
-            connector.set_clip_box(ax.figure.bbox)
-            connector.set_visible(i in connectors)
 
 
 def main():
@@ -135,9 +113,9 @@ def main():
 
     # mark insets
     axes[0, 0].set_zorder(axes[0, 1].get_zorder()+1)
-    add_inset_indicator(axes[0, 0], insets[0], connectors=(1,))
-    add_inset_indicator(axes[0, 1], insets[0], connectors=(2,))
-    add_inset_indicator(insets[0], insets[1], connectors=(0, 1))
+    bowdef_utils.add_inset_indicator(axes[0, 0], insets[0], connectors=(1,))
+    bowdef_utils.add_inset_indicator(axes[0, 1], insets[0], connectors=(2,))
+    bowdef_utils.add_inset_indicator(insets[0], insets[1], connectors=(0, 1))
 
     # fix mysterious behaviour of pandas private ticker
     axes[1, 0].set_xticks([], minor=True)
