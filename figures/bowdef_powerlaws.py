@@ -15,7 +15,7 @@ import bowstr_utils
 
 DENSITY = 917           # Ice density,          kg m-3          (CP10, p. 12)
 GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
-SLOPE = 1.6             # Bowdoin slope,        °               (Sug24)
+SLOPE = 1.6             # Bowdoin slope,        °               (Sug15)
 
 
 def load_schohn_etal_2025():
