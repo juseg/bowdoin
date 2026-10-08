@@ -31,7 +31,7 @@ def load_schohn_etal_2025():
         '1C': ['Stress',      0.137, 14.6, '1.2', 0.21, '<0.01', 1.65, 0.33],
         '1D': ['Stress',      0.145,  8.8, '0.4', 0.18, '<0.01', 1.48, 0.29],
         '2A': ['Strain rate', 0.069, 11.7, '0.3', 0.19, '<0.01', 1.54, 0.13],
-        '2B': ['Strain rate', 0.075,  2.6,'<0.1', 0.05, '<0.01', 1.62, 0.08],
+        '2B': ['Strain rate', 0.075, 2.6, '<0.1', 0.05, '<0.01', 1.62, 0.08],
         '2C': ['Strain rate', 0.103,  8.9, '1.9', 0.16, '<0.01', 1.28, 0.18],
         '3A': ['Stress',      0.126, 21.1, '0.7', 0.24, '<0.01', 1.57, 0.13],
         '3B': ['Strain rate', 0.174,  4.6, '0.9', 0.09, '<0.01', 1.49, 0.16],
@@ -70,9 +70,9 @@ def plot_bowdoin(ax):
         for start, end, summer in WINDOWS:
             rates = strain[start:end].mean().dropna()
             units = rates.index[rates.index.str.startswith(prefix)]
-            ax.plot(stress[units], rates[units], color=COLORS[bh],
-                    linestyle='', marker='o',
-                    markerfacecolor=COLORS[bh] if summer else 'none')
+            ax.plot(
+                stress[units], rates[units], color=COLORS[bh], linestyle='',
+                marker='o', markerfacecolor=COLORS[bh] if summer else 'none')
             exponent = plot_power_fit(
                 ax, stress[units], rates[units], color=COLORS[bh],
                 linestyle='-' if summer else '--')
@@ -82,8 +82,9 @@ def plot_bowdoin(ax):
                 color=COLORS[bh], ha='right', transform=ax.transAxes)
 
         # add borehole label, BH3 at the bottom and BH1 above
-        ax.text(0.95, 0.21 + 0.24*i, bh, color=COLORS[bh], fontweight='bold',
-                ha='right', transform=ax.transAxes)
+        ax.text(
+            0.95, 0.21 + 0.24*i, bh, color=COLORS[bh], fontweight='bold',
+            ha='right', transform=ax.transAxes)
 
 
 def plot_schohn(ax):
@@ -95,10 +96,12 @@ def plot_schohn(ax):
     ax.plot(shear_stress, strain_rate, color='0.5', linestyle='', marker='+')
     exponent = plot_power_fit(
         ax, shear_stress, strain_rate, color='0.5', linestyle='--')
-    ax.text(0.05, 0.95, 'Schohn et al. 2025', color='0.5', fontweight='bold',
-            va='top', transform=ax.transAxes)
-    ax.text(0.05, 0.87, f'n = {exponent:.2f}', color='0.5', va='top',
-            transform=ax.transAxes)
+    ax.text(
+        0.05, 0.95, 'Schohn et al. 2025', color='0.5', fontweight='bold',
+        va='top', transform=ax.transAxes)
+    ax.text(
+        0.05, 0.87, f'n = {exponent:.2f}', color='0.5', va='top',
+        transform=ax.transAxes)
 
 
 def main():
