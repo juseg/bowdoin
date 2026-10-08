@@ -71,19 +71,6 @@ def compute_shear_profile(base, depth, exponent, surface):
     return surface * (1 - (depth/base)**(exponent+1))
 
 
-def plot_shear_profile(
-        ax, base, depth, exponent, surface, *, colors, color='C0',
-        summer=False):
-    """Plot shear velocity profile from exponent and surface velocity."""
-    depth_int = np.linspace(0, base, 51)
-    shear_int = compute_shear_profile(base, depth_int, exponent, surface)
-    shear = compute_shear_profile(base, depth, exponent, surface)
-    plot_shear_profile_lines(
-        ax, depth_int, shear_int, color=color, summer=summer)
-    plot_shear_profile_markers(
-        ax, depth, shear, colors=colors, color=color, summer=summer)
-
-
 def plot_shear_profile_lines(ax, depth, shear, color='C0', summer=False):
     """Plot continuous shear profile line, fill summer profile."""
     if summer:
@@ -92,12 +79,13 @@ def plot_shear_profile_lines(ax, depth, shear, color='C0', summer=False):
     ax.plot(shear, depth, color=color, ls='-' if summer else '--')
 
 
-def plot_shear_profile_markers(
-        ax, depth, shear, *, colors, color='C0', summer=False):
-    """Mark tilt units on shear profile, with arrows in winter."""
+def plot_shear_profile_markers(ax, depth, shear, *, colors, color='C0'):
+    """Mark tilt units on shear profile with unit colours."""
     ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
-    if summer:
-        return
+
+
+def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
+    """Draw dashed arrows from the zero axis to tilt units."""
     for unit in depth.index[shear > 5]:  # skip arrows too short for a head
         arrowprops = {
             'color': color, 'clip_box': ax.bbox, 'clip_on': True,
@@ -139,26 +127,43 @@ def plot_profiles(axes, strain, depth, base):
     """Plot winter and summer shear profiles from mean power-law fits."""
 
     # add borehole labels
-    colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
     for ax, (bh, _) in zip(axes, BOREHOLES):
         ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
                 transform=ax.transAxes)
 
-    # fit power laws over each interval and plot mean profiles
+    # plot mean profiles over each interval
     for start, end, summer in WINDOWS:
-        rates = strain[start:end]
-        shear, exponent = compute_shear_velocities(rates, depth, base)
-        for ax, (bh, prefix) in zip(axes, BOREHOLES):
-            units = rates.loc[:, rates.columns.str.startswith(prefix)].dropna(
-                axis=1, how='all').columns
-            plot_shear_profile(
-                ax, base[f'{bh}B'], depth[units], exponent[bh].mean(),
-                shear[bh].mean(), colors=colors, color=COLORS[bh],
-                summer=summer)
-            ax.text(
-                0.05, 0.05 + 0.08 * summer,
-                f'{pd.to_datetime(start):%b.} n = {exponent[bh].mean():.2f}',
-                color=COLORS[bh], transform=ax.transAxes)
+        plot_window_profiles(axes, strain[start:end], depth, base, summer)
+
+
+def plot_window_profiles(axes, rates, depth, base, summer):
+    """Plot shear profiles from mean power-law fits over one interval."""
+
+    # fit power laws and average over the interval
+    shear, exponent = compute_shear_velocities(rates, depth, base)
+    shear, exponent = shear.mean(), exponent.mean()
+    colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
+
+    # plot continuous and discrete profiles in each borehole
+    for ax, (bh, prefix) in zip(axes, BOREHOLES):
+        units = rates.loc[:, rates.columns.str.startswith(prefix)].dropna(
+            axis=1, how='all').columns
+        depth_int = np.linspace(0, base[f'{bh}B'], 51)
+        shear_int = compute_shear_profile(
+            base[f'{bh}B'], depth_int, exponent[bh], shear[bh])
+        unit_shear = compute_shear_profile(
+            base[f'{bh}B'], depth[units], exponent[bh], shear[bh])
+        plot_shear_profile_lines(
+            ax, depth_int, shear_int, color=COLORS[bh], summer=summer)
+        plot_shear_profile_markers(
+            ax, depth[units], unit_shear, colors=colors, color=COLORS[bh])
+        if not summer:
+            plot_shear_profile_arrows(
+                ax, depth[units], unit_shear, color=COLORS[bh])
+        ax.text(
+            0.05, 0.05 + 0.08 * summer,
+            f'{rates.index[0]:%b.} n = {exponent[bh]:.2f}',
+            color=COLORS[bh], transform=ax.transAxes)
 
 
 def plot_satellite(axes, shear):
