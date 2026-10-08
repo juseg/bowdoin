@@ -42,17 +42,38 @@ def compute_shear_velocities(strain, depth, base):
     return pd.DataFrame(shear), pd.DataFrame(exponent)
 
 
-def plot_shear_profile(ax, depth, base, n, v0, color, colors, summer=False):
-    """Plot a shear velocity profile from exponent and surface velocity."""
-    z = depth
-    v = v0 * (1 - (z/base)**(n+1))
-    ax.scatter(v, z, c=colors[z.index], edgecolors=color, zorder=3)
-    z = np.linspace(0, base, 51)
-    v = v0 * (1 - (z/base)**(n+1))
+def compute_shear_profile(base, depth, exponent, surface):
+    """Compute horizontal shear profile from exponent and surface velocity."""
+    power = exponent + 1
+    shear = surface * (1 - (depth/base)**power)
+    return shear
+
+
+def plot_shear_profile(
+        ax, base, depth, exponent, surface, colors, color='C0', summer=False):
+    """Plot shear velocity profile from exponent and surface velocity."""
+
+    # compute and plot discrete and extrapolated shear profiles
+    depth_int = np.linspace(0, base, 51)
+    shear_int = compute_shear_profile(base, depth_int, exponent, surface)
+    shear = compute_shear_profile(base, depth, exponent, surface)
+    plot_shear_profile_lines(
+        ax, base, depth_int, shear_int, color=color, summer=summer)
+    plot_shear_profile_markers(ax, depth, shear, colors, color=color)
+
+
+def plot_shear_profile_lines(ax, base, depth, shear, color='C0', summer=False):
+    """Plot continuous shear profile line, fill summer profile."""
     if summer:
-        ax.fill_betweenx(z, 0, v, color=color, alpha=0.25)
-        ax.plot([0, v0], [0, 0], color=color)
-    ax.plot(v, z, color=color, ls='-' if summer else '--')
+        ax.fill_betweenx(depth, 0, shear, color=color, alpha=0.25)
+        ax.plot([0, shear[0]], [0, 0], color=color)
+        ax.plot([0, 0], [base, 0], 'k-_')
+    ax.plot(shear, depth, color=color, ls='-' if summer else '--')
+
+
+def plot_shear_profile_markers(ax, depth, shear, colors, color='C0'):
+    """Mark tilt units on shear profile with unit colours."""
+    ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
 
 
 def plot_faded(ax, df, dates, colors):
@@ -117,7 +138,6 @@ def main():
     colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
     boreholes = [(pfaxes[0], 'BH3', 'L'), (pfaxes[1], 'BH1', 'U')]
     for ax, bh, prefix in boreholes:
-        ax.plot([0, 0], [base[f'{bh}B'], 0], 'k-_')
         ax.text(0.05, 0.21, bh, color=color_dict[bh], fontweight='bold',
                 transform=ax.transAxes)
     # FIXME: winter starts on Jan. 4 to skip the UI04 tilt offset jump of
@@ -128,14 +148,14 @@ def main():
         for ax, bh, prefix in boreholes:
             units = strain.loc[start:end, strain.columns.str.startswith(
                 prefix)].dropna(axis=1, how='all').columns
-            n = exponent[bh][start:end].mean()
+            mean_exponent = exponent[bh][start:end].mean()
             surface = shear[bh][start:end].mean()
             plot_shear_profile(
-                ax, depth[units], base[f'{bh}B'], n, surface,
-                color_dict[bh], colors, summer=summer)
+                ax, base[f'{bh}B'], depth[units], mean_exponent, surface,
+                colors, color=color_dict[bh], summer=summer)
             surfaces.append(surface)
             ax.text(0.05, 0.05 + 0.08 * summer,
-                    f'{pd.to_datetime(start):%b.} n = {n:.2f}',
+                    f'{pd.to_datetime(start):%b.} n = {mean_exponent:.2f}',
                     color=color_dict[bh], transform=ax.transAxes)
 
         # mark profile interval
