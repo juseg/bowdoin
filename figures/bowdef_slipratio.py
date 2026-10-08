@@ -65,7 +65,8 @@ def compute_shear_profile(base, depth, exponent, surface):
 
 
 def plot_shear_profile(
-        ax, base, depth, exponent, surface, colors, color='C0', summer=False):
+        ax, base, depth, exponent, surface, *, colors, color='C0',
+        summer=False):
     """Plot shear velocity profile from exponent and surface velocity."""
 
     # compute and plot discrete and extrapolated shear profiles
@@ -75,7 +76,7 @@ def plot_shear_profile(
     plot_shear_profile_lines(
         ax, depth_int, shear_int, color=color, summer=summer)
     plot_shear_profile_markers(
-        ax, depth, shear, colors, color=color, summer=summer)
+        ax, depth, shear, colors=colors, color=color, summer=summer)
 
 
 def plot_shear_profile_lines(ax, depth, shear, color='C0', summer=False):
@@ -87,7 +88,7 @@ def plot_shear_profile_lines(ax, depth, shear, color='C0', summer=False):
 
 
 def plot_shear_profile_markers(
-        ax, depth, shear, colors, color='C0', summer=False):
+        ax, depth, shear, *, colors, color='C0', summer=False):
     """Mark tilt units on shear profile, with arrows in winter."""
     ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
     if summer:
@@ -190,7 +191,7 @@ def main():
             surface = shear[bh][start:end].mean()
             plot_shear_profile(
                 ax, base[f'{bh}B'], depth[units], mean_exponent, surface,
-                colors, color=color_dict[bh], summer=summer)
+                colors=colors, color=color_dict[bh], summer=summer)
             surfaces.append(surface)
             ax.text(0.05, 0.05 + 0.08 * summer,
                     f'{pd.to_datetime(start):%b.} n = {mean_exponent:.2f}',
