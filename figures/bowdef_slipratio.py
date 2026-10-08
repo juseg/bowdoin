@@ -28,11 +28,10 @@ def compute_interval_aggregates(series, intervals, **kwargs):
         lambda row: series[row.start: row.end].aggregate(**kwargs), axis=1)
 
 
-def load_shear_velocities(**kwargs):
-    """Load internal deformation velocity from tilt rates."""
+def compute_shear_velocities(strain):
+    """Compute internal deformation velocity from strain rates."""
 
-    # load strain rates and speed
-    strain = bowdef_utils.load_strain_rates(**kwargs)
+    # load depth and ice thickness
     depth = bowstr_utils.load(variable='dept').iloc[0]
     base = bowstr_utils.load(variable='base').iloc[0]
 
@@ -47,19 +46,17 @@ def load_shear_velocities(**kwargs):
     return shear, coefs.exponent
 
 
-def plot_shear_profile(ax, depth, base, strain, color, colors, summer=False):
-    """Fit and plot a shear velocity profile, return exponent and surface."""
-    n, c = bowdef_utils.compute_power_fit(depth, strain)
-    z = depth[strain.notna()]
-    v = 2*c/(n+1) * (base**(n+1) - z**(n+1))
+def plot_shear_profile(ax, depth, base, n, v0, color, colors, summer=False):
+    """Plot a shear velocity profile from exponent and surface velocity."""
+    z = depth
+    v = v0 * (1 - (z/base)**(n+1))
     ax.scatter(v, z, c=colors[z.index], edgecolors=color, zorder=3)
     z = np.linspace(0, base, 51)
-    v = 2*c/(n+1) * (base**(n+1) - z**(n+1))
+    v = v0 * (1 - (z/base)**(n+1))
     if summer:
         ax.fill_betweenx(z, 0, v, color=color, alpha=0.25)
-        ax.plot([0, v[0]], [0, 0], color=color)
+        ax.plot([0, v0], [0, 0], color=color)
     ax.plot(v, z, color=color, ls='-' if summer else '--')
-    return n, v[0]
 
 
 def plot_faded(ax, df, dates, colors):
@@ -86,7 +83,8 @@ def main():
     bowtem_utils.add_subfig_labels([*axes, *pfaxes])
 
     # load shear and surface speeds and compute ratio where they intersect
-    shear, exponent = load_shear_velocities(method='kernel', window='3h')
+    strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
+    shear, exponent = compute_shear_velocities(strain)
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
@@ -117,7 +115,7 @@ def main():
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
-    # plot winter and summer shear profiles
+    # plot winter and summer shear profiles from mean power-law fits
     depth = bowstr_utils.load(variable='dept').iloc[0]
     base = bowstr_utils.load(variable='base').iloc[0]
     colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
@@ -126,16 +124,19 @@ def main():
         ax.plot([0, 0], [base[f'{bh}B'], 0], 'k-_')
         ax.text(0.05, 0.21, bh, color=color_dict[bh], fontweight='bold',
                 transform=ax.transAxes)
-    for start, end, summer in [('2015-01-01', '2015-02-01', False),
+    # FIXME: winter starts on Jan. 4 to skip the UI04 tilt offset jump of
+    # 2015 Jan. 2, restore Jan. 1 once the jump is fixed in preprocessing.
+    for start, end, summer in [('2015-01-04', '2015-02-01', False),
                                ('2015-07-01', '2015-08-01', True)]:
-        days = (pd.to_datetime(end) - pd.to_datetime(start)).days
-        strain = bowdef_utils.load_strain(start, end) * 365 / days
         surfaces = []
         for ax, bh, prefix in boreholes:
-            mask = strain.index.str.startswith(prefix)
-            n, surface = plot_shear_profile(
-                ax, depth[mask], base[f'{bh}B'], strain[mask],
-                color_dict[bh], colors[mask], summer=summer)
+            units = strain[start:end].notna().any()
+            units = units[units & units.index.str.startswith(prefix)].index
+            n = exponent[bh][start:end].mean()
+            surface = shear[bh][start:end].mean()
+            plot_shear_profile(
+                ax, depth[units], base[f'{bh}B'], n, surface,
+                color_dict[bh], colors, summer=summer)
             surfaces.append(surface)
             ax.text(0.05, 0.05 + 0.08 * summer,
                     f'{pd.to_datetime(start):%b.} n = {n:.2f}',
