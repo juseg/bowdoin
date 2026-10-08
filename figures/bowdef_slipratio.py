@@ -92,7 +92,7 @@ def plot_shear_profile_markers(
     ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
     if summer:
         return
-    for unit in depth.index:
+    for unit in depth.index[shear > 5]:  # skip arrows too short to read
         ax.annotate(
             '', xy=(shear[unit], depth[unit]), xytext=(0, depth[unit]),
             arrowprops={
