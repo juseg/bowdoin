@@ -131,14 +131,24 @@ def main():
                                ('2015-07-01', '2015-08-01', True)]:
         days = (pd.to_datetime(end) - pd.to_datetime(start)).days
         strain = bowdef_utils.load_strain(start, end) * 365 / days
+        surfaces = []
         for ax, bh, prefix in boreholes:
             mask = strain.index.str.startswith(prefix)
             n, surface = plot_shear_profile(
                 ax, depth[mask], base[f'{bh}B'], strain[mask],
                 color_dict[bh], colors[mask], summer=summer)
+            surfaces.append(surface)
             ax.text(0.05, 0.05 + 0.08 * summer,
                     f'{pd.to_datetime(start):%b.} n = {n:.2f}',
                     color=color_dict[bh], transform=ax.transAxes)
+
+        # mark profile interval
+        converter = axes[1].xaxis.get_converter()
+        x0, x1 = converter.convert(
+            pd.to_datetime([start, end]), None, axes[1].xaxis)
+        y0, y1 = min(surfaces) - 5, max(surfaces) + 5
+        axes[1].indicate_inset(
+            bounds=[x0, y0, x1-x0, y1-y0], ls='dashed', zorder=5)
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
