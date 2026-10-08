@@ -111,6 +111,8 @@ def main():
     plot_faded(axes[1], shear, dates, color_dict)
     plot_faded(axes[2], ratio, dates, color_dict)
     plot_faded(axes[3], exponent, dates, color_dict)
+    for ax in axes:
+        bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
     # plot winter and summer shear profiles from monthly strain
     depth = bowstr_utils.load(variable='dept').iloc[0]
