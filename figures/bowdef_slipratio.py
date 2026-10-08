@@ -15,11 +15,10 @@ import bowstr_utils
 import bowtem_utils
 
 # borehole names, unit prefixes and colours
-BOREHOLES = [('BH3', 'L'), ('BH1', 'U')]
-COLORS = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
-
 # FIXME: winter starts on Jan. 4 to skip the UI04 tilt offset jump of
 # 2015 Jan. 2, restore Jan. 1 once the jump is fixed in preprocessing.
+BOREHOLES = [('BH3', 'L'), ('BH1', 'U')]
+COLORS = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
 WINDOWS = [('2015-01-04', '2015-02-01', False),
            ('2015-07-01', '2015-08-01', True)]
 
@@ -42,7 +41,12 @@ def compute_power_fits(depth, strain):
             pd.Series(constant, index=strain.index))
 
 
-def compute_shear_velocities(strain, depth, base):
+def compute_shear_profile(base, depth, exponent, surface):
+    """Compute horizontal shear profile from exponent and surface velocity."""
+    return surface * (1 - (depth/base)**(exponent+1))
+
+
+def compute_shear_series(strain, depth, base):
     """Compute shear velocity and flow exponent from strain rate profiles."""
     shear, exponent = {}, {}
     for bh, prefix in BOREHOLES:
@@ -60,11 +64,6 @@ def compute_shear_velocities(strain, depth, base):
     return pd.DataFrame(shear), pd.DataFrame(exponent)
 
 
-def compute_shear_profile(base, depth, exponent, surface):
-    """Compute horizontal shear profile from exponent and surface velocity."""
-    return surface * (1 - (depth/base)**(exponent+1))
-
-
 def plot_faded(ax, df, dates):
     """Plot dataframe columns with faded records before given dates."""
     for bh, series in df.items():
@@ -73,35 +72,30 @@ def plot_faded(ax, df, dates):
         series[dates[bh]:].plot(ax=ax, color=COLORS[bh])
 
 
-def plot_profile_arrows(ax, depth, shear, color='C0'):
-    """Draw dashed arrows from the zero axis to tilt units."""
-    for unit in depth.index[shear > 5]:  # skip arrows too short for a head
-        arrowprops = {
-            'color': color, 'clip_box': ax.bbox, 'clip_on': True,
-            'shrinkB': 4}
+def plot_satellite_series(axes, shear):
+    """Plot surface speed and slip ratio from satellite image pairs."""
 
-        # draw a dashed tail ending inside the head, and a solid head
-        ax.annotate(
-            '', xy=(shear[unit], depth[unit]), xytext=(0, depth[unit]),
-            zorder=2, arrowprops={
-                **arrowprops, 'arrowstyle': '-', 'linestyle': 'dashed',
-                'linewidth': 1, 'shrinkB': 6})
-        ax.annotate(
-            '', xy=(shear[unit], depth[unit]), xytext=(8, 0),
-            textcoords='offset points', zorder=2, arrowprops={
-                **arrowprops, 'arrowstyle': '-|>', 'linewidth': 1,
-                'shrinkA': 0})
+    # load velocities from landsat and sentinel images
+    landsat = bowdef_utils.load_landsat_velocities()
+    sentinel = bowdef_utils.load_sentinel_velocities()
+    sat = pd.concat([landsat, sentinel])
 
+    # compute slip ratio from satellite and propagate uncertainties
+    sat_shear = sat.apply(
+        lambda row: shear[row.start:row.end].mean(), axis=1)
+    sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
+    sat_error = 100 * sat_shear.multiply(
+        1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
 
-def plot_windows(ax, shear):
-    """Mark profile windows and mean surface shear velocities."""
-    converter = ax.xaxis.get_converter()
-    for start, end, _ in WINDOWS:
-        surfaces = shear[start:end].mean()
-        x0, x1 = converter.convert(
-            pd.to_datetime([start, end]), None, ax.xaxis)
-        y0, y1 = surfaces.min() - 5, surfaces.max() + 5
-        ax.indicate_inset(bounds=[x0, y0, x1-x0, y1-y0], ls='dashed', zorder=5)
+    # plot surface speed and slip ratio from satellite
+    tab20 = mpl.color_sequences['tab20']
+    bowdef_utils.plot_errorbar(
+        axes[0], landsat, color=tab20[3], label='Landsat-8')
+    bowdef_utils.plot_errorbar(
+        axes[0], sentinel, color=tab20[11], label='Sentinel-1')
+    for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
+        bowdef_utils.plot_errorbar(axes[1], sat.assign(
+            speed=sat_speed[bh], error=sat_error[bh]), color=color)
 
 
 def plot_time_series(axes, shear, exponent):
@@ -126,41 +120,46 @@ def plot_time_series(axes, shear, exponent):
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
     # mark profile windows and plot satellite data
-    plot_windows(axes[1], shear)
-    plot_satellite(axes, shear)
+    plot_satellite_series(axes[[0, 2]], shear)
+    plot_window_indicators(axes[1], shear)
 
 
-def plot_satellite(axes, shear):
-    """Plot surface speed and slip ratio from satellite image pairs."""
+def plot_window_indicators(ax, shear):
+    """Mark profile windows and mean surface shear velocities."""
+    converter = ax.xaxis.get_converter()
+    for start, end, _ in WINDOWS:
+        surfaces = shear[start:end].mean()
+        x0, x1 = converter.convert(
+            pd.to_datetime([start, end]), None, ax.xaxis)
+        y0, y1 = surfaces.min() - 5, surfaces.max() + 5
+        ax.indicate_inset(bounds=[x0, y0, x1-x0, y1-y0], ls='dashed', zorder=5)
 
-    # load velocities from landsat and sentinel images
-    landsat = bowdef_utils.load_landsat_velocities()
-    sentinel = bowdef_utils.load_sentinel_velocities()
-    sat = pd.concat([landsat, sentinel])
 
-    # compute slip ratio from satellite and propagate uncertainties
-    sat_shear = sat.apply(
-        lambda row: shear[row.start:row.end].mean(), axis=1)
-    sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
-    sat_error = 100 * sat_shear.multiply(
-        1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
+def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
+    """Draw dashed arrows from the zero axis to tilt units."""
+    for unit in depth.index[shear > 5]:  # skip arrows too short for a head
+        arrowprops = {
+            'color': color, 'clip_box': ax.bbox, 'clip_on': True,
+            'shrinkB': 4}
 
-    # plot surface speed and slip ratio from satellite
-    tab20 = mpl.color_sequences['tab20']
-    bowdef_utils.plot_errorbar(
-        axes[0], landsat, color=tab20[3], label='Landsat-8')
-    bowdef_utils.plot_errorbar(
-        axes[0], sentinel, color=tab20[11], label='Sentinel-1')
-    for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
-        bowdef_utils.plot_errorbar(axes[2], sat.assign(
-            speed=sat_speed[bh], error=sat_error[bh]), color=color)
+        # draw a dashed tail ending inside the head, and a solid head
+        ax.annotate(
+            '', xy=(shear[unit], depth[unit]), xytext=(0, depth[unit]),
+            zorder=2, arrowprops={
+                **arrowprops, 'arrowstyle': '-', 'linestyle': 'dashed',
+                'linewidth': 1, 'shrinkB': 6})
+        ax.annotate(
+            '', xy=(shear[unit], depth[unit]), xytext=(8, 0),
+            textcoords='offset points', zorder=2, arrowprops={
+                **arrowprops, 'arrowstyle': '-|>', 'linewidth': 1,
+                'shrinkA': 0})
 
 
 def plot_shear_profiles(axes, rates, depth, base, summer):
     """Plot shear profiles from mean power-law fits over one window."""
 
     # fit power laws and average over the window
-    shear, exponent = compute_shear_velocities(rates, depth, base)
+    shear, exponent = compute_shear_series(rates, depth, base)
     shear, exponent = shear.mean(), exponent.mean()
     colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
 
@@ -182,7 +181,7 @@ def plot_shear_profiles(axes, rates, depth, base, summer):
         ax.scatter(unit_shear, depth[units], c=colors[units],
                    edgecolors=COLORS[bh], zorder=3)
         if not summer:
-            plot_profile_arrows(
+            plot_shear_profile_arrows(
                 ax, depth[units], unit_shear, color=COLORS[bh])
         ax.text(
             0.05, 0.05 + 0.08 * summer,
@@ -211,7 +210,7 @@ def main():
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
 
     # plot time series
-    shear, exponent = compute_shear_velocities(strain, depth, base)
+    shear, exponent = compute_shear_series(strain, depth, base)
     plot_time_series(tsaxes, shear, exponent)
 
     # share profile x axes only after pandas plotting (see above)
