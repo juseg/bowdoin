@@ -7,7 +7,6 @@
 
 import absplots as apl
 import matplotlib as mpl
-import matplotlib.patheffects
 import numpy as np
 import pandas as pd
 
@@ -48,16 +47,19 @@ def load_shear_velocities(**kwargs):
     return shear, coefs.exponent
 
 
-def plot_shear_profile(ax, depth, base, strain, **kwargs):
-    """Fit and plot a shear velocity profile, return surface velocity."""
+def plot_shear_profile(ax, depth, base, strain, color, colors, summer=False):
+    """Fit and plot a shear velocity profile, return exponent and surface."""
     n, c = bowdef_utils.compute_power_fit(depth, strain)
     z = depth[strain.notna()]
     v = 2*c/(n+1) * (base**(n+1) - z**(n+1))
-    ax.plot(v, z, color=kwargs.get('color'), ls='', marker='o')
+    ax.scatter(v, z, c=colors[z.index], edgecolors=color, zorder=3)
     z = np.linspace(0, base, 51)
     v = 2*c/(n+1) * (base**(n+1) - z**(n+1))
-    ax.plot(v, z, label=f'n = {n:.2f}', **kwargs)
-    return v[0]
+    if summer:
+        ax.fill_betweenx(z, 0, v, color=color, alpha=0.25)
+        ax.plot([0, v[0]], [0, 0], color=color)
+    ax.plot(v, z, color=color, ls='-' if summer else '--')
+    return n, v[0]
 
 
 def plot_faded(ax, df, dates, colors):
@@ -76,12 +78,13 @@ def main():
         figsize=(180, 120), nrows=4, sharex=True, gridspec_kw={
             'left': 12.5, 'right': 50, 'bottom': 12.5, 'top': 2.5,
             'hspace': 2.5})
-    pfax = fig.add_axes_mm([132.5, 12.5, 32.5, 105])
+    pfaxes = [fig.add_axes_mm([132.5, 66.25, 32.5, 51.25])]
+    pfaxes.append(fig.add_axes_mm(
+        [132.5, 12.5, 32.5, 51.25], sharex=pfaxes[0], sharey=pfaxes[0]))
 
     # add subfigure labels
-    bbox = {'alpha': 0.85, 'ec': 'none', 'fc': 'w'}
-    bowtem_utils.add_subfig_labels(axes, bbox=bbox)
-    bowtem_utils.add_subfig_label(ax=pfax, text='(e)', bbox=bbox)
+    bowtem_utils.add_subfig_labels(
+        [*axes, *pfaxes], bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
 
     # load shear and surface speeds and compute ratio where they intersect
     shear, exponent = load_shear_velocities(method='kernel', window='3h')
@@ -115,22 +118,27 @@ def main():
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
-    # plot winter and summer shear profiles and mark their intervals
+    # plot winter and summer shear profiles
     depth = bowstr_utils.load(variable='dept').iloc[0]
     base = bowstr_utils.load(variable='base').iloc[0]
-    for start, end, ls in [('2015-01-01', '2015-02-01', '--'),
-                           ('2015-07-01', '2015-08-01', '-')]:
+    colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
+    boreholes = [(pfaxes[0], 'BH3', 'L'), (pfaxes[1], 'BH1', 'U')]
+    for ax, bh, prefix in boreholes:
+        ax.plot([0, 0], [base[f'{bh}B'], 0], 'k-_')
+        ax.text(0.05, 0.21, bh, color=color_dict[bh], fontweight='bold',
+                transform=ax.transAxes)
+    for start, end, summer in [('2015-01-01', '2015-02-01', False),
+                               ('2015-07-01', '2015-08-01', True)]:
         days = (pd.to_datetime(end) - pd.to_datetime(start)).days
         strain = bowdef_utils.load_strain(start, end) * 365 / days
-        for bh, prefix in [('BH1', 'U'), ('BH3', 'L')]:
+        for ax, bh, prefix in boreholes:
             mask = strain.index.str.startswith(prefix)
-            surface = plot_shear_profile(
-                pfax, depth[mask], base[f'{bh}B'], strain[mask],
-                color=color_dict[bh], ls=ls)
-            pd.Series(surface, index=pd.to_datetime([start, end])).plot(
-                ax=axes[1], color=color_dict[bh], lw=3, zorder=3,
-                label='_nolegend_', path_effects=[
-                    mpl.patheffects.withStroke(linewidth=5, foreground='w')])
+            n, surface = plot_shear_profile(
+                ax, depth[mask], base[f'{bh}B'], strain[mask],
+                color_dict[bh], colors[mask], summer=summer)
+            ax.text(0.05, 0.05 + 0.08 * summer,
+                    f'{pd.to_datetime(start):%b.} n = {n:.2f}',
+                    color=color_dict[bh], transform=ax.transAxes)
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
@@ -153,14 +161,15 @@ def main():
     axes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
     axes[2].set_ylabel('slip ratio (%)')
     axes[3].set_ylabel('flow exponent', labelpad=8)
-    pfax.legend(loc='lower right', handlelength=1.5)
-    pfax.grid(which='minor')
-    pfax.yaxis.set_label_position('right')
-    pfax.yaxis.tick_right()
-    pfax.set_xlabel(r'shear ($m\,a^{-1}$)')
-    pfax.set_ylabel('depth (m)')
-    pfax.set_xlim(0, 30)
-    pfax.set_ylim(280, 0)
+    for ax in pfaxes:
+        ax.grid(which='minor')
+        ax.yaxis.set_label_position('right')
+        ax.yaxis.tick_right()
+        ax.set_ylabel('depth (m)')
+    pfaxes[0].tick_params(labelbottom=False)
+    pfaxes[1].set_xlabel(r'shear ($m\,a^{-1}$)')
+    pfaxes[0].set_xlim(30, 0)
+    pfaxes[0].set_ylim(280, 0)
     axes[0].set_xlim('20140701', '20170801')
     # axes[0].set_xlim('20150601', '20150930')
     # axes[0].set_xlim('20160601', '20160930')
