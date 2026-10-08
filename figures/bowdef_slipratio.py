@@ -72,8 +72,14 @@ def plot_shear_profile_lines(ax, base, depth, shear, color='C0', summer=False):
 
 
 def plot_shear_profile_markers(ax, depth, shear, colors, color='C0'):
-    """Mark tilt units on shear profile with unit colours."""
+    """Mark tilt units on shear profile with unit colours and arrows."""
     ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
+    for unit in depth.index:
+        ax.annotate(
+            '', xy=(shear[unit], depth[unit]), xytext=(0, depth[unit]),
+            arrowprops={
+                'arrowstyle': '-|>', 'color': color, 'linewidth': 1,
+                'linestyle': 'dashed', 'shrinkA': 0, 'shrinkB': 4})
 
 
 def plot_faded(ax, df, dates, colors):
@@ -134,6 +140,9 @@ def main():
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
+    # share profile x axes only after pandas plotting (see above)
+    pfaxes[1].sharex(pfaxes[0])
+
     # plot winter and summer shear profiles from mean power-law fits
     colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
     boreholes = [(pfaxes[0], 'BH3', 'L'), (pfaxes[1], 'BH1', 'U')]
@@ -189,11 +198,11 @@ def main():
     for ax in pfaxes:
         ax.yaxis.set_label_position('right')
         ax.yaxis.tick_right()
-        ax.set_xlim(30, 0)
+        ax.xaxis.set_inverted(True)
+        ax.yaxis.set_inverted(True)
         ax.set_ylabel('depth (m)')
     pfaxes[0].tick_params(labelbottom=False)
     pfaxes[1].set_xlabel(r'shear ($m\,a^{-1}$)')
-    pfaxes[0].set_ylim(280, 0)
     axes[0].set_xlim('20140701', '20170801')
     # axes[0].set_xlim('20150601', '20150930')
     # axes[0].set_xlim('20160601', '20160930')
