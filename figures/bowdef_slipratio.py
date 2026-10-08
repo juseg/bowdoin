@@ -65,7 +65,15 @@ def compute_shear_profile(base, depth, exponent, surface):
     return surface * (1 - (depth/base)**(exponent+1))
 
 
-def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
+def plot_faded(ax, df, dates):
+    """Plot dataframe columns with faded records before given dates."""
+    for bh, series in df.items():
+        series[:dates[bh]].plot(
+            ax=ax, alpha=0.25, color=COLORS[bh], label='_nolegend_')
+        series[dates[bh]:].plot(ax=ax, color=COLORS[bh])
+
+
+def plot_profile_arrows(ax, depth, shear, color='C0'):
     """Draw dashed arrows from the zero axis to tilt units."""
     for unit in depth.index[shear > 5]:  # skip arrows too short for a head
         arrowprops = {
@@ -85,16 +93,8 @@ def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
                 'shrinkA': 0})
 
 
-def plot_faded(ax, df, dates, colors):
-    """Plot dataframe columns with faded records before given dates."""
-    for bh, series in df.items():
-        series[:dates[bh]].plot(
-            ax=ax, alpha=0.25, color=colors[bh], label='_nolegend_')
-        series[dates[bh]:].plot(ax=ax, color=colors[bh])
-
-
-def plot_intervals(ax, shear):
-    """Mark profile intervals and mean surface shear velocities."""
+def plot_windows(ax, shear):
+    """Mark profile windows and mean surface shear velocities."""
     converter = ax.xaxis.get_converter()
     for start, end, _ in WINDOWS:
         surfaces = shear[start:end].mean()
@@ -104,38 +104,30 @@ def plot_intervals(ax, shear):
         ax.indicate_inset(bounds=[x0, y0, x1-x0, y1-y0], ls='dashed', zorder=5)
 
 
-def plot_window_profiles(axes, rates, depth, base, summer):
-    """Plot shear profiles from mean power-law fits over one interval."""
+def plot_time_series(axes, shear, exponent):
+    """Plot surface speed, shear, slip ratio and flow exponent series."""
 
-    # fit power laws and average over the interval
-    shear, exponent = compute_shear_velocities(rates, depth, base)
-    shear, exponent = shear.mean(), exponent.mean()
-    colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
+    # load surface speed and compute ratio where it intersects shear
+    speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
+    index = shear.index.intersection(speed.index)
+    ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
-    # plot continuous and discrete profiles in each borehole
-    for ax, (bh, prefix) in zip(axes, BOREHOLES):
-        units = rates.loc[:, rates.columns.str.startswith(prefix)].dropna(
-            axis=1, how='all').columns
-        depth_int = np.linspace(0, base[f'{bh}B'], 51)
-        shear_int = compute_shear_profile(
-            base[f'{bh}B'], depth_int, exponent[bh], shear[bh])
-        unit_shear = compute_shear_profile(
-            base[f'{bh}B'], depth[units], exponent[bh], shear[bh])
-        if summer:
-            ax.fill_betweenx(
-                depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
-            ax.plot([0, shear_int[0]], [0, 0], color=COLORS[bh])
-        ax.plot(shear_int, depth_int, color=COLORS[bh],
-                ls='-' if summer else '--')
-        ax.scatter(unit_shear, depth[units], c=colors[units],
-                   edgecolors=COLORS[bh], zorder=3)
-        if not summer:
-            plot_shear_profile_arrows(
-                ax, depth[units], unit_shear, color=COLORS[bh])
-        ax.text(
-            0.05, 0.05 + 0.08 * summer,
-            f'{rates.index[0]:%b.} n = {exponent[bh]:.2f}',
-            color=COLORS[bh], transform=ax.transAxes)
+    # load latest freezing date in each borehole
+    dates = bowstr_utils.load_freezing_dates()
+    dates = dates.groupby(dates.index.str[0]).max()
+    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
+
+    # plot surface speed, shear and slip ratio from geopositioning
+    speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
+    plot_faded(axes[1], shear, dates)
+    plot_faded(axes[2], ratio, dates)
+    plot_faded(axes[3], exponent, dates)
+    for ax in axes:
+        bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
+
+    # mark profile windows and plot satellite data
+    plot_windows(axes[1], shear)
+    plot_satellite(axes, shear)
 
 
 def plot_satellite(axes, shear):
@@ -164,30 +156,38 @@ def plot_satellite(axes, shear):
             speed=sat_speed[bh], error=sat_error[bh]), color=color)
 
 
-def plot_time_series(axes, shear, exponent):
-    """Plot surface speed, shear, slip ratio and flow exponent series."""
+def plot_shear_profiles(axes, rates, depth, base, summer):
+    """Plot shear profiles from mean power-law fits over one window."""
 
-    # load surface speed and compute ratio where it intersects shear
-    speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
-    index = shear.index.intersection(speed.index)
-    ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
+    # fit power laws and average over the window
+    shear, exponent = compute_shear_velocities(rates, depth, base)
+    shear, exponent = shear.mean(), exponent.mean()
+    colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
 
-    # load latest freezing date in each borehole
-    dates = bowstr_utils.load_freezing_dates()
-    dates = dates.groupby(dates.index.str[0]).max()
-    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
-
-    # plot surface speed, shear and slip ratio from geopositioning
-    speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
-    plot_faded(axes[1], shear, dates, COLORS)
-    plot_faded(axes[2], ratio, dates, COLORS)
-    plot_faded(axes[3], exponent, dates, COLORS)
-    for ax in axes:
-        bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
-
-    # mark profile intervals and plot satellite data
-    plot_intervals(axes[1], shear)
-    plot_satellite(axes, shear)
+    # plot continuous and discrete profiles in each borehole
+    for ax, (bh, prefix) in zip(axes, BOREHOLES):
+        units = rates.loc[:, rates.columns.str.startswith(prefix)].dropna(
+            axis=1, how='all').columns
+        depth_int = np.linspace(0, base[f'{bh}B'], 51)
+        shear_int = compute_shear_profile(
+            base[f'{bh}B'], depth_int, exponent[bh], shear[bh])
+        unit_shear = compute_shear_profile(
+            base[f'{bh}B'], depth[units], exponent[bh], shear[bh])
+        if summer:
+            ax.fill_betweenx(
+                depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
+            ax.plot([0, shear_int[0]], [0, 0], color=COLORS[bh])
+        ax.plot(shear_int, depth_int, color=COLORS[bh],
+                ls='-' if summer else '--')
+        ax.scatter(unit_shear, depth[units], c=colors[units],
+                   edgecolors=COLORS[bh], zorder=3)
+        if not summer:
+            plot_profile_arrows(
+                ax, depth[units], unit_shear, color=COLORS[bh])
+        ax.text(
+            0.05, 0.05 + 0.08 * summer,
+            f'{rates.index[0]:%b.} n = {exponent[bh]:.2f}',
+            color=COLORS[bh], transform=ax.transAxes)
 
 
 def main():
@@ -219,7 +219,7 @@ def main():
 
     # plot winter and summer shear profiles with borehole labels
     for start, end, summer in WINDOWS:
-        plot_window_profiles(pfaxes, strain[start:end], depth, base, summer)
+        plot_shear_profiles(pfaxes, strain[start:end], depth, base, summer)
     for ax, (bh, _) in zip(pfaxes, BOREHOLES):
         ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
                 transform=ax.transAxes)
