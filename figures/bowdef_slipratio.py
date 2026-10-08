@@ -68,17 +68,13 @@ def compute_shear_velocities(strain, depth, base):
 
 def compute_shear_profile(base, depth, exponent, surface):
     """Compute horizontal shear profile from exponent and surface velocity."""
-    power = exponent + 1
-    shear = surface * (1 - (depth/base)**power)
-    return shear
+    return surface * (1 - (depth/base)**(exponent+1))
 
 
 def plot_shear_profile(
         ax, base, depth, exponent, surface, *, colors, color='C0',
         summer=False):
     """Plot shear velocity profile from exponent and surface velocity."""
-
-    # compute and plot discrete and extrapolated shear profiles
     depth_int = np.linspace(0, base, 51)
     shear_int = compute_shear_profile(base, depth_int, exponent, surface)
     shear = compute_shear_profile(base, depth, exponent, surface)
@@ -159,10 +155,10 @@ def plot_profiles(axes, strain, depth, base):
                 ax, base[f'{bh}B'], depth[units], exponent[bh].mean(),
                 shear[bh].mean(), colors=colors, color=COLORS[bh],
                 summer=summer)
-            ax.text(0.05, 0.05 + 0.08 * summer,
-                    f'{pd.to_datetime(start):%b.} '
-                    f'n = {exponent[bh].mean():.2f}',
-                    color=COLORS[bh], transform=ax.transAxes)
+            ax.text(
+                0.05, 0.05 + 0.08 * summer,
+                f'{pd.to_datetime(start):%b.} n = {exponent[bh].mean():.2f}',
+                color=COLORS[bh], transform=ax.transAxes)
 
 
 def plot_satellite(axes, shear):
@@ -222,23 +218,23 @@ def main():
     # initialize figure (disable sharex on pfaxes as pandas handle_shared_axes
     # otherwise detect them as sharing axes with the timeseries)
     fig = apl.figure_mm(figsize=(180, 120))
-    axes = fig.subplots_mm(nrows=4, sharex=True, gridspec_kw={
+    tsaxes = fig.subplots_mm(nrows=4, sharex=True, gridspec_kw={
         'left': 12.5, 'right': 47.5, 'bottom': 12.5, 'top': 2.5,
         'hspace': 2.5})
     pfaxes = fig.subplots_mm(nrows=2, sharey=True, gridspec_kw={
         'left': 135, 'right': 12.5, 'bottom': 12.5, 'top': 2.5, 'hspace': 2.5})
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels([*axes, *pfaxes])
+    bowtem_utils.add_subfig_labels([*tsaxes, *pfaxes])
 
     # load sensor depths, ice thickness and strain rates
-    depth = bowstr_utils.load(variable='dept').iloc[0]
     base = bowstr_utils.load(variable='base').iloc[0]
+    depth = bowstr_utils.load(variable='dept').iloc[0]
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
 
     # plot time series
     shear, exponent = compute_shear_velocities(strain, depth, base)
-    plot_time_series(axes, shear, exponent)
+    plot_time_series(tsaxes, shear, exponent)
 
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
@@ -246,30 +242,32 @@ def main():
     # plot winter and summer shear profiles
     plot_profiles(pfaxes, strain, depth, base)
 
-    # set axes properties
-    axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
-    axes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
-    for ax in [*axes, *pfaxes]:
-        ax.grid(which='minor')
-    axes[3].set_xlabel('')
-    axes[0].set_ylabel(r'surface ($m\,a^{-1}$)', labelpad=0)
-    axes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
-    axes[2].set_ylabel('slip ratio (%)')
-    axes[3].set_ylabel('flow exponent', labelpad=8)
+    # set time axes properties
+    tsaxes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
+    tsaxes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
+    tsaxes[3].set_xlabel('')
+    tsaxes[0].set_ylabel(r'surface ($m\,a^{-1}$)', labelpad=0)
+    tsaxes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
+    tsaxes[2].set_ylabel('slip ratio (%)')
+    tsaxes[3].set_ylabel('flow exponent', labelpad=8)
+    tsaxes[0].set_xlim('20140701', '20170801')
+    tsaxes[1].set_ylim(5, 55)
+    tsaxes[2].set_ylim(92.5, 97.5)
+    tsaxes[3].set_ylim(-0.5, 4.5)
+
+    # set profile axes properties
+    pfaxes[1].set_xlabel(r'shear ($m\,a^{-1}$)')
+    pfaxes[0].tick_params(labelbottom=False)
     for ax in pfaxes:
+        ax.set_ylabel('depth (m)')
+        ax.set_xlim(30, 0)
         ax.yaxis.set_label_position('right')
         ax.yaxis.tick_right()
-        ax.set_xlim(30, 0)
         ax.yaxis.set_inverted(True)
-        ax.set_ylabel('depth (m)')
-    pfaxes[0].tick_params(labelbottom=False)
-    pfaxes[1].set_xlabel(r'shear ($m\,a^{-1}$)')
-    axes[0].set_xlim('20140701', '20170801')
-    # axes[0].set_xlim('20150601', '20150930')
-    # axes[0].set_xlim('20160601', '20160930')
-    axes[1].set_ylim(5, 55)
-    axes[2].set_ylim(92.5, 97.5)
-    axes[3].set_ylim(-0.5, 4.5)
+
+    # set common axes properties
+    for ax in [*tsaxes, *pfaxes]:
+        ax.grid(which='minor')
 
     # save
     fig.savefig(__file__[:-3])
