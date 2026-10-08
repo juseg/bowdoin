@@ -254,16 +254,6 @@ def load_sentinel_velocities():
     return df
 
 
-def load_strain(start, end):
-    """Load total strain on custom interval."""
-    tilx = bowstr_utils.load(variable='tilx')
-    tily = bowstr_utils.load(variable='tily')
-    tilx = tilx.loc[end].mean() - tilx.loc[start].mean()
-    tily = tily.loc[end].mean() - tily.loc[start].mean()
-    costilt = np.cos(tilx) * np.cos(tily)
-    return 0.5 * (1 - costilt**2) ** 0.5 / costilt
-
-
 def load_strain_rates(**kwargs):
     """Load strain rates from filter-derived tilt component rates."""
     tilx, tily = load_tilt_component_rates(**kwargs)
