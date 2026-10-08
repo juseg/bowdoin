@@ -21,6 +21,24 @@ def compute_interval_aggregates(series, intervals, **kwargs):
         lambda row: series[row.start: row.end].aggregate(**kwargs), axis=1)
 
 
+def compute_power_fits(depth, strain):
+    """Fit power laws strain = constant * depth ** exponent on each row."""
+
+    # least squares in log space, ignoring missing values on each row
+    valid = strain.notna().to_numpy()
+    x = np.where(valid, np.log(depth[strain.columns].to_numpy()), 0)
+    y = np.where(valid, np.log(strain.to_numpy()), 0)
+    count = valid.sum(axis=1)
+    sx, sy = x.sum(axis=1), y.sum(axis=1)
+    sxx, sxy = (x*x).sum(axis=1), (x*y).sum(axis=1)
+    exponent = (count*sxy - sx*sy) / (count*sxx - sx**2)
+    constant = np.exp((sy - exponent*sx) / count)
+
+    # return as series
+    return (pd.Series(exponent, index=strain.index),
+            pd.Series(constant, index=strain.index))
+
+
 def compute_shear_velocities(strain, depth, base):
     """Compute shear velocity and flow exponent from strain rate profiles."""
     shear, exponent = {}, {}
@@ -29,14 +47,11 @@ def compute_shear_velocities(strain, depth, base):
         # fit a power law strain = constant * depth ** exponent at each time
         rates = strain.loc[:, strain.columns.str.startswith(prefix)]
         rates = rates.dropna(how='all')
-        fits = rates.apply(lambda row: pd.Series(
-            bowdef_utils.compute_power_fit(depth[rates.columns], row),
-            index=['exponent', 'constant']), axis=1)
+        exponent[bh], constant = compute_power_fits(depth, rates)
 
         # integrate strain rate over ice thickness
-        power = fits.exponent + 1
-        shear[bh] = 2 * fits.constant / power * base[f'{bh}B']**power
-        exponent[bh] = fits.exponent
+        power = exponent[bh] + 1
+        shear[bh] = 2 * constant / power * base[f'{bh}B']**power
 
     # return as dataframes
     return pd.DataFrame(shear), pd.DataFrame(exponent)
