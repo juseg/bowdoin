@@ -66,14 +66,13 @@ def plot_faded(ax, df, dates, colors):
 def main():
     """Main program called during execution."""
 
-    # initialize figure
-    fig, axes = apl.subplots_mm(
-        figsize=(180, 120), nrows=4, sharex=True, gridspec_kw={
-            'left': 12.5, 'right': 50, 'bottom': 12.5, 'top': 2.5,
-            'hspace': 2.5})
-    pfaxes = [fig.add_axes_mm([132.5, 66.25, 32.5, 51.25])]
-    pfaxes.append(fig.add_axes_mm(
-        [132.5, 12.5, 32.5, 51.25], sharex=pfaxes[0], sharey=pfaxes[0]))
+    # initialize figure (disable sharex on pfaxes as pandas handle_shared_axes
+    # otherwise detect them as sharing axes with the timeseries)
+    fig = apl.figure_mm(figsize=(180, 120))
+    axes = fig.subplots_mm(nrows=4, sharex=True, gridspec_kw={
+        'left': 12.5, 'right': 50, 'bottom': 12.5, 'top': 2.5, 'hspace': 2.5})
+    pfaxes = fig.subplots_mm(nrows=2, sharey=True, gridspec_kw={
+        'left': 132.5, 'right': 15, 'bottom': 12.5, 'top': 2.5, 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels([*axes, *pfaxes])
@@ -170,10 +169,10 @@ def main():
     for ax in pfaxes:
         ax.yaxis.set_label_position('right')
         ax.yaxis.tick_right()
+        ax.set_xlim(30, 0)
         ax.set_ylabel('depth (m)')
     pfaxes[0].tick_params(labelbottom=False)
     pfaxes[1].set_xlabel(r'shear ($m\,a^{-1}$)')
-    pfaxes[0].set_xlim(30, 0)
     pfaxes[0].set_ylim(280, 0)
     axes[0].set_xlim('20140701', '20170801')
     # axes[0].set_xlim('20150601', '20150930')
