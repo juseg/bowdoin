@@ -125,7 +125,7 @@ def main():
 
     # initialize figure
     fig, ax = apl.subplots_mm(figsize=(85, 60), gridspec_kw={
-        'left': 15, 'bottom': 10, 'right': 2.5, 'top': 2.5})
+        'left': 12.5, 'bottom': 10, 'right': 2.5, 'top': 2.5})
 
     # plot Bowdoin and laboratory data
     plot_bowdoin(ax)
@@ -133,13 +133,15 @@ def main():
 
     # set axes properties
     ax.set_xlabel('stress (kPa)')
-    ax.set_ylabel('strain rate ($a^{-1}$)')
+    ax.set_ylabel('strain rate ($a^{-1}$)', labelpad=2)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlim(10, 400)
+    ax.set_xlim(8, 400)
     ax.set_ylim(5e-3, 2e1)
-    ax.set_xticks([10, 20, 50, 100, 200], labels=[10, 20, 50, 100, 200])
+    ax.set_xticks([10, 20, 50, 100, 200])
+    ax.xaxis.set_major_formatter('{x:g}')
     ax.xaxis.set_minor_formatter('')
+    ax.yaxis.set_major_formatter('{x:g}')
 
     # save
     fig.savefig(__file__[:-3])
