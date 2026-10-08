@@ -85,7 +85,7 @@ def plot_bowdoin(ax):
 
     # plot mean strain rates and fits in each borehole and window
     for bh, prefix in BOREHOLES:
-        lines, texts = [], []
+        lines, exponents = [], []
         for start, end, summer in WINDOWS:
             rates = strain[start:end].mean().dropna()
             units = rates.index[rates.index.str.startswith(prefix)]
@@ -96,11 +96,11 @@ def plot_bowdoin(ax):
                 ax, stress[units], rates[units], color=COLORS[bh],
                 linestyle='-' if summer else '--')
             lines.append(line)
-            texts.append(f'{pd.to_datetime(start):%b.} n = {exponent:.2f}')
+            exponents.append(f'{exponent:.2f}')
 
-        # label BH1 above left and BH3 right of the line ends
-        add_lines_label(ax, lines, bh, '\n'.join(texts),
-                        align=(1, 0) if bh == 'BH1' else (0, 0.5))
+        # label winter and summer exponents above (BH1) or below (BH3)
+        add_lines_label(ax, lines, bh, f'n = {", ".join(exponents)}',
+                        align=(0, 0) if bh == 'BH1' else (0, 1))
 
 
 def plot_schohn(ax):
