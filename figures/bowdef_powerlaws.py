@@ -48,32 +48,13 @@ def load_schohn_etal_2025():
     return pd.DataFrame(data=data, index=columns).transpose().infer_objects()
 
 
-def add_lines_label(ax, lines, title, text, **kwargs):
-    """Add bold title over text label at the mean end of several lines.
-
-    The label goes right of the line ends if ha is 'left' (default), else
-    left of the line starts. Other keyword arguments go to ax.text.
-    """
-    kwargs = {'ha': 'left', 'va': 'center', **kwargs}
-    right = kwargs['ha'] == 'left'
-    ends = np.array([line.get_xydata()[-1 if right else 0] for line in lines])
-    x, y = np.exp(np.log(ends).mean(axis=0))
-    x = x * 1.02 if right else x / 1.02
-
-    # pad title and text with blank lines to align them as one block
-    color = lines[0].get_color()
-    ax.text(x, y, title + '\n' * (text.count('\n') + 1), color=color,
-            fontweight='bold', **kwargs)
-    ax.text(x, y, '\n' * (title.count('\n') + 1) + text, color=color,
-            **kwargs)
-
-
 def plot_power_fit(ax, stress, strain_rate, **kwargs):
-    """Fit a power law to strain rate vs stress and plot it as a line."""
+    """Fit a power law to strain rate vs stress, plot it and return n."""
     exponent, constant = bowdef_utils.compute_power_fit(stress, strain_rate)
     stress_fit = np.array([stress.min()*4/5, stress.max()*5/4])
     strain_fit = constant*stress_fit**exponent
-    return ax.plot(stress_fit, strain_fit, **kwargs)[0], exponent
+    ax.plot(stress_fit, strain_fit, **kwargs)
+    return exponent
 
 
 def plot_bowdoin(ax):
@@ -85,23 +66,24 @@ def plot_bowdoin(ax):
     stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-3
 
     # plot mean strain rates and fits in each borehole and window
-    for bh, prefix in BOREHOLES:
-        lines, texts = [], []
+    for i, (bh, prefix) in enumerate(BOREHOLES):
         for start, end, summer in WINDOWS:
             rates = strain[start:end].mean().dropna()
             units = rates.index[rates.index.str.startswith(prefix)]
             ax.plot(stress[units], rates[units], color=COLORS[bh],
                     linestyle='', marker='o',
                     markerfacecolor=COLORS[bh] if summer else 'none')
-            line, exponent = plot_power_fit(
+            exponent = plot_power_fit(
                 ax, stress[units], rates[units], color=COLORS[bh],
                 linestyle='-' if summer else '--')
-            lines.append(line)
-            texts.append(f'{pd.to_datetime(start):%b.} n = {exponent:.2f}')
+            ax.text(
+                0.95, 0.05 + 0.24*i + 0.08*(not summer),
+                f'{pd.to_datetime(start):%b.} n = {exponent:.2f}',
+                color=COLORS[bh], ha='right', transform=ax.transAxes)
 
-        # label winter and summer exponents above (BH1) or below (BH3)
-        add_lines_label(ax, lines, bh, '\n'.join(texts),
-                        va='bottom' if bh == 'BH1' else 'top')
+        # add borehole label, BH3 at the bottom and BH1 above
+        ax.text(0.95, 0.21 + 0.24*i, bh, color=COLORS[bh], fontweight='bold',
+                ha='right', transform=ax.transAxes)
 
 
 def plot_schohn(ax):
@@ -111,10 +93,12 @@ def plot_schohn(ax):
     strain_rate = (
         1e-8*df.strain_rate*pd.to_timedelta('365d')/pd.to_timedelta('1s'))
     ax.plot(shear_stress, strain_rate, color='0.5', linestyle='', marker='+')
-    line, exponent = plot_power_fit(
+    exponent = plot_power_fit(
         ax, shear_stress, strain_rate, color='0.5', linestyle='--')
-    add_lines_label(ax, [line], 'Schohn et al.\n2025', f'n = {exponent:.2f}',
-                    ha='right')
+    ax.text(0.05, 0.95, 'Schohn et al. 2025', color='0.5', fontweight='bold',
+            va='top', transform=ax.transAxes)
+    ax.text(0.05, 0.87, f'n = {exponent:.2f}', color='0.5', va='top',
+            transform=ax.transAxes)
 
 
 def main():
@@ -133,9 +117,9 @@ def main():
     ax.set_ylabel('strain rate ($a^{-1}$)', labelpad=2)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlim(10, 400)
+    ax.set_xlim(20, 400)
     ax.set_ylim(5e-3, 2e1)
-    ax.set_xticks([10, 20, 50, 100, 200])
+    ax.set_xticks([20, 50, 100, 200])
     ax.xaxis.set_major_formatter('{x:g}')
     ax.xaxis.set_minor_formatter('')
     ax.yaxis.set_major_formatter('{x:g}')
