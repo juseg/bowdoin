@@ -92,13 +92,22 @@ def plot_shear_profile_markers(
     ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
     if summer:
         return
-    for unit in depth.index:
+    for unit in depth.index[shear > 5]:  # skip arrows too short for a head
+        arrowprops = {
+            'color': color, 'clip_box': ax.bbox, 'clip_on': True,
+            'shrinkB': 4}
+
+        # draw a dashed tail ending inside the head, and a solid head
         ax.annotate(
             '', xy=(shear[unit], depth[unit]), xytext=(0, depth[unit]),
             zorder=2, arrowprops={
-                'arrowstyle': '-|>', 'color': color, 'linewidth': 1,
-                'clip_box': ax.bbox, 'clip_on': True,
-                'linestyle': 'dashed', 'shrinkB': 4})
+                **arrowprops, 'arrowstyle': '-', 'linestyle': 'dashed',
+                'linewidth': 1, 'shrinkB': 6})
+        ax.annotate(
+            '', xy=(shear[unit], depth[unit]), xytext=(8, 0),
+            textcoords='offset points', zorder=2, arrowprops={
+                **arrowprops, 'arrowstyle': '-|>', 'linewidth': 1,
+                'shrinkA': 0})
 
 
 def plot_faded(ax, df, dates, colors):
