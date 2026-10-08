@@ -52,16 +52,20 @@ def load_schohn_etal_2025():
 def add_lines_label(ax, lines, title, text, align=(0, 0.5)):
     """Add bold title and text label at the mean end of several lines.
 
-    The label box is aligned as in AnnotationBbox box_alignment, at the
-    right end of the lines if align[0] is 0, else at their left end.
+    The first text line follows the title, and further lines are
+    right-aligned below. The label box is aligned as in AnnotationBbox
+    box_alignment, at the right end of the lines if align[0] is 0, else at
+    their left end.
     """
     right = align[0] == 0
     ends = np.array([line.get_xydata()[-1 if right else 0] for line in lines])
-    side = 'left' if right else 'right'
-    textprops = {'color': lines[0].get_color(), 'multialignment': side}
-    box = mob.VPacker(align=side, pad=0, sep=0, children=[
+    textprops = {'color': lines[0].get_color()}
+    first, *others = text.split('\n')
+    head = mob.HPacker(align='baseline', pad=0, sep=3, children=[
         mob.TextArea(title, textprops={**textprops, 'fontweight': 'bold'}),
-        mob.TextArea(text, textprops=textprops)])
+        mob.TextArea(first, textprops=textprops)])
+    box = mob.VPacker(align='right', pad=0, sep=0, children=[
+        head, *(mob.TextArea(line, textprops=textprops) for line in others)])
     ax.add_artist(mob.AnnotationBbox(
         box, np.exp(np.log(ends).mean(axis=0)), xybox=(2 if right else -2, 0),
         boxcoords='offset points', box_alignment=align, frameon=False))
@@ -85,7 +89,7 @@ def plot_bowdoin(ax):
 
     # plot mean strain rates and fits in each borehole and window
     for bh, prefix in BOREHOLES:
-        lines, exponents = [], []
+        lines, texts = [], []
         for start, end, summer in WINDOWS:
             rates = strain[start:end].mean().dropna()
             units = rates.index[rates.index.str.startswith(prefix)]
@@ -96,10 +100,10 @@ def plot_bowdoin(ax):
                 ax, stress[units], rates[units], color=COLORS[bh],
                 linestyle='-' if summer else '--')
             lines.append(line)
-            exponents.append(f'{exponent:.2f}')
+            texts.append(f'{pd.to_datetime(start):%b.} n = {exponent:.2f}')
 
         # label winter and summer exponents above (BH1) or below (BH3)
-        add_lines_label(ax, lines, bh, f'n = {", ".join(exponents)}',
+        add_lines_label(ax, lines, bh, '\n'.join(texts),
                         align=(0, 0) if bh == 'BH1' else (0, 1))
 
 
@@ -112,7 +116,7 @@ def plot_schohn(ax):
     ax.plot(shear_stress, strain_rate, color='0.5', linestyle='', marker='+')
     line, exponent = plot_power_fit(
         ax, shear_stress, strain_rate, color='0.5', linestyle='--')
-    add_lines_label(ax, [line], 'Schohn et al.\n2025', f'n = {exponent:.2f}',
+    add_lines_label(ax, [line], 'Schohn et al.', f'2025\nn = {exponent:.2f}',
                     align=(1, 0.5))
 
 
