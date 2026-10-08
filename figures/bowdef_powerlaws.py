@@ -77,17 +77,17 @@ def plot_bowdoin(ax):
                 ax, stress[units], rates[units], color=COLORS[bh],
                 linestyle='-' if summer else '--')
             ax.text(
-                0.95, 0.05 + 0.24*i + 0.08*(not summer),
+                0.95, 0.05 + 0.32*i + 0.08*(not summer),
                 f'{pd.to_datetime(start):%b.} n = {exponent:.2f}',
                 color=COLORS[bh], ha='right', transform=ax.transAxes)
 
         # add borehole label, BH3 at the bottom and BH1 above
         ax.text(
-            0.95, 0.21 + 0.24*i, bh, color=COLORS[bh], fontweight='bold',
+            0.95, 0.21 + 0.32*i, bh, color=COLORS[bh], fontweight='bold',
             ha='right', transform=ax.transAxes)
 
 
-def plot_schohn(ax):
+def plot_schohn_etal_2025(ax):
     """Plot Schohn et al. 2025 laboratory strain rates and fit."""
     df = load_schohn_etal_2025()
     shear_stress = 1e3*df.shear_stress
@@ -113,16 +113,14 @@ def main():
 
     # plot Bowdoin and laboratory data
     plot_bowdoin(ax)
-    plot_schohn(ax)
+    plot_schohn_etal_2025(ax)
 
     # set axes properties
     ax.set_xlabel('stress (kPa)')
-    ax.set_ylabel('strain rate ($a^{-1}$)', labelpad=2)
+    ax.set_ylabel('strain rate ($a^{-1}$)', labelpad=0)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlim(20, 400)
-    ax.set_ylim(5e-3, 2e1)
-    ax.set_xticks([20, 50, 100, 200])
+    ax.set_xticks([30, 100, 300])
     ax.xaxis.set_major_formatter('{x:g}')
     ax.xaxis.set_minor_formatter('')
     ax.yaxis.set_major_formatter('{x:g}')
