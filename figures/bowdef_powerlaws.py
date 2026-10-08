@@ -7,6 +7,7 @@
 
 
 import absplots as apl
+import matplotlib.offsetbox as mob
 import numpy as np
 import pandas as pd
 
@@ -48,14 +49,22 @@ def load_schohn_etal_2025():
     return pd.DataFrame(data=data, index=columns).transpose().infer_objects()
 
 
-def add_line_label(ax, line, text, side='right', offset=(0, 0)):
-    """Add text label at one end of a line, shifted by offset points."""
-    right = side == 'right'
-    ax.annotate(
-        text, xy=line.get_xydata()[-1 if right else 0],
-        xytext=(offset[0] + (2 if right else -2), offset[1]),
-        textcoords='offset points', color=line.get_color(),
-        fontweight='bold', ha='left' if right else 'right', va='center')
+def add_lines_label(ax, lines, title, text, align=(0, 0.5)):
+    """Add bold title and text label at the mean end of several lines.
+
+    The label box is aligned as in AnnotationBbox box_alignment, at the
+    right end of the lines if align[0] is 0, else at their left end.
+    """
+    right = align[0] == 0
+    ends = np.array([line.get_xydata()[-1 if right else 0] for line in lines])
+    side = 'left' if right else 'right'
+    textprops = {'color': lines[0].get_color(), 'multialignment': side}
+    box = mob.VPacker(align=side, pad=0, sep=0, children=[
+        mob.TextArea(title, textprops={**textprops, 'fontweight': 'bold'}),
+        mob.TextArea(text, textprops=textprops)])
+    ax.add_artist(mob.AnnotationBbox(
+        box, np.exp(np.log(ends).mean(axis=0)), xybox=(2 if right else -2, 0),
+        boxcoords='offset points', box_alignment=align, frameon=False))
 
 
 def plot_power_fit(ax, stress, strain_rate, **kwargs):
@@ -74,10 +83,11 @@ def plot_bowdoin(ax):
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
     stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-3
 
-    # plot mean strain rates and fits in each window and borehole
-    for start, end, summer in WINDOWS:
-        rates = strain[start:end].mean().dropna()
-        for bh, prefix in BOREHOLES:
+    # plot mean strain rates and fits in each borehole and window
+    for bh, prefix in BOREHOLES:
+        lines, texts = [], []
+        for start, end, summer in WINDOWS:
+            rates = strain[start:end].mean().dropna()
             units = rates.index[rates.index.str.startswith(prefix)]
             ax.plot(stress[units], rates[units], color=COLORS[bh],
                     linestyle='', marker='o',
@@ -85,10 +95,12 @@ def plot_bowdoin(ax):
             line, exponent = plot_power_fit(
                 ax, stress[units], rates[units], color=COLORS[bh],
                 linestyle='-' if summer else '--')
-            add_line_label(
-                ax, line, f'{bh} {pd.to_datetime(start):%b.}\n'
-                f'n = {exponent:.2f}', side='right' if summer else 'left',
-                offset=(0, (5 if bh == 'BH1' else -5) * summer))
+            lines.append(line)
+            texts.append(f'{pd.to_datetime(start):%b.} n = {exponent:.2f}')
+
+        # label BH1 above left and BH3 right of the line ends
+        add_lines_label(ax, lines, bh, '\n'.join(texts),
+                        align=(1, 0) if bh == 'BH1' else (0, 0.5))
 
 
 def plot_schohn(ax):
@@ -100,8 +112,8 @@ def plot_schohn(ax):
     ax.plot(shear_stress, strain_rate, color='0.5', linestyle='', marker='+')
     line, exponent = plot_power_fit(
         ax, shear_stress, strain_rate, color='0.5', linestyle='--')
-    add_line_label(
-        ax, line, f'Schohn et al.\n2025\nn = {exponent:.2f}', side='left')
+    add_lines_label(ax, [line], 'Schohn et al.\n2025', f'n = {exponent:.2f}',
+                    align=(1, 0.5))
 
 
 def main():
