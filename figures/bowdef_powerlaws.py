@@ -7,7 +7,6 @@
 
 
 import absplots as apl
-import matplotlib.offsetbox as mob
 import numpy as np
 import pandas as pd
 
@@ -49,26 +48,24 @@ def load_schohn_etal_2025():
     return pd.DataFrame(data=data, index=columns).transpose().infer_objects()
 
 
-def add_lines_label(ax, lines, title, text, align=(0, 0.5)):
-    """Add bold title and text label at the mean end of several lines.
+def add_lines_label(ax, lines, title, text, **kwargs):
+    """Add bold title over text label at the mean end of several lines.
 
-    The first text line follows the title, and further lines are
-    right-aligned below. The label box is aligned as in AnnotationBbox
-    box_alignment, at the right end of the lines if align[0] is 0, else at
-    their left end.
+    The label goes right of the line ends if ha is 'left' (default), else
+    left of the line starts. Other keyword arguments go to ax.text.
     """
-    right = align[0] == 0
+    kwargs = {'ha': 'left', 'va': 'center', **kwargs}
+    right = kwargs['ha'] == 'left'
     ends = np.array([line.get_xydata()[-1 if right else 0] for line in lines])
-    textprops = {'color': lines[0].get_color()}
-    first, *others = text.split('\n')
-    head = mob.HPacker(align='baseline', pad=0, sep=3, children=[
-        mob.TextArea(title, textprops={**textprops, 'fontweight': 'bold'}),
-        mob.TextArea(first, textprops=textprops)])
-    box = mob.VPacker(align='right', pad=0, sep=0, children=[
-        head, *(mob.TextArea(line, textprops=textprops) for line in others)])
-    ax.add_artist(mob.AnnotationBbox(
-        box, np.exp(np.log(ends).mean(axis=0)), xybox=(2 if right else -2, 0),
-        boxcoords='offset points', box_alignment=align, frameon=False))
+    x, y = np.exp(np.log(ends).mean(axis=0))
+    x = x * 1.02 if right else x / 1.02
+
+    # pad title and text with blank lines to align them as one block
+    color = lines[0].get_color()
+    ax.text(x, y, title + '\n' * (text.count('\n') + 1), color=color,
+            fontweight='bold', **kwargs)
+    ax.text(x, y, '\n' * (title.count('\n') + 1) + text, color=color,
+            **kwargs)
 
 
 def plot_power_fit(ax, stress, strain_rate, **kwargs):
@@ -104,7 +101,7 @@ def plot_bowdoin(ax):
 
         # label winter and summer exponents above (BH1) or below (BH3)
         add_lines_label(ax, lines, bh, '\n'.join(texts),
-                        align=(0, 0) if bh == 'BH1' else (0, 1))
+                        va='bottom' if bh == 'BH1' else 'top')
 
 
 def plot_schohn(ax):
@@ -116,8 +113,8 @@ def plot_schohn(ax):
     ax.plot(shear_stress, strain_rate, color='0.5', linestyle='', marker='+')
     line, exponent = plot_power_fit(
         ax, shear_stress, strain_rate, color='0.5', linestyle='--')
-    add_lines_label(ax, [line], 'Schohn et al.', f'2025\nn = {exponent:.2f}',
-                    align=(1, 0.5))
+    add_lines_label(ax, [line], 'Schohn et al.\n2025', f'n = {exponent:.2f}',
+                    ha='right')
 
 
 def main():
@@ -136,7 +133,7 @@ def main():
     ax.set_ylabel('strain rate ($a^{-1}$)', labelpad=2)
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlim(8, 400)
+    ax.set_xlim(10, 400)
     ax.set_ylim(5e-3, 2e1)
     ax.set_xticks([10, 20, 50, 100, 200])
     ax.xaxis.set_major_formatter('{x:g}')
