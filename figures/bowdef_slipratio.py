@@ -83,8 +83,7 @@ def main():
         [132.5, 12.5, 32.5, 51.25], sharex=pfaxes[0], sharey=pfaxes[0]))
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(
-        [*axes, *pfaxes], bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+    bowtem_utils.add_subfig_labels([*axes, *pfaxes])
 
     # load shear and surface speeds and compute ratio where they intersect
     shear, exponent = load_shear_velocities(method='kernel', window='3h')
@@ -149,14 +148,15 @@ def main():
         y0, y1 = min(surfaces) - 5, max(surfaces) + 5
         axes[1].indicate_inset(
             bounds=[x0, y0, x1-x0, y1-y0], ls='dashed', zorder=5)
-        axes[1].text((x0+x1)/2, y0, '(e, f)', color='0.5', ha='center',
-                     va='top')
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
-    bowdef_utils.plot_errorbar(axes[0], landsat, color=tab20[3], label='Landsat')
-    bowdef_utils.plot_errorbar(axes[0], sentinel, color=tab20[11], label='Sentinel')
-    bowdef_utils.plot_errorbar(axes[2], sat.assign(
+    bowdef_utils.plot_errorbar(
+        axes[0], landsat, color=tab20[3], label='Landsat-8')
+    bowdef_utils.plot_errorbar(
+        axes[0], sentinel, color=tab20[11], label='Sentinel-1')
+    bowdef_utils.plot_errorbar(
+        axes[2], sat.assign(
         speed=sat_speed['BH1'], error=sat_error['BH1']), color=tab20[1])
     bowdef_utils.plot_errorbar(axes[2], sat.assign(
         speed=sat_speed['BH3'], error=sat_error['BH3']), color=tab20[13])
