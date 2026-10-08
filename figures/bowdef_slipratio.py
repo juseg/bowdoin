@@ -73,22 +73,25 @@ def plot_shear_profile(
     shear_int = compute_shear_profile(base, depth_int, exponent, surface)
     shear = compute_shear_profile(base, depth, exponent, surface)
     plot_shear_profile_lines(
-        ax, base, depth_int, shear_int, color=color, summer=summer)
-    plot_shear_profile_markers(ax, depth, shear, colors, color=color)
+        ax, depth_int, shear_int, color=color, summer=summer)
+    plot_shear_profile_markers(
+        ax, depth, shear, colors, color=color, summer=summer)
 
 
-def plot_shear_profile_lines(ax, base, depth, shear, color='C0', summer=False):
+def plot_shear_profile_lines(ax, depth, shear, color='C0', summer=False):
     """Plot continuous shear profile line, fill summer profile."""
     if summer:
         ax.fill_betweenx(depth, 0, shear, color=color, alpha=0.25)
         ax.plot([0, shear[0]], [0, 0], color=color)
-        ax.plot([0, 0], [base, 0], 'k-_')
     ax.plot(shear, depth, color=color, ls='-' if summer else '--')
 
 
-def plot_shear_profile_markers(ax, depth, shear, colors, color='C0'):
-    """Mark tilt units on shear profile with unit colours and arrows."""
+def plot_shear_profile_markers(
+        ax, depth, shear, colors, color='C0', summer=False):
+    """Mark tilt units on shear profile, with arrows in winter."""
     ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
+    if summer:
+        return
     for unit in depth.index:
         ax.annotate(
             '', xy=(shear[unit], depth[unit]), xytext=(0, depth[unit]),
@@ -213,7 +216,7 @@ def main():
     for ax in pfaxes:
         ax.yaxis.set_label_position('right')
         ax.yaxis.tick_right()
-        ax.xaxis.set_inverted(True)
+        ax.set_xlim(30, 0)
         ax.yaxis.set_inverted(True)
         ax.set_ylabel('depth (m)')
     pfaxes[0].tick_params(labelbottom=False)
