@@ -48,65 +48,82 @@ def load_schohn_etal_2025():
     return pd.DataFrame(data=data, index=columns).transpose().infer_objects()
 
 
-def plot_strain_stress(
-        ax, stress, strain_rate, label, *, color=None, linestyle='--',
-        marker='+', markerfacecolor=None):
-    """Plot strain rate vs stress data and fit a power law."""
+def add_line_label(ax, line, text, side='right', offset=(0, 0)):
+    """Add text label at one end of a line, shifted by offset points."""
+    right = side == 'right'
+    ax.annotate(
+        text, xy=line.get_xydata()[-1 if right else 0],
+        xytext=(offset[0] + (2 if right else -2), offset[1]),
+        textcoords='offset points', color=line.get_color(),
+        fontweight='bold', ha='left' if right else 'right', va='center')
 
-    # compute power fit
+
+def plot_power_fit(ax, stress, strain_rate, **kwargs):
+    """Fit a power law to strain rate vs stress and plot it as a line."""
     exponent, constant = bowdef_utils.compute_power_fit(stress, strain_rate)
-    stress_fit = np.array([stress.min()*2/3, stress.max()*3/2])
+    stress_fit = np.array([stress.min()*4/5, stress.max()*5/4])
     strain_fit = constant*stress_fit**exponent
-
-    # plot markers and line
-    ax.plot(stress, strain_rate, color=color, linestyle='', marker=marker,
-            markerfacecolor=markerfacecolor)
-    ax.plot(stress_fit, strain_fit, color=color, linestyle=linestyle)
-
-    # add text label
-    textright = stress.max() < 100
-    ax.text(
-        (0.98+0.04*textright)*stress_fit[1*textright], strain_fit[1*textright],
-        f'{label}\nn = {exponent:.2f}', color=color, fontweight='bold',
-        ha='left' if textright else 'right', va='center')
+    return ax.plot(stress_fit, strain_fit, **kwargs)[0], exponent
 
 
-def main():
-    """Main program called during execution."""
-
-    # initialize figure
-    fig, ax = apl.subplots_mm(
-        figsize=(180, 90), ncols=1, sharex=True, sharey=True, gridspec_kw={
-            'left': 15, 'bottom': 10, 'right': 2.5, 'top': 2.5, 'wspace': 2.5})
+def plot_bowdoin(ax):
+    """Plot Bowdoin winter and summer mean strain rates and fits."""
 
     # load strain rates and compute driving stress
     depth = bowstr_utils.load(variable='dept').iloc[0]
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
     stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-3
 
-    # plot Bowdoin winter and summer mean strain rates
+    # plot mean strain rates and fits in each window and borehole
     for start, end, summer in WINDOWS:
         rates = strain[start:end].mean().dropna()
         for bh, prefix in BOREHOLES:
             units = rates.index[rates.index.str.startswith(prefix)]
-            plot_strain_stress(
-                ax, stress[units], rates[units],
-                f'{bh} {pd.to_datetime(start):%b.}', color=COLORS[bh],
-                linestyle='-' if summer else '--', marker='o',
-                markerfacecolor=COLORS[bh] if summer else 'none')
+            ax.plot(stress[units], rates[units], color=COLORS[bh],
+                    linestyle='', marker='o',
+                    markerfacecolor=COLORS[bh] if summer else 'none')
+            line, exponent = plot_power_fit(
+                ax, stress[units], rates[units], color=COLORS[bh],
+                linestyle='-' if summer else '--')
+            add_line_label(
+                ax, line, f'{bh} {pd.to_datetime(start):%b.}\n'
+                f'n = {exponent:.2f}', side='right' if summer else 'left',
+                offset=(0, (5 if bh == 'BH1' else -5) * summer))
 
-    # plot Schohn et al. 2025
+
+def plot_schohn(ax):
+    """Plot Schohn et al. 2025 laboratory strain rates and fit."""
     df = load_schohn_etal_2025()
-    plot_strain_stress(
-        ax, 1e3*df.shear_stress,
-        1e-8*df.strain_rate*pd.to_timedelta('365d')/pd.to_timedelta('1s'),
-        'Schohn et al. 2025', color='0.5')
+    shear_stress = 1e3*df.shear_stress
+    strain_rate = (
+        1e-8*df.strain_rate*pd.to_timedelta('365d')/pd.to_timedelta('1s'))
+    ax.plot(shear_stress, strain_rate, color='0.5', linestyle='', marker='+')
+    line, exponent = plot_power_fit(
+        ax, shear_stress, strain_rate, color='0.5', linestyle='--')
+    add_line_label(
+        ax, line, f'Schohn et al.\n2025\nn = {exponent:.2f}', side='left')
+
+
+def main():
+    """Main program called during execution."""
+
+    # initialize figure
+    fig, ax = apl.subplots_mm(figsize=(85, 60), gridspec_kw={
+        'left': 15, 'bottom': 10, 'right': 2.5, 'top': 2.5})
+
+    # plot Bowdoin and laboratory data
+    plot_bowdoin(ax)
+    plot_schohn(ax)
 
     # set axes properties
     ax.set_xlabel('stress (kPa)')
     ax.set_ylabel('strain rate ($a^{-1}$)')
     ax.set_xscale('log')
     ax.set_yscale('log')
+    ax.set_xlim(10, 400)
+    ax.set_ylim(5e-3, 2e1)
+    ax.set_xticks([10, 20, 50, 100, 200], labels=[10, 20, 50, 100, 200])
+    ax.xaxis.set_minor_formatter('')
 
     # save
     fig.savefig(__file__[:-3])
