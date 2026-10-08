@@ -7,6 +7,7 @@
 
 import absplots as apl
 import matplotlib as mpl
+import matplotlib.patheffects
 import numpy as np
 import pandas as pd
 
@@ -114,7 +115,7 @@ def main():
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
-    # plot winter and summer shear profiles from monthly strain
+    # plot winter and summer shear profiles and mark their intervals
     depth = bowstr_utils.load(variable='dept').iloc[0]
     base = bowstr_utils.load(variable='base').iloc[0]
     for start, end, ls in [('2015-01-01', '2015-02-01', '--'),
@@ -123,9 +124,13 @@ def main():
         strain = bowdef_utils.load_strain(start, end) * 365 / days
         for bh, prefix in [('BH1', 'U'), ('BH3', 'L')]:
             mask = strain.index.str.startswith(prefix)
-            plot_shear_profile(
+            surface = plot_shear_profile(
                 pfax, depth[mask], base[f'{bh}B'], strain[mask],
                 color=color_dict[bh], ls=ls)
+            pd.Series(surface, index=pd.to_datetime([start, end])).plot(
+                ax=axes[1], color=color_dict[bh], lw=3, zorder=3,
+                label='_nolegend_', path_effects=[
+                    mpl.patheffects.withStroke(linewidth=5, foreground='w')])
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
