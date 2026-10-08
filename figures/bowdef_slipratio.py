@@ -97,7 +97,8 @@ def plot_shear_profile_markers(
             '', xy=(shear[unit], depth[unit]), xytext=(0, depth[unit]),
             zorder=2, arrowprops={
                 'arrowstyle': '-|>', 'color': color, 'linewidth': 1,
-                'linestyle': 'dashed', 'shrinkA': 0, 'shrinkB': 4})
+                'clip_box': ax.bbox, 'clip_on': True,
+                'linestyle': 'dashed', 'shrinkB': 4})
 
 
 def plot_faded(ax, df, dates, colors):
