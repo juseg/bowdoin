@@ -90,9 +90,8 @@ def main():
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
 
     # load velocities from landsat and sentinel images
-    landsat = bowdef_utils.load_landsat_velocities().assign(source='landsat')
-    sentinel = bowdef_utils.load_sentinel_velocities().assign(
-        source='sentinel')
+    landsat = bowdef_utils.load_landsat_velocities()
+    sentinel = bowdef_utils.load_sentinel_velocities()
     sat = pd.concat([landsat, sentinel])
 
     # compute slip ratio from satellite and propagate uncertainties
@@ -154,26 +153,21 @@ def main():
         axes[0], landsat, color=tab20[3], label='Landsat-8')
     bowdef_utils.plot_errorbar(
         axes[0], sentinel, color=tab20[11], label='Sentinel-1')
-    bowdef_utils.plot_errorbar(
-        axes[2], sat.assign(
-        speed=sat_speed['BH1'], error=sat_error['BH1']), color=tab20[1])
-    bowdef_utils.plot_errorbar(axes[2], sat.assign(
-        speed=sat_speed['BH3'], error=sat_error['BH3']), color=tab20[13])
+    for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
+        bowdef_utils.plot_errorbar(axes[2], sat.assign(
+            speed=sat_speed[bh], error=sat_error[bh]), color=color)
 
     # set axes properties
     axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
     axes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
-    axes[0].grid(which='minor')
-    axes[1].grid(which='minor')
-    axes[2].grid(which='minor')
-    axes[3].grid(which='minor')
+    for ax in [*axes, *pfaxes]:
+        ax.grid(which='minor')
     axes[3].set_xlabel('')
     axes[0].set_ylabel(r'surface ($m\,a^{-1}$)', labelpad=0)
     axes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
     axes[2].set_ylabel('slip ratio (%)')
     axes[3].set_ylabel('flow exponent', labelpad=8)
     for ax in pfaxes:
-        ax.grid(which='minor')
         ax.yaxis.set_label_position('right')
         ax.yaxis.tick_right()
         ax.set_ylabel('depth (m)')
