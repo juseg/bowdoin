@@ -149,11 +149,12 @@ def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
 
 
 def plot_shear_profiles(axes, rates, depth, base, summer):
-    """Plot shear profiles from mean power-law fits over one window."""
+    """Plot shear profiles from power-law fits of window-mean strain rates."""
 
-    # fit power laws and average over the window
-    shear, exponent = compute_shear_series(rates, depth, base)
-    shear, exponent = shear.mean(), exponent.mean()
+    # fit power laws to strain rates averaged over the window
+    shear, exponent = compute_shear_series(
+        rates.mean().to_frame().T, depth, base)
+    shear, exponent = shear.iloc[0], exponent.iloc[0]
     colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
 
     # plot continuous and discrete profiles in each borehole
