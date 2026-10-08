@@ -149,6 +149,8 @@ def main():
         y0, y1 = min(surfaces) - 5, max(surfaces) + 5
         axes[1].indicate_inset(
             bounds=[x0, y0, x1-x0, y1-y0], ls='dashed', zorder=5)
+        axes[1].text((x0+x1)/2, y0, '(e, f)', color='0.5', ha='center',
+                     va='top')
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
