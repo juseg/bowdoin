@@ -125,9 +125,10 @@ def main():
     # otherwise detect them as sharing axes with the timeseries)
     fig = apl.figure_mm(figsize=(180, 120))
     axes = fig.subplots_mm(nrows=4, sharex=True, gridspec_kw={
-        'left': 12.5, 'right': 50, 'bottom': 12.5, 'top': 2.5, 'hspace': 2.5})
+        'left': 12.5, 'right': 47.5, 'bottom': 12.5, 'top': 2.5,
+        'hspace': 2.5})
     pfaxes = fig.subplots_mm(nrows=2, sharey=True, gridspec_kw={
-        'left': 132.5, 'right': 15, 'bottom': 12.5, 'top': 2.5, 'hspace': 2.5})
+        'left': 135, 'right': 12.5, 'bottom': 12.5, 'top': 2.5, 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels([*axes, *pfaxes])
@@ -214,8 +215,8 @@ def main():
             speed=sat_speed[bh], error=sat_error[bh]), color=color)
 
     # set axes properties
-    axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
-    axes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 11/12, 1))
+    axes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
+    axes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
     for ax in [*axes, *pfaxes]:
         ax.grid(which='minor')
     axes[3].set_xlabel('')
