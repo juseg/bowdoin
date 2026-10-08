@@ -15,7 +15,7 @@ BOWDEF_COUPLES = \
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowdef_, \
-			boreholes direction multivars powerlaws satellite shearprofile slipratio \
+			boreholes direction multivars powerlaws satellite slipratio \
 			tiltangle tiltrates) \
 		$(addprefix bowdef_crosscorr_, $(BOWDEF_COUPLES)) \
 		$(addprefix bowdef_rollxcorr_, $(BOWDEF_COUPLES)) \
