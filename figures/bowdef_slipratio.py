@@ -60,12 +60,14 @@ def main():
     # initialize figure
     fig, axes = apl.subplots_mm(
         figsize=(180, 120), nrows=4, sharex=True, gridspec_kw={
-            'left': 12.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+            'left': 12.5, 'right': 50, 'bottom': 12.5, 'top': 2.5,
             'hspace': 2.5})
+    pfax = fig.add_axes_mm([132.5, 77.5, 32.5, 40])
 
     # add subfigure labels
-    bowtem_utils.add_subfig_labels(
-        axes, bbox={'alpha': 0.85, 'ec': 'none', 'fc': 'w'})
+    bbox = {'alpha': 0.85, 'ec': 'none', 'fc': 'w'}
+    bowtem_utils.add_subfig_labels(axes, bbox=bbox)
+    bowtem_utils.add_subfig_label(ax=pfax, text='(e)', bbox=bbox)
 
     # load shear and surface speeds and compute ratio where they intersect
     shear, exponent = load_shear_velocities(method='kernel', window='3h')
@@ -118,6 +120,11 @@ def main():
     axes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
     axes[2].set_ylabel('slip ratio (%)')
     axes[3].set_ylabel('flow exponent', labelpad=8)
+    pfax.grid(which='minor')
+    pfax.yaxis.set_label_position('right')
+    pfax.yaxis.tick_right()
+    pfax.set_xlabel(r'shear ($m\,a^{-1}$)')
+    pfax.set_ylabel('depth (m)')
     axes[0].set_xlim('20140701', '20170801')
     # axes[0].set_xlim('20150601', '20150930')
     # axes[0].set_xlim('20160601', '20160930')
