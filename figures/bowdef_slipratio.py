@@ -24,12 +24,6 @@ WINDOWS = [('2015-01-04', '2015-02-01', False),
            ('2015-07-01', '2015-08-01', True)]
 
 
-def compute_interval_aggregates(series, intervals, **kwargs):
-    """Aggregate series over intervals defined in a dataframe."""
-    return intervals.apply(
-        lambda row: series[row.start: row.end].aggregate(**kwargs), axis=1)
-
-
 def compute_power_fits(depth, strain):
     """Fit power laws strain = constant * depth ** exponent on each row."""
 
@@ -71,19 +65,6 @@ def compute_shear_profile(base, depth, exponent, surface):
     return surface * (1 - (depth/base)**(exponent+1))
 
 
-def plot_shear_profile_lines(ax, depth, shear, color='C0', summer=False):
-    """Plot continuous shear profile line, fill summer profile."""
-    if summer:
-        ax.fill_betweenx(depth, 0, shear, color=color, alpha=0.25)
-        ax.plot([0, shear[0]], [0, 0], color=color)
-    ax.plot(shear, depth, color=color, ls='-' if summer else '--')
-
-
-def plot_shear_profile_markers(ax, depth, shear, *, colors, color='C0'):
-    """Mark tilt units on shear profile with unit colours."""
-    ax.scatter(shear, depth, c=colors[depth.index], edgecolors=color, zorder=3)
-
-
 def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
     """Draw dashed arrows from the zero axis to tilt units."""
     for unit in depth.index[shear > 5]:  # skip arrows too short for a head
@@ -123,19 +104,6 @@ def plot_intervals(ax, shear):
         ax.indicate_inset(bounds=[x0, y0, x1-x0, y1-y0], ls='dashed', zorder=5)
 
 
-def plot_profiles(axes, strain, depth, base):
-    """Plot winter and summer shear profiles from mean power-law fits."""
-
-    # add borehole labels
-    for ax, (bh, _) in zip(axes, BOREHOLES):
-        ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
-                transform=ax.transAxes)
-
-    # plot mean profiles over each interval
-    for start, end, summer in WINDOWS:
-        plot_window_profiles(axes, strain[start:end], depth, base, summer)
-
-
 def plot_window_profiles(axes, rates, depth, base, summer):
     """Plot shear profiles from mean power-law fits over one interval."""
 
@@ -153,10 +121,14 @@ def plot_window_profiles(axes, rates, depth, base, summer):
             base[f'{bh}B'], depth_int, exponent[bh], shear[bh])
         unit_shear = compute_shear_profile(
             base[f'{bh}B'], depth[units], exponent[bh], shear[bh])
-        plot_shear_profile_lines(
-            ax, depth_int, shear_int, color=COLORS[bh], summer=summer)
-        plot_shear_profile_markers(
-            ax, depth[units], unit_shear, colors=colors, color=COLORS[bh])
+        if summer:
+            ax.fill_betweenx(
+                depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
+            ax.plot([0, shear_int[0]], [0, 0], color=COLORS[bh])
+        ax.plot(shear_int, depth_int, color=COLORS[bh],
+                ls='-' if summer else '--')
+        ax.scatter(unit_shear, depth[units], c=colors[units],
+                   edgecolors=COLORS[bh], zorder=3)
         if not summer:
             plot_shear_profile_arrows(
                 ax, depth[units], unit_shear, color=COLORS[bh])
@@ -175,7 +147,8 @@ def plot_satellite(axes, shear):
     sat = pd.concat([landsat, sentinel])
 
     # compute slip ratio from satellite and propagate uncertainties
-    sat_shear = compute_interval_aggregates(shear, sat, func='mean')
+    sat_shear = sat.apply(
+        lambda row: shear[row.start:row.end].mean(), axis=1)
     sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
     sat_error = 100 * sat_shear.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
@@ -244,8 +217,12 @@ def main():
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
 
-    # plot winter and summer shear profiles
-    plot_profiles(pfaxes, strain, depth, base)
+    # plot winter and summer shear profiles with borehole labels
+    for start, end, summer in WINDOWS:
+        plot_window_profiles(pfaxes, strain[start:end], depth, base, summer)
+    for ax, (bh, _) in zip(pfaxes, BOREHOLES):
+        ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
+                transform=ax.transAxes)
 
     # set time axes properties
     tsaxes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
