@@ -13,6 +13,14 @@ import xarray as xr
 import bowstr_utils
 import bowtem_utils
 
+# borehole names, unit prefixes, colours and seasonal windows
+# FIXME: winter starts on Jan. 4 to skip the UI04 tilt offset jump of
+# 2015 Jan. 2, restore Jan. 1 once the jump is fixed in preprocessing.
+BOREHOLES = [('BH3', 'L'), ('BH1', 'U')]
+COLORS = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
+WINDOWS = [('2015-01-04', '2015-02-01', False),
+           ('2015-07-01', '2015-08-01', True)]
+
 
 # Signal processing methods
 # -------------------------
