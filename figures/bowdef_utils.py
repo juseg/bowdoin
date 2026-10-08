@@ -13,6 +13,14 @@ import xarray as xr
 import bowstr_utils
 import bowtem_utils
 
+# borehole names, unit prefixes, colours and seasonal windows
+# FIXME: winter starts on Jan. 4 to skip the UI04 tilt offset jump of
+# 2015 Jan. 2, restore Jan. 1 once the jump is fixed in preprocessing.
+BOREHOLES = [('BH3', 'L'), ('BH1', 'U')]
+COLORS = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
+WINDOWS = [('2015-01-04', '2015-02-01', False),
+           ('2015-07-01', '2015-08-01', True)]
+
 
 # Signal processing methods
 # -------------------------
@@ -244,16 +252,6 @@ def load_sentinel_velocities():
         'vel_error (m/a)': 'error', 'YYYY-MM-DD (1st)': 'start',
         'YYYY-MM-DD (2nd)': 'end'})
     return df
-
-
-def load_strain(start, end):
-    """Load total strain on custom interval."""
-    tilx = bowstr_utils.load(variable='tilx')
-    tily = bowstr_utils.load(variable='tily')
-    tilx = tilx.loc[end].mean() - tilx.loc[start].mean()
-    tily = tily.loc[end].mean() - tily.loc[start].mean()
-    costilt = np.cos(tilx) * np.cos(tily)
-    return 0.5 * (1 - costilt**2) ** 0.5 / costilt
 
 
 def load_strain_rates(**kwargs):

@@ -13,14 +13,7 @@ import pandas as pd
 import bowdef_utils
 import bowstr_utils
 import bowtem_utils
-
-# borehole names, unit prefixes and colours
-# FIXME: winter starts on Jan. 4 to skip the UI04 tilt offset jump of
-# 2015 Jan. 2, restore Jan. 1 once the jump is fixed in preprocessing.
-BOREHOLES = [('BH3', 'L'), ('BH1', 'U')]
-COLORS = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
-WINDOWS = [('2015-01-04', '2015-02-01', False),
-           ('2015-07-01', '2015-08-01', True)]
+from bowdef_utils import BOREHOLES, COLORS, WINDOWS
 
 
 def compute_power_fits(depth, strain):
@@ -156,11 +149,12 @@ def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
 
 
 def plot_shear_profiles(axes, rates, depth, base, summer):
-    """Plot shear profiles from mean power-law fits over one window."""
+    """Plot shear profiles from power-law fits of window-mean strain rates."""
 
-    # fit power laws and average over the window
-    shear, exponent = compute_shear_series(rates, depth, base)
-    shear, exponent = shear.mean(), exponent.mean()
+    # fit power laws to strain rates averaged over the window
+    shear, exponent = compute_shear_series(
+        rates.mean().to_frame().T, depth, base)
+    shear, exponent = shear.iloc[0], exponent.iloc[0]
     colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
 
     # plot continuous and discrete profiles in each borehole

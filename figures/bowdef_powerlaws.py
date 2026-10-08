@@ -12,6 +12,7 @@ import pandas as pd
 
 import bowdef_utils
 import bowstr_utils
+from bowdef_utils import BOREHOLES, COLORS, WINDOWS
 
 DENSITY = 917           # Ice density,          kg m-3          (CP10, p. 12)
 GRAVITY = 9.80665       # Standard gravity,     m s-2           (--)
@@ -30,7 +31,7 @@ def load_schohn_etal_2025():
         '1C': ['Stress',      0.137, 14.6, '1.2', 0.21, '<0.01', 1.65, 0.33],
         '1D': ['Stress',      0.145,  8.8, '0.4', 0.18, '<0.01', 1.48, 0.29],
         '2A': ['Strain rate', 0.069, 11.7, '0.3', 0.19, '<0.01', 1.54, 0.13],
-        '2B': ['Strain rate', 0.075,  2.6,'<0.1', 0.05, '<0.01', 1.62, 0.08],
+        '2B': ['Strain rate', 0.075, 2.6, '<0.1', 0.05, '<0.01', 1.62, 0.08],
         '2C': ['Strain rate', 0.103,  8.9, '1.9', 0.16, '<0.01', 1.28, 0.18],
         '3A': ['Stress',      0.126, 21.1, '0.7', 0.24, '<0.01', 1.57, 0.13],
         '3B': ['Strain rate', 0.174,  4.6, '0.9', 0.09, '<0.01', 1.49, 0.16],
@@ -47,59 +48,82 @@ def load_schohn_etal_2025():
     return pd.DataFrame(data=data, index=columns).transpose().infer_objects()
 
 
-def plot_strain_stress(ax, stress, strain_rate, label, color=None):
-    """Plot strain rate vs stress data and fit a power law."""
-
-    # compute power fit
+def plot_power_fit(ax, stress, strain_rate, **kwargs):
+    """Fit a power law to strain rate vs stress, plot it and return n."""
     exponent, constant = bowdef_utils.compute_power_fit(stress, strain_rate)
-    stress_fit = np.array([stress.min()*2/3, stress.max()*3/2])
+    stress_fit = np.array([stress.min()*4/5, stress.max()*5/4])
     strain_fit = constant*stress_fit**exponent
+    ax.plot(stress_fit, strain_fit, **kwargs)
+    return exponent
 
-    # plot markers and line
-    ax.plot(stress, strain_rate, color=color, linestyle='', marker='+')
-    ax.plot(stress_fit, strain_fit, color=color, linestyle='--')
 
-    # add text label
-    textright = stress.max() < 100
+def plot_bowdoin(ax):
+    """Plot Bowdoin winter and summer mean strain rates and fits."""
+
+    # load strain rates and compute driving stress
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
+    stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-3
+
+    # plot mean strain rates and fits in each borehole and window
+    for i, (bh, prefix) in enumerate(BOREHOLES):
+        for start, end, summer in WINDOWS:
+            rates = strain[start:end].mean().dropna()
+            units = rates.index[rates.index.str.startswith(prefix)]
+            ax.plot(
+                stress[units], rates[units], color=COLORS[bh], linestyle='',
+                marker='o', markerfacecolor=COLORS[bh] if summer else 'none')
+            exponent = plot_power_fit(
+                ax, stress[units], rates[units], color=COLORS[bh],
+                linestyle='-' if summer else '--')
+            ax.text(
+                0.95, 0.05 + 0.32*i + 0.08*(not summer),
+                f'{pd.to_datetime(start):%b.} n = {exponent:.2f}',
+                color=COLORS[bh], ha='right', transform=ax.transAxes)
+
+        # add borehole label, BH3 at the bottom and BH1 above
+        ax.text(
+            0.95, 0.21 + 0.32*i, bh, color=COLORS[bh], fontweight='bold',
+            ha='right', transform=ax.transAxes)
+
+
+def plot_schohn_etal_2025(ax):
+    """Plot Schohn et al. 2025 laboratory strain rates and fit."""
+    df = load_schohn_etal_2025()
+    shear_stress = 1e3*df.shear_stress
+    strain_rate = (
+        1e-8*df.strain_rate*pd.to_timedelta('365d')/pd.to_timedelta('1s'))
+    ax.plot(shear_stress, strain_rate, color='0.5', linestyle='', marker='+')
+    exponent = plot_power_fit(
+        ax, shear_stress, strain_rate, color='0.5', linestyle='--')
     ax.text(
-        (0.98+0.04*textright)*stress_fit[1*textright], strain_fit[1*textright],
-        f'{label}\nn = {exponent:.2f}', color=color, fontweight='bold',
-        ha='left' if textright else 'right', va='center')
+        0.05, 0.95, 'Schohn et al. 2025', color='0.5', fontweight='bold',
+        va='top', transform=ax.transAxes)
+    ax.text(
+        0.05, 0.87, f'n = {exponent:.2f}', color='0.5', va='top',
+        transform=ax.transAxes)
 
 
-def main(start='2014-11-01', end='2015-11-01'):
+def main():
     """Main program called during execution."""
 
     # initialize figure
-    fig, ax = apl.subplots_mm(
-        figsize=(180, 90), ncols=1, sharex=True, sharey=True, gridspec_kw={
-            'left': 15, 'bottom': 10, 'right': 2.5, 'top': 2.5, 'wspace': 2.5})
+    fig, ax = apl.subplots_mm(figsize=(85, 60), gridspec_kw={
+        'left': 12.5, 'bottom': 10, 'right': 2.5, 'top': 2.5})
 
-    # load total strain
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    strain = bowdef_utils.load_strain(start, end)
-    time_delta = pd.to_datetime(end) - pd.to_datetime(start)
-    strain_rate = strain * pd.to_timedelta('365d') / time_delta
-    stress = DENSITY * GRAVITY * depth * np.sin(SLOPE*np.pi/180) * 1e-3
-
-    # plot Bowdoin data
-    for bh in ('BH3', 'BH1'):
-        mask = strain.index.str.startswith('U' if bh == 'BH1' else 'L')
-        plot_strain_stress(
-            ax, stress[mask], strain_rate[mask], bh, color=f'C{mask.argmax()}')
-
-    # plot Schohn et al. 2025
-    df = load_schohn_etal_2025()
-    plot_strain_stress(
-        ax, 1e3*df.shear_stress,
-        1e-8*df.strain_rate*pd.to_timedelta('365d')/pd.to_timedelta('1s'),
-        'Schohn et al. 2025', color='0.5')
+    # plot Bowdoin and laboratory data
+    plot_bowdoin(ax)
+    plot_schohn_etal_2025(ax)
 
     # set axes properties
     ax.set_xlabel('stress (kPa)')
-    ax.set_ylabel('strain rate ($a^{-1}$)')
+    ax.set_ylabel('strain rate ($a^{-1}$)', labelpad=0)
     ax.set_xscale('log')
     ax.set_yscale('log')
+    ax.set_xticks([30, 100, 300])
+    ax.xaxis.set_major_formatter('{x:g}')
+    ax.xaxis.set_minor_formatter('')
+    ax.yaxis.set_major_formatter('{x:g}')
 
     # save
     fig.savefig(__file__[:-3])
