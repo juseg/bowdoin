@@ -7,6 +7,7 @@
 
 import absplots as apl
 import matplotlib as mpl
+import numpy as np
 import pandas as pd
 
 import bowdef_utils
@@ -46,6 +47,18 @@ def load_shear_velocities(**kwargs):
     return shear, coefs.exponent
 
 
+def plot_shear_profile(ax, depth, base, strain, **kwargs):
+    """Fit and plot a shear velocity profile, return surface velocity."""
+    n, c = bowdef_utils.compute_power_fit(depth, strain)
+    z = depth[strain.notna()]
+    v = 2*c/(n+1) * (base**(n+1) - z**(n+1))
+    ax.plot(v, z, color=kwargs.get('color'), ls='', marker='o')
+    z = np.linspace(0, base, 51)
+    v = 2*c/(n+1) * (base**(n+1) - z**(n+1))
+    ax.plot(v, z, label=f'n = {n:.2f}', **kwargs)
+    return v[0]
+
+
 def plot_faded(ax, df, dates, colors):
     """Plot dataframe columns with faded records before given dates."""
     for bh, series in df.items():
@@ -62,7 +75,7 @@ def main():
         figsize=(180, 120), nrows=4, sharex=True, gridspec_kw={
             'left': 12.5, 'right': 50, 'bottom': 12.5, 'top': 2.5,
             'hspace': 2.5})
-    pfax = fig.add_axes_mm([132.5, 77.5, 32.5, 40])
+    pfax = fig.add_axes_mm([132.5, 12.5, 32.5, 105])
 
     # add subfigure labels
     bbox = {'alpha': 0.85, 'ec': 'none', 'fc': 'w'}
@@ -99,6 +112,19 @@ def main():
     plot_faded(axes[2], ratio, dates, color_dict)
     plot_faded(axes[3], exponent, dates, color_dict)
 
+    # plot winter and summer shear profiles from monthly strain
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    base = bowstr_utils.load(variable='base').iloc[0]
+    for start, end, ls in [('2015-01-01', '2015-02-01', '--'),
+                           ('2015-07-01', '2015-08-01', '-')]:
+        days = (pd.to_datetime(end) - pd.to_datetime(start)).days
+        strain = bowdef_utils.load_strain(start, end) * 365 / days
+        for bh, prefix in [('BH1', 'U'), ('BH3', 'L')]:
+            mask = strain.index.str.startswith(prefix)
+            plot_shear_profile(
+                pfax, depth[mask], base[f'{bh}B'], strain[mask],
+                color=color_dict[bh], ls=ls)
+
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
     bowdef_utils.plot_errorbar(axes[0], landsat, color=tab20[3], label='Landsat')
@@ -120,11 +146,14 @@ def main():
     axes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
     axes[2].set_ylabel('slip ratio (%)')
     axes[3].set_ylabel('flow exponent', labelpad=8)
+    pfax.legend(loc='lower right', handlelength=1.5)
     pfax.grid(which='minor')
     pfax.yaxis.set_label_position('right')
     pfax.yaxis.tick_right()
     pfax.set_xlabel(r'shear ($m\,a^{-1}$)')
     pfax.set_ylabel('depth (m)')
+    pfax.set_xlim(0, 30)
+    pfax.set_ylim(280, 0)
     axes[0].set_xlim('20140701', '20170801')
     # axes[0].set_xlim('20150601', '20150930')
     # axes[0].set_xlim('20160601', '20160930')
