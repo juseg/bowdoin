@@ -15,35 +15,31 @@ import bowstr_utils
 import bowtem_utils
 
 
-def compute_power_fit_dataframe(depth, strain):
-    """Fit to a power law strain = constant * depth ** exponent."""
-    return strain.dropna(axis=0, how='all').apply(lambda series: pd.Series(
-        data=bowdef_utils.compute_power_fit(depth, series),
-        index=['exponent', 'constant']), axis=1)
-
-
 def compute_interval_aggregates(series, intervals, **kwargs):
     """Aggregate series over intervals defined in a dataframe."""
     return intervals.apply(
         lambda row: series[row.start: row.end].aggregate(**kwargs), axis=1)
 
 
-def compute_shear_velocities(strain):
-    """Compute internal deformation velocity from strain rates."""
+def compute_shear_velocities(strain, depth, base):
+    """Compute shear velocity and flow exponent from strain rate profiles."""
+    shear, exponent = {}, {}
+    for bh, prefix in [('BH3', 'L'), ('BH1', 'U')]:
 
-    # load depth and ice thickness
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    base = bowstr_utils.load(variable='base').iloc[0]
+        # fit a power law strain = constant * depth ** exponent at each time
+        rates = strain.loc[:, strain.columns.str.startswith(prefix)]
+        rates = rates.dropna(how='all')
+        fits = rates.apply(lambda row: pd.Series(
+            bowdef_utils.compute_power_fit(depth[rates.columns], row),
+            index=['exponent', 'constant']), axis=1)
 
-    # group by borehole and fit a power law (axis=1 is deprecated)
-    coefs = strain.T.groupby(strain.columns.str[0]).apply(
-        lambda df: compute_power_fit_dataframe(depth[df.index], df.T).T)
-    coefs = coefs.rename({'L': 'BH3', 'U': 'BH1'}).swaplevel(0, 1).T
+        # integrate strain rate over ice thickness
+        power = fits.exponent + 1
+        shear[bh] = 2 * fits.constant / power * base[f'{bh}B']**power
+        exponent[bh] = fits.exponent
 
-    # return shear velocities
-    base = base.set_axis(base.index.str[:3])
-    shear = 2 * coefs.constant / (coefs.exponent+1) * base**(coefs.exponent+1)
-    return shear, coefs.exponent
+    # return as dataframes
+    return pd.DataFrame(shear), pd.DataFrame(exponent)
 
 
 def plot_shear_profile(ax, depth, base, n, v0, color, colors, summer=False):
@@ -82,9 +78,13 @@ def main():
     # add subfigure labels
     bowtem_utils.add_subfig_labels([*axes, *pfaxes])
 
+    # load sensor depths and ice thickness
+    depth = bowstr_utils.load(variable='dept').iloc[0]
+    base = bowstr_utils.load(variable='base').iloc[0]
+
     # load shear and surface speeds and compute ratio where they intersect
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
-    shear, exponent = compute_shear_velocities(strain)
+    shear, exponent = compute_shear_velocities(strain, depth, base)
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
@@ -116,8 +116,6 @@ def main():
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
     # plot winter and summer shear profiles from mean power-law fits
-    depth = bowstr_utils.load(variable='dept').iloc[0]
-    base = bowstr_utils.load(variable='base').iloc[0]
     colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
     boreholes = [(pfaxes[0], 'BH3', 'L'), (pfaxes[1], 'BH1', 'U')]
     for ax, bh, prefix in boreholes:
@@ -130,8 +128,8 @@ def main():
                                ('2015-07-01', '2015-08-01', True)]:
         surfaces = []
         for ax, bh, prefix in boreholes:
-            units = strain[start:end].notna().any()
-            units = units[units & units.index.str.startswith(prefix)].index
+            units = strain.loc[start:end, strain.columns.str.startswith(
+                prefix)].dropna(axis=1, how='all').columns
             n = exponent[bh][start:end].mean()
             surface = shear[bh][start:end].mean()
             plot_shear_profile(
