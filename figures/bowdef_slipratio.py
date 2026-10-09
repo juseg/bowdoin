@@ -208,45 +208,43 @@ def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
                 'shrinkA': 0})
 
 
-def plot_shear_profiles(axes, rates, depth, base, sigma, summer):
-    """Plot shear profiles from power-law fits of window-mean strain rates."""
+def plot_shear_profiles(ax, bh, fits, units, thickness):
+    """Plot winter and summer shear profiles in one borehole from power-law
+    fits of window-mean strain rates (one row per window)."""
+    depth_int = np.linspace(0, thickness, 51)
+    for (start, _, summer), (_, fit) in zip(WINDOWS, fits.iterrows()):
 
-    # fit power laws to strain rates averaged over the window
-    fits = compute_shear_series(
-        rates.mean().to_frame().T, depth, base, sigma).iloc[0]
-    colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
-
-    # plot continuous and discrete profiles in each borehole
-    for ax, (bh, prefix) in zip(axes, BOREHOLES):
-        units = rates.loc[:, rates.columns.str.startswith(prefix)].dropna(
-            axis=1, how='all').columns
-        depth_int = np.linspace(0, base[f'{bh}B'], 51)
+        # plot continuous and discrete profiles
         shear_int = compute_shear_profile(
-            base[f'{bh}B'], depth_int, fits.exponent[bh], fits.shear[bh])
+            thickness, depth_int, fit.exponent[bh], fit.shear[bh])
         unit_shear = compute_shear_profile(
-            base[f'{bh}B'], depth[units], fits.exponent[bh], fits.shear[bh])
+            thickness, units.depth, fit.exponent[bh], fit.shear[bh])
         if summer:
             ax.fill_betweenx(
                 depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
             ax.plot([0, shear_int[0]], [0, 0], color=COLORS[bh])
         ax.plot(shear_int, depth_int, color=COLORS[bh],
                 ls='-' if summer else '--')
-        ax.scatter(unit_shear, depth[units], c=colors[units],
+        ax.scatter(unit_shear, units.depth, c=units.color,
                    edgecolors=COLORS[bh], zorder=3)
         if not summer:
             plot_shear_profile_arrows(
-                ax, depth[units], unit_shear, color=COLORS[bh])
+                ax, units.depth, unit_shear, color=COLORS[bh])
 
         # mark surface shear errors just below the surface
         ax.errorbar(
-            fits.shear[bh], 12 + 8*summer, xerr=fits.shear_error[bh],
+            fit.shear[bh], 12 + 8*summer, xerr=fit.shear_error[bh],
             color=COLORS[bh], marker='o', markersize=3, capsize=1.5,
             linewidth=1, markerfacecolor=COLORS[bh] if summer else 'w')
         ax.text(
             0.05, 0.05 + 0.08 * summer,
-            f'{rates.index[0]:%b.} n = {fits.exponent[bh]:.2f} '
-            f'± {fits.exponent_error[bh]:.2f}',
+            f'{pd.Timestamp(start):%b.} n = {fit.exponent[bh]:.2f} '
+            f'± {fit.exponent_error[bh]:.2f}',
             color=COLORS[bh], transform=ax.transAxes)
+
+    # add borehole label
+    ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
+            transform=ax.transAxes)
 
 
 def main():
@@ -283,13 +281,17 @@ def main():
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
 
-    # plot winter and summer shear profiles with borehole labels
-    for start, end, summer in WINDOWS:
+    # fit power laws to strain rates averaged over each window
+    means = pd.DataFrame([strain[start:end].mean() for start, end, _ in WINDOWS])
+    fits = compute_shear_series(means, depth, base, sigma)
+
+    # plot winter and summer shear profiles, coloring units as in other plots
+    units = pd.DataFrame({
+        'depth': depth, 'color': [f'C{i}' for i in range(depth.size)]})
+    for ax, (bh, prefix) in zip(pfaxes, BOREHOLES):
+        active = means.columns.str.startswith(prefix) & means.notna().all()
         plot_shear_profiles(
-            pfaxes, strain[start:end], depth, base, sigma, summer)
-    for ax, (bh, _) in zip(pfaxes, BOREHOLES):
-        ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
-                transform=ax.transAxes)
+            ax, bh, fits, units.loc[means.columns[active]], base[f'{bh}B'])
 
     # set time axes properties
     tsaxes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
