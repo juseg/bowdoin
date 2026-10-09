@@ -16,8 +16,38 @@ import bowtem_utils
 from bowdef_utils import BOREHOLES, COLORS, WINDOWS
 
 
+def compute_residual_error(strain, depth, dates):
+    """Compute a log strain rate error per sensor, pooled from power-fit
+    residuals of mean strain rates in both boreholes."""
+    squares, freedom = 0, 0
+    for bh, prefix in BOREHOLES:
+
+        # keep frozen time steps with the most common set of valid sensors
+        rates = strain.loc[dates[bh]:, strain.columns.str.startswith(prefix)]
+        valid = rates.notna()
+        sensors = valid[valid.sum(axis=1) >= 3].value_counts().idxmax()
+        sensors = pd.Series(sensors, index=valid.columns)
+        rates = rates.loc[valid.eq(sensors).all(axis=1), sensors]
+
+        # fit mean strain rates and add up squared log residuals
+        mean = rates.mean().to_frame().T
+        fits = compute_power_fits(depth, mean).iloc[0]
+        residuals = (
+            np.log(mean.iloc[0]) - np.log(fits.constant)
+            - fits.exponent * np.log(depth[mean.columns]))
+        squares += (residuals**2).sum()
+        freedom += fits['count'] - 2
+
+    # return pooled standard deviation
+    return (squares / freedom)**0.5
+
+
 def compute_power_fits(depth, strain):
-    """Fit power laws strain = constant * depth ** exponent on each row."""
+    """Fit power laws strain = constant * depth ** exponent on each row.
+
+    Also return the count, mean and spread (sum of squared deviations) of
+    log depths on each row, needed for error propagation.
+    """
 
     # least squares in log space, ignoring missing values on each row
     valid = strain.notna().to_numpy()
@@ -29,9 +59,10 @@ def compute_power_fits(depth, strain):
     exponent = (count*sxy - sx*sy) / (count*sxx - sx**2)
     constant = np.exp((sy - exponent*sx) / count)
 
-    # return as series
-    return (pd.Series(exponent, index=strain.index),
-            pd.Series(constant, index=strain.index))
+    # return as dataframe
+    return pd.DataFrame({
+        'exponent': exponent, 'constant': constant, 'count': count,
+        'center': sx/count, 'spread': sxx - sx**2/count}, index=strain.index)
 
 
 def compute_shear_profile(base, depth, exponent, surface):
@@ -39,22 +70,35 @@ def compute_shear_profile(base, depth, exponent, surface):
     return surface * (1 - (depth/base)**(exponent+1))
 
 
-def compute_shear_series(strain, depth, base):
-    """Compute shear velocity and flow exponent from strain rate profiles."""
-    shear, exponent = {}, {}
+def compute_shear_series(strain, depth, base, sigma):
+    """Compute shear velocity and flow exponent from strain rate profiles,
+    and their errors from a constant log strain rate error per sensor."""
+    shear, exponent, shear_error, exponent_error = {}, {}, {}, {}
     for bh, prefix in BOREHOLES:
 
         # fit a power law strain = constant * depth ** exponent at each time
         rates = strain.loc[:, strain.columns.str.startswith(prefix)]
         rates = rates.dropna(how='all')
-        exponent[bh], constant = compute_power_fits(depth, rates)
+        fits = compute_power_fits(depth, rates)
+        exponent[bh] = fits.exponent
 
         # integrate strain rate over ice thickness
-        power = exponent[bh] + 1
-        shear[bh] = 2 * constant / power * base[f'{bh}B']**power
+        thickness = base[f'{bh}B']
+        power = fits.exponent + 1
+        shear[bh] = 2 * fits.constant / power * thickness**power
 
-    # return as dataframes
-    return pd.DataFrame(shear), pd.DataFrame(exponent)
+        # propagate errors to the exponent and log shear, where the lever is
+        # the derivative of log shear with exponent at the mean log depth
+        lever = np.log(thickness) - fits.center - 1/power
+        exponent_error[bh] = sigma / fits.spread**0.5
+        shear_error[bh] = shear[bh] * sigma * (
+            1/fits['count'] + lever**2/fits.spread)**0.5
+
+    # return as dataframe with variable and borehole column levels
+    return pd.concat({
+        'shear': pd.DataFrame(shear), 'exponent': pd.DataFrame(exponent),
+        'shear_error': pd.DataFrame(shear_error),
+        'exponent_error': pd.DataFrame(exponent_error)}, axis=1)
 
 
 def plot_faded(ax, df, dates):
@@ -65,7 +109,18 @@ def plot_faded(ax, df, dates):
         series[dates[bh]:].plot(ax=ax, color=COLORS[bh])
 
 
-def plot_satellite_series(axes, shear):
+def plot_level_errors(ax, df, dates, errors):
+    """Plot median values and errors after given dates in the right margin,
+    as errors are mostly systematic and change only with sensor sets."""
+    for i, (bh, series) in enumerate(df.items()):
+        ax.errorbar(
+            1.006 + 0.008*i, series[dates[bh]:].median(),
+            yerr=errors[bh][dates[bh]:].median(), color=COLORS[bh],
+            marker='o', markersize=2, capsize=1, linewidth=1, clip_on=False,
+            transform=ax.get_yaxis_transform())
+
+
+def plot_satellite_series(axes, shear, shear_error):
     """Plot surface speed and slip ratio from satellite image pairs."""
 
     # load velocities from landsat and sentinel images
@@ -73,12 +128,17 @@ def plot_satellite_series(axes, shear):
     sentinel = bowdef_utils.load_sentinel_velocities()
     sat = pd.concat([landsat, sentinel])
 
-    # compute slip ratio from satellite and propagate uncertainties
+    # compute slip ratio from satellite and propagate uncertainties (shear
+    # errors are systematic, hence averaged rather than added in quadrature)
     sat_shear = sat.apply(
         lambda row: shear[row.start:row.end].mean(), axis=1)
+    sat_shear_error = sat.apply(
+        lambda row: shear_error[row.start:row.end].mean(), axis=1)
     sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
     sat_error = 100 * sat_shear.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
+    sat_error = (sat_error**2 + (100 * sat_shear_error.divide(
+        sat.speed, axis=0))**2)**0.5
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
@@ -91,30 +151,30 @@ def plot_satellite_series(axes, shear):
             speed=sat_speed[bh], error=sat_error[bh]), color=color)
 
 
-def plot_time_series(axes, shear, exponent):
+def plot_time_series(axes, series, dates):
     """Plot surface speed, shear, slip ratio and flow exponent series."""
 
     # load surface speed and compute ratio where it intersects shear
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
-    index = shear.index.intersection(speed.index)
-    ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
-
-    # load latest freezing date in each borehole
-    dates = bowstr_utils.load_freezing_dates()
-    dates = dates.groupby(dates.index.str[0]).max()
-    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
+    index = series.index.intersection(speed.index)
+    ratio = 100 - 100 * series.shear.divide(speed, axis=0).reindex(index)
+    ratio_error = 100 * series.shear_error.divide(
+        speed, axis=0).reindex(index)
 
     # plot surface speed, shear and slip ratio from geopositioning
     speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
-    plot_faded(axes[1], shear, dates)
+    plot_faded(axes[1], series.shear, dates)
     plot_faded(axes[2], ratio, dates)
-    plot_faded(axes[3], exponent, dates)
+    plot_faded(axes[3], series.exponent, dates)
+    plot_level_errors(axes[1], series.shear, dates, series.shear_error)
+    plot_level_errors(axes[2], ratio, dates, ratio_error)
+    plot_level_errors(axes[3], series.exponent, dates, series.exponent_error)
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
     # mark profile windows and plot satellite data
-    plot_satellite_series(axes[[0, 2]], shear)
-    plot_window_indicators(axes[1], shear)
+    plot_satellite_series(axes[[0, 2]], series.shear, series.shear_error)
+    plot_window_indicators(axes[1], series.shear)
 
 
 def plot_window_indicators(ax, shear):
@@ -148,39 +208,43 @@ def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
                 'shrinkA': 0})
 
 
-def plot_shear_profiles(axes, rates, depth, base, summer):
-    """Plot shear profiles from power-law fits of window-mean strain rates."""
+def plot_shear_profiles(ax, bh, fits, units, thickness):
+    """Plot winter and summer shear profiles in one borehole from power-law
+    fits of window-mean strain rates (one row per window)."""
+    depth_int = np.linspace(0, thickness, 51)
+    for (start, _, summer), (_, fit) in zip(WINDOWS, fits.iterrows()):
 
-    # fit power laws to strain rates averaged over the window
-    shear, exponent = compute_shear_series(
-        rates.mean().to_frame().T, depth, base)
-    shear, exponent = shear.iloc[0], exponent.iloc[0]
-    colors = pd.Series([f'C{i}' for i in range(depth.size)], index=depth.index)
-
-    # plot continuous and discrete profiles in each borehole
-    for ax, (bh, prefix) in zip(axes, BOREHOLES):
-        units = rates.loc[:, rates.columns.str.startswith(prefix)].dropna(
-            axis=1, how='all').columns
-        depth_int = np.linspace(0, base[f'{bh}B'], 51)
+        # plot continuous and discrete profiles
         shear_int = compute_shear_profile(
-            base[f'{bh}B'], depth_int, exponent[bh], shear[bh])
+            thickness, depth_int, fit.exponent[bh], fit.shear[bh])
         unit_shear = compute_shear_profile(
-            base[f'{bh}B'], depth[units], exponent[bh], shear[bh])
+            thickness, units.depth, fit.exponent[bh], fit.shear[bh])
         if summer:
             ax.fill_betweenx(
                 depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
             ax.plot([0, shear_int[0]], [0, 0], color=COLORS[bh])
         ax.plot(shear_int, depth_int, color=COLORS[bh],
                 ls='-' if summer else '--')
-        ax.scatter(unit_shear, depth[units], c=colors[units],
+        ax.scatter(unit_shear, units.depth, c=units.color,
                    edgecolors=COLORS[bh], zorder=3)
         if not summer:
             plot_shear_profile_arrows(
-                ax, depth[units], unit_shear, color=COLORS[bh])
+                ax, units.depth, unit_shear, color=COLORS[bh])
+
+        # mark surface shear errors just below the surface
+        ax.errorbar(
+            fit.shear[bh], 12 + 8*summer, xerr=fit.shear_error[bh],
+            color=COLORS[bh], marker='o', markersize=3, capsize=1.5,
+            linewidth=1, markerfacecolor=COLORS[bh] if summer else 'w')
         ax.text(
             0.05, 0.05 + 0.08 * summer,
-            f'{rates.index[0]:%b.} n = {exponent[bh]:.2f}',
+            f'{pd.Timestamp(start):%b.} n = {fit.exponent[bh]:.2f} '
+            f'± {fit.exponent_error[bh]:.2f}',
             color=COLORS[bh], transform=ax.transAxes)
+
+    # add borehole label
+    ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
+            transform=ax.transAxes)
 
 
 def main():
@@ -203,19 +267,31 @@ def main():
     depth = bowstr_utils.load(variable='dept').iloc[0]
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
 
-    # plot time series
-    shear, exponent = compute_shear_series(strain, depth, base)
-    plot_time_series(tsaxes, shear, exponent)
+    # load latest freezing date in each borehole
+    dates = bowstr_utils.load_freezing_dates()
+    dates = dates.groupby(dates.index.str[0]).max()
+    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
+
+    # estimate strain rate errors and plot time series
+    sigma = compute_residual_error(strain, depth, dates)
+    print(f'pooled log strain rate error per sensor: {sigma:.3f}')
+    plot_time_series(
+        tsaxes, compute_shear_series(strain, depth, base, sigma), dates)
 
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
 
-    # plot winter and summer shear profiles with borehole labels
-    for start, end, summer in WINDOWS:
-        plot_shear_profiles(pfaxes, strain[start:end], depth, base, summer)
-    for ax, (bh, _) in zip(pfaxes, BOREHOLES):
-        ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
-                transform=ax.transAxes)
+    # fit power laws to strain rates averaged over each window
+    means = pd.DataFrame([strain[start:end].mean() for start, end, _ in WINDOWS])
+    fits = compute_shear_series(means, depth, base, sigma)
+
+    # plot winter and summer shear profiles, coloring units as in other plots
+    units = pd.DataFrame({
+        'depth': depth, 'color': [f'C{i}' for i in range(depth.size)]})
+    for ax, (bh, prefix) in zip(pfaxes, BOREHOLES):
+        active = means.columns.str.startswith(prefix) & means.notna().all()
+        plot_shear_profiles(
+            ax, bh, fits, units.loc[means.columns[active]], base[f'{bh}B'])
 
     # set time axes properties
     tsaxes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
@@ -236,9 +312,9 @@ def main():
     for ax in pfaxes:
         ax.set_ylabel('depth (m)')
         ax.set_xlim(30, 0)
+        ax.set_ylim(315, -15)
         ax.yaxis.set_label_position('right')
         ax.yaxis.tick_right()
-        ax.yaxis.set_inverted(True)
 
     # set common axes properties
     for ax in [*tsaxes, *pfaxes]:
