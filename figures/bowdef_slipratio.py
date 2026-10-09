@@ -16,6 +16,32 @@ import bowtem_utils
 from bowdef_utils import BOREHOLES, COLORS, WINDOWS
 
 
+def compute_residual_error(strain, depth, dates):
+    """Compute a log strain rate error per sensor, pooled from power-fit
+    residuals of mean strain rates in both boreholes."""
+    squares, freedom = 0, 0
+    for bh, prefix in BOREHOLES:
+
+        # keep frozen time steps with the most common set of valid sensors
+        rates = strain.loc[dates[bh]:, strain.columns.str.startswith(prefix)]
+        valid = rates.notna()
+        sensors = valid[valid.sum(axis=1) >= 3].value_counts().idxmax()
+        sensors = pd.Series(sensors, index=valid.columns)
+        rates = rates.loc[valid.eq(sensors).all(axis=1), sensors]
+
+        # fit mean strain rates and add up squared log residuals
+        mean = rates.mean().to_frame().T
+        fits = compute_power_fits(depth, mean).iloc[0]
+        residuals = (
+            np.log(mean.iloc[0]) - np.log(fits.constant)
+            - fits.exponent * np.log(depth[mean.columns]))
+        squares += (residuals**2).sum()
+        freedom += fits['count'] - 2
+
+    # return pooled standard deviation
+    return (squares / freedom)**0.5
+
+
 def compute_power_fits(depth, strain):
     """Fit power laws strain = constant * depth ** exponent on each row.
 
@@ -97,18 +123,13 @@ def plot_satellite_series(axes, shear):
             speed=sat_speed[bh], error=sat_error[bh]), color=color)
 
 
-def plot_time_series(axes, shear, exponent):
+def plot_time_series(axes, shear, exponent, dates):
     """Plot surface speed, shear, slip ratio and flow exponent series."""
 
     # load surface speed and compute ratio where it intersects shear
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
     index = shear.index.intersection(speed.index)
     ratio = 100 - 100 * shear.divide(speed, axis=0).reindex(index)
-
-    # load latest freezing date in each borehole
-    dates = bowstr_utils.load_freezing_dates()
-    dates = dates.groupby(dates.index.str[0]).max()
-    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
 
     # plot surface speed, shear and slip ratio from geopositioning
     speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
@@ -209,9 +230,16 @@ def main():
     depth = bowstr_utils.load(variable='dept').iloc[0]
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
 
-    # plot time series
+    # load latest freezing date in each borehole
+    dates = bowstr_utils.load_freezing_dates()
+    dates = dates.groupby(dates.index.str[0]).max()
+    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
+
+    # estimate strain rate errors and plot time series
+    sigma = compute_residual_error(strain, depth, dates)
+    print(f'pooled log strain rate error per sensor: {sigma:.3f}')
     shear, exponent = compute_shear_series(strain, depth, base)
-    plot_time_series(tsaxes, shear, exponent)
+    plot_time_series(tsaxes, shear, exponent, dates)
 
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
