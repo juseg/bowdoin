@@ -300,9 +300,9 @@ def main():
     for ax in pfaxes:
         ax.set_ylabel('depth (m)')
         ax.set_xlim(30, 0)
+        ax.set_ylim(315, -15)
         ax.yaxis.set_label_position('right')
         ax.yaxis.tick_right()
-        ax.yaxis.set_inverted(True)
 
     # set common axes properties
     for ax in [*tsaxes, *pfaxes]:
