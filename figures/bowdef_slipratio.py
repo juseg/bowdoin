@@ -101,22 +101,23 @@ def compute_shear_series(strain, depth, base, sigma):
         'exponent_error': pd.DataFrame(exponent_error)}, axis=1)
 
 
-def plot_faded(ax, df, dates, errors):
-    """Plot dataframe columns with error bands, faded before given dates."""
+def plot_faded(ax, df, dates):
+    """Plot dataframe columns with faded records before given dates."""
     for bh, series in df.items():
         series[:dates[bh]].plot(
             ax=ax, alpha=0.25, color=COLORS[bh], label='_nolegend_')
         series[dates[bh]:].plot(ax=ax, color=COLORS[bh])
 
-        # add error bands (convert dates as pandas may use periods)
-        converter = ax.xaxis.get_converter()
-        for part, alpha in [(slice(None, dates[bh]), 0.1),
-                            (slice(dates[bh], None), 0.25)]:
-            values, error = series[part], errors[bh][part]
-            ax.fill_between(
-                converter.convert(values.index, None, ax.xaxis),
-                values-error, values+error, color=COLORS[bh], alpha=alpha,
-                linewidth=0)
+
+def plot_level_errors(ax, df, dates, errors):
+    """Plot median values and errors after given dates in the right margin,
+    as errors are mostly systematic and change only with sensor sets."""
+    for i, (bh, series) in enumerate(df.items()):
+        ax.errorbar(
+            1.006 + 0.008*i, series[dates[bh]:].median(),
+            yerr=errors[bh][dates[bh]:].median(), color=COLORS[bh],
+            marker='o', markersize=2, capsize=1, linewidth=1, clip_on=False,
+            transform=ax.get_yaxis_transform())
 
 
 def plot_satellite_series(axes, shear, shear_error):
@@ -162,9 +163,12 @@ def plot_time_series(axes, series, dates):
 
     # plot surface speed, shear and slip ratio from geopositioning
     speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
-    plot_faded(axes[1], series.shear, dates, series.shear_error)
-    plot_faded(axes[2], ratio, dates, ratio_error)
-    plot_faded(axes[3], series.exponent, dates, series.exponent_error)
+    plot_faded(axes[1], series.shear, dates)
+    plot_faded(axes[2], ratio, dates)
+    plot_faded(axes[3], series.exponent, dates)
+    plot_level_errors(axes[1], series.shear, dates, series.shear_error)
+    plot_level_errors(axes[2], ratio, dates, ratio_error)
+    plot_level_errors(axes[3], series.exponent, dates, series.exponent_error)
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
