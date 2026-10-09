@@ -119,7 +119,7 @@ def plot_faded(ax, df, dates, errors):
                 linewidth=0)
 
 
-def plot_satellite_series(axes, shear):
+def plot_satellite_series(axes, shear, shear_error):
     """Plot surface speed and slip ratio from satellite image pairs."""
 
     # load velocities from landsat and sentinel images
@@ -127,12 +127,17 @@ def plot_satellite_series(axes, shear):
     sentinel = bowdef_utils.load_sentinel_velocities()
     sat = pd.concat([landsat, sentinel])
 
-    # compute slip ratio from satellite and propagate uncertainties
+    # compute slip ratio from satellite and propagate uncertainties (shear
+    # errors are systematic, hence averaged rather than added in quadrature)
     sat_shear = sat.apply(
         lambda row: shear[row.start:row.end].mean(), axis=1)
+    sat_shear_error = sat.apply(
+        lambda row: shear_error[row.start:row.end].mean(), axis=1)
     sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
     sat_error = 100 * sat_shear.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
+    sat_error = (sat_error**2 + (100 * sat_shear_error.divide(
+        sat.speed, axis=0))**2)**0.5
 
     # plot surface speed and slip ratio from satellite
     tab20 = mpl.color_sequences['tab20']
@@ -164,7 +169,7 @@ def plot_time_series(axes, series, dates):
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
     # mark profile windows and plot satellite data
-    plot_satellite_series(axes[[0, 2]], series.shear)
+    plot_satellite_series(axes[[0, 2]], series.shear, series.shear_error)
     plot_window_indicators(axes[1], series.shear)
 
 
