@@ -236,6 +236,12 @@ def plot_shear_profiles(axes, rates, depth, base, sigma, summer):
         if not summer:
             plot_shear_profile_arrows(
                 ax, depth[units], unit_shear, color=COLORS[bh])
+
+        # mark surface shear errors just below the surface
+        ax.errorbar(
+            fits.shear[bh], 16 - 8*summer, xerr=fits.shear_error[bh],
+            color=COLORS[bh], marker='o', markersize=3, capsize=1.5,
+            linewidth=1, markerfacecolor=COLORS[bh] if summer else 'w')
         ax.text(
             0.05, 0.05 + 0.08 * summer,
             f'{rates.index[0]:%b.} n = {fits.exponent[bh]:.2f} '
