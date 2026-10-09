@@ -234,7 +234,8 @@ def plot_shear_profiles(axes, rates, depth, base, sigma, summer):
                 ax, depth[units], unit_shear, color=COLORS[bh])
         ax.text(
             0.05, 0.05 + 0.08 * summer,
-            f'{rates.index[0]:%b.} n = {fits.exponent[bh]:.2f}',
+            f'{rates.index[0]:%b.} n = {fits.exponent[bh]:.2f} '
+            f'± {fits.exponent_error[bh]:.2f}',
             color=COLORS[bh], transform=ax.transAxes)
 
 
