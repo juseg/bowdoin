@@ -101,12 +101,22 @@ def compute_shear_series(strain, depth, base, sigma):
         'exponent_error': pd.DataFrame(exponent_error)}, axis=1)
 
 
-def plot_faded(ax, df, dates):
-    """Plot dataframe columns with faded records before given dates."""
+def plot_faded(ax, df, dates, errors):
+    """Plot dataframe columns with error bands, faded before given dates."""
     for bh, series in df.items():
         series[:dates[bh]].plot(
             ax=ax, alpha=0.25, color=COLORS[bh], label='_nolegend_')
         series[dates[bh]:].plot(ax=ax, color=COLORS[bh])
+
+        # add error bands (convert dates as pandas may use periods)
+        converter = ax.xaxis.get_converter()
+        for part, alpha in [(slice(None, dates[bh]), 0.1),
+                            (slice(dates[bh], None), 0.25)]:
+            values, error = series[part], errors[bh][part]
+            ax.fill_between(
+                converter.convert(values.index, None, ax.xaxis),
+                values-error, values+error, color=COLORS[bh], alpha=alpha,
+                linewidth=0)
 
 
 def plot_satellite_series(axes, shear):
@@ -142,12 +152,14 @@ def plot_time_series(axes, series, dates):
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
     index = series.index.intersection(speed.index)
     ratio = 100 - 100 * series.shear.divide(speed, axis=0).reindex(index)
+    ratio_error = 100 * series.shear_error.divide(
+        speed, axis=0).reindex(index)
 
     # plot surface speed, shear and slip ratio from geopositioning
     speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
-    plot_faded(axes[1], series.shear, dates)
-    plot_faded(axes[2], ratio, dates)
-    plot_faded(axes[3], series.exponent, dates)
+    plot_faded(axes[1], series.shear, dates, series.shear_error)
+    plot_faded(axes[2], ratio, dates, ratio_error)
+    plot_faded(axes[3], series.exponent, dates, series.exponent_error)
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
