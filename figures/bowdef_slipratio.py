@@ -17,7 +17,11 @@ from bowdef_utils import BOREHOLES, COLORS, WINDOWS
 
 
 def compute_power_fits(depth, strain):
-    """Fit power laws strain = constant * depth ** exponent on each row."""
+    """Fit power laws strain = constant * depth ** exponent on each row.
+
+    Also return the count, mean and spread (sum of squared deviations) of
+    log depths on each row, needed for error propagation.
+    """
 
     # least squares in log space, ignoring missing values on each row
     valid = strain.notna().to_numpy()
@@ -29,9 +33,10 @@ def compute_power_fits(depth, strain):
     exponent = (count*sxy - sx*sy) / (count*sxx - sx**2)
     constant = np.exp((sy - exponent*sx) / count)
 
-    # return as series
-    return (pd.Series(exponent, index=strain.index),
-            pd.Series(constant, index=strain.index))
+    # return as dataframe
+    return pd.DataFrame({
+        'exponent': exponent, 'constant': constant, 'count': count,
+        'center': sx/count, 'spread': sxx - sx**2/count}, index=strain.index)
 
 
 def compute_shear_profile(base, depth, exponent, surface):
@@ -47,11 +52,12 @@ def compute_shear_series(strain, depth, base):
         # fit a power law strain = constant * depth ** exponent at each time
         rates = strain.loc[:, strain.columns.str.startswith(prefix)]
         rates = rates.dropna(how='all')
-        exponent[bh], constant = compute_power_fits(depth, rates)
+        fits = compute_power_fits(depth, rates)
+        exponent[bh] = fits.exponent
 
         # integrate strain rate over ice thickness
-        power = exponent[bh] + 1
-        shear[bh] = 2 * constant / power * base[f'{bh}B']**power
+        power = fits.exponent + 1
+        shear[bh] = 2 * fits.constant / power * base[f'{bh}B']**power
 
     # return as dataframes
     return pd.DataFrame(shear), pd.DataFrame(exponent)
