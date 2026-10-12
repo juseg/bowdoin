@@ -182,6 +182,56 @@ def locate_thermistors():
     return uz, lz
 
 
+# Offset correction methods
+# -------------------------
+
+def remove_offsets(df, threshold, isolation=None, max_gap='2h',
+                   interval='1D'):
+    """
+    Find steps between consecutive samples larger than a threshold on short
+    intervals, optionally isolated from neighbouring steps, and remove them
+    as the difference of linear fits over an interval before and after each
+    step, applied to all later samples.
+
+    Parameters
+    ----------
+    df: DataFrame
+        Data with one column per component, steps are measured as the
+        euclidean norm of differences across components.
+    threshold: scalar
+        Minimum step size in data units.
+    isolation: scalar, optional
+        Minimum ratio of step size to the median of 25 neighbouring steps.
+    max_gap: timedelta-like
+        Maximum time between consecutive samples for a step to count.
+    interval: timedelta-like
+        Fit interval before and after each step.
+    """
+
+    # find steps larger than threshold on short intervals
+    valid = df.dropna()
+    seconds = valid.index.to_series().diff().dt.total_seconds()
+    step = (valid.diff()**2).sum(axis=1, min_count=df.shape[1])**0.5
+    cond = (step > threshold) & (
+        seconds <= pd.to_timedelta(max_gap).total_seconds())
+
+    # optionally keep only steps much larger than neighbouring ones
+    if isolation is not None:
+        cond &= step > isolation * step.rolling(25, center=True).median()
+
+    # remove offsets as diff between fits over intervals before and after
+    interval = pd.to_timedelta(interval)
+    for date in valid.index[cond]:
+        before = df[(df.index >= date-interval) & (df.index < date)].dropna()
+        after = df[(df.index >= date) & (df.index <= date+interval)].dropna()
+        before = np.polyfit((before.index-date).total_seconds(), before, 1)
+        after = np.polyfit((after.index-date).total_seconds(), after, 1)
+        df.loc[df.index >= date] -= after[1] - before[1]
+
+    # return corrected dataframe
+    return df
+
+
 # Independent data reading methods
 # --------------------------------
 
@@ -214,20 +264,8 @@ def read_gps_data(method='backward'):
     # resample with 15 minute frequency and fill with NaN
     df = df.resample('15min').mean()
 
-    # find antenna resets as offsets > 1m on short intervals
-    pos = df[['x', 'y', 'z']].dropna()
-    seconds = pos.index.to_series().diff().dt.total_seconds()
-    displacement = (pos.diff()**2).sum(axis=1, min_count=3)**0.5
-    resets = pos.index[(displacement > 1) & (seconds <= 2*3600)]
-
-    # remove offsets as diff between fits over days before and after reset
-    interval = pd.to_timedelta('1D')
-    for date in resets:
-        before = pos.loc[date-interval:date].iloc[:-1]
-        after = pos.loc[date:date+interval]
-        before = np.polyfit((before.index-date).total_seconds(), before, 1)
-        after = np.polyfit((after.index-date).total_seconds(), after, 1)
-        pos.loc[date:] -= after[1] - before[1]
+    # remove antenna resets as offsets > 1m on short intervals
+    pos = remove_offsets(df[['x', 'y', 'z']].dropna(), threshold=1)
 
     # replace positions by corrected ones and update lon/lat accordingly
     df[['x', 'y', 'z']] = pos.reindex(df.index)
@@ -484,6 +522,14 @@ def main():
     bh3_thr_manu = read_thermistor_data('lower', suffix='Manual')
     bh2_thr_mask = read_thermistor_data('upper', suffix='Masked')
     bh3_thr_mask = read_thermistor_data('lower', suffix='Masked')
+
+    # remove tilt offsets as isolated steps > 1e-3 on short intervals, after
+    # the pre-field cut (installation steps lack a full 25-step neighbourhood)
+    for inc in (bh1_inc, bh3_inc):
+        for unit in inc['tilx'].columns:
+            cols = [('tilx', unit), ('tily', unit)]
+            inc[cols] = remove_offsets(
+                inc[cols].copy(), threshold=1e-3, isolation=50)
 
     # extract time series
     bh2_pzm_wlev = bh2_pzm['wlev'].rename('UP')
