@@ -185,11 +185,13 @@ def locate_thermistors():
 # Offset correction methods
 # -------------------------
 
-def remove_offsets(df, threshold, max_gap='2h', interval='1D'):
+def remove_offsets(df, threshold, isolation=None, max_gap='2h',
+                   interval='1D'):
     """
     Find steps between consecutive samples larger than a threshold on short
-    intervals, and remove them as the difference of linear fits over an
-    interval before and after each step, applied to all later samples.
+    intervals, optionally isolated from neighbouring steps, and remove them
+    as the difference of linear fits over an interval before and after each
+    step, applied to all later samples.
 
     Parameters
     ----------
@@ -198,6 +200,8 @@ def remove_offsets(df, threshold, max_gap='2h', interval='1D'):
         euclidean norm of differences across components.
     threshold: scalar
         Minimum step size in data units.
+    isolation: scalar, optional
+        Minimum ratio of step size to the median of 25 neighbouring steps.
     max_gap: timedelta-like
         Maximum time between consecutive samples for a step to count.
     interval: timedelta-like
@@ -210,6 +214,10 @@ def remove_offsets(df, threshold, max_gap='2h', interval='1D'):
     step = (valid.diff()**2).sum(axis=1, min_count=df.shape[1])**0.5
     cond = (step > threshold) & (
         seconds <= pd.to_timedelta(max_gap).total_seconds())
+
+    # optionally keep only steps much larger than neighbouring ones
+    if isolation is not None:
+        cond &= step > isolation * step.rolling(25, center=True).median()
 
     # remove offsets as diff between fits over intervals before and after
     interval = pd.to_timedelta(interval)
@@ -514,6 +522,14 @@ def main():
     bh3_thr_manu = read_thermistor_data('lower', suffix='Manual')
     bh2_thr_mask = read_thermistor_data('upper', suffix='Masked')
     bh3_thr_mask = read_thermistor_data('lower', suffix='Masked')
+
+    # remove tilt offsets as isolated steps > 1e-3 on short intervals, after
+    # the pre-field cut (installation steps lack a full 25-step neighbourhood)
+    for inc in (bh1_inc, bh3_inc):
+        for unit in inc['tilx'].columns:
+            cols = [('tilx', unit), ('tily', unit)]
+            inc[cols] = remove_offsets(
+                inc[cols].copy(), threshold=1e-3, isolation=50)
 
     # extract time series
     bh2_pzm_wlev = bh2_pzm['wlev'].rename('UP')
