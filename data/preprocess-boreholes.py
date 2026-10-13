@@ -232,8 +232,8 @@ def remove_offsets(df, threshold, isolation=None, max_gap='2h',
     return df
 
 
-def correct_saturation(df, spec_range=15, window='40D',
-                       min_residual_ratio=30):
+def correct_saturation(df, spec_range=15, window='60D',
+                       min_residual_ratio=100):
     """
     Find and correct differential-pair saturation in calibrated tilt sines.
 
