@@ -286,16 +286,27 @@ def correct_saturation(df, spec_range=15, window='40D',
             ratio = line_residual / half_residual[0]
             if np.sign(slope) == np.sign(level) and (
                     best is None or ratio > best[0]):
-                best = ratio, daily.index[i], level
+                best = ratio, daily.index[i], level, slope
 
         # double later samples away from the kink level
         if best is not None and best[0] > min_residual_ratio:
-            ratio, date, level = best
+            ratio, date, level, slope = best
             after = df.index >= date + pd.to_timedelta('12h')
             df.loc[after, col] = 2 * df.loc[after, col] - level
             print(f"Corrected {' '.join(col[::-1])} saturation from {date:%F}"
                   f" at {np.degrees(np.arcsin(abs(level))):.2f} degrees"
                   f" (residual ratio {ratio:.0f}).")
+
+            # mask samples once both elements saturate, i.e. when the
+            # corrected rate falls below half the rate before the kink
+            rate = 2 * daily.diff().rolling(
+                2*window+1, center=True, min_periods=window).mean()
+            rail = rate[(rate.index > date) & (rate*np.sign(slope) < abs(
+                slope) / 2)].index
+            if len(rail) > 0:
+                df.loc[df.index >= rail[0], col] = np.nan
+                print(f"Masked {' '.join(col[::-1])} saturation from "
+                      f"{rail[0]:%F}.")
 
     # return corrected dataframe
     return df
