@@ -200,7 +200,7 @@ def load_spectral(variable='st', **kwargs):
         tilx = load(interp=True, tide=True, variable='tilx', **kwargs)
         tily = load(interp=True, tide=False, variable='tily', **kwargs)
         tide = tilx.pop('tide')
-        tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+        tilt = np.arcsin((np.sin(tilx)**2+np.sin(tily)**2)**0.5) * 180 / np.pi
         tilt = tilt * 1e3
         data = tilt.assign(tide=tide)
     return data

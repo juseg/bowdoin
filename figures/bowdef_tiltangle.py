@@ -28,7 +28,7 @@ def main():
     tily = bowstr_utils.load(variable='tily')
     tilx = tilx[tilx.index >= '2014-07-17']
     tily = tily[tily.index >= '2014-07-17']
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+    tilt = np.arcsin((np.sin(tilx)**2+np.sin(tily)**2)**0.5) * 180 / np.pi
     tilt.plot(ax=ax, xlabel='', ylabel='tilt angle (°)')
 
     # set axes properties
