@@ -253,41 +253,53 @@ def load_sentinel_velocities():
 
 
 def load_strain_rates(**kwargs):
-    """Load strain rates from filter-derived tilt component rates."""
-    tilx, tily = load_tilt_component_rates(**kwargs)
-    costilt = np.cos(tilx) * np.cos(tily)
-    return 0.5 * (1 - costilt**2) ** 0.5 / costilt
+    """Load shear strain rates from filter-derived tilt slope rates.
+
+    Assuming no vertical extension and no rotation of the units about their
+    axis, the rates of tilt slopes gx/gz and gy/gz are the vertical shear
+    components of the velocity gradient (Ryser, 2014, eq. 6.1).
+    """
+    gx, gy, gz = load_tilt_components()
+    slopex, slopey = derive_tilt_components(gx/gz, gy/gz, **kwargs)
+    return 0.5 * (slopex**2 + slopey**2)**0.5
 
 
 def load_tilt_azimuth(**kwargs):
-    """Load tilt direction from filter-derived tilt component rates."""
-    tilx, tily = load_tilt_component_rates(**kwargs)
-    azimuth = np.atan2(-np.sin(tilx)*np.cos(tily), np.sin(tily)) * 180 / np.pi
+    """Load tilt direction from filter-derived tilt slope rates."""
+    gx, gy, gz = load_tilt_components()
+    slopex, slopey = derive_tilt_components(gx/gz, gy/gz, **kwargs)
+    azimuth = np.atan2(-slopex, slopey) * 180 / np.pi
     azimuth = azimuth[azimuth.index >= '2014-07-17']
     return azimuth
 
 
-def load_tilt_component_rates(method='twopoint', window=None):
-    """Load resampled and filter-derived tilt rate components."""
-
-    # load tilt components resampled on a regular 10-min grid
+def load_tilt_components():
+    """Load gravity components in the tilt unit frame on a 10-min grid."""
     tilx = bowstr_utils.load(variable='tilx').resample('10min').mean()
     tily = bowstr_utils.load(variable='tily').resample('10min').mean()
+    gx = np.sin(tilx)
+    gy = np.sin(tily)
+    gz = (1 - gx**2 - gy**2)**0.5
+    return gx, gy, gz
+
+
+def derive_tilt_components(*components, method='twopoint', window=None):
+    """Return filter-derived rates of tilt components."""
 
     # interpolate across gaps except for the gap-aware kernel fit
     if method != 'kernel':
-        tilx = tilx.interpolate(limit_area='inside', method='linear')
-        tily = tily.interpolate(limit_area='inside', method='linear')
+        components = [df.interpolate(limit_area='inside', method='linear')
+                      for df in components]
 
-    # return filter-derived tilt rate components
-    return (filter_derive_dataframe(tilx, method=method, window=window),
-            filter_derive_dataframe(tily, method=method, window=window))
+    # return filter-derived rates
+    return [filter_derive_dataframe(df, method=method, window=window)
+            for df in components]
 
 
 def load_tilt_rates(**kwargs):
-    """Load tilt rates from filter-derived tilt component rates."""
-    tilx, tily = load_tilt_component_rates(**kwargs)
-    tilt = np.arccos(np.cos(tilx)*np.cos(tily)) * 180 / np.pi
+    """Load tilt rates as angular speed of the tilt unit axes."""
+    gx, gy, gz = derive_tilt_components(*load_tilt_components(), **kwargs)
+    tilt = (gx**2 + gy**2 + gz**2)**0.5 * 180 / np.pi
     tilt = tilt[tilt.index >= '2014-07-17']
     return tilt
 
