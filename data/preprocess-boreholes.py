@@ -379,9 +379,10 @@ def read_inclinometer_data(site, gravity=9.80665):
     coefs = pd.read_csv(cfilename, index_col=0, comment='#')
     coefs = coefs.loc[df['tilx'].columns]
 
-    # calibrate tilt angles
-    df['tilx'] = (df['tilx'] - coefs['bx'])/coefs['ax']
-    df['tily'] = (df['tily'] - coefs['by'])/coefs['ay']
+    # calibrate tilt angles (calibration curves give the sines of axis tilt
+    # angles, Lüthi, 1999, sect. 2.9.2; Ryser, 2014, sect. 4.1.3)
+    df['tilx'] = np.arcsin((df['tilx'] - coefs['bx'])/coefs['ax'])
+    df['tily'] = np.arcsin((df['tily'] - coefs['by'])/coefs['ay'])
 
     # convert pressure to meters of water and temperature to degrees
     df['wlev'] *= 1e2/gravity
