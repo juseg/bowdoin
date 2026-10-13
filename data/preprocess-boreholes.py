@@ -232,6 +232,75 @@ def remove_offsets(df, threshold, isolation=None, max_gap='2h',
     return df
 
 
+def correct_saturation(df, spec_range=15, window='40D',
+                       min_residual_ratio=30):
+    """
+    Find and correct differential-pair saturation in calibrated tilt sines.
+
+    Each SCA103T axis outputs the difference of two opposed sensing elements,
+    each linear to about 18 degrees then flat (VTI doc. 8261700, Fig. 7). If
+    one element saturates before the other, the output keeps changing at
+    exactly half the rate. Kinks are searched beyond the nominal measuring
+    range with a broken-line fit of daily means whose slope halves at the
+    kink, and accepted if the fit is much better than a straight line. Later
+    samples are then doubled away from the kink level.
+
+    Parameters
+    ----------
+    df: DataFrame
+        Calibrated tilt sines, one column per component.
+    spec_range: scalar
+        Nominal measuring range in degrees (ibid., p. 3), kinks are only
+        searched beyond.
+    window: timedelta-like
+        Fit interval on each side of candidate kinks.
+    min_residual_ratio: scalar
+        Minimum ratio of straight-line to halving fit squared residuals.
+    """
+
+    # loop on components
+    window = pd.to_timedelta(window).days
+    for col in df.columns:
+
+        # daily means and days since the first one
+        daily = df[col].groupby(df.index.floor('D')).mean().dropna()
+        if daily.empty:
+            continue
+        days = (daily.index - daily.index[0]).days.to_numpy(dtype=float)
+
+        # find the best halving fit beyond nominal range
+        best = None
+        for i in np.flatnonzero(
+                abs(daily) > np.sin(np.radians(spec_range))):
+            x = days - days[i]
+            x, y = x[abs(x) <= window], daily[abs(x) <= window]
+            if min((x < 0).sum(), (x > 0).sum()) < window / 2:
+                continue
+            line = np.column_stack([np.ones_like(x), x])
+            half = np.column_stack(
+                [np.ones_like(x), np.minimum(x, 0) + np.maximum(x, 0) / 2])
+            line_residual = np.linalg.lstsq(line, y)[1][0]
+            (level, slope), half_residual = np.linalg.lstsq(half, y)[:2]
+
+            # keep the best fit moving away from zero before the kink
+            ratio = line_residual / half_residual[0]
+            if np.sign(slope) == np.sign(level) and (
+                    best is None or ratio > best[0]):
+                best = ratio, daily.index[i], level
+
+        # double later samples away from the kink level
+        if best is not None and best[0] > min_residual_ratio:
+            ratio, date, level = best
+            after = df.index >= date + pd.to_timedelta('12h')
+            df.loc[after, col] = 2 * df.loc[after, col] - level
+            print(f"Corrected {' '.join(col[::-1])} saturation from {date:%F}"
+                  f" at {np.degrees(np.arcsin(abs(level))):.2f} degrees"
+                  f" (residual ratio {ratio:.0f}).")
+
+    # return corrected dataframe
+    return df
+
+
 # Independent data reading methods
 # --------------------------------
 
@@ -381,8 +450,12 @@ def read_inclinometer_data(site, gravity=9.80665):
 
     # calibrate tilt angles (calibration curves give the sines of axis tilt
     # angles, Lüthi, 1999, sect. 2.9.2; Ryser, 2014, sect. 4.1.3)
-    df['tilx'] = np.arcsin((df['tilx'] - coefs['bx'])/coefs['ax'])
-    df['tily'] = np.arcsin((df['tily'] - coefs['by'])/coefs['ay'])
+    df['tilx'] = (df['tilx'] - coefs['bx'])/coefs['ax']
+    df['tily'] = (df['tily'] - coefs['by'])/coefs['ay']
+
+    # correct differential-pair saturation then convert sines to angles
+    cols = [col for col in df.columns if col[0] in ('tilx', 'tily')]
+    df[cols] = np.arcsin(correct_saturation(df[cols].copy()))
 
     # convert pressure to meters of water and temperature to degrees
     df['wlev'] *= 1e2/gravity
