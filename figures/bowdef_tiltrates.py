@@ -6,6 +6,7 @@
 """Plot Bowdoin deformation tilt rates."""
 
 import absplots as apl
+import pandas as pd
 
 import bowdef_utils
 import bowstr_utils
@@ -84,6 +85,15 @@ def main():
     # mark insets
     bowdef_utils.add_inset_indicator(axes[0], insets[0], connectors=(0, 2))
     bowdef_utils.add_inset_indicator(axes[0], insets[1], connectors=(1, 2))
+
+    # mark partial saturation dates from preprocessing
+    for unit, date, offset in [
+            ('UI05', '2016-11-01', (15, 55)), ('UI04', '2016-11-16', (20, 32))]:
+        axes[0].annotate(
+            f'{unit} partial\nsaturation', color='0.5', fontsize=6,
+            xy=(pd.Timestamp(date), tilt.loc[date, unit].median()),
+            xytext=offset, textcoords='offset points', ha='left',
+            arrowprops={'arrowstyle': '->', 'color': '0.5', 'lw': 0.5})
 
     # save
     fig.savefig(__file__[:-3])
