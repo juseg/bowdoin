@@ -121,12 +121,12 @@ def plot_faded(ax, df, dates, count):
 
 
 def plot_level_errors(ax, df, dates, count, errors):
-    """Plot median values and errors of solid records in the right margin,
+    """Plot median values and errors of solid records near the right edge,
     as errors are mostly systematic and change only with sensor sets."""
     for i, (bh, series) in enumerate(df.items()):
         solid = is_solid(series, bh, dates, count)
         ax.errorbar(
-            1.006 + 0.008*i, series[solid].median(),
+            0.982 + 0.008*i, series[solid].median(),
             yerr=errors[bh][solid].median(), color=COLORS[bh],
             marker='o', markersize=2, capsize=1, linewidth=1, clip_on=False,
             transform=ax.get_yaxis_transform())
