@@ -246,7 +246,9 @@ def correct_saturation(df, spec_range=15, window='60D',
     kink is then refined with a rounded corner, where the slope halves over a
     transition width, and samples are corrected by inverting the rounded
     corner as a function of level, i.e. doubled away from the kink level
-    beyond the transition.
+    beyond the transition. Once the second element saturates too, the
+    output no longer changes. This second corner, where the rate falls to
+    zero, is fitted likewise, and samples are masked from its onset.
 
     Parameters
     ----------
@@ -326,16 +328,36 @@ def correct_saturation(df, spec_range=15, window='60D',
               f" at {np.degrees(np.arcsin(abs(level))):.2f} degrees"
               f" over {width:.1f} days (residual ratio {ratio:.0f}).")
 
-        # mask samples once both elements saturate, i.e. when the
+        # look for the second element saturating, first guessed where the
         # corrected rate falls below half the rate before the kink
-        rate = 2 * daily.diff().rolling(
+        daily = df[col].groupby(df.index.floor('D')).mean().dropna()
+        rate = daily.diff().rolling(
             2*window+1, center=True, min_periods=window).mean()
         rail = rate[(rate.index > date) & (rate*np.sign(slope) < abs(
             slope) / 2)].index
-        if len(rail) > 0:
-            df.loc[df.index >= rail[0], col] = np.nan
-            print(f"Masked {' '.join(col[::-1])} saturation from "
-                  f"{rail[0]:%F}.")
+        if len(rail) == 0:
+            continue
+
+        # refine the second corner where the rate falls to zero
+        # y = level + slope * (x - width * log(1 + exp(x/width)))
+        refined = None
+        for shift in range(-10, 11):
+            x = (daily.index - rail[0]).days.to_numpy(dtype=float) - shift
+            x, y = x[abs(x) <= window], daily[abs(x) <= window]
+            for width in np.geomspace(0.5, 30, 60):
+                rounded = np.column_stack([np.ones_like(x), x - width * (
+                    np.logaddexp(0, x / width))])
+                residual = np.linalg.lstsq(rounded, y)[1]
+                if refined is None or residual[0] < refined[0]:
+                    refined = residual[0], shift, width
+        _, shift, width = refined
+        corner = rail[0] + pd.to_timedelta(shift, 'D')
+
+        # mask samples from the corner onset, where the rate dropped by 5%
+        onset = corner + pd.to_timedelta(width * np.log(0.05/0.95), 'D')
+        df.loc[df.index >= onset, col] = np.nan
+        print(f"Masked {' '.join(col[::-1])} saturation from {onset:%F}"
+              f" (corner {corner:%F} over {width:.1f} days).")
 
     # return corrected dataframe
     return df
