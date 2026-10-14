@@ -88,12 +88,13 @@ def main():
 
     # mark partial saturation dates from preprocessing
     for unit, date, offset in [
-            ('UI05', '2016-11-01', (15, 55)), ('UI04', '2016-11-16', (20, 32))]:
+            ('UI05', '2016-11-01', 48), ('UI04', '2016-11-16', 36)]:
         axes[0].annotate(
-            f'{unit} partial\nsaturation', color='0.5', fontsize=6,
-            xy=(pd.Timestamp(date), tilt.loc[date, unit].median()),
-            xytext=offset, textcoords='offset points', ha='left',
-            arrowprops={'arrowstyle': '->', 'color': '0.5', 'lw': 0.5})
+            f'{unit} half-saturation', color='0.5', fontsize=6,
+            xy=(date, tilt.loc[date, unit].median()), xytext=(0, offset),
+            textcoords='offset points', arrowprops={
+                'arrowstyle': '-', 'color': '0.5', 'relpos': (0, 0),
+                'shrinkB': 12, 'lw': 0.5})
 
     # save
     fig.savefig(__file__[:-3])
