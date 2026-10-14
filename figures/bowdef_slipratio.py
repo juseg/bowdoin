@@ -74,6 +74,7 @@ def compute_shear_series(strain, depth, base, sigma):
     """Compute shear velocity and flow exponent from strain rate profiles,
     and their errors from a constant log strain rate error per sensor."""
     shear, exponent, shear_error, exponent_error = {}, {}, {}, {}
+    count = {}
     for bh, prefix in BOREHOLES:
 
         # fit a power law strain = constant * depth ** exponent at each time
@@ -81,6 +82,7 @@ def compute_shear_series(strain, depth, base, sigma):
         rates = rates.dropna(how='all')
         fits = compute_power_fits(depth, rates)
         exponent[bh] = fits.exponent
+        count[bh] = fits['count']
 
         # integrate strain rate over ice thickness
         thickness = base[f'{bh}B']
@@ -98,24 +100,34 @@ def compute_shear_series(strain, depth, base, sigma):
     return pd.concat({
         'shear': pd.DataFrame(shear), 'exponent': pd.DataFrame(exponent),
         'shear_error': pd.DataFrame(shear_error),
-        'exponent_error': pd.DataFrame(exponent_error)}, axis=1)
+        'exponent_error': pd.DataFrame(exponent_error),
+        'count': pd.DataFrame(count)}, axis=1)
 
 
-def plot_faded(ax, df, dates):
-    """Plot dataframe columns with faded records before given dates."""
+def is_solid(series, bh, dates, count):
+    """Return where a series follows closure and fits rely on three units."""
+    return (series.index >= dates[bh]) & (
+        count[bh].reindex(series.index) >= 3)
+
+
+def plot_faded(ax, df, dates, count):
+    """Plot dataframe columns with faded records before given dates and
+    where fits rely on less than three units."""
     for bh, series in df.items():
-        series[:dates[bh]].plot(
+        solid = is_solid(series, bh, dates, count)
+        series.where(~solid).plot(
             ax=ax, alpha=0.25, color=COLORS[bh], label='_nolegend_')
-        series[dates[bh]:].plot(ax=ax, color=COLORS[bh])
+        series.where(solid).plot(ax=ax, color=COLORS[bh])
 
 
-def plot_level_errors(ax, df, dates, errors):
-    """Plot median values and errors after given dates in the right margin,
+def plot_level_errors(ax, df, dates, count, errors):
+    """Plot median values and errors of solid records in the right margin,
     as errors are mostly systematic and change only with sensor sets."""
     for i, (bh, series) in enumerate(df.items()):
+        solid = is_solid(series, bh, dates, count)
         ax.errorbar(
-            1.006 + 0.008*i, series[dates[bh]:].median(),
-            yerr=errors[bh][dates[bh]:].median(), color=COLORS[bh],
+            1.006 + 0.008*i, series[solid].median(),
+            yerr=errors[bh][solid].median(), color=COLORS[bh],
             marker='o', markersize=2, capsize=1, linewidth=1, clip_on=False,
             transform=ax.get_yaxis_transform())
 
@@ -163,12 +175,15 @@ def plot_time_series(axes, series, dates):
 
     # plot surface speed, shear and slip ratio from geopositioning
     speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
-    plot_faded(axes[1], series.shear, dates)
-    plot_faded(axes[2], ratio, dates)
-    plot_faded(axes[3], series.exponent, dates)
-    plot_level_errors(axes[1], series.shear, dates, series.shear_error)
-    plot_level_errors(axes[2], ratio, dates, ratio_error)
-    plot_level_errors(axes[3], series.exponent, dates, series.exponent_error)
+    count = series['count']
+    plot_faded(axes[1], series.shear, dates, count)
+    plot_faded(axes[2], ratio, dates, count)
+    plot_faded(axes[3], series.exponent, dates, count)
+    plot_level_errors(
+        axes[1], series.shear, dates, count, series.shear_error)
+    plot_level_errors(axes[2], ratio, dates, count, ratio_error)
+    plot_level_errors(
+        axes[3], series.exponent, dates, count, series.exponent_error)
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
