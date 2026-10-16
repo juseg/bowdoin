@@ -29,16 +29,17 @@ def compute_monthly_average(ds, month):
 
 
 def compute_effective_strain_rate(u, v):
-    """Compute effective strain rate from velocity components."""
+    """Compute effective strain rate from surface velocity components, as
+    the square root of the second invariant of the strain rate tensor, with
+    vertical shear zero and vertical strain from incompressibility."""
 
-    # compute velocity gradients
-    du_dx = u.differentiate('x')
-    du_dy = u.differentiate('y')
-    dv_dx = v.differentiate('x')
-    dv_dy = v.differentiate('y')
+    # compute strain rate components
+    exx = u.differentiate('x')
+    eyy = v.differentiate('y')
+    exy = (u.differentiate('y') + v.differentiate('x')) / 2
 
     # return effective strain rate
-    return (2*(du_dx**2+dv_dy**2)+(du_dy+dv_dx)**2)**0.5
+    return (exx**2 + eyy**2 + exx*eyy + exy**2)**0.5
 
 
 def main():
@@ -65,7 +66,8 @@ def main():
         bowtem_utils.plot_bowdoin_map(ax, boreholes=[], season='summer')
         eff.plot.imshow(
             ax=ax, add_labels=False, alpha=0.75, cbar_ax=cax,
-            cmap='Reds', extend='both', norm=mpl.colors.LogNorm(10**-1.5, 1))
+            cmap='Reds', extend='both', norm=mpl.colors.LogNorm(
+                10**-2, 10**-0.5))
         bowdef_utils.plot_velocity_quiver(ax, mean)
 
         # plot borehole locations interpolated to the monthly average
