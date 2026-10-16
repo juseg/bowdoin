@@ -16,9 +16,27 @@ import bowtem_utils
 from bowdef_utils import BOREHOLES, COLORS, WINDOWS
 
 
-def compute_shear_profile(base, depth, exponent, surface):
-    """Compute horizontal shear profile from exponent and surface velocity."""
-    return surface * (1 - (depth/base)**(exponent+1))
+def compute_shear_profile(rates):
+    """Integrate strain rates indexed by depth from the bed up into a shear
+    velocity profile, relative to its surface value."""
+    segments = (rates.iloc[1:].to_numpy() + rates.iloc[:-1].to_numpy()) / 2
+    shear = np.append(np.cumsum((segments * np.diff(rates.index))[::-1])[::-1], 0)
+    return pd.Series(shear / shear[0], index=rates.index)
+
+
+def compute_relative_profiles(profiles, depth, temperatures, base):
+    """Compute laminar shear profiles relative to the surface in each
+    borehole, and print the misfit of mean unit strain rates as stress
+    anomalies relative to the laminar fit."""
+    relative = {}
+    for bh, _ in BOREHOLES:
+        rates = bowdef_utils.compute_strain_profiles(
+            depth, profiles[bh], temperatures[bh], base[f'{bh}B']).laminar
+        misfit = profiles[bh] / np.interp(
+            depth[profiles[bh].index], rates.index, rates) - 1
+        print(f'{bh} laminar misfit (%):', (100*misfit).round().to_dict())
+        relative[bh] = compute_shear_profile(rates)
+    return relative
 
 
 def compute_solid(series, dates):
@@ -140,18 +158,16 @@ def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
                 'shrinkA': 0})
 
 
-def plot_shear_profiles(ax, bh, fits, units, thickness):
-    """Plot winter and summer shear profiles in one borehole, sharing the
-    exponent of the fixed profile, from window-mean shear velocities (one
-    row per window)."""
-    depth_int = np.linspace(0, thickness, 51)
+def plot_shear_profiles(ax, bh, fits, units, profile):
+    """Plot winter and summer shear profiles in one borehole, scaling a
+    relative profile by window-mean shear velocities (one row per window)."""
+    depth_int = profile.index
     for (start, _, summer), (_, fit) in zip(WINDOWS, fits.iterrows()):
 
         # plot continuous and discrete profiles
-        shear_int = compute_shear_profile(
-            thickness, depth_int, fit.exponent[bh], fit.shear[bh])
-        unit_shear = compute_shear_profile(
-            thickness, units.depth, fit.exponent[bh], fit.shear[bh])
+        shear_int = fit.shear[bh] * profile.to_numpy()
+        unit_shear = pd.Series(np.interp(
+            units.depth, depth_int, shear_int), index=units.index)
         if summer:
             ax.fill_betweenx(
                 depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
@@ -196,40 +212,36 @@ def main():
     # add subfigure labels
     bowtem_utils.add_subfig_labels([*tsaxes, *pfaxes])
 
-    # load sensor depths, ice thickness and strain rates
+    # load sensor depths, ice thickness, temperatures and strain rates
     base = bowstr_utils.load(variable='base').iloc[0]
     depth = bowstr_utils.load(variable='dept').iloc[0]
+    temperatures = bowdef_utils.load_temperature_profiles()
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
 
-    # load latest freezing date in each borehole
-    dates = bowstr_utils.load_freezing_dates()
-    dates = dates.groupby(dates.index.str[0]).max()
-    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
-
     # compute shear velocities and plot time series
-    series = bowdef_utils.compute_shear_series(strain, depth, base, dates)
+    dates = bowdef_utils.load_freezing_dates()
+    series = bowdef_utils.compute_shear_series(
+        strain, depth, temperatures, base, dates)
     plot_time_series(tsaxes, series, dates)
 
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
 
-    # average shear velocities over each window, and add the exponent of the
-    # power-law interpolant of the fixed profile in each borehole
+    # average shear velocities over each window, and compute relative
+    # laminar shear profiles in each borehole
     fits = pd.DataFrame([series[start:end].mean() for start, end, _ in WINDOWS])
     profiles, _, _ = bowdef_utils.compute_separable_factors(strain, dates)
-    for bh, _ in BOREHOLES:
-        fits['exponent', bh] = bowdef_utils.compute_power_fit(
-            depth, profiles[bh])[0]
+    profiles = compute_relative_profiles(profiles, depth, temperatures, base)
 
     # plot winter and summer shear profiles with units active in all windows,
     # coloring units as in other plots
-    active = pd.DataFrame([
-        strain[start:end].mean() for start, end, _ in WINDOWS]).notna().all()
     units = pd.DataFrame({
         'depth': depth, 'color': [f'C{i}' for i in range(depth.size)]})
+    units = units[pd.DataFrame([
+        strain[start:end].mean() for start, end, _ in WINDOWS]).notna().all()]
     for ax, (bh, prefix) in zip(pfaxes, BOREHOLES):
-        plot_shear_profiles(ax, bh, fits, units.loc[active.index[
-            active & active.index.str.startswith(prefix)]], base[f'{bh}B'])
+        plot_shear_profiles(ax, bh, fits, units[
+            units.index.str.startswith(prefix)], profiles[bh])
 
     # set time axes properties
     tsaxes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))

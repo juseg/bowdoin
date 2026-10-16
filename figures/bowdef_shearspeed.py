@@ -36,19 +36,17 @@ def load_daily_series():
     """Load daily shear velocities after closure and relying on two units
     or more, with their ranges and the daily surface speed."""
 
-    # load sensor depths, ice thickness, strain rates and surface speed
+    # load sensor depths, ice thickness, temperatures, strain rates and speed
     base = bowstr_utils.load(variable='base').iloc[0]
     depth = bowstr_utils.load(variable='dept').iloc[0]
+    temperatures = bowdef_utils.load_temperature_profiles()
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
 
-    # load latest freezing date in each borehole
-    dates = bowstr_utils.load_freezing_dates()
-    dates = dates.groupby(dates.index.str[0]).max()
-    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
-
     # compute shear velocities and mask records that are not solid
-    series = bowdef_utils.compute_shear_series(strain, depth, base, dates)
+    dates = bowdef_utils.load_freezing_dates()
+    series = bowdef_utils.compute_shear_series(
+        strain, depth, temperatures, base, dates)
     for bh, _ in BOREHOLES:
         solid = (series.index >= dates[bh]) & (series['count'][bh] >= 2)
         series.loc[~solid, (slice(None), bh)] = np.nan

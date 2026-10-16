@@ -68,58 +68,52 @@ def compute_separable_factors(strain, dates, tol=1e-9, maxiter=1000):
     return profiles, pd.DataFrame(factors), pd.DataFrame(counts)
 
 
-def compute_shear_integrals(depth, rates, base):
-    """Integrate a strain rate profile into a surface shear velocity.
+def compute_rate_factor(temperature, depth):
+    """Return the rate factor (Pa-3 s-1) of Cuffey and Paterson (2010, p.
+    72-76), at given temperature (°C) and depth (m), using temperatures
+    relative to pressure melting (7e-8 K Pa-1, 917 kg m-3)."""
+    corrected = temperature + 273.15 + 7e-8 * 917 * 9.80665 * depth
+    energy = np.where(corrected < 263.15, 60e3, 115e3)
+    return 3.5e-25 * np.exp(-energy / 8.314 * (1/corrected - 1/263.15))
 
-    Return a central estimate from a power-law interpolant, and the lowest
-    and highest estimates from alternative profiles, interpolated in log
-    space between units, and extrapolated above the top unit as a power
-    law, linear or cubic, and below the bottom unit as a power law,
-    constant, or with the local exponent of the two deepest units.
+
+def compute_strain_profiles(depth, rates, temperature, base):
+    """Compute strain rate profiles from mean unit strain rates.
+
+    In the horizontal stress limit, strain rate is the rate factor times
+    the shear stress, here laminar times a stress factor, hence it varies
+    as A(T(z)) * z * factor. Return profiles on a depth grid, in columns:
+    'laminar' with a constant factor fitted in log space and temperature
+    dependence (the central estimate), and alternatives without temperature
+    dependence ('isothermal') and with the factor interpolated in log space
+    between units and constant beyond ('interpolated').
     """
-
-    # sort units by depth and fit a power law
     depth = depth[rates.index].sort_values()
     rates = rates[depth.index]
-    exponent, constant = compute_power_fit(depth, rates)
-    integrals = [2 * constant / (exponent+1) * base**(exponent+1)]
-
-    # interpolate in log space between top and bottom units
-    top, bottom = depth.iloc[0], depth.iloc[-1]
     grid = np.linspace(0, base, 1001)
-    inner = np.exp(np.interp(
-        np.log(grid.clip(top, bottom)), np.log(depth), np.log(rates)))
-
-    # extrapolate above and below the units, the latter with the local
-    # exponent of the two deepest units
-    power = constant * grid**exponent
-    uppers = [power, rates.iloc[0] * grid / top,
-              rates.iloc[0] * (grid / top)**3]
-    lowers = [power, np.full_like(grid, rates.iloc[-1]),
-              rates.iloc[-1] * (grid.clip(bottom) / bottom)**(
-                  np.log(rates.iloc[-1] / rates.iloc[-2]) /
-                  np.log(bottom / depth.iloc[-2]))]
-
-    # integrate alternative profiles and return the range
-    for upper in uppers:
-        for lower in lowers:
-            integrals.append(2 * np.trapezoid(np.where(
-                grid < top, upper, np.where(grid > bottom, lower, inner)),
-                grid))
-    return integrals[0], min(integrals), max(integrals)
+    softness = compute_rate_factor(
+        np.interp(grid, temperature.index, temperature), grid)
+    profiles = {}
+    for label, shape in [('', softness), (' isothermal', np.ones_like(grid))]:
+        factors = np.log(rates / np.interp(depth, grid, shape) / depth)
+        profiles['laminar' + label] = np.exp(factors.mean()) * shape * grid
+        profiles['interpolated' + label] = np.exp(
+            np.interp(grid, depth, factors)) * shape * grid
+    return pd.DataFrame(profiles, index=grid)
 
 
-def compute_shear_series(strain, depth, base, dates):
+def compute_shear_series(strain, depth, temperatures, base, dates):
     """Compute shear velocity series and their range from fixed profiles
     scaled by common factors, and the number of units at each time."""
     profiles, factors, counts = compute_separable_factors(strain, dates)
     shear, shear_low, shear_high = {}, {}, {}
     for bh, _ in BOREHOLES:
-        central, low, high = compute_shear_integrals(
-            depth, profiles[bh], base[f'{bh}B'])
-        shear[bh] = central * factors[bh]
-        shear_low[bh] = low * factors[bh]
-        shear_high[bh] = high * factors[bh]
+        integrals = compute_strain_profiles(
+            depth, profiles[bh], temperatures[bh], base[f'{bh}B']).apply(
+                lambda rate: 2 * np.trapezoid(rate, rate.index))
+        shear[bh] = integrals.laminar * factors[bh]
+        shear_low[bh] = integrals.min() * factors[bh]
+        shear_high[bh] = integrals.max() * factors[bh]
 
     # return as dataframe with variable and borehole column levels
     return pd.concat({
@@ -298,6 +292,25 @@ def filter_savgol_series(series, window, *args, **kwargs):
 
 # Data loading methods
 # --------------------
+
+def load_freezing_dates():
+    """Load the latest freezing date of tilt units in each borehole."""
+    dates = bowstr_utils.load_freezing_dates()
+    dates = dates.groupby(dates.index.str[0]).max()
+    return dates.rename({'L': 'BH3', 'U': 'BH1'})
+
+
+def load_temperature_profiles():
+    """Load the temperature profile with most sensors in each borehole, as
+    series of temperature (°C) indexed by depth (m)."""
+    profiles = {}
+    for bh, _ in BOREHOLES:
+        temp, depth, _ = bowtem_utils.load_profiles(bh.lower())
+        temp = temp[temp.notna().sum().idxmax()].dropna()
+        profiles[bh] = pd.Series(
+            temp.to_numpy(), index=depth[temp.index]).sort_index()
+    return profiles
+
 
 def load_gnss_velocities(**kwargs):
     """Compute velocity components from raw data of one station."""
