@@ -31,6 +31,102 @@ def compute_power_fit(depth, strain):
     return exponent, np.exp(constant)
 
 
+def compute_separable_factors(strain, dates, tol=1e-9, maxiter=1000):
+    """Fit strain rates as a fixed profile times a common time factor.
+
+    In each borehole, fit log strain = a[unit] + k[time] by least squares
+    on records after freezing, ignoring missing values. This two-way fixed
+    effects fit uses alternating means (alternating projections), and k is
+    centred to zero mean, as only the sum a + k is constrained. Return the
+    profiles exp(a) per borehole, the factors exp(k) at all times, as the
+    mean of log strain - a over available units, and the unit counts.
+    """
+    profiles, factors, counts = {}, {}, {}
+    for bh, prefix in BOREHOLES:
+        logs = np.log(strain.where(strain > 0)).loc[
+            :, strain.columns.str.startswith(prefix)]
+        logs = logs.loc[:, logs[dates[bh]:].notna().any()]
+
+        # fit unit and time levels on records after freezing
+        values = logs[dates[bh]:].dropna(how='all').to_numpy()
+        levels = np.nanmean(values, axis=0)
+        for _ in range(maxiter):
+            times = np.nanmean(values - levels, axis=1)
+            times -= times.mean()
+            new = np.nanmean(values - times[:, None], axis=0)
+            converged = np.abs(new - levels).max() < tol
+            levels = new
+            if converged:
+                break
+
+        # compute factors at all times from the fixed unit levels
+        profiles[bh] = pd.Series(np.exp(levels), index=logs.columns)
+        factors[bh] = np.exp((logs - levels).mean(axis=1))
+        counts[bh] = logs.notna().sum(axis=1)
+
+    # return profiles as a dict, factors and counts as dataframes
+    return profiles, pd.DataFrame(factors), pd.DataFrame(counts)
+
+
+def compute_shear_integrals(depth, rates, base):
+    """Integrate a strain rate profile into a surface shear velocity.
+
+    Return a central estimate from a power-law interpolant, and the lowest
+    and highest estimates from alternative profiles, interpolated in log
+    space between units, and extrapolated above the top unit as a power
+    law, linear or cubic, and below the bottom unit as a power law,
+    constant, or with the local exponent of the two deepest units.
+    """
+
+    # sort units by depth and fit a power law
+    depth = depth[rates.index].sort_values()
+    rates = rates[depth.index]
+    exponent, constant = compute_power_fit(depth, rates)
+    integrals = [2 * constant / (exponent+1) * base**(exponent+1)]
+
+    # interpolate in log space between top and bottom units
+    top, bottom = depth.iloc[0], depth.iloc[-1]
+    grid = np.linspace(0, base, 1001)
+    inner = np.exp(np.interp(
+        np.log(grid.clip(top, bottom)), np.log(depth), np.log(rates)))
+
+    # extrapolate above and below the units, the latter with the local
+    # exponent of the two deepest units
+    power = constant * grid**exponent
+    uppers = [power, rates.iloc[0] * grid / top,
+              rates.iloc[0] * (grid / top)**3]
+    lowers = [power, np.full_like(grid, rates.iloc[-1]),
+              rates.iloc[-1] * (grid.clip(bottom) / bottom)**(
+                  np.log(rates.iloc[-1] / rates.iloc[-2]) /
+                  np.log(bottom / depth.iloc[-2]))]
+
+    # integrate alternative profiles and return the range
+    for upper in uppers:
+        for lower in lowers:
+            integrals.append(2 * np.trapezoid(np.where(
+                grid < top, upper, np.where(grid > bottom, lower, inner)),
+                grid))
+    return integrals[0], min(integrals), max(integrals)
+
+
+def compute_shear_series(strain, depth, base, dates):
+    """Compute shear velocity series and their range from fixed profiles
+    scaled by common factors, and the number of units at each time."""
+    profiles, factors, counts = compute_separable_factors(strain, dates)
+    shear, shear_low, shear_high = {}, {}, {}
+    for bh, _ in BOREHOLES:
+        central, low, high = compute_shear_integrals(
+            depth, profiles[bh], base[f'{bh}B'])
+        shear[bh] = central * factors[bh]
+        shear_low[bh] = low * factors[bh]
+        shear_high[bh] = high * factors[bh]
+
+    # return as dataframe with variable and borehole column levels
+    return pd.concat({
+        'shear': pd.DataFrame(shear), 'shear_low': pd.DataFrame(shear_low),
+        'shear_high': pd.DataFrame(shear_high), 'count': counts}, axis=1)
+
+
 def correlate_dataframes(frame, other, smin='-36h', smax='36h'):
     """Compute cross-correlations between columns of two dataframes."""
 
