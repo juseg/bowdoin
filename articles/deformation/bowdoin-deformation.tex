@@ -136,6 +136,7 @@
 
     Fig.~\ref{fig:slipratio} --- shear velocity time series and seasonal
     profiles.
+    Fig.~\ref{fig:shearspeed} --- shear velocity against surface speed.
 
 \subsection{Phase delays}
 
@@ -234,36 +235,40 @@
           \todo{Landsat errors are a placeholder (3\,m per pair interval)
           until updated data arrive}
         \textbf{(b)}
-          Shear velocity in BH1 and BH3, from power-law fits of tilt-derived
-          strain rates against depth, integrated over ice thickness, before
-          (faded) and after (solid) complete borehole closure, and faded
-          where fits rely on two units only (BH1 from 2017 Feb.~19, after
-          the 208\,m unit saturates, Fig.~\ref{fig:tiltrates}), which raises
-          shear by about 1.5\,m\,a$^{-1}$ and $n$ by about 0.25. Summer field
-          campaigns (grey bands), and profile-average intervals (dashed boxes,
-          for e, f, Fig.~\ref{fig:powerlaws}). Error bars show the median and
-          error of solid records, propagated analytically from power-law
-          residuals of mean strain rates in both boreholes.
-          \note{These errors are mostly systematic, so changes in time are
-          better constrained than absolute values.}
+          Shear velocity in BH1 and BH3, from a separable fit of tilt-derived
+          strain rates in each borehole: a fixed profile of mean strain
+          rates per unit, scaled by a common factor of time (least squares
+          in log space after complete closure), with the profile integrated
+          over ice thickness. Records are faded before complete borehole
+          closure and where the factor relies on a single unit. When the
+          208\,m unit saturates (BH1 from 2017 Feb.~19,
+          Fig.~\ref{fig:tiltrates}), shear rises by about 0.8\,m\,a$^{-1}$,
+          as the deeper units slow relative to the fixed profile over
+          winter 2016--17. Summer field campaigns (grey bands), and
+          profile-average intervals (dashed boxes, for d, e). Error bars show
+          the median and range of solid records over alternative profile
+          interpolations, extrapolated as power laws, linear or cubic above
+          the top unit, and as power laws, constant, or with the exponent of
+          the two deepest units below the bottom unit.
+          \note{These errors are systematic, so changes in time are better
+          constrained than absolute values.}
           \todo{Errors exclude bed roughness (up to 50\,m: shear
-          $\pm$10\,\%, $n$ $\pm$0.3), the drilled depth possibly short of
-          the bed (one-sided), and basal extrapolation.}
+          $\pm$10\,\%) and the drilled depth possibly short of the bed
+          (one-sided).}
         \textbf{(c)}
           Slip ratio (one minus the ratio of shear to surface speed) from
           GNSS, and from satellite image pairs with shear velocity averaged
           over each pair interval, and errors combining satellite speed and
-          shear errors.
-        \textbf{(d)}
-          Flow exponent of the power-law fits.
-        \textbf{(e, f)}
+          half the shear range.
+        \textbf{(d, e)}
           Winter (2015 Jan.~1 to Feb.~1, dashed) and summer (2015 July, solid
-          and filled) shear velocity profiles in BH3 (e) and BH1 (f), from
-          power-law fits of the strain rates averaged over each interval, with
-          flow exponents $n$ with errors and initial sensor depths (dots
-          coloured by tilt unit as in Fig.~\ref{fig:tiltrates}) and winter
-          shear velocities at each sensor (dashed arrows). Error bars below
-          the surface show surface shear errors (summer filled, winter open).}
+          and filled) shear velocity profiles in BH3 (d) and BH1 (e), from
+          the fixed profile of each borehole (power-law interpolant) scaled
+          to the mean shear velocity over each interval (labels), with
+          initial sensor depths (dots coloured by tilt unit as in
+          Fig.~\ref{fig:tiltrates}) and winter shear velocities at each
+          sensor (dashed arrows). Error bars below the surface show surface
+          shear ranges (summer filled, winter open).}
       \label{fig:slipratio}
     \end{figure}
 
@@ -295,6 +300,17 @@
           and exponents $n$, compared to laboratory experiments on temperate ice by
           \citet{Schohn.etal.2025}.}
       \label{fig:powerlaws}
+    \end{figure}
+
+    \begin{figure}
+      \centerline{\includegraphics{bowdef_shearspeed}}
+      \caption{%
+          Daily mean shear velocity of BH1 and BH3, as in
+          Fig.~\ref{fig:slipratio}, against daily mean GNSS surface speed,
+          marked by year, with power-law fits and their slopes, lines of
+          constant slip ratio (dotted), and the median range over
+          alternative profile interpolations (error bars).}
+      \label{fig:shearspeed}
     \end{figure}
 
 % ----------------------------------------------------------------------
