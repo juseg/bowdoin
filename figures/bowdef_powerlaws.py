@@ -49,7 +49,7 @@ def load_schohn_etal_2025():
 
 
 def plot_power_fit(ax, stress, strain_rate, **kwargs):
-    """Fit a power law to strain rate vs stress, plot it and return n."""
+    """Fit a power law to strain rate vs stress, plot it and return the fit exponent."""
     exponent, constant = bowdef_utils.compute_power_fit(stress, strain_rate)
     stress_fit = np.array([stress.min()*4/5, stress.max()*5/4])
     strain_fit = constant*stress_fit**exponent
@@ -78,7 +78,7 @@ def plot_bowdoin(ax):
                 linestyle='-' if summer else '--')
             ax.text(
                 0.95, 0.05 + 0.32*i + 0.08*(not summer),
-                f'{pd.to_datetime(start):%b.} n = {exponent:.2f}',
+                f'{pd.to_datetime(start):%b.} p = {exponent:.2f}',
                 color=COLORS[bh], ha='right', transform=ax.transAxes)
 
         # add borehole label, BH3 at the bottom and BH1 above
@@ -100,7 +100,7 @@ def plot_schohn_etal_2025(ax):
         0.05, 0.95, 'Schohn et al. 2025', color='0.5', fontweight='bold',
         va='top', transform=ax.transAxes)
     ax.text(
-        0.05, 0.87, f'n = {exponent:.2f}', color='0.5', va='top',
+        0.05, 0.87, f'p = {exponent:.2f}', color='0.5', va='top',
         transform=ax.transAxes)
 
 
