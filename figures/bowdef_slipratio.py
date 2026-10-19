@@ -48,20 +48,17 @@ def compute_linear_fits(depth, strain):
     depths on each row, needed for error propagation.
     """
 
-    # least squares ignoring missing values on each row
-    valid = strain.notna().to_numpy()
-    x = np.where(valid, depth[strain.columns].to_numpy(), 0)
-    y = np.where(valid, strain.to_numpy(), 0)
-    count = valid.sum(axis=1)
-    sx, sy = x.sum(axis=1), y.sum(axis=1)
-    sxx, sxy = (x*x).sum(axis=1), (x*y).sum(axis=1)
-    slope = (count*sxy - sx*sy) / (count*sxx - sx**2)
-    intercept = (sy - slope*sx) / count
+    # least squares in centred form, ignoring missing values on each row
+    depths = strain*0 + depth[strain.columns]
+    center = depths.mean(axis=1)
+    deviations = depths.sub(center, axis=0)
+    spread = (deviations**2).sum(axis=1)
+    slope = (deviations*strain).sum(axis=1) / spread
 
     # return as dataframe
     return pd.DataFrame({
-        'slope': slope, 'intercept': intercept, 'count': count,
-        'center': sx/count, 'spread': sxx - sx**2/count}, index=strain.index)
+        'slope': slope, 'intercept': strain.mean(axis=1) - slope*center,
+        'count': strain.count(axis=1), 'center': center, 'spread': spread})
 
 
 def compute_shear_profile(fit, depth, thickness):
