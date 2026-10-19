@@ -71,10 +71,10 @@ def compute_shear_profile(base, depth, exponent, surface):
 
 
 def compute_shear_series(strain, depth, base, sigma):
-    """Compute shear velocity and flow exponent from strain rate profiles,
-    and their errors from a constant log strain rate error per sensor."""
-    shear, exponent, shear_error, exponent_error = {}, {}, {}, {}
-    count = {}
+    """Compute shear velocity and power-law exponent from strain rate
+    profiles, and shear errors from a constant log strain rate error per
+    sensor."""
+    shear, exponent, shear_error, count = {}, {}, {}, {}
     for bh, prefix in BOREHOLES:
 
         # fit a power law strain = constant * depth ** exponent at each time
@@ -89,10 +89,9 @@ def compute_shear_series(strain, depth, base, sigma):
         power = fits.exponent + 1
         shear[bh] = 2 * fits.constant / power * thickness**power
 
-        # propagate errors to the exponent and log shear, where the lever is
-        # the derivative of log shear with exponent at the mean log depth
+        # propagate errors to log shear, where the lever is the derivative
+        # of log shear with exponent at the mean log depth
         lever = np.log(thickness) - fits.center - 1/power
-        exponent_error[bh] = sigma / fits.spread**0.5
         shear_error[bh] = shear[bh] * sigma * (
             1/fits['count'] + lever**2/fits.spread)**0.5
 
@@ -100,7 +99,6 @@ def compute_shear_series(strain, depth, base, sigma):
     return pd.concat({
         'shear': pd.DataFrame(shear), 'exponent': pd.DataFrame(exponent),
         'shear_error': pd.DataFrame(shear_error),
-        'exponent_error': pd.DataFrame(exponent_error),
         'count': pd.DataFrame(count)}, axis=1)
 
 
@@ -164,7 +162,7 @@ def plot_satellite_series(axes, shear, shear_error):
 
 
 def plot_time_series(axes, series, dates):
-    """Plot surface speed, shear, slip ratio and flow exponent series."""
+    """Plot surface speed, shear and slip ratio series."""
 
     # load surface speed and compute ratio where it intersects shear
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
@@ -178,12 +176,9 @@ def plot_time_series(axes, series, dates):
     count = series['count']
     plot_faded(axes[1], series.shear, dates, count)
     plot_faded(axes[2], ratio, dates, count)
-    plot_faded(axes[3], series.exponent, dates, count)
     plot_level_errors(
         axes[1], series.shear, dates, count, series.shear_error)
     plot_level_errors(axes[2], ratio, dates, count, ratio_error)
-    plot_level_errors(
-        axes[3], series.exponent, dates, count, series.exponent_error)
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
@@ -252,13 +247,12 @@ def plot_shear_profiles(ax, bh, fits, units, thickness):
             color=COLORS[bh], marker='o', markersize=3, capsize=1.5,
             linewidth=1, markerfacecolor=COLORS[bh] if summer else 'w')
         ax.text(
-            0.05, 0.05 + 0.08 * summer,
-            f'{pd.Timestamp(start):%b.} n = {fit.exponent[bh]:.2f} '
-            f'± {fit.exponent_error[bh]:.2f}',
-            color=COLORS[bh], transform=ax.transAxes)
+            0.05, 0.05 + 0.1 * summer,
+            f'{pd.Timestamp(start):%b.} {fit.shear[bh]:.1f}'
+            r'$\,m\,a^{-1}$', color=COLORS[bh], transform=ax.transAxes)
 
     # add borehole label
-    ax.text(0.05, 0.21, bh, color=COLORS[bh], fontweight='bold',
+    ax.text(0.05, 0.25, bh, color=COLORS[bh], fontweight='bold',
             transform=ax.transAxes)
 
 
@@ -267,8 +261,8 @@ def main():
 
     # initialize figure (disable sharex on pfaxes as pandas handle_shared_axes
     # otherwise detect them as sharing axes with the timeseries)
-    fig = apl.figure_mm(figsize=(180, 120))
-    tsaxes = fig.subplots_mm(nrows=4, sharex=True, gridspec_kw={
+    fig = apl.figure_mm(figsize=(180, 95))
+    tsaxes = fig.subplots_mm(nrows=3, sharex=True, gridspec_kw={
         'left': 12.5, 'right': 47.5, 'bottom': 12.5, 'top': 2.5,
         'hspace': 2.5})
     pfaxes = fig.subplots_mm(nrows=2, sharey=True, gridspec_kw={
@@ -311,15 +305,13 @@ def main():
     # set time axes properties
     tsaxes[0].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
     tsaxes[2].legend(loc='upper right', bbox_to_anchor=(0, 0, 0.94, 1))
-    tsaxes[3].set_xlabel('')
+    tsaxes[2].set_xlabel('')
     tsaxes[0].set_ylabel(r'surface ($m\,a^{-1}$)', labelpad=0)
     tsaxes[1].set_ylabel(r'shear ($m\,a^{-1}$)')
     tsaxes[2].set_ylabel('slip ratio (%)')
-    tsaxes[3].set_ylabel('flow exponent', labelpad=8)
     tsaxes[0].set_xlim('20140701', '20170801')
     tsaxes[1].set_ylim(5, 55)
     tsaxes[2].set_ylim(92.5, 97.5)
-    tsaxes[3].set_ylim(-0.5, 4.5)
 
     # set profile axes properties
     pfaxes[1].set_xlabel(r'shear ($m\,a^{-1}$)')
