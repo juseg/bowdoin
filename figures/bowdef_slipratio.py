@@ -65,39 +65,52 @@ def compute_power_fits(depth, strain):
         'center': sx/count, 'spread': sxx - sx**2/count}, index=strain.index)
 
 
-def compute_shear_profile(base, depth, exponent, surface):
-    """Compute horizontal shear profile from exponent and surface velocity."""
-    return surface * (1 - (depth/base)**(exponent+1))
+def compute_shear_profile(fit, depth, thickness):
+    """Compute shear velocity profile from fit parameters, as twice the
+    strain rate integrated from depth to the bed."""
+    return 2 * integrate_power_fit(
+        fit.constant, fit.exponent, depth, thickness)
+
+
+def integrate_power_fit(constant, exponent, top, bottom):
+    """Integrate strain rate power law constant * depth ** exponent between
+    top and bottom depths."""
+    # skip the top term at the surface, which diverges for exponents below
+    # minus one (in unfrozen boreholes)
+    power = exponent + 1
+    top_term = 0 if np.isscalar(top) and top == 0 else top**power
+    return constant / power * (bottom**power - top_term)
 
 
 def compute_shear_series(strain, depth, base, sigma):
     """Compute shear velocity and power-law exponent from strain rate
     profiles, and shear errors from a constant log strain rate error per
     sensor."""
-    shear, exponent, shear_error, count = {}, {}, {}, {}
+    shear, constant, exponent, shear_error, count = {}, {}, {}, {}, {}
     for bh, prefix in BOREHOLES:
 
         # fit a power law strain = constant * depth ** exponent at each time
         rates = strain.loc[:, strain.columns.str.startswith(prefix)]
         rates = rates.dropna(how='all')
         fits = compute_power_fits(depth, rates)
+        constant[bh] = fits.constant
         exponent[bh] = fits.exponent
         count[bh] = fits['count']
 
         # integrate strain rate over ice thickness
         thickness = base[f'{bh}B']
-        power = fits.exponent + 1
-        shear[bh] = 2 * fits.constant / power * thickness**power
+        shear[bh] = compute_shear_profile(fits, 0, thickness)
 
         # propagate errors to log shear, where the lever is the derivative
         # of log shear with exponent at the mean log depth
-        lever = np.log(thickness) - fits.center - 1/power
+        lever = np.log(thickness) - fits.center - 1/(fits.exponent+1)
         shear_error[bh] = shear[bh] * sigma * (
             1/fits['count'] + lever**2/fits.spread)**0.5
 
     # return as dataframe with variable and borehole column levels
     return pd.concat({
-        'shear': pd.DataFrame(shear), 'exponent': pd.DataFrame(exponent),
+        'shear': pd.DataFrame(shear), 'constant': pd.DataFrame(constant),
+        'exponent': pd.DataFrame(exponent),
         'shear_error': pd.DataFrame(shear_error),
         'count': pd.DataFrame(count)}, axis=1)
 
@@ -225,10 +238,8 @@ def plot_shear_profiles(ax, bh, fits, units, thickness):
     for (start, _, summer), (_, fit) in zip(WINDOWS, fits.iterrows()):
 
         # plot continuous and discrete profiles
-        shear_int = compute_shear_profile(
-            thickness, depth_int, fit.exponent[bh], fit.shear[bh])
-        unit_shear = compute_shear_profile(
-            thickness, units.depth, fit.exponent[bh], fit.shear[bh])
+        shear_int = compute_shear_profile(fit[:, bh], depth_int, thickness)
+        unit_shear = compute_shear_profile(fit[:, bh], units.depth, thickness)
         if summer:
             ax.fill_betweenx(
                 depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
