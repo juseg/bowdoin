@@ -17,7 +17,7 @@ from bowdef_utils import BOREHOLES, COLORS, WINDOWS
 
 
 def compute_residual_error(strain, depth, dates):
-    """Compute a log strain rate error per sensor, pooled from power-fit
+    """Compute a strain rate error per sensor, pooled from linear-fit
     residuals of mean strain rates in both boreholes."""
     squares, freedom = 0, 0
     for bh, prefix in BOREHOLES:
@@ -29,12 +29,11 @@ def compute_residual_error(strain, depth, dates):
         sensors = pd.Series(sensors, index=valid.columns)
         rates = rates.loc[valid.eq(sensors).all(axis=1), sensors]
 
-        # fit mean strain rates and add up squared log residuals
+        # fit mean strain rates and add up squared residuals
         mean = rates.mean().to_frame().T
-        fits = compute_power_fits(depth, mean).iloc[0]
+        fits = compute_linear_fits(depth, mean).iloc[0]
         residuals = (
-            np.log(mean.iloc[0]) - np.log(fits.constant)
-            - fits.exponent * np.log(depth[mean.columns]))
+            mean.iloc[0] - fits.intercept - fits.slope * depth[mean.columns])
         squares += (residuals**2).sum()
         freedom += fits['count'] - 2
 
@@ -42,75 +41,86 @@ def compute_residual_error(strain, depth, dates):
     return (squares / freedom)**0.5
 
 
-def compute_power_fits(depth, strain):
-    """Fit power laws strain = constant * depth ** exponent on each row.
+def compute_linear_fits(depth, strain):
+    """Fit lines strain = intercept + slope * depth on each row.
 
     Also return the count, mean and spread (sum of squared deviations) of
-    log depths on each row, needed for error propagation.
+    depths on each row, needed for error propagation.
     """
 
-    # least squares in log space, ignoring missing values on each row
+    # least squares ignoring missing values on each row
     valid = strain.notna().to_numpy()
-    x = np.where(valid, np.log(depth[strain.columns].to_numpy()), 0)
-    y = np.where(valid, np.log(strain.to_numpy()), 0)
+    x = np.where(valid, depth[strain.columns].to_numpy(), 0)
+    y = np.where(valid, strain.to_numpy(), 0)
     count = valid.sum(axis=1)
     sx, sy = x.sum(axis=1), y.sum(axis=1)
     sxx, sxy = (x*x).sum(axis=1), (x*y).sum(axis=1)
-    exponent = (count*sxy - sx*sy) / (count*sxx - sx**2)
-    constant = np.exp((sy - exponent*sx) / count)
+    slope = (count*sxy - sx*sy) / (count*sxx - sx**2)
+    intercept = (sy - slope*sx) / count
 
     # return as dataframe
     return pd.DataFrame({
-        'exponent': exponent, 'constant': constant, 'count': count,
+        'slope': slope, 'intercept': intercept, 'count': count,
         'center': sx/count, 'spread': sxx - sx**2/count}, index=strain.index)
+
+
+def compute_active_segment(intercept, slope, top, bottom):
+    """Return the length and midpoint of the depth segment between top and
+    bottom where strain rate intercept + slope * depth is positive."""
+    with np.errstate(divide='ignore', invalid='ignore'):
+        zero = -intercept / slope
+    upper = np.where(slope > 0, np.clip(zero, top, bottom), top)
+    lower = np.where(slope < 0, np.clip(zero, top, bottom), bottom)
+    return lower - upper, (upper + lower) / 2
 
 
 def compute_shear_profile(fit, depth, thickness):
     """Compute shear velocity profile from fit parameters, as twice the
     strain rate integrated from depth to the bed."""
-    return 2 * integrate_power_fit(
-        fit.constant, fit.exponent, depth, thickness)
+    return 2 * integrate_clipped_linear(
+        fit.intercept, fit.slope, depth, thickness)
 
 
-def integrate_power_fit(constant, exponent, top, bottom):
-    """Integrate strain rate power law constant * depth ** exponent between
-    top and bottom depths."""
-    # skip the top term at the surface, which diverges for exponents below
-    # minus one (in unfrozen boreholes)
-    power = exponent + 1
-    top_term = 0 if np.isscalar(top) and top == 0 else top**power
-    return constant / power * (bottom**power - top_term)
+def integrate_clipped_linear(intercept, slope, top, bottom):
+    """Integrate strain rate intercept + slope * depth, clipped at zero,
+    between top and bottom depths."""
+    length, middle = compute_active_segment(intercept, slope, top, bottom)
+    return length * np.maximum(intercept + slope*middle, 0)
 
 
 def compute_shear_series(strain, depth, base, sigma):
-    """Compute shear velocity and power-law exponent from strain rate
-    profiles, and shear errors from a constant log strain rate error per
+    """Compute shear velocity from clipped linear fits of strain rate
+    profiles, and shear errors from a constant strain rate error per
     sensor."""
-    shear, constant, exponent, shear_error, count = {}, {}, {}, {}, {}
+    shear, intercept, slope, shear_error, count = {}, {}, {}, {}, {}
     for bh, prefix in BOREHOLES:
 
-        # fit a power law strain = constant * depth ** exponent at each time
+        # fit a line strain = intercept + slope * depth at each time
         rates = strain.loc[:, strain.columns.str.startswith(prefix)]
         rates = rates.dropna(how='all')
-        fits = compute_power_fits(depth, rates)
-        constant[bh] = fits.constant
-        exponent[bh] = fits.exponent
+        fits = compute_linear_fits(depth, rates)
+        intercept[bh] = fits.intercept
+        slope[bh] = fits.slope
         count[bh] = fits['count']
 
-        # integrate strain rate over ice thickness
+        # integrate strain rate clipped at zero over ice thickness
         thickness = base[f'{bh}B']
-        shear[bh] = compute_shear_profile(fits, 0, thickness)
+        shear[bh] = pd.Series(
+            compute_shear_profile(fits, 0, thickness), index=fits.index)
 
-        # propagate errors to log shear, where the lever is the derivative
-        # of log shear with exponent at the mean log depth
-        lever = np.log(thickness) - fits.center - 1/(fits.exponent+1)
-        shear_error[bh] = shear[bh] * sigma * (
+        # propagate errors to shear, which varies with the fitted strain rate
+        # at the midpoint of the positive segment, as both segment ends have
+        # zero strain rate or are fixed
+        length, middle = compute_active_segment(
+            fits.intercept, fits.slope, 0, thickness)
+        lever = middle - fits.center
+        shear_error[bh] = 2 * length * sigma * (
             1/fits['count'] + lever**2/fits.spread)**0.5
 
     # return as dataframe with variable and borehole column levels
     return pd.concat({
-        'shear': pd.DataFrame(shear), 'constant': pd.DataFrame(constant),
-        'exponent': pd.DataFrame(exponent),
+        'shear': pd.DataFrame(shear), 'intercept': pd.DataFrame(intercept),
+        'slope': pd.DataFrame(slope),
         'shear_error': pd.DataFrame(shear_error),
         'count': pd.DataFrame(count)}, axis=1)
 
@@ -232,14 +242,15 @@ def plot_shear_profile_arrows(ax, depth, shear, color='C0'):
 
 
 def plot_shear_profiles(ax, bh, fits, units, thickness):
-    """Plot winter and summer shear profiles in one borehole from power-law
-    fits of window-mean strain rates (one row per window)."""
+    """Plot winter and summer shear profiles in one borehole from clipped
+    linear fits of window-mean strain rates (one row per window)."""
     depth_int = np.linspace(0, thickness, 51)
     for (start, _, summer), (_, fit) in zip(WINDOWS, fits.iterrows()):
 
         # plot continuous and discrete profiles
         shear_int = compute_shear_profile(fit[:, bh], depth_int, thickness)
-        unit_shear = compute_shear_profile(fit[:, bh], units.depth, thickness)
+        unit_shear = pd.Series(compute_shear_profile(
+            fit[:, bh], units.depth, thickness), index=units.index)
         if summer:
             ax.fill_betweenx(
                 depth_int, 0, shear_int, color=COLORS[bh], alpha=0.25)
@@ -293,14 +304,14 @@ def main():
 
     # estimate strain rate errors and plot time series
     sigma = compute_residual_error(strain, depth, dates)
-    print(f'pooled log strain rate error per sensor: {sigma:.3f}')
+    print(f'pooled strain rate error per sensor: {sigma:.4f} a-1')
     plot_time_series(
         tsaxes, compute_shear_series(strain, depth, base, sigma), dates)
 
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
 
-    # fit power laws to strain rates averaged over each window
+    # fit lines to strain rates averaged over each window
     means = pd.DataFrame([strain[start:end].mean() for start, end, _ in WINDOWS])
     fits = compute_shear_series(means, depth, base, sigma)
 
