@@ -138,7 +138,7 @@ def plot_level_errors(ax, df, dates, count, errors):
     for i, (bh, series) in enumerate(df.items()):
         solid = is_solid(series, bh, dates, count)
         ax.errorbar(
-            0.982 + 0.008*i, series[solid].median(),
+            0.976+0.012*i, series[solid].median(),
             yerr=errors[bh][solid].median(), color=COLORS[bh],
             marker='o', markersize=2, capsize=1, linewidth=1, clip_on=False,
             transform=ax.get_yaxis_transform())
@@ -256,7 +256,7 @@ def plot_shear_profiles(ax, bh, fits, units, thickness):
 
         # mark surface shear errors just below the surface
         ax.errorbar(
-            fit.shear[bh], 12 + 8*summer, xerr=fit.shear_error[bh],
+            fit.shear[bh], 12 + 12*summer, xerr=fit.shear_error[bh],
             color=COLORS[bh], marker='o', markersize=3, capsize=1.5,
             linewidth=1, markerfacecolor=COLORS[bh] if summer else 'w')
         ax.text(
