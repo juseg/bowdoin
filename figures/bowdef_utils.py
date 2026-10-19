@@ -23,14 +23,6 @@ WINDOWS = [('2015-01-01', '2015-02-01', False),
 # Signal processing methods
 # -------------------------
 
-def compute_power_fit(depth, strain):
-    """Fit to a power law strain = constant * depth ** exponent."""
-    log_strain = np.log(strain.dropna())
-    log_depth = np.log(depth.reindex(log_strain.index))
-    exponent, constant = np.polyfit(log_depth, log_strain, 1)
-    return exponent, np.exp(constant)
-
-
 def correlate_dataframes(frame, other, smin='-36h', smax='36h'):
     """Compute cross-correlations between columns of two dataframes."""
 

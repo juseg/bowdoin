@@ -48,9 +48,17 @@ def load_schohn_etal_2025():
     return pd.DataFrame(data=data, index=columns).transpose().infer_objects()
 
 
+def compute_power_fit(stress, strain_rate):
+    """Fit to a power law strain_rate = constant * stress ** exponent."""
+    log_strain_rate = np.log(strain_rate.dropna())
+    log_stress = np.log(stress.reindex(log_strain_rate.index))
+    exponent, constant = np.polyfit(log_stress, log_strain_rate, 1)
+    return exponent, np.exp(constant)
+
+
 def plot_power_fit(ax, stress, strain_rate, **kwargs):
     """Fit a power law to strain rate vs stress, plot it and return the fit exponent."""
-    exponent, constant = bowdef_utils.compute_power_fit(stress, strain_rate)
+    exponent, constant = compute_power_fit(stress, strain_rate)
     stress_fit = np.array([stress.min()*4/5, stress.max()*5/4])
     strain_fit = constant*stress_fit**exponent
     ax.plot(stress_fit, strain_fit, **kwargs)
