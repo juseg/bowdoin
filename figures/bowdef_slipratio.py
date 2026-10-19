@@ -64,28 +64,19 @@ def compute_linear_fits(depth, strain):
         'center': sx/count, 'spread': sxx - sx**2/count}, index=strain.index)
 
 
-def compute_active_segment(intercept, slope, top, bottom):
-    """Return the length and midpoint of the depth segment between top and
-    bottom where strain rate intercept + slope * depth is positive."""
-    with np.errstate(divide='ignore', invalid='ignore'):
-        zero = -intercept / slope
-    upper = np.where(slope > 0, np.clip(zero, top, bottom), top)
-    lower = np.where(slope < 0, np.clip(zero, top, bottom), bottom)
-    return lower - upper, (upper + lower) / 2
-
-
 def compute_shear_profile(fit, depth, thickness):
     """Compute shear velocity profile from fit parameters, as twice the
-    strain rate integrated from depth to the bed."""
-    return 2 * integrate_clipped_linear(
-        fit.intercept, fit.slope, depth, thickness)
+    strain rate, clipped at zero, integrated from depth to the bed."""
 
+    # find the segment between depth and the bed where strain rate is positive
+    with np.errstate(divide='ignore', invalid='ignore'):
+        zero = -fit.intercept / fit.slope
+    upper = np.where(fit.slope > 0, np.clip(zero, depth, thickness), depth)
+    lower = np.where(fit.slope < 0, np.clip(zero, depth, thickness), thickness)
 
-def integrate_clipped_linear(intercept, slope, top, bottom):
-    """Integrate strain rate intercept + slope * depth, clipped at zero,
-    between top and bottom depths."""
-    length, middle = compute_active_segment(intercept, slope, top, bottom)
-    return length * np.maximum(intercept + slope*middle, 0)
+    # integrate strain rate over the segment, from its midpoint value
+    middle = (upper + lower) / 2
+    return 2 * (lower-upper) * np.maximum(fit.intercept + fit.slope*middle, 0)
 
 
 def compute_shear_series(strain, depth, base, sigma):
@@ -111,10 +102,13 @@ def compute_shear_series(strain, depth, base, sigma):
         # propagate errors to shear, which varies with the fitted strain rate
         # at the midpoint of the positive segment, as both segment ends have
         # zero strain rate or are fixed
-        length, middle = compute_active_segment(
-            fits.intercept, fits.slope, 0, thickness)
-        lever = middle - fits.center
-        shear_error[bh] = 2 * length * sigma * (
+        with np.errstate(divide='ignore', invalid='ignore'):
+            zero = -fits.intercept / fits.slope
+        upper = np.where(fits.slope > 0, np.clip(zero, 0, thickness), 0)
+        lower = np.where(
+            fits.slope < 0, np.clip(zero, 0, thickness), thickness)
+        lever = (upper + lower) / 2 - fits.center
+        shear_error[bh] = 2 * (lower-upper) * sigma * (
             1/fits['count'] + lever**2/fits.spread)**0.5
 
     # return as dataframe with variable and borehole column levels
