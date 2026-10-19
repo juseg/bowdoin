@@ -182,6 +182,15 @@ def plot_time_series(axes, series, dates):
     plot_faded(axes[2], ratio, dates)
     plot_level_errors(axes[1], series.shear, dates, series.shear_error)
     plot_level_errors(axes[2], ratio, dates, ratio_error)
+
+    # mark where BH1 fits drop to two units
+    date = '2017-02-19'
+    axes[1].annotate(
+        'UI05 saturation\n(two units remain)', color='0.5', fontsize=6,
+        ha='right', xy=(date, series.shear.BH1[date].median()),
+        xytext=(0, 24), textcoords='offset points', arrowprops={
+            'arrowstyle': '-', 'color': '0.5', 'relpos': (1, 0),
+            'shrinkB': 4, 'lw': 0.5})
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
