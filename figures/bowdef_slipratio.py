@@ -80,7 +80,7 @@ def compute_shear_series(strain, depth, base, sigma):
     """Compute shear velocity from clipped linear fits of strain rate
     profiles, and shear errors from a constant strain rate error per
     sensor."""
-    shear, intercept, slope, shear_error, count = {}, {}, {}, {}, {}
+    shear, intercept, slope, shear_error = {}, {}, {}, {}
     for bh, prefix in BOREHOLES:
 
         # fit a line strain = intercept + slope * depth at each time
@@ -89,7 +89,6 @@ def compute_shear_series(strain, depth, base, sigma):
         fits = compute_linear_fits(depth, rates)
         intercept[bh] = fits.intercept
         slope[bh] = fits.slope
-        count[bh] = fits['count']
 
         # integrate strain rate clipped at zero over ice thickness
         thickness = base[f'{bh}B']
@@ -112,31 +111,23 @@ def compute_shear_series(strain, depth, base, sigma):
     return pd.concat({
         'shear': pd.DataFrame(shear), 'intercept': pd.DataFrame(intercept),
         'slope': pd.DataFrame(slope),
-        'shear_error': pd.DataFrame(shear_error),
-        'count': pd.DataFrame(count)}, axis=1)
+        'shear_error': pd.DataFrame(shear_error)}, axis=1)
 
 
-def is_solid(series, bh, dates, count):
-    """Return where a series follows closure and fits rely on three units."""
-    return (series.index >= dates[bh]) & (
-        count[bh].reindex(series.index) >= 3)
-
-
-def plot_faded(ax, df, dates, count):
-    """Plot dataframe columns with faded records before given dates and
-    where fits rely on less than three units."""
+def plot_faded(ax, df, dates):
+    """Plot dataframe columns with faded records before given dates."""
     for bh, series in df.items():
-        solid = is_solid(series, bh, dates, count)
+        solid = series.index >= dates[bh]
         series.where(~solid).plot(
             ax=ax, alpha=0.25, color=COLORS[bh], label='_nolegend_')
         series.where(solid).plot(ax=ax, color=COLORS[bh])
 
 
-def plot_level_errors(ax, df, dates, count, errors):
+def plot_level_errors(ax, df, dates, errors):
     """Plot median values and errors of solid records near the right edge,
     as errors are mostly systematic and change only with sensor sets."""
     for i, (bh, series) in enumerate(df.items()):
-        solid = is_solid(series, bh, dates, count)
+        solid = series.index >= dates[bh]
         ax.errorbar(
             0.976+0.012*i, series[solid].median(),
             yerr=errors[bh][solid].median(), color=COLORS[bh],
@@ -187,12 +178,10 @@ def plot_time_series(axes, series, dates):
 
     # plot surface speed, shear and slip ratio from geopositioning
     speed.plot(ax=axes[0], color='tab:orange', label='GNSS')
-    count = series['count']
-    plot_faded(axes[1], series.shear, dates, count)
-    plot_faded(axes[2], ratio, dates, count)
-    plot_level_errors(
-        axes[1], series.shear, dates, count, series.shear_error)
-    plot_level_errors(axes[2], ratio, dates, count, ratio_error)
+    plot_faded(axes[1], series.shear, dates)
+    plot_faded(axes[2], ratio, dates)
+    plot_level_errors(axes[1], series.shear, dates, series.shear_error)
+    plot_level_errors(axes[2], ratio, dates, ratio_error)
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
