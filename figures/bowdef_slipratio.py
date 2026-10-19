@@ -186,10 +186,10 @@ def plot_time_series(axes, series, dates):
     # mark where BH1 fits drop to two units
     date = '2017-02-19'
     axes[1].annotate(
-        'UI05 saturation\n(two units remain)', color='0.5', fontsize=6,
-        ha='right', xy=(date, series.shear.BH1[date].median()),
-        xytext=(0, 24), textcoords='offset points', arrowprops={
-            'arrowstyle': '-', 'color': '0.5', 'relpos': (1, 0),
+        'UI05 saturates\n(two units left)', color='0.5', fontsize=6,
+        xy=(date, series.shear.BH1[date].median()), xytext=(0, 36),
+        textcoords='offset points', arrowprops={
+            'arrowstyle': '-', 'color': '0.5', 'relpos': (0, 0),
             'shrinkB': 4, 'lw': 0.5})
     for ax in axes:
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
