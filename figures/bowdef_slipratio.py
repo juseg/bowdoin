@@ -261,12 +261,11 @@ def main():
 
     # initialize figure (disable sharex on pfaxes as pandas handle_shared_axes
     # otherwise detect them as sharing axes with the timeseries)
-    fig = apl.figure_mm(figsize=(180, 95))
+    fig = apl.figure_mm(figsize=(180, 90))
     tsaxes = fig.subplots_mm(nrows=3, sharex=True, gridspec_kw={
-        'left': 12.5, 'right': 47.5, 'bottom': 12.5, 'top': 2.5,
-        'hspace': 2.5})
+        'left': 12.5, 'right': 47.5, 'bottom': 10, 'top': 2.5, 'hspace': 2.5})
     pfaxes = fig.subplots_mm(nrows=2, sharey=True, gridspec_kw={
-        'left': 135, 'right': 12.5, 'bottom': 12.5, 'top': 2.5, 'hspace': 2.5})
+        'left': 135, 'right': 12.5, 'bottom': 10, 'top': 2.5, 'hspace': 2.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_labels([*tsaxes, *pfaxes])
