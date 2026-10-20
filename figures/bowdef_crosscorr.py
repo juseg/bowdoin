@@ -243,6 +243,12 @@ def plot(couple='tilts_speed', year='2015'):
     df = df.loc[start:end]
     df = df.dropna(how='all', axis=1)
 
+    # FIXME drop units missing from a multi-unit reference (UI05 tilt masked
+    # by sensor saturation in 2017 stress_tilts), remove with stress cleanup
+    if ref != var and df[ref].shape[1] > 1:
+        df = df.drop(columns=df[var].columns.difference(df[ref].columns),
+                     level='unit')
+
     # compute cross-correlations for each band over a range of time delays,
     # and pick phase delays at the maximum correlation within a search window
     # (half a period for the daily and tidal components)
