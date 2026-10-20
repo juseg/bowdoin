@@ -12,12 +12,14 @@
 BOWDEF_COUPLES = \
 	speed_tides stress_speed stress_tides stress_tilts \
 	tilts_speed tilts_tides tilts_tilts
+BOWDEF_YEARS = 2015 2016 2017
 BOWDEF_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowdef_, \
 			boreholes direction multivars powerlaws satellite slipratio \
 			tiltangle tiltrates) \
-		$(addprefix bowdef_crosscorr_, $(BOWDEF_COUPLES)) \
+		$(foreach year, $(BOWDEF_YEARS), $(addsuffix _$(year), \
+			$(addprefix bowdef_crosscorr_, $(BOWDEF_COUPLES)))) \
 		$(addprefix bowdef_rollxcorr_, $(BOWDEF_COUPLES)) \
 		$(addprefix bowdef_xwavelets_, $(BOWDEF_COUPLES)))
 
@@ -69,6 +71,11 @@ $(foreach filter, 12hbp 12hhp 24hbp 24hhp deriv phase steps, \
   $(eval $(call OPT_RULE,filters,$(filter))))
 $(foreach couple, $(BOWDEF_COUPLES), \
   $(eval $(call OPT_RULE,couple,$(couple))))
+
+# two-option rule for couples and years
+YEAR_RULE = %_$(1)_$(2).png: %.py ; python $$< --couples $(1) --years $(2)
+$(foreach couple, $(BOWDEF_COUPLES), $(foreach year, $(BOWDEF_YEARS), \
+  $(eval $(call YEAR_RULE,$(couple),$(year)))))
 $(foreach method, stcwt stlsp stfft ticwt tilsp tifft, \
   $(eval $(call OPT_RULE,methods,$(method))))
 

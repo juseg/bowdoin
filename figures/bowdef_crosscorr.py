@@ -205,7 +205,7 @@ def plot_time_series(ax, depth, df, var, ref):
     subaxes[-1].set_xlabel('')
 
 
-def plot(couple='tilts_speed'):
+def plot(couple='tilts_speed', year='2015'):
     """Plot and return full figure for given options."""
 
     # initialize figure
@@ -237,8 +237,11 @@ def plot(couple='tilts_speed'):
     daily = filter_harmonic_dataframe(subset, '24h')
     tidal = filter_harmonic_dataframe(subset, '12.42h')
 
-    # select time interval (2015 full gnss record) and drop empty records
-    df = df.loc['20150516':'20150815']
+    # select the gnss record of given year and drop empty records
+    start, end = {
+        '2015': ('20150516', '20150815'), '2016': ('20160610', '20160925'),
+        '2017': ('20170526', '20170712')}[year]
+    df = df.loc[start:end]
     df = df.dropna(how='all', axis=1)
 
     # compute cross-correlations for each band over a range of time delays,
@@ -252,7 +255,7 @@ def plot(couple='tilts_speed'):
     for band, frame, span, half in bands:
         frame = frame.reindex(index=df.index, columns=df.columns)
         ccorr = bowdef_utils.correlate_dataframes(
-            frame[var], frame[ref]['LI05'] if ref == var else frame[ref],
+            frame[var], frame[ref]['UI06'] if ref == var else frame[ref],
             smin=f'-{span}', smax=span)
         delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
@@ -271,7 +274,8 @@ def main():
     couples = [
         'speed_tides', 'stress_speed', 'stress_tides', 'stress_tilts',
         'tilts_speed', 'tilts_tides', 'tilts_tilts']
-    plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
+    years = ['2015', '2016', '2017']
+    plotter = bowstr_utils.MultiPlotter(plot, couples=couples, years=years)
     plotter()
 
 
