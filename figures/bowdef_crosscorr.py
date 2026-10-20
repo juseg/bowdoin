@@ -118,6 +118,9 @@ def plot_correlations(ax, ccorrs, delays, halves):
     subaxes[-1].set_xlabel('time delay')
     subaxes[len(subaxes)//2].set_ylabel('cross-correlation', labelpad=0)
 
+    # return subplots
+    return subaxes
+
 
 def plot_phase_delays(ax, depth, delays):
     """Plot phase delays against depth, one marker per band."""
@@ -217,11 +220,6 @@ def plot(couple='tilts_speed', year='2015'):
         'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
         'wspace': 17.5})
 
-    # add subfigure labels
-    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], loc='sw')
-    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
-    bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
-
     # load all variables
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(filt='24hbp', join='inner')
@@ -262,9 +260,14 @@ def plot(couple='tilts_speed', year='2015'):
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
     # plot time series, correlations and phase delays
-    plot_time_series(fig.axes[0], depth, df, var, ref)
-    plot_correlations(fig.axes[1], ccorrs, delays, halves)
-    plot_phase_delays(fig.axes[2], depth, delays)
+    tsax, ccax, pdax = fig.axes
+    plot_time_series(tsax, depth, df, var, ref)
+    ccaxes = plot_correlations(ccax, ccorrs, delays, halves)
+    plot_phase_delays(pdax, depth, delays)
+
+    # add subfigure labels
+    for ax, label in zip([tsax, *ccaxes, pdax], 'abcde'):
+        bowtem_utils.add_subfig_label(f'({label})', ax=ax, loc='sw')
 
     # return figure
     return fig
