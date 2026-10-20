@@ -69,23 +69,37 @@ def filter_harmonic_series(series, period, truncate=3.0, spread=0.8):
     return pd.Series(filtered, index=series.index, name=series.name)
 
 
-def plot_correlations(ax, ccorr, delay):
-    """Plot cross-correlations and phase delays."""
+def plot_correlations(ax, ccorrs, delays):
+    """Plot cross-correlations and phase delays on one row per band."""
 
-    # plot cross-correlation (series.plot with deltas affected by #18910)
-    ax.plot(-ccorr.index/pd.to_timedelta('1h'), ccorr)
-    for i, unit in enumerate(ccorr):
-        ax.plot(
-            delay[unit]/pd.to_timedelta('1h'), ccorr[unit][-delay[unit]],
-            color=f'C{i}', marker='o')
+    # initialize subsubplots
+    subaxes = bowstr_utils.subsubplots(ax.figure, [ax], nrows=len(ccorrs))[0]
+
+    # for each band
+    for ax, (band, ccorr) in zip(subaxes, ccorrs.items()):
+        delay = delays[band]
+
+        # plot cross-correlation (series.plot with deltas affected by #18910)
+        ax.plot(-ccorr.index/pd.to_timedelta('1h'), ccorr)
+        for i, unit in enumerate(ccorr):
+            ax.plot(
+                delay[unit]/pd.to_timedelta('1h'), ccorr[unit][-delay[unit]],
+                color=f'C{i}', marker='o')
+
+        # add band label and hide tick labels except on last row
+        ax.axvline(0.0, ls=':')
+        ax.text(
+            1.04, 0.5, band, fontsize=6, fontweight='bold', ha='center',
+            va='center', rotation='vertical', transform=ax.transAxes)
+        ax.tick_params(labelbottom=ax.get_subplotspec().is_last_row())
 
     # set axes properties
-    ax.axvline(0.0, ls=':')
     ax.set_xticks(range(-36, 48, 12))
+    ax.set_ylim(-1, 1)
+    ax.set_yticks([-0.5, 0, 0.5])
     ax.set_xlabel('time delay (h)')
-    ax.set_ylabel('cross-correlation', labelpad=0)
+    subaxes[len(subaxes)//2].set_ylabel('cross-correlation', labelpad=0)
     ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
-    ax.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
 
 
 def plot_phase_delays(ax, depth, delay):
@@ -172,7 +186,8 @@ def plot(couple='tilts_speed', method='inner'):
     fig.subplots_mm(ncols=1, gridspec_kw={
         'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
     fig.subplots_mm(ncols=2, gridspec_kw={
-        'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
+        'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+        'wspace': 17.5})
 
     # add subfigure labels
     bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], loc='sw')
@@ -182,6 +197,14 @@ def plot(couple='tilts_speed', method='inner'):
     # load all variables
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
+
+    # extract daily and tidal components of the correlated variables over the
+    # full record, so that the time interval edges are not affected
+    keys = dict(tilts='tilt', speed='gnss', stress='pres', tides='tide')
+    var, ref = (keys[k] for k in couple.split('_'))
+    subset = df.loc[:, df.columns.isin([var, ref], level='variable')]
+    daily = filter_harmonic_dataframe(subset, '24h')
+    tidal = filter_harmonic_dataframe(subset, '12.42h')
 
     # select time interval and drop empty records
     # df = df.loc['20140701':'20140831']  # 2014 with gnss but before refreezing
@@ -194,21 +217,29 @@ def plot(couple='tilts_speed', method='inner'):
     # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
     df = df.loc['20150516':'20150815']  # 2015 full gnss record
     df = df.dropna(how='all', axis=1)
+    daily = daily.reindex(index=df.index, columns=df.columns)
+    tidal = tidal.reindex(index=df.index, columns=df.columns)
 
-    # compute cross-correlations and phase delays
-    keys = dict(tilts='tilt', speed='gnss', stress='pres', tides='tide')
-    var, ref = (keys[k] for k in couple.split('_'))
-    ccorr = bowdef_utils.correlate_dataframes(
-        df[var], df[ref]['LI05'] if ref == var else df[ref])
-    delay = -abs(ccorr).idxmax()
-
-    # to keep the delay between -6 and 6 hours use
-    # delay = -ccorr[abs(ccorr.index) < pd.to_timedelta('6h')].idxmax()
+    # compute cross-correlations for each band, and pick phase delays at the
+    # maximum absolute correlation, or for the daily and tidal components, at
+    # the maximum correlation within half a period
+    bands = [
+        ('unfiltered', df, None), ('daily (24 h)', daily, '12h'),
+        ('tidal (12.42 h)', tidal, '6.21h')]
+    ccorrs, delays = {}, {}
+    for band, frame, half in bands:
+        ccorr = bowdef_utils.correlate_dataframes(
+            frame[var], frame[ref]['LI05'] if ref == var else frame[ref])
+        if half is None:
+            delay = -abs(ccorr).idxmax()
+        else:
+            delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
+        ccorrs[band], delays[band] = ccorr, delay
 
     # plot time series, correlations and phase delays
     plot_time_series(fig.axes[0], depth, df, var, ref)
-    plot_correlations(fig.axes[1], ccorr, delay)
-    plot_phase_delays(fig.axes[2], depth, delay)
+    plot_correlations(fig.axes[1], ccorrs, delays)
+    plot_phase_delays(fig.axes[2], depth, delays['unfiltered'])
 
     # save partial
     # fig.axes[1].set_visible(False)
