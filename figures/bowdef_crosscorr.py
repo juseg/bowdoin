@@ -184,7 +184,7 @@ def plot_time_series(ax, depth, df, var, ref):
         ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
         ax.set_ylim(ylim.get(var, None))
         ax.set_yticks(yticks.get(var, ax.get_yticks()))
-        ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
+        ax.tick_params(labelleft=i == df[var].shape[1]-1)
 
     # plot reference variable time series
     if df[ref].shape[1] == 1:
@@ -200,8 +200,9 @@ def plot_time_series(ax, depth, df, var, ref):
         ax.set_ylim(ylim.get(ref, None))
         ax.set_yticks(yticks.get(ref, ax.get_yticks()))
 
-    # set labels and remove empty headlines in date tick labels
-    subaxes[df[var].shape[1]//2].set_ylabel(ylabel.get(var))
+    # set labels (centred on primary variable axes, upper of two middle ones)
+    # and remove empty headlines in date tick labels
+    subaxes[(df[var].shape[1]-1)//2].set_ylabel(ylabel.get(var))
     subaxes[-1].set_xlabel('')
 
 
