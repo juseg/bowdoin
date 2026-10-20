@@ -107,7 +107,7 @@ def plot_correlations(ax, ccorrs, delays, halves):
         # add band label, with the time delay unit
         ax.axvline(0.0, ls=':')
         ax.text(
-            1.04, 0.5, f'{band.split()[0]} ({"d" if days else "h"})',
+            1.06, 0.5, f'{band.split()[0]} ({"d" if days else "h"})',
             fontsize=6, fontweight='bold', ha='center', va='center',
             rotation='vertical', transform=ax.transAxes)
 
@@ -121,7 +121,7 @@ def plot_correlations(ax, ccorrs, delays, halves):
 
     # set labels
     subaxes[-1].set_xlabel('time delay')
-    subaxes[len(subaxes)//2].set_ylabel('cross-correlation', labelpad=0)
+    subaxes[len(subaxes)//2].set_ylabel('cross-correlation', labelpad=2)
 
     # return subplots
     return subaxes
@@ -277,7 +277,7 @@ def plot(couple='tilts_speed', year='2015'):
 
     # add subfigure labels
     for ax, label in zip([tsax, *ccaxes, pdax], 'abcde'):
-        bowtem_utils.add_subfig_label(f'({label})', ax=ax, loc='sw')
+        bowtem_utils.add_subfig_label(f'({label})', ax=ax)
 
     # return figure
     return fig
