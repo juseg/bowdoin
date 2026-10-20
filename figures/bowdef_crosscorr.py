@@ -12,6 +12,9 @@ import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
+# peak markers for the multi-day, daily and tidal bands
+MARKERS = ['o', 's', '^']
+
 
 def filter_harmonic_dataframe(df, period, *args, **kwargs):
     """Apply kernel-weighted harmonic fit on each series in a dataframe."""
@@ -78,7 +81,7 @@ def plot_correlations(ax, ccorrs, delays, halves):
     ax.set_axis_off()
 
     # for each band
-    for ax, (band, ccorr) in zip(subaxes, ccorrs.items()):
+    for ax, marker, (band, ccorr) in zip(subaxes, MARKERS, ccorrs.items()):
         delay = delays[band]
 
         # plot time delays in days beyond two days, else in hours
@@ -92,12 +95,14 @@ def plot_correlations(ax, ccorrs, delays, halves):
         ax.axvspan(-span, -half, color='0.9', zorder=0)
         ax.axvspan(half, span, color='0.9', zorder=0)
 
-        # plot cross-correlation (series.plot with deltas affected by #18910)
+        # plot cross-correlation (series.plot with deltas affected by #18910),
+        # with hollow peak markers for the lower borehole (BH3) units
         ax.plot(-ccorr.index/unit, ccorr)
         for i, column in enumerate(ccorr):
             ax.plot(
                 delay[column]/unit, ccorr[column][-delay[column]],
-                color=f'C{i}', marker='o')
+                color=f'C{i}', marker=marker,
+                mfc='none' if column[0] == 'L' else None)
 
         # add band label, with the time delay unit
         ax.axvline(0.0, ls=':')
@@ -127,15 +132,14 @@ def plot_phase_delays(ax, depth, delays):
 
     # plot phase delays, slightly offset in depth for each band, with hollow
     # markers for the lower borehole (BH3) units
-    markers = ['o', 's', '^']
     for k, (band, delay) in enumerate(delays.items()):
         delay = delay / pd.to_timedelta('1h')
         offset = 3*(k-1)
         for i, unit in enumerate(delay.index):
             ax.plot(
                 delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
-                marker=markers[k], mfc='none' if unit[0] == 'L' else None)
-        ax.plot([], [], color='0.25', ls='', marker=markers[k],
+                marker=MARKERS[k], mfc='none' if unit[0] == 'L' else None)
+        ax.plot([], [], color='0.25', ls='', marker=MARKERS[k],
                 label=band.split()[0])
     ax.legend(loc='center left', fontsize=6)
 
