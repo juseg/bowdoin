@@ -109,8 +109,8 @@ def plot_correlations(ax, ccorrs, delays, halves):
         # set axes properties
         ax.set_xlim(-span, span)
         ax.set_xticks(range(-10, 11, 5) if days else range(-36, 37, 12))
-        ax.set_ylim(-1, 1)
-        ax.set_yticks([-0.5, 0, 0.5])
+        ax.set_ylim(-1.2, 1.2)
+        ax.set_yticks([-1, 0, 1])
         if not days:
             ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
 
