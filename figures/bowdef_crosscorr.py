@@ -81,34 +81,41 @@ def plot_correlations(ax, ccorrs, delays, halves):
     for ax, (band, ccorr) in zip(subaxes, ccorrs.items()):
         delay = delays[band]
 
+        # plot time delays in days beyond two days, else in hours
+        span = ccorr.index.max()
+        days = span > pd.to_timedelta('2D')
+        unit = pd.to_timedelta('1D' if days else '1h')
+        span = span / unit
+        half = pd.to_timedelta(halves[band]) / unit
+
         # shade time delays outside the search window
-        if halves[band] is not None:
-            half = pd.to_timedelta(halves[band]) / pd.to_timedelta('1h')
-            ax.axvspan(-36, -half, color='0.9', zorder=0)
-            ax.axvspan(half, 36, color='0.9', zorder=0)
+        ax.axvspan(-span, -half, color='0.9', zorder=0)
+        ax.axvspan(half, span, color='0.9', zorder=0)
 
         # plot cross-correlation (series.plot with deltas affected by #18910)
-        ax.plot(-ccorr.index/pd.to_timedelta('1h'), ccorr)
-        for i, unit in enumerate(ccorr):
+        ax.plot(-ccorr.index/unit, ccorr)
+        for i, column in enumerate(ccorr):
             ax.plot(
-                delay[unit]/pd.to_timedelta('1h'), ccorr[unit][-delay[unit]],
+                delay[column]/unit, ccorr[column][-delay[column]],
                 color=f'C{i}', marker='o')
 
-        # add band label
+        # add band label, with the time delay unit
         ax.axvline(0.0, ls=':')
         ax.text(
-            1.04, 0.5, band, fontsize=6, fontweight='bold', ha='center',
-            va='center', rotation='vertical', transform=ax.transAxes)
+            1.04, 0.5, f'{band.split()[0]} ({"d" if days else "h"})',
+            fontsize=6, fontweight='bold', ha='center', va='center',
+            rotation='vertical', transform=ax.transAxes)
 
         # set axes properties
-        ax.set_xlim(-36, 36)
-        ax.set_xticks(range(-36, 37, 12))
+        ax.set_xlim(-span, span)
+        ax.set_xticks(range(-10, 11, 5) if days else range(-36, 37, 12))
         ax.set_ylim(-1, 1)
         ax.set_yticks([-0.5, 0, 0.5])
-        ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
+        if not days:
+            ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
 
     # set labels
-    subaxes[-1].set_xlabel('time delay (h)')
+    subaxes[-1].set_xlabel('time delay')
     subaxes[len(subaxes)//2].set_ylabel('cross-correlation', labelpad=0)
 
 
@@ -139,7 +146,7 @@ def plot_phase_delays(ax, depth, delays):
     ax.set_xlim(-lim, lim)
 
     # force axes limits on surface speed
-    if 'GNSS' in delays['unfiltered']:
+    if 'GNSS' in delays['multi-day']:
         ax.set_ylim(103, -23)
 
 
@@ -218,11 +225,15 @@ def plot(couple='tilts_speed', method='inner'):
     depth = bowstr_utils.load(variable='dept').iloc[0]
     df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
 
-    # extract daily and tidal components of the correlated variables over the
-    # full record, so that the time interval edges are not affected
+    # extract multi-day (difference of 12-hour and 10-day kernel fits), daily
+    # and tidal components of the correlated variables over the full record,
+    # so that the time interval edges are not affected
     keys = dict(tilts='tilt', speed='gnss', stress='pres', tides='tide')
     var, ref = (keys[k] for k in couple.split('_'))
     subset = df.loc[:, df.columns.isin([var, ref], level='variable')]
+    multiday = (
+        bowdef_utils.filter_kernel_dataframe(subset, '12h') -
+        bowdef_utils.filter_kernel_dataframe(subset, '10D'))
     daily = filter_harmonic_dataframe(subset, '24h')
     tidal = filter_harmonic_dataframe(subset, '12.42h')
 
@@ -237,23 +248,21 @@ def plot(couple='tilts_speed', method='inner'):
     # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
     df = df.loc['20150516':'20150815']  # 2015 full gnss record
     df = df.dropna(how='all', axis=1)
-    daily = daily.reindex(index=df.index, columns=df.columns)
-    tidal = tidal.reindex(index=df.index, columns=df.columns)
 
-    # compute cross-correlations for each band, and pick phase delays at the
-    # maximum absolute correlation, or for the daily and tidal components, at
-    # the maximum correlation within half a period
+    # compute cross-correlations for each band over a range of time delays,
+    # and pick phase delays at the maximum correlation within a search window
+    # (half a period for the daily and tidal components)
     bands = [
-        ('unfiltered', df, None), ('daily (24 h)', daily, '12h'),
-        ('tidal (12.42 h)', tidal, '6.21h')]
+        ('multi-day', multiday, '10D', '5D'),
+        ('daily (24 h)', daily, '36h', '12h'),
+        ('tidal (12.42 h)', tidal, '36h', '6.21h')]
     ccorrs, delays, halves = {}, {}, {}
-    for band, frame, half in bands:
+    for band, frame, span, half in bands:
+        frame = frame.reindex(index=df.index, columns=df.columns)
         ccorr = bowdef_utils.correlate_dataframes(
-            frame[var], frame[ref]['LI05'] if ref == var else frame[ref])
-        if half is None:
-            delay = -abs(ccorr).idxmax()
-        else:
-            delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
+            frame[var], frame[ref]['LI05'] if ref == var else frame[ref],
+            smin=f'-{span}', smax=span)
+        delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
     # plot time series, correlations and phase delays
