@@ -5,11 +5,68 @@
 
 """Plot Bowdoin deformation cross-correlation."""
 
+import numpy as np
 import pandas as pd
 import absplots as apl
 import bowdef_utils
 import bowtem_utils
 import bowstr_utils
+
+
+def filter_harmonic_dataframe(df, period, *args, **kwargs):
+    """Apply kernel-weighted harmonic fit on each series in a dataframe."""
+
+    return pd.concat([filter_harmonic_series(
+        df[column], period, *args, **kwargs) for column in df], axis=1)
+
+
+def filter_harmonic_series(series, period, truncate=3.0, spread=0.8):
+    """Extract a periodic component by Gaussian kernel-weighted harmonic fit.
+
+    At each sample, fit a constant and a sinusoid of given period (a duration
+    such as '24h') to valid values within the kernel support, weighted by a
+    Gaussian of standard deviation one period, and return the fitted sinusoid
+    at that sample. Missing values get zero weight. The fit coefficients are
+    those of the weighted wavelet Z-transform (Foster, 1996) with a decay
+    constant of 1/(8 pi^2). Results are masked where values are missing, and
+    where the kernel-weighted time spread (standard deviation) of valid values
+    falls below a fraction spread of the period, as in
+    bowdef_utils.filter_kernel_series.
+    """
+
+    # infer sampling interval and convert period (kernel std) to samples
+    freq = pd.to_timedelta(pd.infer_freq(series.index))
+    sigma = pd.to_timedelta(period) / freq
+
+    # prepare kernel on sample offsets, masked and centred values, and basis
+    # functions (constant, cosine and sine) of absolute sample time
+    radius = int(truncate*sigma + 0.5)
+    offsets = np.arange(-radius, radius+1)
+    kernel = np.exp(-0.5*(offsets/sigma)**2)
+    valid = series.notna().to_numpy()
+    values = np.where(valid, series-series.mean(), 0)
+    phase = 2*np.pi*np.arange(len(series))/sigma
+    basis = [np.ones(len(series)), np.cos(phase), np.sin(phase)]
+
+    # weighted sums of offset powers (ws), of basis products (wb) and of
+    # values times basis functions (vb) as convolutions (reversed offsets)
+    def convolve(signal, power=0):
+        return np.convolve(signal, kernel*(-offsets)**power, mode='same')
+    ws = [convolve(valid, power) for power in range(3)]
+    wb = np.array([[convolve(valid*bi*bj) for bj in basis] for bi in basis])
+    vb = np.array([convolve(values*bi) for bi in basis])
+
+    # solve weighted least squares for the local sinusoid where well spread
+    with np.errstate(divide='ignore', invalid='ignore'):
+        masked = ~(ws[2]/ws[0]-(ws[1]/ws[0])**2 >= (spread*sigma)**2)
+    wb = wb.transpose(2, 0, 1)
+    wb[masked] = np.eye(3)
+    coefs = np.linalg.solve(wb, vb.T[..., None])[..., 0]
+    filtered = coefs[:, 1]*basis[1] + coefs[:, 2]*basis[2]
+    filtered[masked | ~valid] = np.nan
+
+    # return new series with filtered values
+    return pd.Series(filtered, index=series.index, name=series.name)
 
 
 def plot_correlations(ax, ccorr, delay):
