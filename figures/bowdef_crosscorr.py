@@ -72,8 +72,10 @@ def filter_harmonic_series(series, period, truncate=3.0, spread=0.8):
 def plot_correlations(ax, ccorrs, delays, halves):
     """Plot cross-correlations and phase delays on one row per band."""
 
-    # initialize subsubplots
-    subaxes = bowstr_utils.subsubplots(ax.figure, [ax], nrows=len(ccorrs))[0]
+    # initialize regular subplots within the parent axes
+    subaxes = ax.get_subplotspec().subgridspec(
+        nrows=len(ccorrs), ncols=1, hspace=0.45).subplots()
+    ax.set_axis_off()
 
     # for each band
     for ax, (band, ccorr) in zip(subaxes, ccorrs.items()):
@@ -92,21 +94,22 @@ def plot_correlations(ax, ccorrs, delays, halves):
                 delay[unit]/pd.to_timedelta('1h'), ccorr[unit][-delay[unit]],
                 color=f'C{i}', marker='o')
 
-        # add band label and hide tick labels except on last row
+        # add band label
         ax.axvline(0.0, ls=':')
         ax.text(
             1.04, 0.5, band, fontsize=6, fontweight='bold', ha='center',
             va='center', rotation='vertical', transform=ax.transAxes)
-        ax.tick_params(labelbottom=ax.get_subplotspec().is_last_row())
 
-    # set axes properties
-    ax.set_xlim(-36, 36)
-    ax.set_xticks(range(-36, 48, 12))
-    ax.set_ylim(-1, 1)
-    ax.set_yticks([-0.5, 0, 0.5])
-    ax.set_xlabel('time delay (h)')
+        # set axes properties
+        ax.set_xlim(-36, 36)
+        ax.set_xticks(range(-36, 37, 12))
+        ax.set_ylim(-1, 1)
+        ax.set_yticks([-0.5, 0, 0.5])
+        ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
+
+    # set labels
+    subaxes[-1].set_xlabel('time delay (h)')
     subaxes[len(subaxes)//2].set_ylabel('cross-correlation', labelpad=0)
-    ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
 
 
 def plot_phase_delays(ax, depth, delays):
