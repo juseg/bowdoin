@@ -205,7 +205,7 @@ def plot_time_series(ax, depth, df, var, ref):
     subaxes[-1].set_xlabel('')
 
 
-def plot(couple='tilts_speed', method='inner'):
+def plot(couple='tilts_speed'):
     """Plot and return full figure for given options."""
 
     # initialize figure
@@ -223,7 +223,7 @@ def plot(couple='tilts_speed', method='inner'):
 
     # load all variables
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
+    df = bowdef_utils.load_multivariate(filt='24hbp', join='inner')
 
     # extract multi-day (difference of 12-hour and 10-day kernel fits), daily
     # and tidal components of the correlated variables over the full record,
@@ -237,16 +237,8 @@ def plot(couple='tilts_speed', method='inner'):
     daily = filter_harmonic_dataframe(subset, '24h')
     tidal = filter_harmonic_dataframe(subset, '12.42h')
 
-    # select time interval and drop empty records
-    # df = df.loc['20140701':'20140831']  # 2014 with gnss but before refreezing
-    # df = df.loc['20140916':'20141016']  # 2014 all units but no gnss data
-    # df = df.loc['20150527':'20150608']  # 2015 spring tidal buildup
-    # df = df.loc['20150704':'20150803']  # 2015 summer daily cycles
-    # df = df.loc['20150723':'20150803']  # 2015 summer daily zoom
-    # df = df.loc['20160601':'20160930']  # 2016 full gnss record
-    # df = df.loc['20160701':'20160830']  # 2016 summer daily cycles
-    # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
-    df = df.loc['20150516':'20150815']  # 2015 full gnss record
+    # select time interval (2015 full gnss record) and drop empty records
+    df = df.loc['20150516':'20150815']
     df = df.dropna(how='all', axis=1)
 
     # compute cross-correlations for each band over a range of time delays,
@@ -269,14 +261,6 @@ def plot(couple='tilts_speed', method='inner'):
     plot_time_series(fig.axes[0], depth, df, var, ref)
     plot_correlations(fig.axes[1], ccorrs, delays, halves)
     plot_phase_delays(fig.axes[2], depth, delays)
-
-    # save partial
-    # fig.axes[1].set_visible(False)
-    # fig.axes[2].set_visible(False)
-    # fig.savefig(f'{__file__[:-3]}_{filt}_01')
-    # fig.axes[1].set_visible(True)
-    # fig.savefig(f'{__file__[:-3]}_{filt}_02')
-    # fig.axes[2].set_visible(True)
 
     # return figure
     return fig
