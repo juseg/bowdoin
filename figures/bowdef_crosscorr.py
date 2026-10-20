@@ -69,7 +69,7 @@ def filter_harmonic_series(series, period, truncate=3.0, spread=0.8):
     return pd.Series(filtered, index=series.index, name=series.name)
 
 
-def plot_correlations(ax, ccorrs, delays):
+def plot_correlations(ax, ccorrs, delays, halves):
     """Plot cross-correlations and phase delays on one row per band."""
 
     # initialize subsubplots
@@ -78,6 +78,12 @@ def plot_correlations(ax, ccorrs, delays):
     # for each band
     for ax, (band, ccorr) in zip(subaxes, ccorrs.items()):
         delay = delays[band]
+
+        # shade time delays outside the search window
+        if halves[band] is not None:
+            half = pd.to_timedelta(halves[band]) / pd.to_timedelta('1h')
+            ax.axvspan(-36, -half, color='0.9', zorder=0)
+            ax.axvspan(half, 36, color='0.9', zorder=0)
 
         # plot cross-correlation (series.plot with deltas affected by #18910)
         ax.plot(-ccorr.index/pd.to_timedelta('1h'), ccorr)
@@ -94,6 +100,7 @@ def plot_correlations(ax, ccorrs, delays):
         ax.tick_params(labelbottom=ax.get_subplotspec().is_last_row())
 
     # set axes properties
+    ax.set_xlim(-36, 36)
     ax.set_xticks(range(-36, 48, 12))
     ax.set_ylim(-1, 1)
     ax.set_yticks([-0.5, 0, 0.5])
@@ -117,22 +124,19 @@ def plot_phase_delays(ax, depth, delays):
                 marker=markers[k], mfc='none' if unit[0] == 'L' else None)
         ax.plot([], [], color='0.25', ls='', marker=markers[k],
                 label=band.split()[0])
+    ax.legend(loc='center left', fontsize=6)
 
-    # add unit labels next to the unfiltered delays
-    delay = delays['unfiltered'] / pd.to_timedelta('1h')
-    for i, unit in enumerate(delay.index):
-        ax.text(delay[unit], depth.get(unit, 0)-4, f' {unit}', color=f'C{i}')
-    ax.legend(loc='center right', fontsize=6)
-
-    # set axes properties
+    # set axes properties, with symmetric limits and a shaded one-hour band
     ax.axvline(0.0, ls=':')
+    ax.axvspan(-1, 1, color='0.9', zorder=0)
     ax.invert_yaxis()
     ax.set_xlabel('phase delay (h)')
     ax.set_ylabel('sensor depth (m)')
-    ax.set_xlim(ax.get_xlim()[0], 1.2*ax.get_xlim()[1]-0.2*ax.get_xlim()[0])
+    lim = 1.1 * max(abs(x) for x in ax.get_xlim())
+    ax.set_xlim(-lim, lim)
 
     # force axes limits on surface speed
-    if 'GNSS' in delay:
+    if 'GNSS' in delays['unfiltered']:
         ax.set_ylim(103, -23)
 
 
@@ -239,7 +243,7 @@ def plot(couple='tilts_speed', method='inner'):
     bands = [
         ('unfiltered', df, None), ('daily (24 h)', daily, '12h'),
         ('tidal (12.42 h)', tidal, '6.21h')]
-    ccorrs, delays = {}, {}
+    ccorrs, delays, halves = {}, {}, {}
     for band, frame, half in bands:
         ccorr = bowdef_utils.correlate_dataframes(
             frame[var], frame[ref]['LI05'] if ref == var else frame[ref])
@@ -247,11 +251,11 @@ def plot(couple='tilts_speed', method='inner'):
             delay = -abs(ccorr).idxmax()
         else:
             delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
-        ccorrs[band], delays[band] = ccorr, delay
+        ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
     # plot time series, correlations and phase delays
     plot_time_series(fig.axes[0], depth, df, var, ref)
-    plot_correlations(fig.axes[1], ccorrs, delays)
+    plot_correlations(fig.axes[1], ccorrs, delays, halves)
     plot_phase_delays(fig.axes[2], depth, delays)
 
     # save partial
