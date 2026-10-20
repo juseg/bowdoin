@@ -93,7 +93,11 @@
     Greenland, and compare it to surface velocity records from geopositioning
     and satellite remote sensing. These records show that the glacier motion is
     largely dominated by basal sliding. Internal deformation speeds
-    up alongside sliding at tidal \todo{to be confirmed in crosscorr figure}
+    up alongside sliding at tidal
+    \todo{crosscorr figure shows tilt rates synchronous with speed within
+    about 1\,h at tidal, daily and multi-day periods, except 2015 UI04 and
+    LI03 daily leads and the June 2015 onset; confirm once delay
+    uncertainties are quantified}
     to seasonal time scales, resulting in a near-constant ratio of
     twenty-to-one between basal sliding and internal
     shear deformation over the whole measurement period.
@@ -270,19 +274,29 @@
     \end{figure}
 
     \begin{figure}
-      \centerline{\includegraphics{bowdef_crosscorr_tilts_speed}}
+      \centerline{\includegraphics{bowdef_crosscorr_tilts_speed_2015}}
       \caption{%
         \textbf{(a)}
           Extract of kernel-weighted-regressed (3\,h) tilt rates and surface
           speed over the 2015 GNSS record, from 2015 May~16 to Aug.~15.
-        \textbf{(b)}
+        \textbf{(b--d)}
           Cross-correlation between each tilt rate series and surface
-          speed. Coloured dots indicate the maximum absolute correlation.
-        \textbf{(c)}
-          Corresponding phase delay plotted against initial sensor depth.
-          \todo{understand delays, which shift by several hours with the
-          smoothing window (Gaussian 1.5 to 6\,h) and may need a band-pass,
-          e.g.\ a difference of kernel fits}}
+          speed, for (b) the multi-day component (time delay in days),
+          from the difference of 12\,h and 10\,d kernel-weighted regressions,
+          and for the (c) daily (24\,h) and (d) tidal (12.42\,h)
+          components extracted by Gaussian kernel-weighted local harmonic
+          fits with a standard deviation of one period
+          \citep[weighted wavelet Z-transform,][]{Foster.1996}.
+          Coloured dots indicate the maximum correlation within 5\,d, or for
+          the daily and tidal components, within half a period (outside
+          shaded).
+        \textbf{(e)}
+          Corresponding phase delays, multi-day (circles), daily (squares)
+          and tidal (triangles), plotted against initial sensor depth, with
+          hollow markers for BH3, and delays within one hour shaded.
+          \todo{quantify delay uncertainty, e.g.\ by block-bootstrap ranges or
+          another method; the multi-day delays are a small fraction of the
+          period and may be removed if their uncertainty is too large}}
       \label{fig:crosscorr}
     \end{figure}
 

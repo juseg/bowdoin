@@ -5,50 +5,155 @@
 
 """Plot Bowdoin deformation cross-correlation."""
 
+import numpy as np
 import pandas as pd
 import absplots as apl
 import bowdef_utils
 import bowtem_utils
 import bowstr_utils
 
+# peak markers for the multi-day, daily and tidal bands
+MARKERS = ['o', 's', '^']
 
-def plot_correlations(ax, ccorr, delay):
-    """Plot cross-correlations and phase delays."""
 
-    # plot cross-correlation (series.plot with deltas affected by #18910)
-    ax.plot(-ccorr.index/pd.to_timedelta('1h'), ccorr)
-    for i, unit in enumerate(ccorr):
-        ax.plot(
-            delay[unit]/pd.to_timedelta('1h'), ccorr[unit][-delay[unit]],
-            color=f'C{i}', marker='o')
+def filter_harmonic_dataframe(df, period, *args, **kwargs):
+    """Apply kernel-weighted harmonic fit on each series in a dataframe."""
 
-    # set axes properties
+    return pd.concat([filter_harmonic_series(
+        df[column], period, *args, **kwargs) for column in df], axis=1)
+
+
+def filter_harmonic_series(series, period, truncate=3.0, spread=0.8):
+    """Extract a periodic component by Gaussian kernel-weighted harmonic fit.
+
+    At each sample, fit a constant and a sinusoid of given period (a duration
+    such as '24h') to valid values within the kernel support, weighted by a
+    Gaussian of standard deviation one period, and return the fitted sinusoid
+    at that sample. Missing values get zero weight. The fit coefficients are
+    those of the weighted wavelet Z-transform (Foster, 1996) with a decay
+    constant of 1/(8 pi^2). Results are masked where values are missing, and
+    where the kernel-weighted time spread (standard deviation) of valid values
+    falls below a fraction spread of the period, as in
+    bowdef_utils.filter_kernel_series.
+    """
+
+    # infer sampling interval and convert period (kernel std) to samples
+    freq = pd.to_timedelta(pd.infer_freq(series.index))
+    sigma = pd.to_timedelta(period) / freq
+
+    # prepare kernel on sample offsets, masked and centred values, and basis
+    # functions (constant, cosine and sine) of absolute sample time
+    radius = int(truncate*sigma + 0.5)
+    offsets = np.arange(-radius, radius+1)
+    kernel = np.exp(-0.5*(offsets/sigma)**2)
+    valid = series.notna().to_numpy()
+    values = np.where(valid, series-series.mean(), 0)
+    phase = 2*np.pi*np.arange(len(series))/sigma
+    basis = [np.ones(len(series)), np.cos(phase), np.sin(phase)]
+
+    # weighted sums of offset powers (ws), of basis products (wb) and of
+    # values times basis functions (vb) as convolutions (reversed offsets)
+    def convolve(signal, power=0):
+        return np.convolve(signal, kernel*(-offsets)**power, mode='same')
+    ws = [convolve(valid, power) for power in range(3)]
+    wb = np.array([[convolve(valid*bi*bj) for bj in basis] for bi in basis])
+    vb = np.array([convolve(values*bi) for bi in basis])
+
+    # solve weighted least squares for the local sinusoid where well spread
+    with np.errstate(divide='ignore', invalid='ignore'):
+        masked = ~(ws[2]/ws[0]-(ws[1]/ws[0])**2 >= (spread*sigma)**2)
+    wb = wb.transpose(2, 0, 1)
+    wb[masked] = np.eye(3)
+    coefs = np.linalg.solve(wb, vb.T[..., None])[..., 0]
+    filtered = coefs[:, 1]*basis[1] + coefs[:, 2]*basis[2]
+    filtered[masked | ~valid] = np.nan
+
+    # return new series with filtered values
+    return pd.Series(filtered, index=series.index, name=series.name)
+
+
+def plot_correlations(ax, ccorrs, delays, halves):
+    """Plot cross-correlations and phase delays on one row per band."""
+
+    # initialize regular subplots within the parent axes
+    subaxes = ax.get_subplotspec().subgridspec(
+        nrows=len(ccorrs), ncols=1, hspace=0.45).subplots()
+    ax.set_axis_off()
+
+    # for each band
+    for ax, marker, (band, ccorr) in zip(subaxes, MARKERS, ccorrs.items()):
+        delay = delays[band]
+
+        # plot time delays in days beyond two days, else in hours
+        span = ccorr.index.max()
+        days = span > pd.to_timedelta('2D')
+        unit = pd.to_timedelta('1D' if days else '1h')
+        span = span / unit
+        half = pd.to_timedelta(halves[band]) / unit
+
+        # shade time delays outside the search window
+        ax.axvspan(-span, -half, color='0.9', zorder=0)
+        ax.axvspan(half, span, color='0.9', zorder=0)
+
+        # plot cross-correlation (series.plot with deltas affected by #18910),
+        # with hollow peak markers for the lower borehole (BH3) units
+        ax.plot(-ccorr.index/unit, ccorr)
+        for i, column in enumerate(ccorr):
+            ax.plot(
+                delay[column]/unit, ccorr[column][-delay[column]],
+                color=f'C{i}', marker=marker,
+                mfc='none' if column[0] == 'L' else None)
+
+        # add band label, with the time delay unit
+        ax.axvline(0.0, ls=':')
+        ax.text(
+            1.06, 0.5, f'{band.split()[0]} ({"d" if days else "h"})',
+            fontsize=6, fontweight='bold', ha='center', va='center',
+            rotation='vertical', transform=ax.transAxes)
+
+        # set axes properties
+        ax.set_xlim(-span, span)
+        ax.set_xticks(range(-10, 11, 5) if days else range(-36, 37, 12))
+        ax.set_ylim(-1.2, 1.2)
+        ax.set_yticks([-1, 0, 1])
+        if not days:
+            ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
+
+    # set labels
+    subaxes[-1].set_xlabel('time delay')
+    subaxes[len(subaxes)//2].set_ylabel('cross-correlation', labelpad=2)
+
+    # return subplots
+    return subaxes
+
+
+def plot_phase_delays(ax, depth, delays):
+    """Plot phase delays against depth, one marker per band."""
+
+    # plot phase delays, slightly offset in depth for each band, with hollow
+    # markers for the lower borehole (BH3) units
+    for k, (band, delay) in enumerate(delays.items()):
+        delay = delay / pd.to_timedelta('1h')
+        offset = 3*(k-1)
+        for i, unit in enumerate(delay.index):
+            ax.plot(
+                delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
+                marker=MARKERS[k], mfc='none' if unit[0] == 'L' else None)
+        ax.plot([], [], color='0.25', ls='', marker=MARKERS[k],
+                label=band.split()[0])
+    ax.legend(loc='center left', fontsize=6)
+
+    # set axes properties, with symmetric limits and a shaded one-hour band
     ax.axvline(0.0, ls=':')
-    ax.set_xticks(range(-36, 48, 12))
-    ax.set_xlabel('time delay (h)')
-    ax.set_ylabel('cross-correlation', labelpad=0)
-    ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
-    ax.yaxis.set_major_formatter(lambda y, pos: f'{y:g}'*(pos % 2))
-
-
-def plot_phase_delays(ax, depth, delay):
-    """Plot cross-correlations and phase delays."""
-
-    # plot phase delays
-    delay = delay / pd.to_timedelta('1h')
-    for i, unit in enumerate(delay.index):
-        ax.plot(delay[unit], depth.get(unit, 0), color=f'C{i}', marker='o')
-        ax.text(delay[unit], depth.get(unit, 0)-1, f' {unit}', color=f'C{i}')
-
-    # set axes properties
-    ax.axvline(0.0, ls=':')
+    ax.axvspan(-1, 1, color='0.9', zorder=0)
     ax.invert_yaxis()
     ax.set_xlabel('phase delay (h)')
     ax.set_ylabel('sensor depth (m)')
-    ax.set_xlim(ax.get_xlim()[0], 1.2*ax.get_xlim()[1]-0.2*ax.get_xlim()[0])
+    lim = 1.1 * max(abs(x) for x in ax.get_xlim())
+    ax.set_xlim(-lim, lim)
 
     # force axes limits on surface speed
-    if 'GNSS' in delay:
+    if 'GNSS' in delays['multi-day']:
         ax.set_ylim(103, -23)
 
 
@@ -86,7 +191,7 @@ def plot_time_series(ax, depth, df, var, ref):
         ax.get_lines()[0].set_clip_box(ax.figure.axes[0].bbox)
         ax.set_ylim(ylim.get(var, None))
         ax.set_yticks(yticks.get(var, ax.get_yticks()))
-        ax.tick_params(labelleft=len(subaxes)-i in (1, 2))
+        ax.tick_params(labelleft=i == df[var].shape[1]-1)
 
     # plot reference variable time series
     if df[ref].shape[1] == 1:
@@ -102,12 +207,13 @@ def plot_time_series(ax, depth, df, var, ref):
         ax.set_ylim(ylim.get(ref, None))
         ax.set_yticks(yticks.get(ref, ax.get_yticks()))
 
-    # set labels and remove empty headlines in date tick labels
-    subaxes[df[var].shape[1]//2].set_ylabel(ylabel.get(var))
+    # set labels (centred on primary variable axes, upper of two middle ones)
+    # and remove empty headlines in date tick labels
+    subaxes[(df[var].shape[1]-1)//2].set_ylabel(ylabel.get(var))
     subaxes[-1].set_xlabel('')
 
 
-def plot(couple='tilts_speed', method='inner'):
+def plot(couple='tilts_speed', year='2015'):
     """Plot and return full figure for given options."""
 
     # initialize figure
@@ -115,51 +221,63 @@ def plot(couple='tilts_speed', method='inner'):
     fig.subplots_mm(ncols=1, gridspec_kw={
         'left': 10, 'right': 127.5, 'bottom': 12.5, 'top': 2.5})
     fig.subplots_mm(ncols=2, gridspec_kw={
-        'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5, 'wspace': 15})
-
-    # add subfigure labels
-    bowtem_utils.add_subfig_label('(a)', ax=fig.axes[0], loc='sw')
-    bowtem_utils.add_subfig_label('(b)', ax=fig.axes[1], loc='sw')
-    bowtem_utils.add_subfig_label('(c)', ax=fig.axes[2], loc='sw')
+        'left': 72.5, 'right': 2.5, 'bottom': 12.5, 'top': 2.5,
+        'wspace': 17.5})
 
     # load all variables
     depth = bowstr_utils.load(variable='dept').iloc[0]
-    df = bowdef_utils.load_multivariate(filt='24hbp', join=method)
+    df = bowdef_utils.load_multivariate(filt='24hbp', join='inner')
 
-    # select time interval and drop empty records
-    # df = df.loc['20140701':'20140831']  # 2014 with gnss but before refreezing
-    # df = df.loc['20140916':'20141016']  # 2014 all units but no gnss data
-    # df = df.loc['20150527':'20150608']  # 2015 spring tidal buildup
-    # df = df.loc['20150704':'20150803']  # 2015 summer daily cycles
-    # df = df.loc['20150723':'20150803']  # 2015 summer daily zoom
-    # df = df.loc['20160601':'20160930']  # 2016 full gnss record
-    # df = df.loc['20160701':'20160830']  # 2016 summer daily cycles
-    # df = df.loc['20160901':'20160923']  # 2016 fall tidal cycles
-    df = df.loc['20150516':'20150815']  # 2015 full gnss record
-    df = df.dropna(how='all', axis=1)
-
-    # compute cross-correlations and phase delays
+    # extract multi-day (difference of 12-hour and 10-day kernel fits), daily
+    # and tidal components of the correlated variables over the full record,
+    # so that the time interval edges are not affected
     keys = dict(tilts='tilt', speed='gnss', stress='pres', tides='tide')
     var, ref = (keys[k] for k in couple.split('_'))
-    ccorr = bowdef_utils.correlate_dataframes(
-        df[var], df[ref]['LI05'] if ref == var else df[ref])
-    delay = -abs(ccorr).idxmax()
+    subset = df.loc[:, df.columns.isin([var, ref], level='variable')]
+    multiday = (
+        bowdef_utils.filter_kernel_dataframe(subset, '12h') -
+        bowdef_utils.filter_kernel_dataframe(subset, '10D'))
+    daily = filter_harmonic_dataframe(subset, '24h')
+    tidal = filter_harmonic_dataframe(subset, '12.42h')
 
-    # to keep the delay between -6 and 6 hours use
-    # delay = -ccorr[abs(ccorr.index) < pd.to_timedelta('6h')].idxmax()
+    # select the gnss record of given year and drop empty records
+    start, end = {
+        '2015': ('20150516', '20150815'), '2016': ('20160610', '20160925'),
+        '2017': ('20170526', '20170712')}[year]
+    df = df.loc[start:end]
+    df = df.dropna(how='all', axis=1)
+
+    # FIXME drop units missing from a multi-unit reference (UI05 tilt masked
+    # by sensor saturation in 2017 stress_tilts), remove with stress cleanup
+    if ref != var and df[ref].shape[1] > 1:
+        df = df.drop(columns=df[var].columns.difference(df[ref].columns),
+                     level='unit')
+
+    # compute cross-correlations for each band over a range of time delays,
+    # and pick phase delays at the maximum correlation within a search window
+    # (half a period for the daily and tidal components)
+    bands = [
+        ('multi-day', multiday, '10D', '5D'),
+        ('daily (24 h)', daily, '36h', '12h'),
+        ('tidal (12.42 h)', tidal, '36h', '6.21h')]
+    ccorrs, delays, halves = {}, {}, {}
+    for band, frame, span, half in bands:
+        frame = frame.reindex(index=df.index, columns=df.columns)
+        ccorr = bowdef_utils.correlate_dataframes(
+            frame[var], frame[ref]['UI06'] if ref == var else frame[ref],
+            smin=f'-{span}', smax=span)
+        delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
+        ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
     # plot time series, correlations and phase delays
-    plot_time_series(fig.axes[0], depth, df, var, ref)
-    plot_correlations(fig.axes[1], ccorr, delay)
-    plot_phase_delays(fig.axes[2], depth, delay)
+    tsax, ccax, pdax = fig.axes
+    plot_time_series(tsax, depth, df, var, ref)
+    ccaxes = plot_correlations(ccax, ccorrs, delays, halves)
+    plot_phase_delays(pdax, depth, delays)
 
-    # save partial
-    # fig.axes[1].set_visible(False)
-    # fig.axes[2].set_visible(False)
-    # fig.savefig(f'{__file__[:-3]}_{filt}_01')
-    # fig.axes[1].set_visible(True)
-    # fig.savefig(f'{__file__[:-3]}_{filt}_02')
-    # fig.axes[2].set_visible(True)
+    # add subfigure labels
+    for ax, label in zip([tsax, *ccaxes, pdax], 'abcde'):
+        bowtem_utils.add_subfig_label(f'({label})', ax=ax)
 
     # return figure
     return fig
@@ -170,7 +288,8 @@ def main():
     couples = [
         'speed_tides', 'stress_speed', 'stress_tides', 'stress_tilts',
         'tilts_speed', 'tilts_tides', 'tilts_tilts']
-    plotter = bowstr_utils.MultiPlotter(plot, couples=couples)
+    years = ['2015', '2016', '2017']
+    plotter = bowstr_utils.MultiPlotter(plot, couples=couples, years=years)
     plotter()
 
 
