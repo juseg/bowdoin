@@ -102,14 +102,27 @@ def plot_correlations(ax, ccorrs, delays):
     ax.xaxis.set_major_formatter(lambda x, pos: f'{x:g}'*(pos % 2))
 
 
-def plot_phase_delays(ax, depth, delay):
-    """Plot cross-correlations and phase delays."""
+def plot_phase_delays(ax, depth, delays):
+    """Plot phase delays against depth, one marker per band."""
 
-    # plot phase delays
-    delay = delay / pd.to_timedelta('1h')
+    # plot phase delays, slightly offset in depth for each band, with hollow
+    # markers for the lower borehole (BH3) units
+    markers = ['o', 's', '^']
+    for k, (band, delay) in enumerate(delays.items()):
+        delay = delay / pd.to_timedelta('1h')
+        offset = 3*(k-1)
+        for i, unit in enumerate(delay.index):
+            ax.plot(
+                delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
+                marker=markers[k], mfc='none' if unit[0] == 'L' else None)
+        ax.plot([], [], color='0.25', ls='', marker=markers[k],
+                label=band.split()[0])
+
+    # add unit labels next to the unfiltered delays
+    delay = delays['unfiltered'] / pd.to_timedelta('1h')
     for i, unit in enumerate(delay.index):
-        ax.plot(delay[unit], depth.get(unit, 0), color=f'C{i}', marker='o')
-        ax.text(delay[unit], depth.get(unit, 0)-1, f' {unit}', color=f'C{i}')
+        ax.text(delay[unit], depth.get(unit, 0)-4, f' {unit}', color=f'C{i}')
+    ax.legend(loc='center right', fontsize=6)
 
     # set axes properties
     ax.axvline(0.0, ls=':')
@@ -239,7 +252,7 @@ def plot(couple='tilts_speed', method='inner'):
     # plot time series, correlations and phase delays
     plot_time_series(fig.axes[0], depth, df, var, ref)
     plot_correlations(fig.axes[1], ccorrs, delays)
-    plot_phase_delays(fig.axes[2], depth, delays['unfiltered'])
+    plot_phase_delays(fig.axes[2], depth, delays)
 
     # save partial
     # fig.axes[1].set_visible(False)
