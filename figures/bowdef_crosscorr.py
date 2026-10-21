@@ -15,6 +15,25 @@ import bowstr_utils
 # peak markers for the multi-day, daily and tidal bands
 MARKERS = ['o', 's', '^']
 
+# gnss record intervals for each year
+YEARS = {
+    '2015': ('20150516', '20150815'), '2016': ('20160610', '20160925'),
+    '2017': ('20170526', '20170712')}
+
+
+def correlate_bands(frame, var, ref, span, half):
+    """Compute cross-correlations and pick delays within a search window."""
+
+    # correlate with the UI06 tilt unit if the reference is also tilt
+    ccorr = bowdef_utils.correlate_dataframes(
+        frame[var], frame[ref]['UI06'] if ref == var else frame[ref],
+        smin=f'-{span}', smax=span)
+
+    # pick phase delays at the maximum correlation within the search window
+    window = ccorr[abs(ccorr.index) <= pd.to_timedelta(half)]
+    delay = -window.dropna(axis=1, how='all').idxmax()
+    return ccorr, delay
+
 
 def filter_harmonic_dataframe(df, period, *args, **kwargs):
     """Apply kernel-weighted harmonic fit on each series in a dataframe."""
@@ -241,9 +260,7 @@ def plot(couple='tilts_speed', year='2015'):
     tidal = filter_harmonic_dataframe(subset, '12.42h')
 
     # select the gnss record of given year and drop empty records
-    start, end = {
-        '2015': ('20150516', '20150815'), '2016': ('20160610', '20160925'),
-        '2017': ('20170526', '20170712')}[year]
+    start, end = YEARS[year]
     df = df.loc[start:end]
     df = df.dropna(how='all', axis=1)
 
@@ -263,10 +280,7 @@ def plot(couple='tilts_speed', year='2015'):
     ccorrs, delays, halves = {}, {}, {}
     for band, frame, span, half in bands:
         frame = frame.reindex(index=df.index, columns=df.columns)
-        ccorr = bowdef_utils.correlate_dataframes(
-            frame[var], frame[ref]['UI06'] if ref == var else frame[ref],
-            smin=f'-{span}', smax=span)
-        delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
+        ccorr, delay = correlate_bands(frame, var, ref, span, half)
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
     # plot time series, correlations and phase delays
