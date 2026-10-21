@@ -336,9 +336,9 @@ def plot(couple='tilts_speed', year='2015'):
         ccorr, delay = correlate_bands(frame, var, ref, span, half)
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
-    # pick delays over calendar half-months of every gnss record, for the
-    # units of the selected year
-    semimonthly = correlate_half_months(bands, var, ref, df.columns)
+    # pick daily and tidal delays over calendar half-months of every gnss
+    # record, for the units of the selected year
+    semimonthly = correlate_half_months(bands[1:], var, ref, df.columns)
 
     # plot time series, correlations and phase delays
     tsax, ccax, pdax = fig.axes
