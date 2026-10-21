@@ -197,14 +197,12 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
         melt = halves.index.month.isin([7, 8])
         offset = 4*(k-1.5)
         for i, unit in enumerate(delay.index):
+            y = depth.get(unit, 0) + offset
             for values, mfc in [(halves[unit][melt], None),
                                 (halves[unit][~melt], 'none')]:
-                ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
-                        color='0.5', ls='', marker=MARKERS[k], mfc=mfc, ms=3,
-                        mew=0.75, zorder=1)
-            ax.plot(
-                delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
-                marker=MARKERS[k])
+                ax.plot(values, [y]*len(values), color='0.5', ls='',
+                        marker=MARKERS[k], mfc=mfc, ms=3, mew=0.75, zorder=1)
+            ax.plot(delay[unit], y, color=f'C{i}', marker=MARKERS[k])
         ax.plot([], [], color='0.25', ls='', marker=MARKERS[k],
                 label=band.split()[0])
 
