@@ -44,19 +44,16 @@ def correlate_half_months(bands, var, ref, columns):
         frame = frame.reindex(columns=columns)
         delays = {}
         for start, end in YEARS.values():
-            for half_start in pd.date_range(
-                    pd.Timestamp(start).replace(day=1), end, freq='SMS-16'):
-                half_end = half_start + pd.offsets.SemiMonthBegin(
-                    day_of_month=16)
 
-                # clip the half-month (1st to 15th or 16th to end of month)
-                # to the gnss record, skip if shorter than 7 days
-                start_time = max(half_start, pd.Timestamp(start))
-                end_time = min(half_end, pd.Timestamp(end) +
-                               pd.to_timedelta('1D')) - pd.to_timedelta('1ns')
-                if end_time - start_time < pd.to_timedelta('7D'):
+            # group the gnss record by half-month (1st to 15th or 16th to
+            # end of month), skip half-months shorter than 7 days
+            record = frame.loc[start:end]
+            index = record.index
+            labels = index.to_period('M').start_time + pd.to_timedelta(
+                15*(index.day > 15), 'D')
+            for half_start, subset in record.groupby(labels):
+                if subset.index[-1] - subset.index[0] < pd.to_timedelta('7D'):
                     continue
-                subset = frame.loc[start_time:end_time]
 
                 # pick delays with lags limited to the search window
                 _, delay = correlate_bands(subset, var, ref, half, half)
