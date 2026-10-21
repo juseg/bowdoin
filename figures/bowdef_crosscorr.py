@@ -35,40 +35,44 @@ def correlate_bands(frame, var, ref, span, half):
     return ccorr, delay
 
 
-def correlate_months(bands, var, ref, columns):
-    """Pick delays over calendar months of every gnss record."""
+def correlate_half_months(bands, var, ref, columns):
+    """Pick delays over calendar half-months of every gnss record."""
 
-    # for each band, collect delays of each month with enough data
-    monthly = {}
+    # for each band, collect delays of each half-month with enough data
+    semimonthly = {}
     for band, frame, _, half in bands:
         frame = frame.reindex(columns=columns)
         delays = {}
         for start, end in YEARS.values():
-            for month in pd.period_range(start, end, freq='M'):
+            for half_start in pd.date_range(
+                    pd.Timestamp(start).replace(day=1), end, freq='SMS-16'):
+                half_end = half_start + pd.offsets.SemiMonthBegin(
+                    day_of_month=16)
 
-                # clip the month to the gnss record, skip if shorter than 15 d
-                start_time = max(month.start_time, pd.Timestamp(start))
-                end_time = min(month.end_time, pd.Timestamp(end) +
-                               pd.to_timedelta('1D') - pd.to_timedelta('1ns'))
-                if end_time - start_time < pd.to_timedelta('15D'):
+                # clip the half-month (1st to 15th or 16th to end of month)
+                # to the gnss record, skip if shorter than 7 days
+                start_time = max(half_start, pd.Timestamp(start))
+                end_time = min(half_end, pd.Timestamp(end) +
+                               pd.to_timedelta('1D')) - pd.to_timedelta('1ns')
+                if end_time - start_time < pd.to_timedelta('7D'):
                     continue
                 subset = frame.loc[start_time:end_time]
 
                 # pick delays with lags limited to the search window
                 _, delay = correlate_bands(subset, var, ref, half, half)
 
-                # mask units with less than half of the month of valid pairs
+                # mask units with less than half of valid pairs
                 other = subset[ref]['UI06'] if ref == var else subset[ref]
                 for unit in subset[var]:
                     pairs = subset[var, unit].notna() & other.get(
                         unit, other.squeeze()).notna()
                     if pairs.mean() < 0.5:
                         delay = delay.drop(unit, errors='ignore')
-                delays[month] = delay
+                delays[half_start] = delay
 
-        # convert to a dataframe with months as rows
-        monthly[band] = pd.DataFrame(delays).T
-    return monthly
+        # convert to a dataframe with half-month starts as rows
+        semimonthly[band] = pd.DataFrame(delays).T
+    return semimonthly
 
 
 def filter_harmonic_dataframe(df, period, *args, **kwargs):
@@ -180,7 +184,7 @@ def plot_correlations(ax, ccorrs, delays, halves):
     return subaxes
 
 
-def plot_phase_delays(ax, depth, delays, monthly):
+def plot_phase_delays(ax, depth, delays, semimonthly):
     """Plot phase delays against depth, one marker per band."""
 
     # plot phase delays, slightly offset in depth for each band
@@ -204,17 +208,17 @@ def plot_phase_delays(ax, depth, delays, monthly):
     lim = max(12.5, 1.1 * max(abs(x) for x in ax.get_xlim()))
     ax.set_xlim(-lim, lim)
 
-    # plot monthly delays at the same depths, clipped to the axes limits, as
-    # small grey band markers, filled for melt-season (July and August)
-    # months and hollow otherwise
+    # plot half-month delays at the same depths, clipped to the axes limits,
+    # as small grey band markers, filled for melt-season (July and August)
+    # half-months and hollow otherwise
     for k, (band, delay) in enumerate(delays.items()):
-        months = monthly[band].reindex(columns=delay.index)
-        months = (months / pd.to_timedelta('1h')).clip(-lim, lim)
-        melt = months.index.month.isin([7, 8])
+        halves = semimonthly[band].reindex(columns=delay.index)
+        halves = (halves / pd.to_timedelta('1h')).clip(-lim, lim)
+        melt = halves.index.month.isin([7, 8])
         offset = 3*(k-1)
         for unit in delay.index:
-            for values, mfc in [(months[unit][melt], None),
-                                (months[unit][~melt], 'none')]:
+            for values, mfc in [(halves[unit][melt], None),
+                                (halves[unit][~melt], 'none')]:
                 ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
                         color='0.5', ls='', marker=MARKERS[k], mfc=mfc, ms=3,
                         mew=0.75, zorder=1)
@@ -340,15 +344,15 @@ def plot(couple='tilts_speed', year='2015'):
         ccorr, delay = correlate_bands(frame, var, ref, span, half)
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
-    # pick delays over calendar months of every gnss record, for the units
-    # of the selected year
-    monthly = correlate_months(bands, var, ref, df.columns)
+    # pick delays over calendar half-months of every gnss record, for the
+    # units of the selected year
+    semimonthly = correlate_half_months(bands, var, ref, df.columns)
 
     # plot time series, correlations and phase delays
     tsax, ccax, pdax = fig.axes
     plot_time_series(tsax, depth, df, var, ref)
     ccaxes = plot_correlations(ccax, ccorrs, delays, halves)
-    plot_phase_delays(pdax, depth, delays, monthly)
+    plot_phase_delays(pdax, depth, delays, semimonthly)
 
     # add subfigure labels
     for ax, label in zip([tsax, *ccaxes, pdax], 'abcde'):
