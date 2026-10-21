@@ -226,9 +226,9 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
 
     # set fixed depth limits, with room for a two-column legend at the top
     if 'GNSS' in delays['multi-day']:
-        ax.set_ylim(100, -55)
+        ax.set_ylim(102.5, -42.5)
     else:
-        ax.set_ylim(240, 85)
+        ax.set_ylim(242.5, 97.5)
     ax.legend(loc='upper right', ncols=2, fontsize=6)
 
 
