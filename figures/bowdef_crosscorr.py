@@ -15,6 +15,62 @@ import bowstr_utils
 # peak markers for the multi-day, daily and tidal bands
 MARKERS = ['o', 's', '^']
 
+# gnss record intervals for each year
+YEARS = {
+    '2015': ('20150516', '20150815'), '2016': ('20160610', '20160925'),
+    '2017': ('20170526', '20170712')}
+
+
+def correlate_bands(frame, var, ref, span, half):
+    """Compute cross-correlations and pick delays within a search window."""
+
+    # correlate with the UI06 tilt unit if the reference is also tilt
+    ccorr = bowdef_utils.correlate_dataframes(
+        frame[var], frame[ref]['UI06'] if ref == var else frame[ref],
+        smin=f'-{span}', smax=span)
+
+    # pick phase delays at the maximum correlation within the search window
+    window = ccorr[abs(ccorr.index) <= pd.to_timedelta(half)]
+    delay = -window.dropna(axis=1, how='all').idxmax()
+    return ccorr, delay
+
+
+def correlate_half_months(bands, var, ref, columns):
+    """Pick delays over calendar half-months of every gnss record."""
+
+    # for each band, collect delays of each half-month with enough data
+    semimonthly = {}
+    for band, frame, _, half in bands:
+        frame = frame.reindex(columns=columns)
+        delays = {}
+        for start, end in YEARS.values():
+
+            # group the gnss record by half-month (1st to 15th or 16th to
+            # end of month), skip half-months shorter than 7 days
+            record = frame.loc[start:end]
+            index = record.index
+            labels = index.to_period('M').start_time + pd.to_timedelta(
+                15*(index.day > 15), 'D')
+            for half_start, subset in record.groupby(labels):
+                if subset.index[-1] - subset.index[0] < pd.to_timedelta('7D'):
+                    continue
+
+                # pick delays with lags limited to the search window
+                _, delay = correlate_bands(subset, var, ref, half, half)
+
+                # mask units with less than half of valid pairs
+                other = subset[ref]['UI06'] if ref == var else subset[ref]
+                for unit in subset[var]:
+                    pairs = subset[var, unit].notna() & other.get(
+                        unit, other.squeeze()).notna()
+                    if pairs.mean() < 0.5:
+                        delay = delay.drop(unit, errors='ignore')
+                delays[half_start] = delay
+
+        # convert to a dataframe with half-month starts as rows
+        semimonthly[band] = pd.DataFrame(delays).T
+    return semimonthly
+
 
 def filter_harmonic_dataframe(df, period, *args, **kwargs):
     """Apply kernel-weighted harmonic fit on each series in a dataframe."""
@@ -95,14 +151,12 @@ def plot_correlations(ax, ccorrs, delays, halves):
         ax.axvspan(-span, -half, color='0.9', zorder=0)
         ax.axvspan(half, span, color='0.9', zorder=0)
 
-        # plot cross-correlation (series.plot with deltas affected by #18910),
-        # with hollow peak markers for the lower borehole (BH3) units
+        # plot cross-correlation (series.plot with deltas affected by #18910)
         ax.plot(-ccorr.index/unit, ccorr)
         for i, column in enumerate(ccorr):
             ax.plot(
                 delay[column]/unit, ccorr[column][-delay[column]],
-                color=f'C{i}', marker=marker,
-                mfc='none' if column[0] == 'L' else None)
+                color=f'C{i}', marker=marker)
 
         # add band label, with the time delay unit
         ax.axvline(0.0, ls=':')
@@ -127,34 +181,47 @@ def plot_correlations(ax, ccorrs, delays, halves):
     return subaxes
 
 
-def plot_phase_delays(ax, depth, delays):
+def plot_phase_delays(ax, depth, delays, semimonthly):
     """Plot phase delays against depth, one marker per band."""
 
-    # plot phase delays, slightly offset in depth for each band, with hollow
-    # markers for the lower borehole (BH3) units
-    for k, (band, delay) in enumerate(delays.items()):
-        delay = delay / pd.to_timedelta('1h')
-        offset = 3*(k-1)
+    # plot daily and tidal phase delays, slightly offset in depth for each
+    # band (multi-day delays are a small fraction of a broad peak), over
+    # half-month delays as small grey markers, filled for melt-season (July
+    # and August) half-months and hollow otherwise
+    for k, (band, halves) in enumerate(semimonthly.items(), start=1):
+        delay = delays[band] / pd.to_timedelta('1h')
+        halves = halves.reindex(columns=delay.index) / pd.to_timedelta('1h')
+        melt = halves.index.month.isin([7, 8])
+        offset = 4*(k-1.5)
         for i, unit in enumerate(delay.index):
-            ax.plot(
-                delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
-                marker=MARKERS[k], mfc='none' if unit[0] == 'L' else None)
+            y = depth.get(unit, 0) + offset
+            for values, mfc in [(halves[unit][melt], None),
+                                (halves[unit][~melt], 'none')]:
+                ax.plot(values, [y]*len(values), color='0.5', ls='',
+                        marker=MARKERS[k], mfc=mfc, ms=3, mew=0.75, zorder=1)
+            ax.plot(delay[unit], y, color=f'C{i}', marker=MARKERS[k])
         ax.plot([], [], color='0.25', ls='', marker=MARKERS[k],
                 label=band.split()[0])
-    ax.legend(loc='center left', fontsize=6)
 
     # set axes properties, with symmetric limits and a shaded one-hour band
     ax.axvline(0.0, ls=':')
     ax.axvspan(-1, 1, color='0.9', zorder=0)
-    ax.invert_yaxis()
     ax.set_xlabel('phase delay (h)')
     ax.set_ylabel('sensor depth (m)')
-    lim = 1.1 * max(abs(x) for x in ax.get_xlim())
+    lim = max(abs(x) for x in ax.get_xlim())
     ax.set_xlim(-lim, lim)
 
-    # force axes limits on surface speed
+    # add legend entries for half-month delays
+    ax.plot([], [], color='0.5', ls='', marker='s', ms=3, label='July–Aug.')
+    ax.plot([], [], color='0.5', ls='', marker='s', ms=3, mfc='none',
+            mew=0.75, label='other')
+
+    # set fixed depth limits, with room for a two-column legend at the top
     if 'GNSS' in delays['multi-day']:
-        ax.set_ylim(103, -23)
+        ax.set_ylim(102.5, -42.5)
+    else:
+        ax.set_ylim(242.5, 97.5)
+    ax.legend(loc='upper right', ncols=2, fontsize=6)
 
 
 def plot_time_series(ax, depth, df, var, ref):
@@ -241,9 +308,7 @@ def plot(couple='tilts_speed', year='2015'):
     tidal = filter_harmonic_dataframe(subset, '12.42h')
 
     # select the gnss record of given year and drop empty records
-    start, end = {
-        '2015': ('20150516', '20150815'), '2016': ('20160610', '20160925'),
-        '2017': ('20170526', '20170712')}[year]
+    start, end = YEARS[year]
     df = df.loc[start:end]
     df = df.dropna(how='all', axis=1)
 
@@ -263,17 +328,18 @@ def plot(couple='tilts_speed', year='2015'):
     ccorrs, delays, halves = {}, {}, {}
     for band, frame, span, half in bands:
         frame = frame.reindex(index=df.index, columns=df.columns)
-        ccorr = bowdef_utils.correlate_dataframes(
-            frame[var], frame[ref]['UI06'] if ref == var else frame[ref],
-            smin=f'-{span}', smax=span)
-        delay = -ccorr[abs(ccorr.index) <= pd.to_timedelta(half)].idxmax()
+        ccorr, delay = correlate_bands(frame, var, ref, span, half)
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
+
+    # pick daily and tidal delays over calendar half-months of every gnss
+    # record, for the units of the selected year
+    semimonthly = correlate_half_months(bands[1:], var, ref, df.columns)
 
     # plot time series, correlations and phase delays
     tsax, ccax, pdax = fig.axes
     plot_time_series(tsax, depth, df, var, ref)
     ccaxes = plot_correlations(ccax, ccorrs, delays, halves)
-    plot_phase_delays(pdax, depth, delays)
+    plot_phase_delays(pdax, depth, delays, semimonthly)
 
     # add subfigure labels
     for ax, label in zip([tsax, *ccaxes, pdax], 'abcde'):
