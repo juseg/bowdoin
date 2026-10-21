@@ -35,6 +35,42 @@ def correlate_bands(frame, var, ref, span, half):
     return ccorr, delay
 
 
+def correlate_months(bands, var, ref, columns):
+    """Pick delays over calendar months of every gnss record."""
+
+    # for each band, collect delays of each month with enough data
+    monthly = {}
+    for band, frame, _, half in bands:
+        frame = frame.reindex(columns=columns)
+        delays = {}
+        for start, end in YEARS.values():
+            for month in pd.period_range(start, end, freq='M'):
+
+                # clip the month to the gnss record, skip if shorter than 15 d
+                start_time = max(month.start_time, pd.Timestamp(start))
+                end_time = min(month.end_time, pd.Timestamp(end) +
+                               pd.to_timedelta('1D') - pd.to_timedelta('1ns'))
+                if end_time - start_time < pd.to_timedelta('15D'):
+                    continue
+                subset = frame.loc[start_time:end_time]
+
+                # pick delays with lags limited to the search window
+                _, delay = correlate_bands(subset, var, ref, half, half)
+
+                # mask units with less than half of the month of valid pairs
+                other = subset[ref]['UI06'] if ref == var else subset[ref]
+                for unit in subset[var]:
+                    pairs = subset[var, unit].notna() & other.get(
+                        unit, other.squeeze()).notna()
+                    if pairs.mean() < 0.5:
+                        delay = delay.drop(unit, errors='ignore')
+                delays[month] = delay
+
+        # convert to a dataframe with months as rows
+        monthly[band] = pd.DataFrame(delays).T
+    return monthly
+
+
 def filter_harmonic_dataframe(df, period, *args, **kwargs):
     """Apply kernel-weighted harmonic fit on each series in a dataframe."""
 
@@ -146,7 +182,7 @@ def plot_correlations(ax, ccorrs, delays, halves):
     return subaxes
 
 
-def plot_phase_delays(ax, depth, delays):
+def plot_phase_delays(ax, depth, delays, monthly):
     """Plot phase delays against depth, one marker per band."""
 
     # plot phase delays, slightly offset in depth for each band, with hollow
@@ -160,16 +196,33 @@ def plot_phase_delays(ax, depth, delays):
                 marker=MARKERS[k], mfc='none' if unit[0] == 'L' else None)
         ax.plot([], [], color='0.25', ls='', marker=MARKERS[k],
                 label=band.split()[0])
-    ax.legend(loc='center left', fontsize=6)
 
-    # set axes properties, with symmetric limits and a shaded one-hour band
+    # set axes properties, with symmetric limits of at least half a day and a
+    # shaded one-hour band
     ax.axvline(0.0, ls=':')
     ax.axvspan(-1, 1, color='0.9', zorder=0)
     ax.invert_yaxis()
     ax.set_xlabel('phase delay (h)')
     ax.set_ylabel('sensor depth (m)')
-    lim = 1.1 * max(abs(x) for x in ax.get_xlim())
+    lim = max(12.5, 1.1 * max(abs(x) for x in ax.get_xlim()))
     ax.set_xlim(-lim, lim)
+
+    # plot monthly delays at the same depths, clipped to the axes limits, as
+    # ticks for melt-season (July and August) months and crosses otherwise
+    for k, (band, delay) in enumerate(delays.items()):
+        months = monthly[band].reindex(columns=delay.index)
+        months = (months / pd.to_timedelta('1h')).clip(-lim, lim)
+        melt = months.index.month.isin([7, 8])
+        offset = 3*(k-1)
+        for i, unit in enumerate(delay.index):
+            for values, marker in [(months[unit][melt], '|'),
+                                   (months[unit][~melt], 'x')]:
+                ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
+                        color=f'C{i}', ls='', marker=marker, ms=4, mew=0.75,
+                        zorder=1)
+    ax.plot([], [], color='0.25', ls='', marker='|', label='July–Aug.')
+    ax.plot([], [], color='0.25', ls='', marker='x', label='other months')
+    ax.legend(loc='center left', fontsize=6)
 
     # force axes limits on surface speed
     if 'GNSS' in delays['multi-day']:
@@ -283,11 +336,15 @@ def plot(couple='tilts_speed', year='2015'):
         ccorr, delay = correlate_bands(frame, var, ref, span, half)
         ccorrs[band], delays[band], halves[band] = ccorr, delay, half
 
+    # pick delays over calendar months of every gnss record, for the units
+    # of the selected year
+    monthly = correlate_months(bands, var, ref, df.columns)
+
     # plot time series, correlations and phase delays
     tsax, ccax, pdax = fig.axes
     plot_time_series(tsax, depth, df, var, ref)
     ccaxes = plot_correlations(ccax, ccorrs, delays, halves)
-    plot_phase_delays(pdax, depth, delays)
+    plot_phase_delays(pdax, depth, delays, monthly)
 
     # add subfigure labels
     for ax, label in zip([tsax, *ccaxes, pdax], 'abcde'):
