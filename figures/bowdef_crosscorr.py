@@ -187,10 +187,13 @@ def plot_correlations(ax, ccorrs, delays, halves):
 def plot_phase_delays(ax, depth, delays, semimonthly):
     """Plot phase delays against depth, one marker per band."""
 
-    # plot phase delays, slightly offset in depth for each band
+    # plot daily and tidal phase delays, slightly offset in depth for each
+    # band (multi-day delays are a small fraction of a broad peak)
     for k, (band, delay) in enumerate(delays.items()):
+        if band == 'multi-day':
+            continue
         delay = delay / pd.to_timedelta('1h')
-        offset = 3*(k-1)
+        offset = 3*(k-1.5)
         for i, unit in enumerate(delay.index):
             ax.plot(
                 delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
@@ -212,18 +215,20 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
     # as small grey band markers, filled for melt-season (July and August)
     # half-months and hollow otherwise
     for k, (band, delay) in enumerate(delays.items()):
+        if band == 'multi-day':
+            continue
         halves = semimonthly[band].reindex(columns=delay.index)
         halves = (halves / pd.to_timedelta('1h')).clip(-lim, lim)
         melt = halves.index.month.isin([7, 8])
-        offset = 3*(k-1)
+        offset = 3*(k-1.5)
         for unit in delay.index:
             for values, mfc in [(halves[unit][melt], None),
                                 (halves[unit][~melt], 'none')]:
                 ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
                         color='0.5', ls='', marker=MARKERS[k], mfc=mfc, ms=3,
                         mew=0.75, zorder=1)
-    ax.plot([], [], color='0.5', ls='', marker='o', ms=3, label='July–Aug.')
-    ax.plot([], [], color='0.5', ls='', marker='o', ms=3, mfc='none',
+    ax.plot([], [], color='0.5', ls='', marker='s', ms=3, label='July–Aug.')
+    ax.plot([], [], color='0.5', ls='', marker='s', ms=3, mfc='none',
             mew=0.75, label='other months')
 
     # force axes limits on surface speed
@@ -232,7 +237,7 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
 
     # extend upper limit to make room for a two-column legend
     bottom, top = ax.get_ylim()
-    ax.set_ylim(bottom, top - 0.35*(bottom-top))
+    ax.set_ylim(bottom, top - 0.25*(bottom-top))
     ax.legend(loc='upper right', bbox_to_anchor=(1, 0.92), ncols=2,
               fontsize=6, columnspacing=1, handletextpad=0.5)
 
