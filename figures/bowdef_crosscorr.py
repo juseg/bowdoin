@@ -227,9 +227,10 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
                 ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
                         color='0.5', ls='', marker=MARKERS[k], mfc=mfc, ms=3,
                         mew=0.75, zorder=1)
+
     ax.plot([], [], color='0.5', ls='', marker='s', ms=3, label='July–Aug.')
     ax.plot([], [], color='0.5', ls='', marker='s', ms=3, mfc='none',
-            mew=0.75, label='other months')
+            mew=0.75, label='other')
 
     # force axes limits on surface speed
     if 'GNSS' in delays['multi-day']:
@@ -238,8 +239,7 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
     # extend upper limit to make room for a two-column legend
     bottom, top = ax.get_ylim()
     ax.set_ylim(bottom, top - 0.25*(bottom-top))
-    ax.legend(loc='upper right', bbox_to_anchor=(1, 0.92), ncols=2,
-              fontsize=6, columnspacing=1, handletextpad=0.5)
+    ax.legend(loc='upper right', ncols=2, fontsize=6)
 
 
 def plot_time_series(ax, depth, df, var, ref):
