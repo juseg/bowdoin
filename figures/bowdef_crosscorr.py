@@ -198,7 +198,7 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
         halves = semimonthly[band].reindex(columns=delay.index)
         halves = halves / pd.to_timedelta('1h')
         melt = halves.index.month.isin([7, 8])
-        offset = 3*(k-1.5)
+        offset = 4*(k-1.5)
         for i, unit in enumerate(delay.index):
             for values, mfc in [(halves[unit][melt], None),
                                 (halves[unit][~melt], 'none')]:
