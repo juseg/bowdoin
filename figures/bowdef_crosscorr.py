@@ -214,7 +214,6 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
     # set axes properties, with symmetric limits and a shaded one-hour band
     ax.axvline(0.0, ls=':')
     ax.axvspan(-1, 1, color='0.9', zorder=0)
-    ax.invert_yaxis()
     ax.set_xlabel('phase delay (h)')
     ax.set_ylabel('sensor depth (m)')
     lim = max(abs(x) for x in ax.get_xlim())
@@ -225,13 +224,11 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
     ax.plot([], [], color='0.5', ls='', marker='s', ms=3, mfc='none',
             mew=0.75, label='other')
 
-    # force axes limits on surface speed
+    # set fixed depth limits, with room for a two-column legend at the top
     if 'GNSS' in delays['multi-day']:
-        ax.set_ylim(103, -23)
-
-    # extend upper limit to make room for a two-column legend
-    bottom, top = ax.get_ylim()
-    ax.set_ylim(bottom, top - 0.25*(bottom-top))
+        ax.set_ylim(100, -55)
+    else:
+        ax.set_ylim(240, 85)
     ax.legend(loc='upper right', ncols=2, fontsize=6)
 
 
