@@ -190,8 +190,7 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
     # and August) half-months and hollow otherwise
     for k, (band, halves) in enumerate(semimonthly.items(), start=1):
         delay = delays[band] / pd.to_timedelta('1h')
-        halves = halves.reindex(columns=delay.index)
-        halves = halves / pd.to_timedelta('1h')
+        halves = halves.reindex(columns=delay.index) / pd.to_timedelta('1h')
         melt = halves.index.month.isin([7, 8])
         offset = 4*(k-1.5)
         for i, unit in enumerate(delay.index):
