@@ -222,11 +222,16 @@ def plot_phase_delays(ax, depth, delays, monthly):
                         zorder=1)
     ax.plot([], [], color='0.25', ls='', marker='|', label='July–Aug.')
     ax.plot([], [], color='0.25', ls='', marker='x', label='other months')
-    ax.legend(loc='center left', fontsize=6)
 
     # force axes limits on surface speed
     if 'GNSS' in delays['multi-day']:
         ax.set_ylim(103, -23)
+
+    # extend upper limit to make room for a two-column legend
+    bottom, top = ax.get_ylim()
+    ax.set_ylim(bottom, top - 0.35*(bottom-top))
+    ax.legend(loc='upper right', bbox_to_anchor=(1, 0.92), ncols=2,
+              fontsize=6, columnspacing=1, handletextpad=0.5)
 
 
 def plot_time_series(ax, depth, df, var, ref):
