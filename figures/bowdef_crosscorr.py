@@ -188,46 +188,39 @@ def plot_phase_delays(ax, depth, delays, semimonthly):
     """Plot phase delays against depth, one marker per band."""
 
     # plot daily and tidal phase delays, slightly offset in depth for each
-    # band (multi-day delays are a small fraction of a broad peak)
+    # band (multi-day delays are a small fraction of a broad peak), over
+    # half-month delays as small grey markers, filled for melt-season (July
+    # and August) half-months and hollow otherwise
     for k, (band, delay) in enumerate(delays.items()):
         if band == 'multi-day':
             continue
         delay = delay / pd.to_timedelta('1h')
+        halves = semimonthly[band].reindex(columns=delay.index)
+        halves = halves / pd.to_timedelta('1h')
+        melt = halves.index.month.isin([7, 8])
         offset = 3*(k-1.5)
         for i, unit in enumerate(delay.index):
+            for values, mfc in [(halves[unit][melt], None),
+                                (halves[unit][~melt], 'none')]:
+                ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
+                        color='0.5', ls='', marker=MARKERS[k], mfc=mfc, ms=3,
+                        mew=0.75, zorder=1)
             ax.plot(
                 delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
                 marker=MARKERS[k])
         ax.plot([], [], color='0.25', ls='', marker=MARKERS[k],
                 label=band.split()[0])
 
-    # set axes properties, with symmetric limits of at least half a day and a
-    # shaded one-hour band
+    # set axes properties, with symmetric limits and a shaded one-hour band
     ax.axvline(0.0, ls=':')
     ax.axvspan(-1, 1, color='0.9', zorder=0)
     ax.invert_yaxis()
     ax.set_xlabel('phase delay (h)')
     ax.set_ylabel('sensor depth (m)')
-    lim = max(12.5, 1.1 * max(abs(x) for x in ax.get_xlim()))
+    lim = max(abs(x) for x in ax.get_xlim())
     ax.set_xlim(-lim, lim)
 
-    # plot half-month delays at the same depths, clipped to the axes limits,
-    # as small grey band markers, filled for melt-season (July and August)
-    # half-months and hollow otherwise
-    for k, (band, delay) in enumerate(delays.items()):
-        if band == 'multi-day':
-            continue
-        halves = semimonthly[band].reindex(columns=delay.index)
-        halves = (halves / pd.to_timedelta('1h')).clip(-lim, lim)
-        melt = halves.index.month.isin([7, 8])
-        offset = 3*(k-1.5)
-        for unit in delay.index:
-            for values, mfc in [(halves[unit][melt], None),
-                                (halves[unit][~melt], 'none')]:
-                ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
-                        color='0.5', ls='', marker=MARKERS[k], mfc=mfc, ms=3,
-                        mew=0.75, zorder=1)
-
+    # add legend entries for half-month delays
     ax.plot([], [], color='0.5', ls='', marker='s', ms=3, label='July–Aug.')
     ax.plot([], [], color='0.5', ls='', marker='s', ms=3, mfc='none',
             mew=0.75, label='other')
