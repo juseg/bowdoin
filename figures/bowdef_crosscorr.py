@@ -150,14 +150,12 @@ def plot_correlations(ax, ccorrs, delays, halves):
         ax.axvspan(-span, -half, color='0.9', zorder=0)
         ax.axvspan(half, span, color='0.9', zorder=0)
 
-        # plot cross-correlation (series.plot with deltas affected by #18910),
-        # with hollow peak markers for the lower borehole (BH3) units
+        # plot cross-correlation (series.plot with deltas affected by #18910)
         ax.plot(-ccorr.index/unit, ccorr)
         for i, column in enumerate(ccorr):
             ax.plot(
                 delay[column]/unit, ccorr[column][-delay[column]],
-                color=f'C{i}', marker=marker,
-                mfc='none' if column[0] == 'L' else None)
+                color=f'C{i}', marker=marker)
 
         # add band label, with the time delay unit
         ax.axvline(0.0, ls=':')
@@ -185,15 +183,14 @@ def plot_correlations(ax, ccorrs, delays, halves):
 def plot_phase_delays(ax, depth, delays, monthly):
     """Plot phase delays against depth, one marker per band."""
 
-    # plot phase delays, slightly offset in depth for each band, with hollow
-    # markers for the lower borehole (BH3) units
+    # plot phase delays, slightly offset in depth for each band
     for k, (band, delay) in enumerate(delays.items()):
         delay = delay / pd.to_timedelta('1h')
         offset = 3*(k-1)
         for i, unit in enumerate(delay.index):
             ax.plot(
                 delay[unit], depth.get(unit, 0)+offset, color=f'C{i}',
-                marker=MARKERS[k], mfc='none' if unit[0] == 'L' else None)
+                marker=MARKERS[k])
         ax.plot([], [], color='0.25', ls='', marker=MARKERS[k],
                 label=band.split()[0])
 
@@ -208,20 +205,22 @@ def plot_phase_delays(ax, depth, delays, monthly):
     ax.set_xlim(-lim, lim)
 
     # plot monthly delays at the same depths, clipped to the axes limits, as
-    # ticks for melt-season (July and August) months and crosses otherwise
+    # small grey band markers, filled for melt-season (July and August)
+    # months and hollow otherwise
     for k, (band, delay) in enumerate(delays.items()):
         months = monthly[band].reindex(columns=delay.index)
         months = (months / pd.to_timedelta('1h')).clip(-lim, lim)
         melt = months.index.month.isin([7, 8])
         offset = 3*(k-1)
-        for i, unit in enumerate(delay.index):
-            for values, marker in [(months[unit][melt], '|'),
-                                   (months[unit][~melt], 'x')]:
+        for unit in delay.index:
+            for values, mfc in [(months[unit][melt], None),
+                                (months[unit][~melt], 'none')]:
                 ax.plot(values, [depth.get(unit, 0)+offset]*len(values),
-                        color=f'C{i}', ls='', marker=marker, ms=4, mew=0.75,
-                        zorder=1)
-    ax.plot([], [], color='0.25', ls='', marker='|', label='July–Aug.')
-    ax.plot([], [], color='0.25', ls='', marker='x', label='other months')
+                        color='0.5', ls='', marker=MARKERS[k], mfc=mfc, ms=3,
+                        mew=0.75, zorder=1)
+    ax.plot([], [], color='0.5', ls='', marker='o', ms=3, label='July–Aug.')
+    ax.plot([], [], color='0.5', ls='', marker='o', ms=3, mfc='none',
+            mew=0.75, label='other months')
 
     # force axes limits on surface speed
     if 'GNSS' in delays['multi-day']:
