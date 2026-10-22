@@ -347,6 +347,8 @@ def load_landsat_velocities():
 
 def load_sentinel_velocities():
     """Load surface velocities from Sentinel feature-tracking."""
+    # FIXME the midpoint index is not parsed as dates, and some image pairs
+    # appear twice, as exact duplicates or with slightly different speeds
     df = pd.read_csv(
         '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
         engine='python', index_col='YYYY-MM-DD (avg)',
