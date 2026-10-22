@@ -33,8 +33,8 @@ def plot_slip_ratio_lines(ax, ratios=(93, 95, 97)):
 
 
 def load_daily_series():
-    """Load daily shear velocities after closure and relying on two units
-    or more, with their ranges and the daily surface speed."""
+    """Load daily shear velocities after closure, with their errors, and the
+    daily surface speed."""
 
     # load sensor depths, ice thickness, strain rates and surface speed
     base = bowstr_utils.load(variable='base').iloc[0]
@@ -42,16 +42,12 @@ def load_daily_series():
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
     speed = bowdef_utils.load_gnss_velocities(method='kernel', window='3h').vh
 
-    # load latest freezing date in each borehole
-    dates = bowstr_utils.load_freezing_dates()
-    dates = dates.groupby(dates.index.str[0]).max()
-    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
-
-    # compute shear velocities and mask records that are not solid
-    series = bowdef_utils.compute_shear_series(strain, depth, base, dates)
+    # compute shear velocities as in slipratio and mask records before closure
+    dates = bowdef_utils.load_freezing_dates()
+    sigma = bowdef_utils.compute_residual_error(strain, depth, dates)
+    series = bowdef_utils.compute_shear_series(strain, depth, base, sigma)
     for bh, _ in BOREHOLES:
-        solid = (series.index >= dates[bh]) & (series['count'][bh] >= 2)
-        series.loc[~solid, (slice(None), bh)] = np.nan
+        series.loc[series.index < dates[bh], (slice(None), bh)] = np.nan
 
     # return daily means
     return series.resample('1D').mean(), speed.resample('1D').mean()
@@ -59,21 +55,19 @@ def load_daily_series():
 
 def plot_borehole(ax, bh, df, i=0):
     """Plot daily shear velocity against surface speed in one borehole, by
-    year, with a power-law fit, median range and labels stacked by i."""
+    year, with a power-law fit, median error and labels stacked by i."""
     for year, group in df.groupby(df.index.year):
         ax.scatter(group.speed, group.shear, s=4, color=COLORS[bh],
                    alpha=0.6, marker=MARKERS[year], linewidths=0)
 
     # fit and plot a power law of surface speed
-    slope, constant = bowdef_utils.compute_power_fit(df.speed, df.shear)
+    slope, constant = np.polyfit(np.log(df.speed), np.log(df.shear), 1)
     speed = np.array([df.speed.min(), df.speed.max()])
-    ax.plot(speed, constant*speed**slope, color=COLORS[bh])
+    ax.plot(speed, np.exp(constant)*speed**slope, color=COLORS[bh])
 
-    # mark the median range across profile extrapolations
-    median = df.shear.median()
+    # mark the median shear and error, mostly systematic
     ax.errorbar(
-        760 - 40*i, median, yerr=[[median - df.shear_low.median()],
-                                  [df.shear_high.median() - median]],
+        760 - 40*i, df.shear.median(), yerr=df.shear_error.median(),
         color=COLORS[bh], marker='o', markersize=2, capsize=1, linewidth=1)
 
     # add borehole and slope labels
