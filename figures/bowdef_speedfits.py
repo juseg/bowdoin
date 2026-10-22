@@ -110,14 +110,14 @@ def plot_satellite_pairs(ax, shear):
     median = sat.speed.median()
     error = (sat.error / sat.speed).median()
     plot_median_error(
-        ax, median, error, 0.12, axis='x', color='0.75', marker='+',
+        ax, median, error, 0.12, axis='x', color='0.625', marker='+',
         markersize=3)
 
     # label the error bar above
     ax.annotate(
         'satellite', xy=(median, 0.12), xytext=(0, 3),
         xycoords=ax.get_xaxis_transform(), textcoords='offset points',
-        color='0.5', fontsize=6, ha='center', va='bottom')
+        color='0.625', fontsize=6, ha='center', va='bottom')
 
 
 def main():
@@ -143,9 +143,8 @@ def main():
     plot_satellite_pairs(ax, series.shear)
 
     # add legend with grey markers
-    ax.scatter([], [], s=4, color='0.5', linewidths=0, label='GNSS')
-    ax.scatter([], [], s=4, color='0.5', marker='+', linewidths=1,
-               label='satellite')
+    ax.scatter([], [], s=4, alpha=0.5, color='0.25', label='GNSS')
+    ax.scatter([], [], s=4, color='0.625', marker='+', label='satellite')
     ax.legend(loc='upper left', markerscale=2)
 
     # set axes properties
