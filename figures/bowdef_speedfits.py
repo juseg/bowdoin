@@ -84,7 +84,7 @@ def plot_borehole(ax, bh, df, i=0):
     # mark the median shear and its median relative error, mostly systematic
     median = df.shear.median()
     plot_median_error(
-        ax, median, df.shear_error.median() / median, 0.975,
+        ax, median, df.shear_error.median() / median, 0.975 - 0.02*i,
         color=COLORS[bh], marker='o', markersize=2)
 
     # add borehole and slope labels
@@ -107,9 +107,9 @@ def plot_satellite_pairs(ax, shear):
             sat.speed, sat_shear, s=8, color=color, alpha=0.5,
             marker='+', linewidths=0.5, zorder=0)
 
-    # mark the median speed and its median relative error below the legend
+    # mark the median speed and its median relative error above the 97 % label
     plot_median_error(
-        ax, sat.speed.median(), (sat.error / sat.speed).median(), 0.72,
+        ax, sat.speed.median(), (sat.error / sat.speed).median(), 0.12,
         axis='x', color='0.75', marker='+', markersize=3)
 
 
