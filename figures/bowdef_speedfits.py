@@ -56,8 +56,8 @@ def load_daily_series():
 def plot_borehole(ax, bh, df, i=0):
     """Plot daily shear velocity against surface speed in one borehole,
     with a power-law fit, median error and labels stacked by i."""
-    ax.scatter(df.speed, df.shear, s=4, color=COLORS[bh], alpha=0.6,
-               linewidths=0)
+    ax.scatter(
+        df.speed, df.shear, s=4, color=COLORS[bh], alpha=0.5, linewidths=0.5)
 
     # fit and plot a power law of surface speed
     slope, constant = np.polyfit(np.log(df.speed), np.log(df.shear), 1)
@@ -85,13 +85,14 @@ def plot_satellite_pairs(ax, shear):
     for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
         sat_shear = sat.apply(
             lambda row, bh=bh: shear[bh][row.start:row.end].mean(), axis=1)
-        ax.scatter(sat.speed, sat_shear, s=4, color=color, alpha=0.6,
-                   marker='s', linewidths=0, zorder=0)
+        ax.scatter(
+            sat.speed, sat_shear, s=4, color=color, alpha=0.5,
+            marker='+', linewidths=0.5)
 
     # mark the median speed error below the 97 % line
     ax.errorbar(
         sat.speed.median(), 11, xerr=sat.error.median(), color='0.75',
-        marker='s', markersize=2, capsize=1, linewidth=1)
+        marker='+', markersize=2, capsize=1, linewidth=1)
 
 
 def main():
@@ -118,7 +119,7 @@ def main():
 
     # add legend with grey markers
     ax.scatter([], [], s=4, color='0.5', linewidths=0, label='GNSS')
-    ax.scatter([], [], s=4, color='0.75', marker='s', linewidths=0,
+    ax.scatter([], [], s=4, color='0.5', marker='+', linewidths=1,
                label='satellite')
     ax.legend(loc='upper left', markerscale=2)
 
