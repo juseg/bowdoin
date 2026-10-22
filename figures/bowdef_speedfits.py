@@ -86,13 +86,13 @@ def plot_satellite_pairs(ax, shear):
         sat_shear = sat.apply(
             lambda row, bh=bh: shear[bh][row.start:row.end].mean(), axis=1)
         ax.scatter(
-            sat.speed, sat_shear, s=4, color=color, alpha=0.5,
-            marker='+', linewidths=0.5)
+            sat.speed, sat_shear, s=8, color=color, alpha=0.5,
+            marker='+', linewidths=0.5, zorder=0)
 
     # mark the median speed error below the 97 % line
     ax.errorbar(
         sat.speed.median(), 11, xerr=sat.error.median(), color='0.75',
-        marker='+', markersize=2, capsize=1, linewidth=1)
+        marker='+', markersize=3, capsize=1, linewidth=1)
 
 
 def main():
