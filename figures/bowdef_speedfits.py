@@ -15,6 +15,23 @@ import bowstr_utils
 from bowdef_utils import BOREHOLES, COLORS
 
 
+def plot_median_error(ax, median, error, position, axis='y', **kwargs):
+    """Mark a median value by a dashed line across the axes, and its
+    relative error by a bar at an axes fraction position along the line,
+    symmetric in log space."""
+    bounds = [[median-median/(1+error)], [median*error]]
+    kwargs = {'capsize': 1, 'linewidth': 1, **kwargs}
+    line = {'color': kwargs['color'], 'ls': '--', 'lw': 0.5, 'zorder': 0}
+    if axis == 'y':
+        ax.axhline(median, **line)
+        ax.errorbar(position, median, yerr=bounds,
+                    transform=ax.get_yaxis_transform(), **kwargs)
+    else:
+        ax.axvline(median, **line)
+        ax.errorbar(median, position, xerr=bounds,
+                    transform=ax.get_xaxis_transform(), **kwargs)
+
+
 def plot_slip_ratio_lines(ax, ratios=(93, 95, 97)):
     """Plot dotted lines of constant slip ratio with rotated labels."""
     speed = np.array([200, 900])
@@ -64,10 +81,11 @@ def plot_borehole(ax, bh, df, i=0):
     speed = np.array([df.speed.min(), df.speed.max()])
     ax.plot(speed, np.exp(constant)*speed**slope, color=COLORS[bh])
 
-    # mark the median shear and error, mostly systematic
-    ax.errorbar(
-        760 - 40*i, df.shear.median(), yerr=df.shear_error.median(),
-        color=COLORS[bh], marker='o', markersize=2, capsize=1, linewidth=1)
+    # mark the median shear and its median relative error, mostly systematic
+    median = df.shear.median()
+    plot_median_error(
+        ax, median, df.shear_error.median() / median, 0.975,
+        color=COLORS[bh], marker='o', markersize=2)
 
     # add borehole and slope labels
     ax.text(0.95, 0.05 + 0.2*i, f'slope {slope:.2f}', color=COLORS[bh],
@@ -89,10 +107,10 @@ def plot_satellite_pairs(ax, shear):
             sat.speed, sat_shear, s=8, color=color, alpha=0.5,
             marker='+', linewidths=0.5, zorder=0)
 
-    # mark the median speed error below the 97 % line
-    ax.errorbar(
-        sat.speed.median(), 11, xerr=sat.error.median(), color='0.75',
-        marker='+', markersize=3, capsize=1, linewidth=1)
+    # mark the median speed and its median relative error below the legend
+    plot_median_error(
+        ax, sat.speed.median(), (sat.error / sat.speed).median(), 0.72,
+        axis='x', color='0.75', marker='+', markersize=3)
 
 
 def main():
