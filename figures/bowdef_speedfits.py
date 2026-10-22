@@ -6,7 +6,9 @@
 """Plot Bowdoin shear velocity against surface speed."""
 
 import absplots as apl
+import matplotlib as mpl
 import numpy as np
+import pandas as pd
 
 import bowdef_utils
 import bowstr_utils
@@ -77,6 +79,25 @@ def plot_borehole(ax, bh, df, i=0):
             ha='right', transform=ax.transAxes)
 
 
+def plot_satellite_pairs(ax, shear):
+    """Plot shear velocity averaged over satellite image pair intervals
+    against satellite surface speed, with a median speed error bar."""
+    sat = pd.concat([bowdef_utils.load_landsat_velocities(),
+                     bowdef_utils.load_sentinel_velocities()])
+    tab20 = mpl.color_sequences['tab20']
+    for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
+        sat_shear = sat.apply(
+            lambda row, bh=bh: shear[bh][row.start:row.end].mean(), axis=1)
+        ax.scatter(sat.speed, sat_shear, s=6, edgecolors=color,
+                   facecolors='none', linewidths=0.5, zorder=0)
+
+    # mark the median speed error below the 97 % line
+    ax.errorbar(
+        sat.speed.median(), 11, xerr=sat.error.median(), color='0.75',
+        marker='o', markersize=2, markerfacecolor='none', capsize=1,
+        linewidth=1)
+
+
 def main():
     """Main program called during execution."""
 
@@ -97,10 +118,13 @@ def main():
     for i, (bh, _) in enumerate(BOREHOLES):
         plot_borehole(ax, bh, series.xs(bh, axis=1, level=1).assign(
             speed=speed).dropna(), i=i)
+    plot_satellite_pairs(ax, series.shear)
 
-    # add year legend with grey markers
+    # add year and satellite legend with grey markers
     for year, marker in MARKERS.items():
         ax.scatter([], [], s=4, color='0.5', marker=marker, label=year)
+    ax.scatter([], [], s=4, edgecolor='0.75', facecolor='none', marker='o',
+               linewidths=0.5, label='satellite')
     ax.legend(loc='upper left', markerscale=2, ncols=2)
 
     # set axes properties
