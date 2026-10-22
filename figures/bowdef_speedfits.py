@@ -7,6 +7,7 @@
 
 import absplots as apl
 import matplotlib as mpl
+import matplotlib.lines
 import numpy as np
 import pandas as pd
 
@@ -144,12 +145,14 @@ def main():
             speed=speed).dropna(), i=i)
     plot_satellite_pairs(ax, series.shear)
 
-    # add legend with grey markers
-    ax.scatter([], [], s=4, alpha=0.5, color='0.25', linewidths=1,
-               label='GNSS')
-    ax.scatter([], [], s=4, color='0.625', marker='+', linewidths=1,
-               label='satellite')
-    ax.legend(loc='upper left', markerscale=2)
+    # add legend with grey markers twice the data size
+    ax.legend(loc='upper left', handles=[
+        matplotlib.lines.Line2D(
+            [], [], ls='', marker='o', markersize=4, mew=1, color='0.25',
+            alpha=0.5, label='GNSS'),
+        matplotlib.lines.Line2D(
+            [], [], ls='', marker='+', markersize=4, mew=1, color='0.625',
+            label='satellite')])
 
     # set axes properties
     ax.set_xlabel(r'surface speed ($m\,a^{-1}$)')
