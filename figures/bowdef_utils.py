@@ -23,6 +23,104 @@ WINDOWS = [('2015-01-01', '2015-02-01', False),
 # Signal processing methods
 # -------------------------
 
+def compute_linear_fits(depth, strain):
+    """Fit lines strain = intercept + slope * depth on each row.
+
+    Also return the count, mean and spread (sum of squared deviations) of
+    depths on each row, needed for error propagation.
+    """
+
+    # least squares in centred form, ignoring missing values on each row
+    depths = strain*0 + depth[strain.columns]
+    center = depths.mean(axis=1)
+    deviations = depths.sub(center, axis=0)
+    spread = (deviations**2).sum(axis=1)
+    slope = (deviations*strain).sum(axis=1) / spread
+
+    # return as dataframe
+    return pd.DataFrame({
+        'slope': slope, 'intercept': strain.mean(axis=1) - slope*center,
+        'count': strain.count(axis=1), 'center': center, 'spread': spread})
+
+
+def compute_residual_error(strain, depth, dates):
+    """Compute a strain rate error per sensor, pooled from linear-fit
+    residuals of mean strain rates in both boreholes."""
+    squares, freedom = 0, 0
+    for bh, prefix in BOREHOLES:
+
+        # keep frozen time steps with the most common set of valid sensors
+        rates = strain.loc[dates[bh]:, strain.columns.str.startswith(prefix)]
+        valid = rates.notna()
+        sensors = valid[valid.sum(axis=1) >= 3].value_counts().idxmax()
+        sensors = pd.Series(sensors, index=valid.columns)
+        rates = rates.loc[valid.eq(sensors).all(axis=1), sensors]
+
+        # fit mean strain rates and add up squared residuals
+        mean = rates.mean().to_frame().T
+        fits = compute_linear_fits(depth, mean).iloc[0]
+        residuals = (
+            mean.iloc[0] - fits.intercept - fits.slope * depth[mean.columns])
+        squares += (residuals**2).sum()
+        freedom += fits['count'] - 2
+
+    # return pooled standard deviation
+    return (squares / freedom)**0.5
+
+
+def compute_shear_profile(fit, depth, thickness):
+    """Compute shear velocity profile from fit parameters, as twice the
+    strain rate, clipped at zero, integrated from depth to the bed."""
+
+    # find the segment between depth and the bed where strain rate is positive
+    with np.errstate(divide='ignore', invalid='ignore'):
+        zero = -fit.intercept / fit.slope
+    upper = np.where(fit.slope > 0, np.clip(zero, depth, thickness), depth)
+    lower = np.where(fit.slope < 0, np.clip(zero, depth, thickness), thickness)
+
+    # integrate strain rate over the segment, from its midpoint value
+    middle = (upper + lower) / 2
+    return 2 * (lower-upper) * np.maximum(fit.intercept + fit.slope*middle, 0)
+
+
+def compute_shear_series(strain, depth, base, sigma):
+    """Compute shear velocity from clipped linear fits of strain rate
+    profiles, and shear errors from a constant strain rate error per
+    sensor."""
+    shear, intercept, slope, shear_error = {}, {}, {}, {}
+    for bh, prefix in BOREHOLES:
+
+        # fit a line strain = intercept + slope * depth at each time
+        rates = strain.loc[:, strain.columns.str.startswith(prefix)]
+        rates = rates.dropna(how='all')
+        fits = compute_linear_fits(depth, rates)
+        intercept[bh] = fits.intercept
+        slope[bh] = fits.slope
+
+        # integrate strain rate clipped at zero over ice thickness
+        thickness = base[f'{bh}B']
+        shear[bh] = pd.Series(
+            compute_shear_profile(fits, 0, thickness), index=fits.index)
+
+        # propagate errors to shear, which varies with the fitted strain rate
+        # at the midpoint of the positive segment, as both segment ends have
+        # zero strain rate or are fixed
+        with np.errstate(divide='ignore', invalid='ignore'):
+            zero = -fits.intercept / fits.slope
+        upper = np.where(fits.slope > 0, np.clip(zero, 0, thickness), 0)
+        lower = np.where(
+            fits.slope < 0, np.clip(zero, 0, thickness), thickness)
+        lever = (upper + lower) / 2 - fits.center
+        shear_error[bh] = 2 * (lower-upper) * sigma * (
+            1/fits['count'] + lever**2/fits.spread)**0.5
+
+    # return as dataframe with variable and borehole column levels
+    return pd.concat({
+        'shear': pd.DataFrame(shear), 'intercept': pd.DataFrame(intercept),
+        'slope': pd.DataFrame(slope),
+        'shear_error': pd.DataFrame(shear_error)}, axis=1)
+
+
 def correlate_dataframes(frame, other, smin='-36h', smax='36h'):
     """Compute cross-correlations between columns of two dataframes."""
 
@@ -194,6 +292,13 @@ def filter_savgol_series(series, window, *args, **kwargs):
 
 # Data loading methods
 # --------------------
+
+def load_freezing_dates():
+    """Load the latest freezing date of tilt units in each borehole."""
+    dates = bowstr_utils.load_freezing_dates()
+    dates = dates.groupby(dates.index.str[0]).max()
+    return dates.rename({'L': 'BH3', 'U': 'BH1'})
+
 
 def load_gnss_velocities(**kwargs):
     """Compute velocity components from raw data of one station."""
