@@ -50,9 +50,9 @@ def plot_slip_ratio_lines(ax, ratios=(93, 95, 97)):
                 bbox={'fc': 'w', 'ec': 'none', 'pad': 0.5})
 
 
-def load_daily_series():
-    """Load daily shear velocities after closure, with their errors, and the
-    daily surface speed."""
+def load_series():
+    """Load shear velocities after closure, with their errors, and the
+    surface speed."""
 
     # load sensor depths, ice thickness, strain rates and surface speed
     base = bowstr_utils.load(variable='base').iloc[0]
@@ -66,9 +66,7 @@ def load_daily_series():
     series = bowdef_utils.compute_shear_series(strain, depth, base, sigma)
     for bh, _ in BOREHOLES:
         series.loc[series.index < dates[bh], (slice(None), bh)] = np.nan
-
-    # return daily means
-    return series.resample('1D').mean(), speed.resample('1D').mean()
+    return series, speed
 
 
 def plot_borehole(ax, bh, df, i=0):
@@ -135,11 +133,13 @@ def main():
     plot_slip_ratio_lines(ax)
 
     # plot daily shear velocity against surface speed, BH3 labels at the
-    # bottom and BH1 above
-    series, speed = load_daily_series()
+    # bottom and BH1 above, and satellite pairs from full-resolution shear
+    series, speed = load_series()
+    daily = series.resample('1D').mean()
+    daily_speed = speed.resample('1D').mean()
     for i, (bh, _) in enumerate(BOREHOLES):
-        plot_borehole(ax, bh, series.xs(bh, axis=1, level=1).assign(
-            speed=speed).dropna(), i=i)
+        plot_borehole(ax, bh, daily.xs(bh, axis=1, level=1).assign(
+            speed=daily_speed).dropna(), i=i)
     plot_satellite_pairs(ax, series.shear)
 
     # add legend with grey markers twice the data size
