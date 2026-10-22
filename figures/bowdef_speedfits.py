@@ -153,7 +153,7 @@ def main():
 
     # set axes properties
     ax.set_xlabel(r'surface speed ($m\,a^{-1}$)')
-    ax.set_ylabel(r'shear velocity ($m\,a^{-1}$)', labelpad=0)
+    ax.set_ylabel(r'shear velocity ($m\,a^{-1}$)')
     for axis in [ax.xaxis, ax.yaxis]:
         axis.set_major_formatter('{x:g}')
         axis.set_minor_formatter('{x:g}')
