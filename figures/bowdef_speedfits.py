@@ -107,9 +107,17 @@ def plot_satellite_pairs(ax, shear):
             marker='+', linewidths=0.5, zorder=0)
 
     # mark the median speed and its median relative error above the 97 % label
+    median = sat.speed.median()
+    error = (sat.error / sat.speed).median()
     plot_median_error(
-        ax, sat.speed.median(), (sat.error / sat.speed).median(), 0.12,
-        axis='x', color='0.75', marker='+', markersize=3)
+        ax, median, error, 0.12, axis='x', color='0.75', marker='+',
+        markersize=3)
+
+    # label the error bar above
+    ax.annotate(
+        'satellite', xy=(median, 0.12), xytext=(0, 3),
+        xycoords=ax.get_xaxis_transform(), textcoords='offset points',
+        color='0.5', fontsize=6, ha='center', va='bottom')
 
 
 def main():
