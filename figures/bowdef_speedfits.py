@@ -143,8 +143,10 @@ def main():
     plot_satellite_pairs(ax, series.shear)
 
     # add legend with grey markers
-    ax.scatter([], [], s=4, alpha=0.5, color='0.25', label='GNSS')
-    ax.scatter([], [], s=4, color='0.625', marker='+', label='satellite')
+    ax.scatter([], [], s=4, alpha=0.5, color='0.25', linewidths=1,
+               label='GNSS')
+    ax.scatter([], [], s=4, color='0.625', marker='+', linewidths=1,
+               label='satellite')
     ax.legend(loc='upper left', markerscale=2)
 
     # set axes properties
