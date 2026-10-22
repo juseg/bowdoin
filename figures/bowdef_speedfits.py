@@ -17,9 +17,8 @@ from bowdef_utils import BOREHOLES, COLORS
 
 def plot_median_error(ax, median, error, position, axis='y', **kwargs):
     """Mark a median value by a dashed line across the axes, and its
-    relative error by a bar at an axes fraction position along the line,
-    symmetric in log space."""
-    bounds = [[median-median/(1+error)], [median*error]]
+    relative error by a bar at an axes fraction position along the line."""
+    bounds = median*error
     kwargs = {'capsize': 1, 'linewidth': 1, **kwargs}
     line = {'color': kwargs['color'], 'ls': '--', 'lw': 0.5, 'zorder': 0}
     if axis == 'y':
