@@ -13,105 +13,7 @@ import pandas as pd
 import bowdef_utils
 import bowstr_utils
 import bowtem_utils
-from bowdef_utils import BOREHOLES, COLORS, WINDOWS
-
-
-def compute_residual_error(strain, depth, dates):
-    """Compute a strain rate error per sensor, pooled from linear-fit
-    residuals of mean strain rates in both boreholes."""
-    squares, freedom = 0, 0
-    for bh, prefix in BOREHOLES:
-
-        # keep frozen time steps with the most common set of valid sensors
-        rates = strain.loc[dates[bh]:, strain.columns.str.startswith(prefix)]
-        valid = rates.notna()
-        sensors = valid[valid.sum(axis=1) >= 3].value_counts().idxmax()
-        sensors = pd.Series(sensors, index=valid.columns)
-        rates = rates.loc[valid.eq(sensors).all(axis=1), sensors]
-
-        # fit mean strain rates and add up squared residuals
-        mean = rates.mean().to_frame().T
-        fits = compute_linear_fits(depth, mean).iloc[0]
-        residuals = (
-            mean.iloc[0] - fits.intercept - fits.slope * depth[mean.columns])
-        squares += (residuals**2).sum()
-        freedom += fits['count'] - 2
-
-    # return pooled standard deviation
-    return (squares / freedom)**0.5
-
-
-def compute_linear_fits(depth, strain):
-    """Fit lines strain = intercept + slope * depth on each row.
-
-    Also return the count, mean and spread (sum of squared deviations) of
-    depths on each row, needed for error propagation.
-    """
-
-    # least squares in centred form, ignoring missing values on each row
-    depths = strain*0 + depth[strain.columns]
-    center = depths.mean(axis=1)
-    deviations = depths.sub(center, axis=0)
-    spread = (deviations**2).sum(axis=1)
-    slope = (deviations*strain).sum(axis=1) / spread
-
-    # return as dataframe
-    return pd.DataFrame({
-        'slope': slope, 'intercept': strain.mean(axis=1) - slope*center,
-        'count': strain.count(axis=1), 'center': center, 'spread': spread})
-
-
-def compute_shear_profile(fit, depth, thickness):
-    """Compute shear velocity profile from fit parameters, as twice the
-    strain rate, clipped at zero, integrated from depth to the bed."""
-
-    # find the segment between depth and the bed where strain rate is positive
-    with np.errstate(divide='ignore', invalid='ignore'):
-        zero = -fit.intercept / fit.slope
-    upper = np.where(fit.slope > 0, np.clip(zero, depth, thickness), depth)
-    lower = np.where(fit.slope < 0, np.clip(zero, depth, thickness), thickness)
-
-    # integrate strain rate over the segment, from its midpoint value
-    middle = (upper + lower) / 2
-    return 2 * (lower-upper) * np.maximum(fit.intercept + fit.slope*middle, 0)
-
-
-def compute_shear_series(strain, depth, base, sigma):
-    """Compute shear velocity from clipped linear fits of strain rate
-    profiles, and shear errors from a constant strain rate error per
-    sensor."""
-    shear, intercept, slope, shear_error = {}, {}, {}, {}
-    for bh, prefix in BOREHOLES:
-
-        # fit a line strain = intercept + slope * depth at each time
-        rates = strain.loc[:, strain.columns.str.startswith(prefix)]
-        rates = rates.dropna(how='all')
-        fits = compute_linear_fits(depth, rates)
-        intercept[bh] = fits.intercept
-        slope[bh] = fits.slope
-
-        # integrate strain rate clipped at zero over ice thickness
-        thickness = base[f'{bh}B']
-        shear[bh] = pd.Series(
-            compute_shear_profile(fits, 0, thickness), index=fits.index)
-
-        # propagate errors to shear, which varies with the fitted strain rate
-        # at the midpoint of the positive segment, as both segment ends have
-        # zero strain rate or are fixed
-        with np.errstate(divide='ignore', invalid='ignore'):
-            zero = -fits.intercept / fits.slope
-        upper = np.where(fits.slope > 0, np.clip(zero, 0, thickness), 0)
-        lower = np.where(
-            fits.slope < 0, np.clip(zero, 0, thickness), thickness)
-        lever = (upper + lower) / 2 - fits.center
-        shear_error[bh] = 2 * (lower-upper) * sigma * (
-            1/fits['count'] + lever**2/fits.spread)**0.5
-
-    # return as dataframe with variable and borehole column levels
-    return pd.concat({
-        'shear': pd.DataFrame(shear), 'intercept': pd.DataFrame(intercept),
-        'slope': pd.DataFrame(slope),
-        'shear_error': pd.DataFrame(shear_error)}, axis=1)
+from bowdef_utils import BOREHOLES, COLORS, LIGHT_COLORS, WINDOWS
 
 
 def plot_faded(ax, df, dates):
@@ -145,10 +47,8 @@ def plot_satellite_series(axes, shear, shear_error):
 
     # compute slip ratio from satellite and propagate uncertainties (shear
     # errors are systematic, hence averaged rather than added in quadrature)
-    sat_shear = sat.apply(
-        lambda row: shear[row.start:row.end].mean(), axis=1)
-    sat_shear_error = sat.apply(
-        lambda row: shear_error[row.start:row.end].mean(), axis=1)
+    sat_shear = bowdef_utils.compute_interval_means(shear, sat)
+    sat_shear_error = bowdef_utils.compute_interval_means(shear_error, sat)
     sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
     sat_error = 100 * sat_shear.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)
@@ -161,7 +61,7 @@ def plot_satellite_series(axes, shear, shear_error):
         axes[0], landsat, color=tab20[3], label='Landsat-8')
     bowdef_utils.plot_errorbar(
         axes[0], sentinel, color=tab20[11], label='Sentinel-1')
-    for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
+    for bh, color in LIGHT_COLORS.items():
         bowdef_utils.plot_errorbar(axes[1], sat.assign(
             speed=sat_speed[bh], error=sat_error[bh]), color=color)
 
@@ -237,8 +137,9 @@ def plot_shear_profiles(ax, bh, fits, units, thickness):
     for (start, _, summer), (_, fit) in zip(WINDOWS, fits.iterrows()):
 
         # plot continuous and discrete profiles
-        shear_int = compute_shear_profile(fit[:, bh], depth_int, thickness)
-        unit_shear = pd.Series(compute_shear_profile(
+        shear_int = bowdef_utils.compute_shear_profile(
+            fit[:, bh], depth_int, thickness)
+        unit_shear = pd.Series(bowdef_utils.compute_shear_profile(
             fit[:, bh], units.depth, thickness), index=units.index)
         if summer:
             ax.fill_betweenx(
@@ -287,22 +188,20 @@ def main():
     strain = bowdef_utils.load_strain_rates(method='kernel', window='3h')
 
     # load latest freezing date in each borehole
-    dates = bowstr_utils.load_freezing_dates()
-    dates = dates.groupby(dates.index.str[0]).max()
-    dates = dates.rename({'L': 'BH3', 'U': 'BH1'})
+    dates = bowdef_utils.load_freezing_dates()
 
     # estimate strain rate errors and plot time series
-    sigma = compute_residual_error(strain, depth, dates)
+    sigma = bowdef_utils.compute_residual_error(strain, depth, dates)
     print(f'pooled strain rate error per sensor: {sigma:.4f} a-1')
-    plot_time_series(
-        tsaxes, compute_shear_series(strain, depth, base, sigma), dates)
+    plot_time_series(tsaxes, bowdef_utils.compute_shear_series(
+        strain, depth, base, sigma), dates)
 
     # share profile x axes only after pandas plotting (see above)
     pfaxes[1].sharex(pfaxes[0])
 
     # fit lines to strain rates averaged over each window
     means = pd.DataFrame([strain[start:end].mean() for start, end, _ in WINDOWS])
-    fits = compute_shear_series(means, depth, base, sigma)
+    fits = bowdef_utils.compute_shear_series(means, depth, base, sigma)
 
     # plot winter and summer shear profiles, coloring units as in other plots
     units = pd.DataFrame({

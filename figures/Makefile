@@ -17,7 +17,7 @@ BOWDEF_FIGS = \
 	$(addsuffix .png, \
 		$(addprefix bowdef_, \
 			boreholes direction multivars powerlaws satellite slipratio \
-			tiltangle tiltrates) \
+			speedfits tiltangle tiltrates) \
 		$(foreach year, $(BOWDEF_YEARS), $(addsuffix _$(year), \
 			$(addprefix bowdef_crosscorr_, $(BOWDEF_COUPLES)))) \
 		$(addprefix bowdef_rollxcorr_, $(BOWDEF_COUPLES)) \
