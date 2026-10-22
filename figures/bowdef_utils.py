@@ -23,6 +23,13 @@ WINDOWS = [('2015-01-01', '2015-02-01', False),
 # Signal processing methods
 # -------------------------
 
+def compute_interval_means(data, intervals):
+    """Average a series or dataframe over intervals given by the start and
+    end columns of another dataframe, one row per interval."""
+    return intervals.apply(
+        lambda row: data[row.start:row.end].mean(), axis=1)
+
+
 def compute_linear_fits(depth, strain):
     """Fit lines strain = intercept + slope * depth on each row.
 

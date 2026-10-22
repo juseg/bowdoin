@@ -47,10 +47,8 @@ def plot_satellite_series(axes, shear, shear_error):
 
     # compute slip ratio from satellite and propagate uncertainties (shear
     # errors are systematic, hence averaged rather than added in quadrature)
-    sat_shear = sat.apply(
-        lambda row: shear[row.start:row.end].mean(), axis=1)
-    sat_shear_error = sat.apply(
-        lambda row: shear_error[row.start:row.end].mean(), axis=1)
+    sat_shear = bowdef_utils.compute_interval_means(shear, sat)
+    sat_shear_error = bowdef_utils.compute_interval_means(shear_error, sat)
     sat_speed = 100 - 100 * sat_shear.divide(sat.speed, axis=0)
     sat_error = 100 * sat_shear.multiply(
         1/(sat.speed-sat.error/2)-1/(sat.speed+sat.error/2), axis=0)

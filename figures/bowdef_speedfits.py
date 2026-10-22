@@ -101,12 +101,11 @@ def plot_satellite_pairs(ax, shear):
     against satellite surface speed, with a median speed error bar."""
     sat = pd.concat([bowdef_utils.load_landsat_velocities(),
                      bowdef_utils.load_sentinel_velocities()])
+    sat_shear = bowdef_utils.compute_interval_means(shear, sat)
     tab20 = mpl.color_sequences['tab20']
     for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
-        sat_shear = sat.apply(
-            lambda row, bh=bh: shear[bh][row.start:row.end].mean(), axis=1)
         ax.scatter(
-            sat.speed, sat_shear, s=8, color=color, alpha=0.5,
+            sat.speed, sat_shear[bh], s=8, color=color, alpha=0.5,
             marker='+', linewidths=0.5, zorder=0)
 
     # mark the median speed and its median relative error above the 97 % label
