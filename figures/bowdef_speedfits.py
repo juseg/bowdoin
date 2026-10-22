@@ -14,8 +14,6 @@ import bowdef_utils
 import bowstr_utils
 from bowdef_utils import BOREHOLES, COLORS
 
-MARKERS = {2014: 'v', 2015: 'o', 2016: 's', 2017: 'D'}
-
 
 def plot_slip_ratio_lines(ax, ratios=(93, 95, 97)):
     """Plot dotted lines of constant slip ratio with rotated labels."""
@@ -56,11 +54,10 @@ def load_daily_series():
 
 
 def plot_borehole(ax, bh, df, i=0):
-    """Plot daily shear velocity against surface speed in one borehole, by
-    year, with a power-law fit, median error and labels stacked by i."""
-    for year, group in df.groupby(df.index.year):
-        ax.scatter(group.speed, group.shear, s=4, color=COLORS[bh],
-                   alpha=0.6, marker=MARKERS[year], linewidths=0)
+    """Plot daily shear velocity against surface speed in one borehole,
+    with a power-law fit, median error and labels stacked by i."""
+    ax.scatter(df.speed, df.shear, s=4, color=COLORS[bh], alpha=0.6,
+               linewidths=0)
 
     # fit and plot a power law of surface speed
     slope, constant = np.polyfit(np.log(df.speed), np.log(df.shear), 1)
@@ -94,7 +91,7 @@ def plot_satellite_pairs(ax, shear):
     # mark the median speed error below the 97 % line
     ax.errorbar(
         sat.speed.median(), 11, xerr=sat.error.median(), color='0.75',
-        marker='o', markersize=2, markerfacecolor='none', capsize=1,
+        marker='o', markersize=2, markerfacecolor='w', capsize=1,
         linewidth=1)
 
 
@@ -120,12 +117,11 @@ def main():
             speed=speed).dropna(), i=i)
     plot_satellite_pairs(ax, series.shear)
 
-    # add year and satellite legend with grey markers
-    for year, marker in MARKERS.items():
-        ax.scatter([], [], s=4, color='0.5', marker=marker, label=year)
-    ax.scatter([], [], s=4, edgecolor='0.75', facecolor='none', marker='o',
+    # add legend with grey markers
+    ax.scatter([], [], s=4, color='0.5', linewidths=0, label='GNSS')
+    ax.scatter([], [], s=6, edgecolor='0.75', facecolor='none',
                linewidths=0.5, label='satellite')
-    ax.legend(loc='upper left', markerscale=2, ncols=2)
+    ax.legend(loc='upper left', markerscale=2)
 
     # set axes properties
     ax.set_xlabel(r'surface speed ($m\,a^{-1}$)')
