@@ -32,14 +32,16 @@ def plot_median_error(ax, median, error, position, axis='y', **kwargs):
 
 
 def plot_slip_ratio_lines(ax, ratios=(93, 95, 97)):
-    """Plot dotted lines of constant slip ratio with rotated labels."""
-    speed = np.array([200, 900])
+    """Plot dotted lines of constant slip ratio across the axes, with rotated
+    labels where they enter the axes."""
+    speed = np.array(ax.get_xlim())
     for ratio in ratios:
         fraction = 1 - ratio/100
-        ax.plot(speed, fraction*speed, color='0.5', ls=':', lw=0.8)
+        ax.plot(speed, fraction*speed, color='0.5', ls=':', lw=0.8,
+                scalex=False, scaley=False)
 
-        # label where the line enters the axes, rotated along the line
-        x = max(262, 10.6/fraction)
+        # label just inside the left or bottom edge, rotated along the line
+        x = 1.05 * max(speed[0], ax.get_ylim()[0]/fraction)
         (x0, y0), (x1, y1) = ax.transData.transform(
             [[x, fraction*x], [1.1*x, 1.1*fraction*x]])
         ax.text(x, fraction*x, f'{ratio} %', color='0.5', fontsize=6,
@@ -130,7 +132,7 @@ def main():
     # set log axes first, as slip ratio labels follow the display slope
     ax.set_xscale('log')
     ax.set_yscale('log')
-    ax.set_xlim(240, 800)
+    ax.set_xlim(190, 780)
     ax.set_ylim(10, 40)
     plot_slip_ratio_lines(ax)
 
