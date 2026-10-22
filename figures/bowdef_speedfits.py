@@ -6,14 +6,13 @@
 """Plot Bowdoin shear velocity against surface speed."""
 
 import absplots as apl
-import matplotlib as mpl
 import matplotlib.lines
 import numpy as np
 import pandas as pd
 
 import bowdef_utils
 import bowstr_utils
-from bowdef_utils import BOREHOLES, COLORS
+from bowdef_utils import BOREHOLES, COLORS, LIGHT_COLORS
 
 
 def plot_median_error(ax, median, error, position, axis='y', **kwargs):
@@ -102,8 +101,7 @@ def plot_satellite_pairs(ax, shear):
     sat = pd.concat([bowdef_utils.load_landsat_velocities(),
                      bowdef_utils.load_sentinel_velocities()])
     sat_shear = bowdef_utils.compute_interval_means(shear, sat)
-    tab20 = mpl.color_sequences['tab20']
-    for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
+    for bh, color in LIGHT_COLORS.items():
         ax.scatter(
             sat.speed, sat_shear[bh], s=8, color=color, alpha=0.5,
             marker='+', linewidths=0.5, zorder=0)

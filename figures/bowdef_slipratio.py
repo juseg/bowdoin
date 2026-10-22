@@ -13,7 +13,7 @@ import pandas as pd
 import bowdef_utils
 import bowstr_utils
 import bowtem_utils
-from bowdef_utils import BOREHOLES, COLORS, WINDOWS
+from bowdef_utils import BOREHOLES, COLORS, LIGHT_COLORS, WINDOWS
 
 
 def plot_faded(ax, df, dates):
@@ -61,7 +61,7 @@ def plot_satellite_series(axes, shear, shear_error):
         axes[0], landsat, color=tab20[3], label='Landsat-8')
     bowdef_utils.plot_errorbar(
         axes[0], sentinel, color=tab20[11], label='Sentinel-1')
-    for bh, color in [('BH1', tab20[1]), ('BH3', tab20[13])]:
+    for bh, color in LIGHT_COLORS.items():
         bowdef_utils.plot_errorbar(axes[1], sat.assign(
             speed=sat_speed[bh], error=sat_error[bh]), color=color)
 

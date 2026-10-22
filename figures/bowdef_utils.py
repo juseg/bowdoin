@@ -13,9 +13,11 @@ import xarray as xr
 import bowstr_utils
 import bowtem_utils
 
-# borehole names, unit prefixes, colours and seasonal windows
+# borehole names, unit prefixes, normal and light colours, seasonal windows
 BOREHOLES = [('BH3', 'L'), ('BH1', 'U')]
 COLORS = {'BH1': 'tab:blue', 'BH3': 'tab:pink'}
+LIGHT_COLORS = {'BH1': mpl.color_sequences['tab20'][1],
+                'BH3': mpl.color_sequences['tab20'][13]}
 WINDOWS = [('2015-01-01', '2015-02-01', False),
            ('2015-07-01', '2015-08-01', True)]
 
