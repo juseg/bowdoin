@@ -51,8 +51,8 @@ def plot_slip_ratio_lines(ax, ratios=(93, 95, 97)):
 
 
 def load_series():
-    """Load shear velocities after closure, with their errors, and the
-    surface speed."""
+    """Load shear velocities after closure, with their errors, the surface
+    speed and the closure dates."""
 
     # load sensor depths, ice thickness, strain rates and surface speed
     base = bowstr_utils.load(variable='base').iloc[0]
@@ -66,7 +66,7 @@ def load_series():
     series = bowdef_utils.compute_shear_series(strain, depth, base, sigma)
     for bh, _ in BOREHOLES:
         series.loc[series.index < dates[bh], (slice(None), bh)] = np.nan
-    return series, speed
+    return series, speed, dates
 
 
 def plot_borehole(ax, bh, df, label_y, error_x):
@@ -94,13 +94,15 @@ def plot_borehole(ax, bh, df, label_y, error_x):
             transform=ax.transAxes)
 
 
-def plot_satellite_pairs(ax, shear):
+def plot_satellite_pairs(ax, shear, dates):
     """Plot shear velocity averaged over satellite image pair intervals
-    against satellite surface speed, with a median speed error bar."""
+    starting after closure dates against satellite surface speed, with a
+    median speed error bar."""
     sat = pd.concat([bowdef_utils.load_landsat_velocities(),
                      bowdef_utils.load_sentinel_velocities()])
     sat_shear = bowdef_utils.compute_interval_means(shear, sat)
     for bh, color in LIGHT_COLORS.items():
+        sat_shear[bh] = sat_shear[bh].where(sat.start >= dates[bh])
         ax.scatter(
             sat.speed, sat_shear[bh], s=8, color=color, alpha=0.5,
             marker='+', linewidths=0.5, zorder=0)
@@ -136,13 +138,13 @@ def main():
     # plot daily shear velocity against surface speed, BH3 label at the
     # bottom and BH1 above, BH1 error bar left of BH3, and satellite pairs
     # from full-resolution shear
-    series, speed = load_series()
+    series, speed, dates = load_series()
     daily = series.resample('1D').mean()
     daily_speed = speed.resample('1D').mean()
     for bh, label_y, error_x in [('BH3', 0.05, 0.975), ('BH1', 0.13, 0.955)]:
         plot_borehole(ax, bh, daily.xs(bh, axis=1, level=1).assign(
             speed=daily_speed).dropna(), label_y, error_x)
-    plot_satellite_pairs(ax, series.shear)
+    plot_satellite_pairs(ax, series.shear, dates)
 
     # add legend with grey markers twice the data size
     ax.legend(loc='upper left', handles=[
