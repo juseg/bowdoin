@@ -347,16 +347,20 @@ def load_landsat_velocities():
 
 def load_sentinel_velocities():
     """Load surface velocities from Sentinel feature-tracking."""
-    # FIXME the midpoint index is not parsed as dates, and some image pairs
-    # appear twice, as exact duplicates or with slightly different speeds
     df = pd.read_csv(
         '../data/satellite/bowdoin-sentinel.txt', delimiter=',\\s+',
-        engine='python', index_col='YYYY-MM-DD (avg)',
-        parse_dates=['YYYY-MM-DD (1st)', 'YYYY-MM-DD (2nd)'])
+        engine='python', index_col='YYYY-MM-DD (avg)', parse_dates=[
+            'YYYY-MM-DD (avg)', 'YYYY-MM-DD (1st)', 'YYYY-MM-DD (2nd)'])
     df = df.rename_axis(None).rename(columns={
         'time-diff (days)': 'delay', 'vel (m/a)': 'speed',
         'vel_error (m/a)': 'error', 'YYYY-MM-DD (1st)': 'start',
         'YYYY-MM-DD (2nd)': 'end'})
+
+    # drop exact duplicate rows produced by the image processing
+    df = df.drop_duplicates()
+
+    # keep the newer run of image pairs processed twice (appended last)
+    df = df.drop_duplicates(['start', 'end'], keep='last')
     return df
 
 
