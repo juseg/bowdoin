@@ -37,8 +37,9 @@ def plot_level_errors(ax, df, dates, errors):
             transform=ax.get_yaxis_transform())
 
 
-def plot_satellite_series(axes, shear, shear_error):
-    """Plot surface speed and slip ratio from satellite image pairs."""
+def plot_satellite_series(axes, shear, shear_error, dates):
+    """Plot surface speed and slip ratio from satellite image pairs, with
+    faded slip ratios for pairs starting before given dates."""
 
     # load velocities from landsat and sentinel images
     landsat = bowdef_utils.load_landsat_velocities()
@@ -62,8 +63,11 @@ def plot_satellite_series(axes, shear, shear_error):
     bowdef_utils.plot_errorbar(
         axes[0], sentinel, color=tab20[11], label='Sentinel-1')
     for bh, color in LIGHT_COLORS.items():
-        bowdef_utils.plot_errorbar(axes[1], sat.assign(
-            speed=sat_speed[bh], error=sat_error[bh]), color=color)
+        df = sat.assign(speed=sat_speed[bh], error=sat_error[bh])
+        solid = df.start >= dates[bh]
+        bowdef_utils.plot_errorbar(
+            axes[1], df[~solid], alpha=0.25, color=color)
+        bowdef_utils.plot_errorbar(axes[1], df[solid], color=color)
 
 
 def plot_time_series(axes, series, dates):
@@ -95,7 +99,8 @@ def plot_time_series(axes, series, dates):
         bowtem_utils.add_field_campaigns(ax=ax, color='0.75')
 
     # mark profile windows and plot satellite data
-    plot_satellite_series(axes[[0, 2]], series.shear, series.shear_error)
+    plot_satellite_series(
+        axes[[0, 2]], series.shear, series.shear_error, dates)
     plot_window_indicators(axes[1], series.shear)
 
 
